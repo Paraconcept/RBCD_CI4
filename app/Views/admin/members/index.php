@@ -27,7 +27,7 @@
                 <?php foreach ($members as $m): ?>
                 <tr id="row-<?= $m->id ?>">
                     <!-- Photo -->
-                    <td class="text-center p-1">
+                    <td class="text-center p-1 align-middle">
                         <?php if ($m->photo): ?>
                             <img src="<?= base_url('uploads/members/' . $m->photo) ?>"
                                  alt="" class="img-circle" style="width:32px;height:32px;object-fit:cover;">
