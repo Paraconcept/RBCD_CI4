@@ -5,7 +5,7 @@
     <div class="card-header d-flex align-items-center">
         <h3 class="card-title"><i class="fas fa-users-cog mr-2"></i>Utilisateurs admin</h3>
         <div class="ml-auto">
-            <a href="<?= base_url('admin/users/create') ?>" class="btn btn-primary btn-sm">
+            <a href="<?= base_url('admin/users/pick-member') ?>" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus mr-1"></i> Nouvel utilisateur
             </a>
         </div>

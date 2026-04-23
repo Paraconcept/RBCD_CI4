@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\AdminUserModel;
 use App\Models\AdminUserRoleModel;
+use App\Models\MemberModel;
 
 class AdminUsersController extends BaseController
 {
@@ -40,30 +41,67 @@ class AdminUsersController extends BaseController
         ]);
     }
 
-    public function create(): string
+    public function pickMember(): string
     {
-        return view('admin/users/form', [
-            'title'       => 'Nouvel utilisateur',
+        $db = \Config\Database::connect();
+
+        // Membres sans compte admin
+        $members = $db->table('members m')
+                      ->select('m.id, m.first_name, m.last_name, m.email, m.photo')
+                      ->join('admin_users au', 'au.member_id = m.id', 'left')
+                      ->where('au.id IS NULL')
+                      ->where('m.is_active', 1)
+                      ->orderBy('m.last_name')->orderBy('m.first_name')
+                      ->get()->getResultObject();
+
+        return view('admin/users/pick_member', [
+            'title'       => 'Choisir un membre',
             'breadcrumbs' => [
                 ['title' => 'Utilisateurs admin', 'url' => base_url('admin/users')],
+                ['title' => 'Choisir un membre'],
+            ],
+            'members' => $members,
+        ]);
+    }
+
+    public function createForMember(int $memberId): string
+    {
+        $member = (new MemberModel())->find($memberId);
+        if (!$member) {
+            return redirect()->to(base_url('admin/users/pick-member'))->with('error', 'Membre introuvable.');
+        }
+
+        // Vérifier qu'il n'a pas déjà un compte
+        $db = \Config\Database::connect();
+        if ($db->table('admin_users')->where('member_id', $memberId)->countAllResults()) {
+            return redirect()->to(base_url('admin/users/pick-member'))->with('error', 'Ce membre a déjà un compte admin.');
+        }
+
+        return view('admin/users/form', [
+            'title'       => 'Nouvel utilisateur — ' . esc($member->first_name . ' ' . $member->last_name),
+            'breadcrumbs' => [
+                ['title' => 'Utilisateurs admin', 'url' => base_url('admin/users')],
+                ['title' => 'Choisir un membre', 'url' => base_url('admin/users/pick-member')],
                 ['title' => 'Nouveau'],
             ],
-            'user'         => null,
-            'userRoles'    => [],
-            'roles'        => AdminUserModel::ROLES,
+            'user'      => null,
+            'member'    => $member,
+            'userRoles' => [],
+            'roles'     => AdminUserModel::ROLES,
         ]);
     }
 
     public function store()
     {
-        $rules = [
-            'first_name'       => 'required|min_length[2]|max_length[100]',
-            'last_name'        => 'required|min_length[2]|max_length[100]',
-            'email'            => 'required|valid_email|is_unique[admin_users.email]',
-            'password'         => 'required|min_length[8]',
-            'password_confirm' => 'required|matches[password]',
-        ];
+        $memberId = (int) $this->request->getPost('member_id');
+        $member   = (new MemberModel())->find($memberId);
+        if (!$member) {
+            return redirect()->to(base_url('admin/users/pick-member'))->with('error', 'Membre invalide.');
+        }
 
+        $rules = [
+            'email' => 'required|valid_email|is_unique[admin_users.email]',
+        ];
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -73,19 +111,21 @@ class AdminUsersController extends BaseController
             return redirect()->back()->withInput()->with('errors', ['roles' => 'Sélectionnez au moins un rôle.']);
         }
 
-        $hash   = password_hash($this->request->getPost('password'), PASSWORD_BCRYPT);
+        $defaultHash = password_hash('Admin@2026', PASSWORD_BCRYPT);
+
         $userId = $this->model->insert([
-            'first_name'            => $this->request->getPost('first_name'),
-            'last_name'             => mb_strtoupper($this->request->getPost('last_name'), 'UTF-8'),
-            'email'                 => $this->request->getPost('email'),
+            'first_name'            => $member->first_name,
+            'last_name'             => $member->last_name,
+            'email'                 => $this->request->getPost('email') ?: $member->email,
             'is_active'             => (int) $this->request->getPost('is_active'),
-            'password_hash'         => $hash,
-            'password_default_hash' => $hash,
+            'member_id'             => $memberId,
+            'password_hash'         => $defaultHash,
+            'password_default_hash' => $defaultHash,
         ]);
 
         $this->roleModel->setRolesForUser((int) $userId, $selectedRoles);
 
-        return redirect()->to(base_url('admin/users'))->with('success', 'Utilisateur créé avec succès.');
+        return redirect()->to(base_url('admin/users'))->with('success', 'Compte admin créé. Mot de passe par défaut : Admin@2026');
     }
 
     public function edit(int $id): string
@@ -102,6 +142,7 @@ class AdminUsersController extends BaseController
                 ['title' => 'Modifier'],
             ],
             'user'      => $user,
+            'member'    => null,
             'userRoles' => $this->roleModel->getRolesForUser($id),
             'roles'     => AdminUserModel::ROLES,
         ]);
