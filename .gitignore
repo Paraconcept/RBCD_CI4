@@ -1,0 +1,20 @@
+# CodeIgniter 4
+/vendor/
+/writable/
+.env
+
+# macOS
+.DS_Store
+Icon
+
+# IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+
+# Node (si assets build)
+node_modules/
