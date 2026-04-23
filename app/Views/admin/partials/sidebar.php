@@ -17,7 +17,9 @@
             </div>
             <div class="info">
                 <a href="#" class="d-block"><?= esc(session()->get('admin_name')) ?></a>
-                <small class="text-white-50"><?= esc(implode(', ', session()->get('admin_roles') ?? [])) ?></small>
+                <?php foreach (session()->get('admin_roles') ?? [] as $role): ?>
+                    <small class="d-block text-white-50"><?= esc($role) ?></small>
+                <?php endforeach; ?>
             </div>
         </div>
 
