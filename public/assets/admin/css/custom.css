@@ -1,0 +1,21 @@
+/* RBC Disonais — Admin custom styles */
+
+.brand-link {
+    border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.brand-text {
+    font-size: 1.1rem;
+    letter-spacing: .02em;
+}
+
+/* Alertes flash */
+.flash-msg {
+    border-left: 4px solid;
+}
+
+/* Login page */
+.login-logo {
+    font-size: 1.8rem;
+    margin-bottom: .5rem;
+}
