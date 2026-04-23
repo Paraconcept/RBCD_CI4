@@ -30,7 +30,7 @@
                     <td class="text-center p-1 align-middle">
                         <?php if ($m->photo): ?>
                             <img src="<?= base_url('uploads/members/' . $m->photo) ?>"
-                                 alt="" class="img-circle" style="width:32px;height:32px;object-fit:cover;">
+                                 alt="" class="img-circle member-photo-thumb" style="width:32px;height:32px;object-fit:cover;">
                         <?php else: ?>
                             <span class="text-muted"><i class="fas fa-user-circle fa-lg"></i></span>
                         <?php endif; ?>
