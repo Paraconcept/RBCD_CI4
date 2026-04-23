@@ -13,6 +13,7 @@ class AdminUserModel extends Model
     public const ROLES = [
         'Webmaster',
         'Président',
+        'Vice-Président',
         'Secrétaire',
         'Directeur Sportif',
         'Trésorier',

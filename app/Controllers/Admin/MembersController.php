@@ -18,10 +18,25 @@ class MembersController extends BaseController
 
     public function index(): string
     {
+        $db = \Config\Database::connect();
+
+        $rows = $db->table('admin_users au')
+                   ->select('au.member_id, GROUP_CONCAT(aur.role ORDER BY aur.role SEPARATOR ", ") AS roles')
+                   ->join('admin_user_roles aur', 'aur.admin_user_id = au.id')
+                   ->where('au.member_id IS NOT NULL')
+                   ->groupBy('au.member_id')
+                   ->get()->getResultObject();
+
+        $committeeMap = [];
+        foreach ($rows as $r) {
+            $committeeMap[(int) $r->member_id] = $r->roles;
+        }
+
         return view('admin/members/index', [
-            'title'       => 'Membres',
-            'breadcrumbs' => [['title' => 'Membres']],
-            'members'     => $this->model->orderBy('last_name', 'ASC')->orderBy('first_name', 'ASC')->findAll(),
+            'title'        => 'Membres',
+            'breadcrumbs'  => [['title' => 'Membres']],
+            'members'      => $this->model->orderBy('last_name', 'ASC')->orderBy('first_name', 'ASC')->findAll(),
+            'committeeMap' => $committeeMap,
         ]);
     }
 

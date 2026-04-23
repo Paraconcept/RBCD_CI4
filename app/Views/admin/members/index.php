@@ -51,8 +51,9 @@
                     <td><?= $m->frbb_license ? esc($m->frbb_license) : '<span class="text-muted">—</span>' ?></td>
                     <!-- Comité -->
                     <td class="text-center">
-                        <?php if ($m->is_committee ?? false): ?>
-                            <i class="fas fa-star text-warning" title="Membre du comité"></i>
+                        <?php if (isset($committeeMap[$m->id])): ?>
+                            <i class="fas fa-star text-warning mr-1" title="Membre du comité"></i>
+                            <small class="text-muted"><?= esc($committeeMap[$m->id]) ?></small>
                         <?php else: ?>
                             <span class="text-muted">—</span>
                         <?php endif; ?>
