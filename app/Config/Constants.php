@@ -16,6 +16,40 @@
 defined('APP_NAMESPACE') || define('APP_NAMESPACE', 'App');
 
 /*
+|--------------------------------------------------------------------------
+| RBCD constantes
+|--------------------------------------------------------------------------
+|
+| Saison sportive : commence en août (saison N / N+1).
+| ANNEE_1 = année de début de saison, ANNEE_2 = année de fin.
+|
+*/
+$annee = (int) date('Y');
+$mois  = (int) date('m');
+$jour  = (int) date('d');
+
+if ($mois < 8) {
+    $SaisonPassee    = ($annee - 2) . '-' . ($annee - 1);
+    $SaisonEncours   = ($annee - 1) . '-' . $annee;
+    $SaisonProchaine = $annee . '-' . ($annee + 1);
+} else {
+    $SaisonPassee    = ($annee - 1) . '-' . $annee;
+    $SaisonEncours   = $annee . '-' . ($annee + 1);
+    $SaisonProchaine = ($annee + 1) . '-' . ($annee + 2);
+}
+
+define('SAISON_PASSEE',    $SaisonPassee);
+define('SAISON_EN_COURS',  $SaisonEncours);
+define('SAISON_PROCHAINE', $SaisonProchaine);
+
+define('ANNEE_1', (int) substr(SAISON_EN_COURS, 0, 4));
+define('ANNEE_2', (int) substr(SAISON_EN_COURS, -4));
+
+define('DATE_DU_JOUR', sprintf('%04d-%02d-%02d', $annee, $mois, $jour));
+
+unset($annee, $mois, $jour, $SaisonPassee, $SaisonEncours, $SaisonProchaine);
+
+/*
  | --------------------------------------------------------------------------
  | Composer Path
  | --------------------------------------------------------------------------

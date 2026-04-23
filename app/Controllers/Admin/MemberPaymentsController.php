@@ -89,16 +89,18 @@ class MemberPaymentsController extends BaseController
             return redirect()->back()->withInput()->with('errors', ['year' => 'Année invalide.']);
         }
 
+        $season = $year . '-' . ($year + 1);
+
         // Vérifier unicité member + year
         $existing = $this->paymentModel->where('member_id', $memberId)->where('year', $year)->first();
         if ($existing) {
-            return redirect()->back()->withInput()->with('errors', ['year' => "Une ligne existe déjà pour l'année {$year}."]);
+            return redirect()->back()->withInput()->with('errors', ['year' => "Une ligne existe déjà pour la saison {$season}."]);
         }
 
         $this->paymentModel->insert($this->collectData($memberId, $year));
 
         return redirect()->to(base_url("admin/members/{$memberId}/payments"))
-                         ->with('success', "Année {$year} ajoutée.");
+                         ->with('success', "Saison {$season} ajoutée.");
     }
 
     public function update(int $memberId, int $paymentId)
@@ -110,8 +112,9 @@ class MemberPaymentsController extends BaseController
 
         $this->paymentModel->update($paymentId, $this->collectData($memberId, (int) $payment->year));
 
+        $season = $payment->year . '-' . ($payment->year + 1);
         return redirect()->to(base_url("admin/members/{$memberId}/payments"))
-                         ->with('success', "Cotisations {$payment->year} mises à jour.");
+                         ->with('success', "Saison {$season} mise à jour.");
     }
 
     public function delete(int $memberId, int $paymentId)
@@ -123,8 +126,9 @@ class MemberPaymentsController extends BaseController
 
         $this->paymentModel->delete($paymentId);
 
+        $season = $payment->year . '-' . ($payment->year + 1);
         return redirect()->to(base_url("admin/members/{$memberId}/payments"))
-                         ->with('success', "Année {$payment->year} supprimée.");
+                         ->with('success', "Saison {$season} supprimée.");
     }
 
     // ----------------------------------------------------------------

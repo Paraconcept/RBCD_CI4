@@ -25,11 +25,11 @@ class MemberPaymentModel extends Model
         'forfait_h2_paid_date',
     ];
 
-    public function createForMember(int $memberId, ?int $year = null): void
+    public function createForMember(int $memberId, ?int $startYear = null): void
     {
         $this->insert([
             'member_id' => $memberId,
-            'year'      => $year ?? (int) date('Y'),
+            'year'      => $startYear ?? ANNEE_1,
         ]);
     }
 

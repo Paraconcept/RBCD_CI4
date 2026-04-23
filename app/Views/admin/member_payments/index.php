@@ -8,7 +8,7 @@
         </a>
     </div>
     <a href="<?= base_url('admin/members/' . $member->id . '/payments/add') ?>" class="btn btn-primary btn-sm">
-        <i class="fas fa-plus mr-1"></i> Ajouter une année
+        <i class="fas fa-plus mr-1"></i> Ajouter une saison
     </a>
 </div>
 
@@ -20,7 +20,7 @@
 <table class="table table-bordered table-hover table-sm align-middle">
     <thead class="thead-light">
         <tr>
-            <th>Année</th>
+            <th>Saison</th>
             <th class="text-center">Cotis. RBCD<br><small class="text-muted">jan–déc</small></th>
             <th class="text-center">Cotis. FRBB<br><small class="text-muted">sep–jun</small></th>
             <th class="text-center">Forfait H1<br><small class="text-muted">jan–juin</small></th>
@@ -31,7 +31,7 @@
     <tbody>
         <?php foreach ($payments as $p): ?>
         <tr>
-            <td><strong><?= $p->year ?></strong></td>
+            <td><strong><?= $p->year . '-' . ($p->year + 1) ?></strong></td>
 
             <!-- RBCD -->
             <td class="text-center">
@@ -117,7 +117,7 @@ $(function() {
         const id   = $(this).data('id');
         const year = $(this).data('year');
         Swal.fire({
-            title: 'Supprimer ' + year + ' ?',
+            title: 'Supprimer la saison ' + year + '-' + (parseInt(year)+1) + ' ?',
             text: 'Cette action est irréversible.',
             icon: 'warning',
             showCancelButton: true,

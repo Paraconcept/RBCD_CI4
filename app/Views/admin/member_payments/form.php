@@ -30,17 +30,19 @@ $chk = fn($f, $default = 0)   => (bool)(old($f) !== null ? old($f) : ($isEdit ? 
     <!-- ── Colonne gauche ───────────────────────────────────── -->
     <div class="col-lg-6">
 
-        <!-- Année (création seulement) -->
+        <!-- Saison (création seulement) -->
         <?php if (!$isEdit): ?>
         <div class="card card-outline card-primary">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>Année</h3>
+                <h3 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>Saison</h3>
             </div>
             <div class="card-body">
                 <div class="form-group mb-0">
-                    <label>Année <span class="text-danger">*</span></label>
+                    <label>Année de début <span class="text-danger">*</span>
+                        <small class="text-muted">(ex : <?= ANNEE_1 ?> pour la saison <?= SAISON_EN_COURS ?>)</small>
+                    </label>
                     <input type="number" name="year" class="form-control <?= isset($errors['year']) ? 'is-invalid' : '' ?>"
-                           value="<?= old('year', date('Y')) ?>" min="2000" max="2100" required style="max-width:120px">
+                           value="<?= old('year', ANNEE_1) ?>" min="2000" max="2100" required style="max-width:120px">
                     <?php if (isset($errors['year'])): ?>
                         <div class="invalid-feedback"><?= $errors['year'] ?></div>
                     <?php endif; ?>
@@ -52,7 +54,7 @@ $chk = fn($f, $default = 0)   => (bool)(old($f) !== null ? old($f) : ($isEdit ? 
         <!-- Cotisation RBCD -->
         <div class="card card-outline card-primary">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-id-badge mr-2"></i>Cotisation RBCD <small class="text-muted">(jan–déc <?= $isEdit ? $payment->year : '' ?>)</small></h3>
+                <h3 class="card-title"><i class="fas fa-id-badge mr-2"></i>Cotisation RBCD <small class="text-muted">(jan–déc <?= $isEdit ? $payment->year + 1 : '' ?>)</small></h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
