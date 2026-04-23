@@ -144,13 +144,6 @@ $formAction = $isEdit
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Classement</label>
-                            <input type="number" name="ranking" class="form-control" min="0"
-                                   value="<?= esc(old('ranking', $member->ranking ?? '')) ?>">
-                        </div>
-                    </div>
                     <div class="col-md-5">
                         <div class="form-group">
                             <label>N° licence FRBB</label>
