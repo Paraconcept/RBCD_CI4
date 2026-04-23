@@ -17,7 +17,7 @@ class AdminUserSeeder extends Seeder
             'email'                 => 'admin@rbcdisonais.be',
             'password_hash'         => $hash,
             'password_default_hash' => $hash,
-            'role'                  => 'superadmin',
+            'role'                  => 'Webmaster',
             'is_active'             => 1,
         ]);
     }

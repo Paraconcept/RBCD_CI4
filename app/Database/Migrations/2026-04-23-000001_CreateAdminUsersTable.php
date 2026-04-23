@@ -43,8 +43,8 @@ class CreateAdminUsersTable extends Migration
                 'default' => null,
             ],
             'role' => [
-                'type'       => "ENUM('superadmin','admin')",
-                'default'    => 'admin',
+                'type'    => "ENUM('Webmaster','Président','Secrétaire','Directeur Sportif','Trésorier')",
+                'default' => 'Webmaster',
             ],
             'is_active' => [
                 'type'    => 'TINYINT',

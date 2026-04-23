@@ -10,6 +10,15 @@ class AdminUserModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'object';
 
+    // Rôles disponibles (full access pour tous, pour l'instant)
+    public const ROLES = [
+        'Webmaster',
+        'Président',
+        'Secrétaire',
+        'Directeur Sportif',
+        'Trésorier',
+    ];
+
     protected $allowedFields = [
         'last_name', 'first_name', 'email',
         'password_hash', 'password_default_hash', 'password_expires_at',
