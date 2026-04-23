@@ -1,21 +1,162 @@
-/* RBC Disonais — Admin custom styles */
+/* ================================================================
+   RBC Disonais — Admin custom styles
+   Couleur principale : #84252B
+   ================================================================ */
 
-.brand-link {
-    border-bottom: 1px solid rgba(255,255,255,.1);
+:root {
+    --rbcd-primary:       #84252B;
+    --rbcd-primary-dark:  #6a1d22;
+    --rbcd-primary-light: #a33038;
 }
 
+/* ----------------------------------------------------------------
+   NAVBAR
+   ---------------------------------------------------------------- */
+.navbar-rbcd {
+    background-color: var(--rbcd-primary) !important;
+    border-bottom: 2px solid var(--rbcd-primary-dark);
+}
+.navbar-rbcd .nav-link,
+.navbar-rbcd .navbar-text {
+    color: rgba(255,255,255,.9) !important;
+}
+.navbar-rbcd .nav-link:hover {
+    color: #fff !important;
+}
+.navbar-rbcd [data-widget="pushmenu"] {
+    color: rgba(255,255,255,.85) !important;
+}
+
+/* ----------------------------------------------------------------
+   SIDEBAR — brand link
+   ---------------------------------------------------------------- */
+.brand-link {
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    background-color: var(--rbcd-primary-dark) !important;
+}
 .brand-text {
     font-size: 1.1rem;
     letter-spacing: .02em;
 }
 
-/* Alertes flash */
+/* ----------------------------------------------------------------
+   BOUTONS btn-primary
+   ---------------------------------------------------------------- */
+.btn-primary {
+    background-color: var(--rbcd-primary) !important;
+    border-color:     var(--rbcd-primary) !important;
+    color: #fff !important;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--rbcd-primary-dark) !important;
+    border-color:     var(--rbcd-primary-dark) !important;
+}
+.btn-primary:focus,
+.btn-primary.focus {
+    box-shadow: 0 0 0 .2rem rgba(132,37,43,.35) !important;
+}
+.btn-outline-primary {
+    color:        var(--rbcd-primary) !important;
+    border-color: var(--rbcd-primary) !important;
+}
+.btn-outline-primary:hover {
+    background-color: var(--rbcd-primary) !important;
+    color: #fff !important;
+}
+
+/* ----------------------------------------------------------------
+   LIENS & TEXTE
+   ---------------------------------------------------------------- */
+a { color: var(--rbcd-primary); }
+a:hover { color: var(--rbcd-primary-dark); }
+
+/* Breadcrumb */
+.breadcrumb-item a { color: var(--rbcd-primary); }
+
+/* ----------------------------------------------------------------
+   CARDS card-primary
+   ---------------------------------------------------------------- */
+.card-primary.card-outline {
+    border-top: 3px solid var(--rbcd-primary) !important;
+}
+.card-primary > .card-header {
+    background-color: var(--rbcd-primary) !important;
+    border-color:     var(--rbcd-primary) !important;
+}
+
+/* ----------------------------------------------------------------
+   BADGES
+   ---------------------------------------------------------------- */
+.badge-primary {
+    background-color: var(--rbcd-primary) !important;
+}
+
+/* ----------------------------------------------------------------
+   FORMULAIRES — focus
+   ---------------------------------------------------------------- */
+.form-control:focus {
+    border-color: var(--rbcd-primary-light) !important;
+    box-shadow: 0 0 0 .2rem rgba(132,37,43,.2) !important;
+}
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: var(--rbcd-primary) !important;
+    border-color:     var(--rbcd-primary) !important;
+}
+
+/* ----------------------------------------------------------------
+   PAGINATION & DATATABLES
+   ---------------------------------------------------------------- */
+.page-item.active .page-link {
+    background-color: var(--rbcd-primary) !important;
+    border-color:     var(--rbcd-primary) !important;
+}
+.page-link {
+    color: var(--rbcd-primary) !important;
+}
+.page-link:hover {
+    color: var(--rbcd-primary-dark) !important;
+}
+
+/* ----------------------------------------------------------------
+   SIDEBAR — nav active item
+   ---------------------------------------------------------------- */
+.nav-sidebar .nav-link.active {
+    background-color: var(--rbcd-primary) !important;
+}
+
+/* ----------------------------------------------------------------
+   SELECT2
+   ---------------------------------------------------------------- */
+.select2-container--default .select2-results__option--highlighted {
+    background-color: var(--rbcd-primary) !important;
+}
+.select2-container--default .select2-selection--single:focus,
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: var(--rbcd-primary-light) !important;
+    box-shadow: 0 0 0 .2rem rgba(132,37,43,.2) !important;
+}
+
+/* ----------------------------------------------------------------
+   ALERTES flash
+   ---------------------------------------------------------------- */
 .flash-msg {
     border-left: 4px solid;
 }
 
-/* Login page */
+/* ----------------------------------------------------------------
+   PAGE LOGIN
+   ---------------------------------------------------------------- */
 .login-logo {
     font-size: 1.8rem;
     margin-bottom: .5rem;
+    color: var(--rbcd-primary);
+}
+.login-logo b {
+    color: var(--rbcd-primary);
+}
+.login-card-body .btn-primary {
+    background-color: var(--rbcd-primary) !important;
+    border-color:     var(--rbcd-primary) !important;
 }
