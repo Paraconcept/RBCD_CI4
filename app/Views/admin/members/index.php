@@ -12,7 +12,7 @@
     </div>
     <div class="card-body">
         <table id="membersTable" class="table table-bordered table-hover table-striped">
-            <thead class="thead-light">
+            <thead class="thead-rbcd">
                 <tr>
                     <th style="width:40px"></th>
                     <th>Nom</th>

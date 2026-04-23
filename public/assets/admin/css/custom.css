@@ -110,6 +110,15 @@ a:hover { color: var(--rbcd-primary-dark); }
 }
 
 /* ----------------------------------------------------------------
+   TABLEAUX — thead rouge
+   ---------------------------------------------------------------- */
+.thead-rbcd th {
+    background-color: var(--rbcd-primary) !important;
+    color: #fff !important;
+    border-color: var(--rbcd-primary-dark) !important;
+}
+
+/* ----------------------------------------------------------------
    PAGINATION & DATATABLES
    ---------------------------------------------------------------- */
 .page-item.active .page-link {
