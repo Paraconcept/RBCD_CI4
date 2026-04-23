@@ -84,6 +84,10 @@ a:hover { color: var(--rbcd-primary-dark); }
 .card-primary > .card-header {
     background-color: var(--rbcd-primary) !important;
     border-color:     var(--rbcd-primary) !important;
+    color: #fff !important;
+}
+.card-primary > .card-header .card-title {
+    color: #fff !important;
 }
 
 /* ----------------------------------------------------------------
