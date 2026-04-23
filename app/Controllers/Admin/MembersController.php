@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\MemberModel;
 use App\Models\AdminUserModel;
+use App\Models\MemberPaymentModel;
 
 class MembersController extends BaseController
 {
@@ -61,6 +62,9 @@ class MembersController extends BaseController
         }
 
         $memberId = $this->model->insert($data);
+
+        // Ligne de paiement pour l'année en cours
+        (new MemberPaymentModel())->createForMember((int) $memberId);
 
         // Lien avec un admin user
         $adminUserId = (int) $this->request->getPost('admin_user_id');
