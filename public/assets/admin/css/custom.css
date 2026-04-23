@@ -115,6 +115,7 @@ a:hover { color: var(--rbcd-primary-dark); }
 .page-item.active .page-link {
     background-color: var(--rbcd-primary) !important;
     border-color:     var(--rbcd-primary) !important;
+    color: #fff !important;
 }
 .page-link {
     color: var(--rbcd-primary) !important;
