@@ -192,13 +192,13 @@ class MembersController extends BaseController
         $post = $this->request->getPost();
 
         return [
-            'last_name'       => $post['last_name'],
+            'last_name'       => mb_strtoupper($post['last_name'], 'UTF-8'),
             'first_name'      => $post['first_name'],
             'gender'          => $post['gender'],
             'birth_date'      => $post['birth_date'] ?: null,
             'address'         => $post['address'] ?: null,
             'postal_code'     => $post['postal_code'] ?: null,
-            'city'            => $post['city'] ?: null,
+            'city'            => $post['city'] ? mb_strtoupper($post['city'], 'UTF-8') : null,
             'phone'           => $post['phone'] ?: null,
             'mobile'          => $post['mobile'] ?: null,
             'email'           => $post['email'] ?: null,

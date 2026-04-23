@@ -38,7 +38,8 @@ $formAction = $isEdit
                             <label>Nom <span class="text-danger">*</span></label>
                             <input type="text" name="last_name"
                                    class="form-control <?= isset($errors['last_name']) ? 'is-invalid' : '' ?>"
-                                   value="<?= esc(old('last_name', $member->last_name ?? '')) ?>" required>
+                                   value="<?= esc(old('last_name', $member->last_name ?? '')) ?>"
+                                   style="text-transform:uppercase" required>
                             <?php if (isset($errors['last_name'])): ?>
                                 <div class="invalid-feedback"><?= $errors['last_name'] ?></div>
                             <?php endif; ?>
@@ -101,7 +102,8 @@ $formAction = $isEdit
                         <div class="form-group">
                             <label>Localité</label>
                             <input type="text" name="city" class="form-control"
-                                   value="<?= esc(old('city', $member->city ?? '')) ?>">
+                                   value="<?= esc(old('city', $member->city ?? '')) ?>"
+                                   style="text-transform:uppercase">
                         </div>
                     </div>
                 </div>

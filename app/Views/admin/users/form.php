@@ -51,7 +51,8 @@ $selectedRoles = old('roles', $userRoles ?? []);
                         <label>Nom <span class="text-danger">*</span></label>
                         <input type="text" name="last_name"
                                class="form-control <?= isset($errors['last_name']) ? 'is-invalid' : '' ?>"
-                               value="<?= old('last_name', $isEdit ? $user->last_name : '') ?>" required>
+                               value="<?= old('last_name', $isEdit ? $user->last_name : '') ?>"
+                               style="text-transform:uppercase" required>
                         <?php if (isset($errors['last_name'])): ?>
                             <div class="invalid-feedback"><?= $errors['last_name'] ?></div>
                         <?php endif; ?>

@@ -76,7 +76,7 @@ class AdminUsersController extends BaseController
         $hash   = password_hash($this->request->getPost('password'), PASSWORD_BCRYPT);
         $userId = $this->model->insert([
             'first_name'            => $this->request->getPost('first_name'),
-            'last_name'             => $this->request->getPost('last_name'),
+            'last_name'             => mb_strtoupper($this->request->getPost('last_name'), 'UTF-8'),
             'email'                 => $this->request->getPost('email'),
             'is_active'             => (int) $this->request->getPost('is_active'),
             'password_hash'         => $hash,
@@ -137,7 +137,7 @@ class AdminUsersController extends BaseController
 
         $data = [
             'first_name' => $this->request->getPost('first_name'),
-            'last_name'  => $this->request->getPost('last_name'),
+            'last_name'  => mb_strtoupper($this->request->getPost('last_name'), 'UTF-8'),
             'email'      => $this->request->getPost('email'),
             'is_active'  => (int) $this->request->getPost('is_active'),
         ];
