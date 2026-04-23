@@ -82,12 +82,12 @@ a:hover { color: var(--rbcd-primary-dark); }
     border-top: 3px solid var(--rbcd-primary) !important;
 }
 .card-primary > .card-header {
-    background-color: var(--rbcd-primary) !important;
-    border-color:     var(--rbcd-primary) !important;
-    color: #fff !important;
+    background-color: #fff !important;
+    border-color:     #dee2e6 !important;
+    color: #212529 !important;
 }
 .card-primary > .card-header .card-title {
-    color: #fff !important;
+    color: #212529 !important;
 }
 
 /* ----------------------------------------------------------------
