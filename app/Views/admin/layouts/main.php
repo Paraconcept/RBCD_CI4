@@ -44,6 +44,10 @@
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="fas fa-user-circle"></i>
                     <span class="d-none d-md-inline ml-1"><?= esc(session()->get('admin_name')) ?></span>
+                    <?php $adminRoles = session()->get('admin_roles') ?? []; ?>
+                    <?php if (!empty($adminRoles)): ?>
+                        <small class="d-none d-lg-inline ml-1 opacity-75">(<?= esc(implode(', ', $adminRoles)) ?>)</small>
+                    <?php endif; ?>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a href="<?= base_url() ?>" class="dropdown-item" target="_blank">

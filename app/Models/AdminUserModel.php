@@ -10,7 +10,6 @@ class AdminUserModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'object';
 
-    // Rôles disponibles (full access pour tous, pour l'instant)
     public const ROLES = [
         'Webmaster',
         'Président',
@@ -20,9 +19,9 @@ class AdminUserModel extends Model
     ];
 
     protected $allowedFields = [
-        'last_name', 'first_name', 'email',
+        'last_name', 'first_name', 'email', 'member_id',
         'password_hash', 'password_default_hash', 'password_expires_at',
-        'role', 'is_active', 'last_login',
+        'is_active', 'last_login',
         'login_attempts', 'locked_until',
         'reset_code', 'reset_code_expires_at', 'reset_attempts',
     ];
@@ -35,14 +34,6 @@ class AdminUserModel extends Model
         'email'      => 'required|valid_email|is_unique[admin_users.email,id,{id}]',
         'first_name' => 'required|min_length[2]|max_length[100]',
         'last_name'  => 'required|min_length[2]|max_length[100]',
-    ];
-
-    protected $validationMessages = [
-        'email' => [
-            'required'    => "L'email est obligatoire",
-            'valid_email' => "L'email doit être valide",
-            'is_unique'   => 'Cet email est déjà utilisé',
-        ],
     ];
 
     public function authenticate(string $email, string $password): object|false

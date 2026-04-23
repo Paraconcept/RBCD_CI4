@@ -2,11 +2,13 @@
 <?= $this->section('content') ?>
 
 <?php
-$isEdit   = $user !== null;
-$errors   = session()->getFlashdata('errors') ?? [];
+$isEdit     = $user !== null;
+$errors     = session()->getFlashdata('errors') ?? [];
 $formAction = $isEdit
     ? base_url('admin/users/' . $user->id . '/update')
     : base_url('admin/users');
+// Rôles sélectionnés : old() en création, $userRoles en édition
+$selectedRoles = old('roles', $userRoles ?? []);
 ?>
 
 <div class="card card-outline card-primary">
@@ -33,28 +35,23 @@ $formAction = $isEdit
             <?= csrf_field() ?>
 
             <div class="row">
-                <!-- Prénom -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Prénom <span class="text-danger">*</span></label>
                         <input type="text" name="first_name"
                                class="form-control <?= isset($errors['first_name']) ? 'is-invalid' : '' ?>"
-                               value="<?= old('first_name', $isEdit ? $user->first_name : '') ?>"
-                               required>
+                               value="<?= old('first_name', $isEdit ? $user->first_name : '') ?>" required>
                         <?php if (isset($errors['first_name'])): ?>
                             <div class="invalid-feedback"><?= $errors['first_name'] ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
-
-                <!-- Nom -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Nom <span class="text-danger">*</span></label>
                         <input type="text" name="last_name"
                                class="form-control <?= isset($errors['last_name']) ? 'is-invalid' : '' ?>"
-                               value="<?= old('last_name', $isEdit ? $user->last_name : '') ?>"
-                               required>
+                               value="<?= old('last_name', $isEdit ? $user->last_name : '') ?>" required>
                         <?php if (isset($errors['last_name'])): ?>
                             <div class="invalid-feedback"><?= $errors['last_name'] ?></div>
                         <?php endif; ?>
@@ -63,44 +60,49 @@ $formAction = $isEdit
             </div>
 
             <div class="row">
-                <!-- Email -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Email <span class="text-danger">*</span></label>
                         <input type="email" name="email"
                                class="form-control <?= isset($errors['email']) ? 'is-invalid' : '' ?>"
-                               value="<?= old('email', $isEdit ? $user->email : '') ?>"
-                               required>
+                               value="<?= old('email', $isEdit ? $user->email : '') ?>" required>
                         <?php if (isset($errors['email'])): ?>
                             <div class="invalid-feedback"><?= $errors['email'] ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
-
-                <!-- Rôle -->
                 <div class="col-md-6">
+                    <!-- Rôles (multi-sélection par cases à cocher) -->
                     <div class="form-group">
-                        <label>Rôle <span class="text-danger">*</span></label>
-                        <select name="role" class="form-control <?= isset($errors['role']) ? 'is-invalid' : '' ?>" required>
-                            <?php foreach ($roles as $r): ?>
-                                <option value="<?= $r ?>" <?= old('role', $isEdit ? $user->role : '') === $r ? 'selected' : '' ?>>
-                                    <?= $r ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <?php if (isset($errors['role'])): ?>
-                            <div class="invalid-feedback"><?= $errors['role'] ?></div>
+                        <label>Rôles <span class="text-danger">*</span></label>
+                        <?php if (isset($errors['roles'])): ?>
+                            <div class="text-danger small mb-1"><?= $errors['roles'] ?></div>
                         <?php endif; ?>
+                        <div class="border rounded p-2 <?= isset($errors['roles']) ? 'border-danger' : '' ?>">
+                            <?php foreach ($roles as $role): ?>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox"
+                                       class="custom-control-input"
+                                       id="role_<?= md5($role) ?>"
+                                       name="roles[]"
+                                       value="<?= esc($role) ?>"
+                                       <?= in_array($role, (array)$selectedRoles) ? 'checked' : '' ?>>
+                                <label class="custom-control-label" for="role_<?= md5($role) ?>">
+                                    <?= esc($role) ?>
+                                </label>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="row">
-                <!-- Mot de passe -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>
-                            Mot de passe <?= !$isEdit ? '<span class="text-danger">*</span>' : '<small class="text-muted">(laisser vide = inchangé)</small>' ?>
+                            Mot de passe
+                            <?= !$isEdit ? '<span class="text-danger">*</span>' : '<small class="text-muted">(vide = inchangé)</small>' ?>
                         </label>
                         <input type="password" name="password"
                                class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>"
@@ -112,8 +114,6 @@ $formAction = $isEdit
                         <?php endif; ?>
                     </div>
                 </div>
-
-                <!-- Confirmation mot de passe -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Confirmer le mot de passe <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
@@ -128,7 +128,6 @@ $formAction = $isEdit
                 </div>
             </div>
 
-            <!-- Statut actif -->
             <div class="form-group">
                 <div class="custom-control custom-switch">
                     <input type="hidden" name="is_active" value="0">

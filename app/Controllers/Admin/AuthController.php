@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\AdminUserModel;
+use App\Models\AdminUserRoleModel;
 
 class AuthController extends BaseController
 {
@@ -41,12 +42,14 @@ class AuthController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Ce compte est désactivé.');
         }
 
+        $roles = (new AdminUserRoleModel())->getRolesForUser($user->id);
+
         session()->set([
             'admin_logged_in' => true,
             'admin_id'        => $user->id,
             'admin_name'      => $user->first_name . ' ' . $user->last_name,
             'admin_email'     => $user->email,
-            'admin_role'      => $user->role,
+            'admin_roles'     => $roles,
         ]);
 
         return redirect()->to(base_url('admin/dashboard'));

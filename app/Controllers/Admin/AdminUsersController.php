@@ -4,22 +4,39 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\AdminUserModel;
+use App\Models\AdminUserRoleModel;
 
 class AdminUsersController extends BaseController
 {
-    private AdminUserModel $model;
+    private AdminUserModel     $model;
+    private AdminUserRoleModel $roleModel;
 
     public function __construct()
     {
-        $this->model = new AdminUserModel();
+        $this->model     = new AdminUserModel();
+        $this->roleModel = new AdminUserRoleModel();
     }
 
     public function index(): string
     {
+        $users = $this->model->orderBy('last_name', 'ASC')->findAll();
+
+        // Charger les rôles pour tous les users en une seule requête
+        $db        = \Config\Database::connect();
+        $allRoles  = $db->table('admin_user_roles')
+                        ->select('admin_user_id, role')
+                        ->get()->getResultObject();
+
+        $rolesMap = [];
+        foreach ($allRoles as $r) {
+            $rolesMap[$r->admin_user_id][] = $r->role;
+        }
+
         return view('admin/users/index', [
             'title'       => 'Utilisateurs admin',
             'breadcrumbs' => [['title' => 'Utilisateurs admin']],
-            'users'       => $this->model->orderBy('last_name', 'ASC')->findAll(),
+            'users'       => $users,
+            'rolesMap'    => $rolesMap,
         ]);
     }
 
@@ -31,8 +48,9 @@ class AdminUsersController extends BaseController
                 ['title' => 'Utilisateurs admin', 'url' => base_url('admin/users')],
                 ['title' => 'Nouveau'],
             ],
-            'user'  => null,
-            'roles' => AdminUserModel::ROLES,
+            'user'         => null,
+            'userRoles'    => [],
+            'roles'        => AdminUserModel::ROLES,
         ]);
     }
 
@@ -42,7 +60,6 @@ class AdminUsersController extends BaseController
             'first_name'       => 'required|min_length[2]|max_length[100]',
             'last_name'        => 'required|min_length[2]|max_length[100]',
             'email'            => 'required|valid_email|is_unique[admin_users.email]',
-            'role'             => 'required|in_list[' . implode(',', AdminUserModel::ROLES) . ']',
             'password'         => 'required|min_length[8]',
             'password_confirm' => 'required|matches[password]',
         ];
@@ -51,17 +68,22 @@ class AdminUsersController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $hash = password_hash($this->request->getPost('password'), PASSWORD_BCRYPT);
+        $selectedRoles = $this->request->getPost('roles') ?? [];
+        if (empty($selectedRoles)) {
+            return redirect()->back()->withInput()->with('errors', ['roles' => 'Sélectionnez au moins un rôle.']);
+        }
 
-        $this->model->insert([
+        $hash   = password_hash($this->request->getPost('password'), PASSWORD_BCRYPT);
+        $userId = $this->model->insert([
             'first_name'            => $this->request->getPost('first_name'),
             'last_name'             => $this->request->getPost('last_name'),
             'email'                 => $this->request->getPost('email'),
-            'role'                  => $this->request->getPost('role'),
             'is_active'             => (int) $this->request->getPost('is_active'),
             'password_hash'         => $hash,
             'password_default_hash' => $hash,
         ]);
+
+        $this->roleModel->setRolesForUser((int) $userId, $selectedRoles);
 
         return redirect()->to(base_url('admin/users'))->with('success', 'Utilisateur créé avec succès.');
     }
@@ -79,8 +101,9 @@ class AdminUsersController extends BaseController
                 ['title' => 'Utilisateurs admin', 'url' => base_url('admin/users')],
                 ['title' => 'Modifier'],
             ],
-            'user'  => $user,
-            'roles' => AdminUserModel::ROLES,
+            'user'      => $user,
+            'userRoles' => $this->roleModel->getRolesForUser($id),
+            'roles'     => AdminUserModel::ROLES,
         ]);
     }
 
@@ -95,7 +118,6 @@ class AdminUsersController extends BaseController
             'first_name' => 'required|min_length[2]|max_length[100]',
             'last_name'  => 'required|min_length[2]|max_length[100]',
             'email'      => "required|valid_email|is_unique[admin_users.email,id,{$id}]",
-            'role'       => 'required|in_list[' . implode(',', AdminUserModel::ROLES) . ']',
         ];
 
         $newPassword = $this->request->getPost('password');
@@ -108,11 +130,15 @@ class AdminUsersController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $selectedRoles = $this->request->getPost('roles') ?? [];
+        if (empty($selectedRoles)) {
+            return redirect()->back()->withInput()->with('errors', ['roles' => 'Sélectionnez au moins un rôle.']);
+        }
+
         $data = [
             'first_name' => $this->request->getPost('first_name'),
             'last_name'  => $this->request->getPost('last_name'),
             'email'      => $this->request->getPost('email'),
-            'role'       => $this->request->getPost('role'),
             'is_active'  => (int) $this->request->getPost('is_active'),
         ];
 
@@ -121,10 +147,15 @@ class AdminUsersController extends BaseController
         }
 
         $this->model->update($id, $data);
+        $this->roleModel->setRolesForUser($id, $selectedRoles);
 
-        // Rafraîchir le nom en session si l'utilisateur modifie son propre profil
+        // Rafraîchir la session si l'utilisateur modifie son propre profil
         if (session()->get('admin_id') == $id) {
-            session()->set('admin_name', $data['first_name'] . ' ' . $data['last_name']);
+            session()->set([
+                'admin_name'  => $data['first_name'] . ' ' . $data['last_name'],
+                'admin_email' => $data['email'],
+                'admin_roles' => $selectedRoles,
+            ]);
         }
 
         return redirect()->to(base_url('admin/users'))->with('success', 'Utilisateur mis à jour.');
@@ -136,11 +167,11 @@ class AdminUsersController extends BaseController
             return redirect()->to(base_url('admin/users'))->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
 
-        $user = $this->model->find($id);
-        if (!$user) {
+        if (!$this->model->find($id)) {
             return redirect()->to(base_url('admin/users'))->with('error', 'Utilisateur introuvable.');
         }
 
+        // Les rôles sont supprimés automatiquement (FK CASCADE)
         $this->model->delete($id);
 
         return redirect()->to(base_url('admin/users'))->with('success', 'Utilisateur supprimé.');

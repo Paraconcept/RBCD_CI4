@@ -16,7 +16,7 @@
                 <tr>
                     <th>Nom</th>
                     <th>Email</th>
-                    <th>Rôle</th>
+                    <th>Rôles</th>
                     <th class="text-center">Statut</th>
                     <th>Dernière connexion</th>
                     <th class="text-center no-sort">Actions</th>
@@ -24,10 +24,18 @@
             </thead>
             <tbody>
                 <?php foreach ($users as $u): ?>
+                <?php $uRoles = $rolesMap[$u->id] ?? []; ?>
                 <tr id="row-<?= $u->id ?>">
                     <td><?= esc($u->last_name . ' ' . $u->first_name) ?></td>
                     <td><?= esc($u->email) ?></td>
-                    <td><span class="badge badge-secondary"><?= esc($u->role) ?></span></td>
+                    <td>
+                        <?php foreach ($uRoles as $role): ?>
+                            <span class="badge badge-secondary mr-1"><?= esc($role) ?></span>
+                        <?php endforeach; ?>
+                        <?php if (empty($uRoles)): ?>
+                            <span class="text-muted">—</span>
+                        <?php endif; ?>
+                    </td>
                     <td class="text-center">
                         <span id="badge-<?= $u->id ?>" class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?>">
                             <?= $u->is_active ? 'Actif' : 'Inactif' ?>
@@ -65,10 +73,8 @@
     </div>
 </div>
 
-<!-- Formulaire de suppression caché -->
 <form id="deleteForm" method="post" action="">
     <?= csrf_field() ?>
-    <input type="hidden" name="_method" value="DELETE">
 </form>
 
 <?= $this->endSection() ?>
@@ -81,15 +87,12 @@ $(function() {
         columnDefs: [{ orderable: false, targets: 'no-sort' }]
     });
 
-    // Toggle actif / inactif
     $(document).on('click', '.btn-toggle', function() {
         const id     = $(this).data('id');
         const active = $(this).data('active');
-        const label  = active ? 'désactiver' : 'activer';
-
         Swal.fire({
             title: 'Confirmer',
-            text: `Voulez-vous ${label} cet utilisateur ?`,
+            text: `Voulez-vous ${active ? 'désactiver' : 'activer'} cet utilisateur ?`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Oui',
@@ -97,24 +100,18 @@ $(function() {
             confirmButtonColor: active ? '#e5a54b' : '#28a745',
         }).then(result => {
             if (!result.isConfirmed) return;
-
             $.post(`<?= base_url('admin/users/') ?>${id}/toggle`, {
                 '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
-            })
-            .done(function(res) {
+            }).done(function(res) {
                 if (res.success) {
-                    const badge  = $(`#badge-${id}`);
-                    const btn    = $(`[data-id="${id}"].btn-toggle`);
+                    const badge = $(`#badge-${id}`);
+                    const btn   = $(`[data-id="${id}"].btn-toggle`);
                     if (res.is_active) {
                         badge.removeClass('badge-danger').addClass('badge-success').text('Actif');
-                        btn.removeClass('btn-success').addClass('btn-warning')
-                           .attr('title', 'Désactiver').data('active', 1)
-                           .html('<i class="fas fa-ban"></i>');
+                        btn.removeClass('btn-success').addClass('btn-warning').attr('title','Désactiver').data('active',1).html('<i class="fas fa-ban"></i>');
                     } else {
                         badge.removeClass('badge-success').addClass('badge-danger').text('Inactif');
-                        btn.removeClass('btn-warning').addClass('btn-success')
-                           .attr('title', 'Activer').data('active', 0)
-                           .html('<i class="fas fa-check"></i>');
+                        btn.removeClass('btn-warning').addClass('btn-success').attr('title','Activer').data('active',0).html('<i class="fas fa-check"></i>');
                     }
                     Swal.fire({ icon: 'success', title: res.message, timer: 1500, showConfirmButton: false });
                 } else {
@@ -124,11 +121,9 @@ $(function() {
         });
     });
 
-    // Suppression
     $(document).on('click', '.btn-delete', function() {
         const id   = $(this).data('id');
         const name = $(this).data('name');
-
         Swal.fire({
             title: 'Supprimer ?',
             html: `Confirmer la suppression de <strong>${name}</strong> ?<br><small class="text-muted">Cette action est irréversible.</small>`,
