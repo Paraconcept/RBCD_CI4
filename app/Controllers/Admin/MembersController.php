@@ -214,7 +214,7 @@ class MembersController extends BaseController
             'is_junior'       => $bool('is_junior'),
             'is_supporter'    => $bool('is_supporter'),
             'is_school'       => $bool('is_school'),
-            'ranking'         => $post['ranking'] ?: null,
+            'ranking'         => ($post['ranking'] ?? null) ?: null,
             'is_active'       => $bool('is_active'),
             'show_birth_date' => $bool('show_birth_date'),
             'show_address'    => $bool('show_address'),
