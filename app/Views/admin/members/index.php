@@ -18,8 +18,6 @@
                     <th>Nom</th>
                     <th class="text-center" style="width:50px">G.</th>
                     <th>Licence FRBB</th>
-                    <th class="text-center">Catégories</th>
-                    <th class="text-center">Classement</th>
                     <th class="text-center">Comité</th>
                     <th class="text-center">Statut</th>
                     <th class="text-center no-sort">Actions</th>
@@ -51,25 +49,6 @@
                     </td>
                     <!-- Licence -->
                     <td><?= $m->frbb_license ? esc($m->frbb_license) : '<span class="text-muted">—</span>' ?></td>
-                    <!-- Catégories -->
-                    <td class="text-center">
-                        <?php if ($m->is_junior): ?>
-                            <span class="badge badge-warning" title="Junior">Jun.</span>
-                        <?php endif; ?>
-                        <?php if ($m->is_supporter): ?>
-                            <span class="badge badge-secondary" title="Sympathisant">Symp.</span>
-                        <?php endif; ?>
-                        <?php if ($m->is_school): ?>
-                            <span class="badge badge-info" title="École de billard">École</span>
-                        <?php endif; ?>
-                        <?php if (!$m->is_junior && !$m->is_supporter && !$m->is_school): ?>
-                            <span class="text-muted">—</span>
-                        <?php endif; ?>
-                    </td>
-                    <!-- Classement -->
-                    <td class="text-center">
-                        <?= $m->ranking !== null ? '<strong>' . $m->ranking . '</strong>' : '<span class="text-muted">—</span>' ?>
-                    </td>
                     <!-- Comité -->
                     <td class="text-center">
                         <?php if ($m->is_committee ?? false): ?>
@@ -130,7 +109,7 @@ $(function() {
     $('#membersTable').DataTable({
         order: [[1, 'asc']],
         columnDefs: [
-            { orderable: false, targets: [0, 8] }
+            { orderable: false, targets: [0, 6] }
         ]
     });
 
