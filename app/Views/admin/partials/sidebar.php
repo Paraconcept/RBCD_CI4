@@ -26,7 +26,12 @@
 
                 <li class="nav-header">GESTION</li>
 
-                <!-- Les autres modules seront ajoutés ici au fur et à mesure -->
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/members') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/members') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>Membres</p>
+                    </a>
+                </li>
 
                 <li class="nav-header">ADMINISTRATION</li>
 

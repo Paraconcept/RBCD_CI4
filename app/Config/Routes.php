@@ -24,6 +24,15 @@ $routes->group('admin', static function ($routes) {
         $routes->get('dashboard', 'Admin\DashboardController::index');
         $routes->get('/',        'Admin\DashboardController::index');
 
+        // Membres
+        $routes->get('members',                         'Admin\MembersController::index');
+        $routes->get('members/create',                  'Admin\MembersController::create');
+        $routes->post('members',                        'Admin\MembersController::store');
+        $routes->get('members/(:num)/edit',             'Admin\MembersController::edit/$1');
+        $routes->post('members/(:num)/update',          'Admin\MembersController::update/$1');
+        $routes->post('members/(:num)/delete',          'Admin\MembersController::delete/$1');
+        $routes->post('members/(:num)/toggle',          'Admin\MembersController::toggle/$1');
+
         // Utilisateurs admin
         $routes->get('users',                       'Admin\AdminUsersController::index');
         $routes->get('users/create',                'Admin\AdminUsersController::create');
