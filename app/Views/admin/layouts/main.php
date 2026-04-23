@@ -41,9 +41,16 @@
 
         <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="fas fa-user-circle"></i>
-                    <span class="d-none d-md-inline ml-1"><?= esc(session()->get('admin_name')) ?></span>
+                <a class="nav-link d-flex align-items-center" data-toggle="dropdown" href="#">
+                    <?php $adminPhoto = session()->get('admin_photo'); ?>
+                    <?php if ($adminPhoto): ?>
+                        <img src="<?= base_url('uploads/members/' . $adminPhoto) ?>"
+                             class="img-circle member-photo-thumb"
+                             style="width:28px;height:28px;object-fit:cover;">
+                    <?php else: ?>
+                        <i class="fas fa-user-circle fa-lg"></i>
+                    <?php endif; ?>
+                    <span class="d-none d-md-inline ml-2"><?= esc(session()->get('admin_name')) ?></span>
                     <?php $adminRoles = session()->get('admin_roles') ?? []; ?>
                     <?php if (!empty($adminRoles)): ?>
                         <small class="d-none d-lg-inline ml-1 opacity-75">(<?= esc(implode(', ', $adminRoles)) ?>)</small>

@@ -44,12 +44,21 @@ class AuthController extends BaseController
 
         $roles = (new AdminUserRoleModel())->getRolesForUser($user->id);
 
+        $memberPhoto = null;
+        if ($user->member_id) {
+            $linked = \Config\Database::connect()
+                ->table('members')->select('photo')
+                ->where('id', $user->member_id)->get()->getRowObject();
+            $memberPhoto = $linked?->photo ?? null;
+        }
+
         session()->set([
             'admin_logged_in' => true,
             'admin_id'        => $user->id,
             'admin_name'      => $user->first_name . ' ' . $user->last_name,
             'admin_email'     => $user->email,
             'admin_roles'     => $roles,
+            'admin_photo'     => $memberPhoto,
         ]);
 
         return redirect()->to(base_url('admin/dashboard'));

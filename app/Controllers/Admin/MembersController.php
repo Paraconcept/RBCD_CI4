@@ -163,6 +163,19 @@ class MembersController extends BaseController
             $adminUserModel->update($newAdminUserId, ['member_id' => $id]);
         }
 
+        // Rafraîchir la photo en session si ce membre est lié à l'admin connecté
+        $db = \Config\Database::connect();
+        $linkedAdmin = $db->table('admin_users')
+                          ->select('id')
+                          ->where('member_id', $id)
+                          ->where('id', session()->get('admin_id'))
+                          ->get()->getRowObject();
+        if ($linkedAdmin) {
+            // photo changée = dans $data ; inchangée = garder $member->photo
+            $currentPhoto = array_key_exists('photo', $data) ? $data['photo'] : $member->photo;
+            session()->set('admin_photo', $currentPhoto);
+        }
+
         return redirect()->to(base_url('admin/members'))->with('success', 'Membre mis à jour.');
     }
 
