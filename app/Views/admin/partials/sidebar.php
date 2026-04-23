@@ -6,11 +6,18 @@
     <div class="sidebar">
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                <i class="fas fa-user-circle fa-2x text-white ml-1" style="line-height:1"></i>
+                <?php $adminPhoto = session()->get('admin_photo'); ?>
+                <?php if ($adminPhoto): ?>
+                    <img src="<?= base_url('uploads/members/' . $adminPhoto) ?>"
+                         class="img-circle member-photo-thumb"
+                         style="width:34px;height:34px;object-fit:cover;">
+                <?php else: ?>
+                    <i class="fas fa-user-circle fa-2x text-white ml-1" style="line-height:1"></i>
+                <?php endif; ?>
             </div>
             <div class="info">
                 <a href="#" class="d-block"><?= esc(session()->get('admin_name')) ?></a>
-                <small class="text-muted"><?= esc(session()->get('admin_role')) ?></small>
+                <small class="text-white-50"><?= esc(implode(', ', session()->get('admin_roles') ?? [])) ?></small>
             </div>
         </div>
 
