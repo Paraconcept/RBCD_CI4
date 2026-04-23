@@ -290,6 +290,11 @@ $formAction = $isEdit
         <a href="<?= base_url('admin/members') ?>" class="btn btn-secondary">
             <i class="fas fa-times mr-1"></i> Annuler
         </a>
+        <?php if ($isEdit): ?>
+        <a href="<?= base_url('admin/members/' . $member->id . '/payments') ?>" class="btn btn-outline-secondary ml-2">
+            <i class="fas fa-euro-sign mr-1"></i> Cotisations
+        </a>
+        <?php endif; ?>
     </div>
 </div>
 

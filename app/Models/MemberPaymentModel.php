@@ -17,8 +17,10 @@ class MemberPaymentModel extends Model
         'rbcd_paid_date',
         'frbb_paid',
         'frbb_paid_date',
+        'forfait_h1_choice',
         'forfait_h1_paid',
         'forfait_h1_paid_date',
+        'forfait_h2_choice',
         'forfait_h2_paid',
         'forfait_h2_paid_date',
     ];

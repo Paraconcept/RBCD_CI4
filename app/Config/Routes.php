@@ -33,6 +33,14 @@ $routes->group('admin', static function ($routes) {
         $routes->post('members/(:num)/delete',          'Admin\MembersController::delete/$1');
         $routes->post('members/(:num)/toggle',          'Admin\MembersController::toggle/$1');
 
+        // Paiements membres
+        $routes->get('members/(:num)/payments',         'Admin\MemberPaymentsController::index/$1');
+        $routes->get('members/(:num)/payments/add',              'Admin\MemberPaymentsController::create/$1');
+        $routes->post('members/(:num)/payments',                 'Admin\MemberPaymentsController::store/$1');
+        $routes->get('members/(:num)/payments/(:num)/edit',      'Admin\MemberPaymentsController::edit/$1/$2');
+        $routes->post('members/(:num)/payments/(:num)/update',   'Admin\MemberPaymentsController::update/$1/$2');
+        $routes->post('members/(:num)/payments/(:num)/delete',   'Admin\MemberPaymentsController::delete/$1/$2');
+
         // Utilisateurs admin
         $routes->get('users',                       'Admin\AdminUsersController::index');
         $routes->get('users/create',                'Admin\AdminUsersController::create');
