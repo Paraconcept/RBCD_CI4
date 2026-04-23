@@ -195,6 +195,9 @@ class MembersController extends BaseController
     {
         $post = $this->request->getPost();
 
+        // Les hidden inputs envoient toujours "0" → vérifier la valeur, pas l'existence
+        $bool = fn($key) => ($post[$key] ?? '0') == '1' ? 1 : 0;
+
         return [
             'last_name'       => mb_strtoupper($post['last_name'], 'UTF-8'),
             'first_name'      => $post['first_name'],
@@ -206,18 +209,18 @@ class MembersController extends BaseController
             'phone'           => $post['phone'] ?: null,
             'mobile'          => $post['mobile'] ?: null,
             'email'           => $post['email'] ?: null,
-            'is_federated'    => isset($post['is_federated']) ? 1 : 0,
+            'is_federated'    => $bool('is_federated'),
             'frbb_license'    => $post['frbb_license'] ?: null,
-            'is_junior'       => isset($post['is_junior']) ? 1 : 0,
-            'is_supporter'    => isset($post['is_supporter']) ? 1 : 0,
-            'is_school'       => isset($post['is_school']) ? 1 : 0,
+            'is_junior'       => $bool('is_junior'),
+            'is_supporter'    => $bool('is_supporter'),
+            'is_school'       => $bool('is_school'),
             'ranking'         => $post['ranking'] ?: null,
-            'is_active'       => isset($post['is_active']) ? 1 : 0,
-            'show_birth_date' => isset($post['show_birth_date']) ? 1 : 0,
-            'show_address'    => isset($post['show_address']) ? 1 : 0,
-            'show_phone'      => isset($post['show_phone']) ? 1 : 0,
-            'show_mobile'     => isset($post['show_mobile']) ? 1 : 0,
-            'show_email'      => isset($post['show_email']) ? 1 : 0,
+            'is_active'       => $bool('is_active'),
+            'show_birth_date' => $bool('show_birth_date'),
+            'show_address'    => $bool('show_address'),
+            'show_phone'      => $bool('show_phone'),
+            'show_mobile'     => $bool('show_mobile'),
+            'show_email'      => $bool('show_email'),
         ];
     }
 
