@@ -8,6 +8,7 @@ class MemberPaymentModel extends Model
 {
     protected $table      = 'member_payments';
     protected $primaryKey = 'id';
+    protected $returnType = 'object';
     protected $useTimestamps = true;
 
     protected $allowedFields = [
