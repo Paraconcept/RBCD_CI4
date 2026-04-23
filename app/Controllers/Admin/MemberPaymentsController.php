@@ -137,22 +137,27 @@ class MemberPaymentsController extends BaseController
     {
         $post = $this->request->getPost();
 
-        $h1Choice = isset($post['forfait_h1_choice']) ? 1 : 0;
-        $h2Choice = isset($post['forfait_h2_choice']) ? 1 : 0;
+        // Les champs hidden envoient toujours "0", donc on vérifie la valeur (== '1'), pas l'existence
+        $h1Choice = ($post['forfait_h1_choice'] ?? '0') == '1' ? 1 : 0;
+        $h2Choice = ($post['forfait_h2_choice'] ?? '0') == '1' ? 1 : 0;
+        $rbcdPaid = ($post['rbcd_paid']         ?? '0') == '1' ? 1 : 0;
+        $frbbPaid = ($post['frbb_paid']          ?? '0') == '1' ? 1 : 0;
+        $h1Paid   = ($post['forfait_h1_paid']    ?? '0') == '1' ? 1 : 0;
+        $h2Paid   = ($post['forfait_h2_paid']    ?? '0') == '1' ? 1 : 0;
 
         return [
-            'member_id'           => $memberId,
-            'year'                => $year,
-            'rbcd_paid'           => isset($post['rbcd_paid']) ? 1 : 0,
-            'rbcd_paid_date'      => (!empty($post['rbcd_paid_date']) && isset($post['rbcd_paid'])) ? $post['rbcd_paid_date'] : null,
-            'frbb_paid'           => isset($post['frbb_paid']) ? 1 : 0,
-            'frbb_paid_date'      => (!empty($post['frbb_paid_date']) && isset($post['frbb_paid'])) ? $post['frbb_paid_date'] : null,
-            'forfait_h1_choice'   => $h1Choice,
-            'forfait_h1_paid'     => $h1Choice && isset($post['forfait_h1_paid']) ? 1 : 0,
-            'forfait_h1_paid_date' => ($h1Choice && !empty($post['forfait_h1_paid_date']) && isset($post['forfait_h1_paid'])) ? $post['forfait_h1_paid_date'] : null,
-            'forfait_h2_choice'   => $h2Choice,
-            'forfait_h2_paid'     => $h2Choice && isset($post['forfait_h2_paid']) ? 1 : 0,
-            'forfait_h2_paid_date' => ($h2Choice && !empty($post['forfait_h2_paid_date']) && isset($post['forfait_h2_paid'])) ? $post['forfait_h2_paid_date'] : null,
+            'member_id'            => $memberId,
+            'year'                 => $year,
+            'rbcd_paid'            => $rbcdPaid,
+            'rbcd_paid_date'       => $rbcdPaid && !empty($post['rbcd_paid_date']) ? $post['rbcd_paid_date'] : null,
+            'frbb_paid'            => $frbbPaid,
+            'frbb_paid_date'       => $frbbPaid && !empty($post['frbb_paid_date']) ? $post['frbb_paid_date'] : null,
+            'forfait_h1_choice'    => $h1Choice,
+            'forfait_h1_paid'      => $h1Choice && $h1Paid ? 1 : 0,
+            'forfait_h1_paid_date' => $h1Choice && $h1Paid && !empty($post['forfait_h1_paid_date']) ? $post['forfait_h1_paid_date'] : null,
+            'forfait_h2_choice'    => $h2Choice,
+            'forfait_h2_paid'      => $h2Choice && $h2Paid ? 1 : 0,
+            'forfait_h2_paid_date' => $h2Choice && $h2Paid && !empty($post['forfait_h2_paid_date']) ? $post['forfait_h2_paid_date'] : null,
         ];
     }
 }
