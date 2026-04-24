@@ -143,7 +143,7 @@
 <script>
 $(function () {
     $('#keysTable').DataTable({
-        order: [[0, 'asc']],
+        order: [[2, 'asc']],
         columnDefs: [{ orderable: false, targets: 'no-sort' }],
         pageLength: 25,
     });
