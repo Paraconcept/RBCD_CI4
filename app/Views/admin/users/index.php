@@ -14,65 +14,67 @@
         </div>
     </div>
     <div class="card-body">
-        <table id="usersTable" class="table table-bordered table-hover table-striped">
-            <thead class="thead-rbcd">
-                <tr>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Rôles</th>
-                    <th class="text-center">Statut</th>
-                    <th>Dernière connexion</th>
-                    <th class="text-center no-sort">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($users as $u): ?>
-                <?php $uRoles = $rolesMap[$u->id] ?? []; ?>
-                <tr id="row-<?= $u->id ?>">
-                    <td><?= esc($u->last_name . ' ' . $u->first_name) ?></td>
-                    <td><?= esc($u->email) ?></td>
-                    <td>
-                        <?php foreach ($uRoles as $role): ?>
-                            <span class="badge badge-secondary mr-1"><?= esc($role) ?></span>
-                        <?php endforeach; ?>
-                        <?php if (empty($uRoles)): ?>
-                            <span class="text-muted">—</span>
-                        <?php endif; ?>
-                    </td>
-                    <td class="text-center">
-                        <span id="badge-<?= $u->id ?>" class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?>">
-                            <?= $u->is_active ? 'Actif' : 'Inactif' ?>
-                        </span>
-                    </td>
-                    <td><?= $u->last_login ? date('d/m/Y H:i', strtotime($u->last_login)) : '<span class="text-muted">Jamais</span>' ?></td>
-                    <td class="text-center">
-                        <a href="<?= base_url('admin/users/' . $u->id . '/edit') ?>" class="btn btn-xs btn-info" title="Modifier">
-                            <i class="fas fa-edit"></i>
-                        </a>
+        <div class="table-responsive">
+            <table id="usersTable" class="table table-bordered table-hover table-striped">
+                <thead class="thead-rbcd">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôles</th>
+                        <th class="text-center">Statut</th>
+                        <th>Dernière connexion</th>
+                        <th class="text-center no-sort">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($users as $u): ?>
+                    <?php $uRoles = $rolesMap[$u->id] ?? []; ?>
+                    <tr id="row-<?= $u->id ?>">
+                        <td><?= esc($u->last_name . ' ' . $u->first_name) ?></td>
+                        <td><?= esc($u->email) ?></td>
+                        <td>
+                            <?php foreach ($uRoles as $role): ?>
+                                <span class="badge badge-secondary mr-1"><?= esc($role) ?></span>
+                            <?php endforeach; ?>
+                            <?php if (empty($uRoles)): ?>
+                                <span class="text-muted">—</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-center">
+                            <span id="badge-<?= $u->id ?>" class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?>">
+                                <?= $u->is_active ? 'Actif' : 'Inactif' ?>
+                            </span>
+                        </td>
+                        <td><?= $u->last_login ? date('d/m/Y H:i', strtotime($u->last_login)) : '<span class="text-muted">Jamais</span>' ?></td>
+                        <td class="text-center">
+                            <a href="<?= base_url('admin/users/' . $u->id . '/edit') ?>" class="btn btn-xs btn-info" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
 
-                        <?php if (session()->get('admin_id') != $u->id): ?>
-                            <button type="button"
-                                class="btn btn-xs <?= $u->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle"
-                                data-id="<?= $u->id ?>"
-                                data-active="<?= $u->is_active ?>"
-                                title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?>">
-                                <i class="fas <?= $u->is_active ? 'fa-ban' : 'fa-check' ?>"></i>
-                            </button>
+                            <?php if (session()->get('admin_id') != $u->id): ?>
+                                <button type="button"
+                                    class="btn btn-xs <?= $u->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle"
+                                    data-id="<?= $u->id ?>"
+                                    data-active="<?= $u->is_active ?>"
+                                    title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?>">
+                                    <i class="fas <?= $u->is_active ? 'fa-ban' : 'fa-check' ?>"></i>
+                                </button>
 
-                            <button type="button" class="btn btn-xs btn-danger btn-delete"
-                                data-id="<?= $u->id ?>"
-                                data-name="<?= esc($u->first_name . ' ' . $u->last_name) ?>"
-                                title="Supprimer">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        <?php else: ?>
-                            <span class="badge badge-light ml-1"><i class="fas fa-user-circle"></i> Vous</span>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                                <button type="button" class="btn btn-xs btn-danger btn-delete"
+                                    data-id="<?= $u->id ?>"
+                                    data-name="<?= esc($u->first_name . ' ' . $u->last_name) ?>"
+                                    title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            <?php else: ?>
+                                <span class="badge badge-light ml-1"><i class="fas fa-user-circle"></i> Vous</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

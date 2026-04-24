@@ -21,95 +21,97 @@
         <?php if (empty($payments)): ?>
         <div class="alert alert-info mb-0">Aucune cotisation enregistrée pour ce membre.</div>
         <?php else: ?>
+        
+        <div class="table-responsive">
+            <table id="paymentsTable" class="table table-bordered table-hover table-striped">
+                <thead class="thead-rbcd">
+                    <tr>
+                        <th>Saison</th>
+                        <th class="text-center">Cotis. RBCD<br><small>jan–déc</small></th>
+                        <th class="text-center">Cotis. FRBB<br><small>sep–juin</small></th>
+                        <th class="text-center">Forfait F1<br><small>jan–juin</small></th>
+                        <th class="text-center">Forfait F2<br><small>juil–déc</small></th>
+                        <th class="text-center no-sort">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($payments as $p): ?>
+                    <tr>
+                        <td><strong><?= $p->year . '-' . ($p->year + 1) ?></strong></td>
 
-        <table id="paymentsTable" class="table table-bordered table-hover table-striped">
-            <thead class="thead-rbcd">
-                <tr>
-                    <th>Saison</th>
-                    <th class="text-center">Cotis. RBCD<br><small>jan–déc</small></th>
-                    <th class="text-center">Cotis. FRBB<br><small>sep–juin</small></th>
-                    <th class="text-center">Forfait F1<br><small>jan–juin</small></th>
-                    <th class="text-center">Forfait F2<br><small>juil–déc</small></th>
-                    <th class="text-center no-sort">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($payments as $p): ?>
-                <tr>
-                    <td><strong><?= $p->year . '-' . ($p->year + 1) ?></strong></td>
-
-                    <!-- RBCD -->
-                    <td class="text-center">
-                        <?php if ($p->rbcd_paid): ?>
-                            <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
-                            <?php if ($p->rbcd_paid_date): ?>
-                                <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->rbcd_paid_date)) ?></small>
+                        <!-- RBCD -->
+                        <td class="text-center">
+                            <?php if ($p->rbcd_paid): ?>
+                                <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
+                                <?php if ($p->rbcd_paid_date): ?>
+                                    <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->rbcd_paid_date)) ?></small>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="badge badge-danger"><i class="fas fa-times mr-1"></i>Non payé</span>
                             <?php endif; ?>
-                        <?php else: ?>
-                            <span class="badge badge-danger"><i class="fas fa-times mr-1"></i>Non payé</span>
-                        <?php endif; ?>
-                    </td>
+                        </td>
 
-                    <!-- FRBB -->
-                    <td class="text-center">
-                        <?php if ($p->frbb_paid): ?>
-                            <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
-                            <?php if ($p->frbb_paid_date): ?>
-                                <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->frbb_paid_date)) ?></small>
+                        <!-- FRBB -->
+                        <td class="text-center">
+                            <?php if ($p->frbb_paid): ?>
+                                <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
+                                <?php if ($p->frbb_paid_date): ?>
+                                    <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->frbb_paid_date)) ?></small>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="badge badge-danger"><i class="fas fa-times mr-1"></i>Non payé</span>
                             <?php endif; ?>
-                        <?php else: ?>
-                            <span class="badge badge-danger"><i class="fas fa-times mr-1"></i>Non payé</span>
-                        <?php endif; ?>
-                    </td>
+                        </td>
 
-                    <!-- Forfait F1 -->
-                    <td class="text-center">
-                        <?php if (!$p->forfait_f1_choice): ?>
-                            <span class="text-muted">—</span>
-                        <?php elseif ($p->forfait_f1_paid): ?>
-                            <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
-                            <?php if ($p->forfait_f1_paid_date): ?>
-                                <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_f1_paid_date)) ?></small>
+                        <!-- Forfait F1 -->
+                        <td class="text-center">
+                            <?php if (!$p->forfait_f1_choice): ?>
+                                <span class="text-muted">—</span>
+                            <?php elseif ($p->forfait_f1_paid): ?>
+                                <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
+                                <?php if ($p->forfait_f1_paid_date): ?>
+                                    <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_f1_paid_date)) ?></small>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="badge badge-warning text-dark"><i class="fas fa-clock mr-1"></i>En attente</span>
                             <?php endif; ?>
-                        <?php else: ?>
-                            <span class="badge badge-warning text-dark"><i class="fas fa-clock mr-1"></i>En attente</span>
-                        <?php endif; ?>
-                    </td>
+                        </td>
 
-                    <!-- Forfait F2 -->
-                    <td class="text-center">
-                        <?php if (!$p->forfait_f2_choice): ?>
-                            <span class="text-muted">—</span>
-                        <?php elseif ($p->forfait_f2_paid): ?>
-                            <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
-                            <?php if ($p->forfait_f2_paid_date): ?>
-                                <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_f2_paid_date)) ?></small>
+                        <!-- Forfait F2 -->
+                        <td class="text-center">
+                            <?php if (!$p->forfait_f2_choice): ?>
+                                <span class="text-muted">—</span>
+                            <?php elseif ($p->forfait_f2_paid): ?>
+                                <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
+                                <?php if ($p->forfait_f2_paid_date): ?>
+                                    <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_f2_paid_date)) ?></small>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="badge badge-warning text-dark"><i class="fas fa-clock mr-1"></i>En attente</span>
                             <?php endif; ?>
-                        <?php else: ?>
-                            <span class="badge badge-warning text-dark"><i class="fas fa-clock mr-1"></i>En attente</span>
-                        <?php endif; ?>
-                    </td>
+                        </td>
 
-                    <!-- Actions -->
-                    <td class="text-center">
-                        <a href="<?= base_url('admin/members/' . $member->id . '/payments/' . $p->id . '/edit') ?>"
-                           class="btn btn-xs btn-info" title="Modifier">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <button type="button" class="btn btn-xs btn-danger btn-delete"
-                                data-id="<?= $p->id ?>" data-year="<?= $p->year ?>" title="Supprimer">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        <form id="del-<?= $p->id ?>"
-                              action="<?= base_url('admin/members/' . $member->id . '/payments/' . $p->id . '/delete') ?>"
-                              method="post" class="d-none">
-                            <?= csrf_field() ?>
-                        </form>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                        <!-- Actions -->
+                        <td class="text-center">
+                            <a href="<?= base_url('admin/members/' . $member->id . '/payments/' . $p->id . '/edit') ?>"
+                            class="btn btn-xs btn-info" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-xs btn-danger btn-delete"
+                                    data-id="<?= $p->id ?>" data-year="<?= $p->year ?>" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <form id="del-<?= $p->id ?>"
+                                action="<?= base_url('admin/members/' . $member->id . '/payments/' . $p->id . '/delete') ?>"
+                                method="post" class="d-none">
+                                <?= csrf_field() ?>
+                            </form>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
         <?php endif; ?>
     </div>

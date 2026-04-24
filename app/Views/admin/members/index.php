@@ -11,81 +11,83 @@
         </div>
     </div>
     <div class="card-body">
-        <table id="membersTable" class="table table-bordered table-hover table-striped">
-            <thead class="thead-rbcd">
-                <tr>
-                    <th style="width:40px"></th>
-                    <th>Nom</th>
-                    <th class="text-center" style="width:50px">G.</th>
-                    <th>Licence FRBB</th>
-                    <th class="text-center">Comité</th>
-                    <th class="text-center">Statut</th>
-                    <th class="text-center no-sort">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($members as $m): ?>
-                <tr id="row-<?= $m->id ?>">
-                    <!-- Photo -->
-                    <td class="text-center p-1 align-middle">
-                        <?php if ($m->photo): ?>
-                            <img src="<?= base_url('uploads/members/' . $m->photo) ?>"
-                                 alt="" class="img-circle member-photo-thumb" style="width:32px;height:32px;object-fit:cover;">
-                        <?php else: ?>
-                            <span class="text-muted"><i class="fas fa-user-circle fa-lg"></i></span>
-                        <?php endif; ?>
-                    </td>
-                    <!-- Nom -->
-                    <td>
-                        <strong><?= esc($m->last_name) ?></strong> <?= esc($m->first_name) ?>
-                        <?php if ($m->is_federated && $m->frbb_license): ?>
-                        <?php endif; ?>
-                    </td>
-                    <!-- Genre -->
-                    <td class="text-center">
-                        <span class="badge <?= $m->gender === 'F' ? 'badge-pink' : 'badge-info' ?>">
-                            <?= $m->gender ?>
-                        </span>
-                    </td>
-                    <!-- Licence -->
-                    <td><?= $m->frbb_license ? esc($m->frbb_license) : '<span class="text-muted">—</span>' ?></td>
-                    <!-- Comité -->
-                    <td class="text-center">
-                        <?php if (isset($committeeMap[$m->id])): ?>
-                            <i class="fas fa-star text-warning mr-1" title="Membre du comité"></i>
-                            <small class="text-muted"><?= esc($committeeMap[$m->id]) ?></small>
-                        <?php else: ?>
-                            <span class="text-muted">—</span>
-                        <?php endif; ?>
-                    </td>
-                    <!-- Statut -->
-                    <td class="text-center">
-                        <span id="badge-<?= $m->id ?>" class="badge <?= $m->is_active ? 'badge-success' : 'badge-danger' ?>">
-                            <?= $m->is_active ? 'Actif' : 'Inactif' ?>
-                        </span>
-                    </td>
-                    <!-- Actions -->
-                    <td class="text-center">
-                        <a href="<?= base_url('admin/members/' . $m->id . '/edit') ?>" class="btn btn-xs btn-info" title="Modifier">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <button type="button"
-                            class="btn btn-xs <?= $m->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle"
-                            data-id="<?= $m->id ?>" data-active="<?= $m->is_active ?>"
-                            title="<?= $m->is_active ? 'Désactiver' : 'Activer' ?>">
-                            <i class="fas <?= $m->is_active ? 'fa-ban' : 'fa-check' ?>"></i>
-                        </button>
-                        <button type="button" class="btn btn-xs btn-danger btn-delete"
-                            data-id="<?= $m->id ?>"
-                            data-name="<?= esc($m->first_name . ' ' . $m->last_name) ?>"
-                            title="Supprimer">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table id="membersTable" class="table table-bordered table-hover table-striped">
+                <thead class="thead-rbcd">
+                    <tr>
+                        <th style="width:40px"></th>
+                        <th>Nom</th>
+                        <th class="text-center" style="width:50px">G.</th>
+                        <th>Licence FRBB</th>
+                        <th class="text-center">Comité</th>
+                        <th class="text-center">Statut</th>
+                        <th class="text-center no-sort">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($members as $m): ?>
+                    <tr id="row-<?= $m->id ?>">
+                        <!-- Photo -->
+                        <td class="text-center p-1 align-middle">
+                            <?php if ($m->photo): ?>
+                                <img src="<?= base_url('uploads/members/' . $m->photo) ?>"
+                                    alt="" class="img-circle member-photo-thumb" style="width:32px;height:32px;object-fit:cover;">
+                            <?php else: ?>
+                                <span class="text-muted"><i class="fas fa-user-circle fa-lg"></i></span>
+                            <?php endif; ?>
+                        </td>
+                        <!-- Nom -->
+                        <td>
+                            <strong><?= esc($m->last_name) ?></strong> <?= esc($m->first_name) ?>
+                            <?php if ($m->is_federated && $m->frbb_license): ?>
+                            <?php endif; ?>
+                        </td>
+                        <!-- Genre -->
+                        <td class="text-center">
+                            <span class="badge <?= $m->gender === 'F' ? 'badge-pink' : 'badge-info' ?>">
+                                <?= $m->gender ?>
+                            </span>
+                        </td>
+                        <!-- Licence -->
+                        <td><?= $m->frbb_license ? esc($m->frbb_license) : '<span class="text-muted">—</span>' ?></td>
+                        <!-- Comité -->
+                        <td class="text-center">
+                            <?php if (isset($committeeMap[$m->id])): ?>
+                                <i class="fas fa-star text-warning mr-1" title="Membre du comité"></i>
+                                <small class="text-muted"><?= esc($committeeMap[$m->id]) ?></small>
+                            <?php else: ?>
+                                <span class="text-muted">—</span>
+                            <?php endif; ?>
+                        </td>
+                        <!-- Statut -->
+                        <td class="text-center">
+                            <span id="badge-<?= $m->id ?>" class="badge <?= $m->is_active ? 'badge-success' : 'badge-danger' ?>">
+                                <?= $m->is_active ? 'Actif' : 'Inactif' ?>
+                            </span>
+                        </td>
+                        <!-- Actions -->
+                        <td class="text-center">
+                            <a href="<?= base_url('admin/members/' . $m->id . '/edit') ?>" class="btn btn-xs btn-info" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button"
+                                class="btn btn-xs <?= $m->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle"
+                                data-id="<?= $m->id ?>" data-active="<?= $m->is_active ?>"
+                                title="<?= $m->is_active ? 'Désactiver' : 'Activer' ?>">
+                                <i class="fas <?= $m->is_active ? 'fa-ban' : 'fa-check' ?>"></i>
+                            </button>
+                            <button type="button" class="btn btn-xs btn-danger btn-delete"
+                                data-id="<?= $m->id ?>"
+                                data-name="<?= esc($m->first_name . ' ' . $m->last_name) ?>"
+                                title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

@@ -11,62 +11,64 @@
         </div>
     </div>
     <div class="card-body p-0">
-        <table id="keysTable" class="table table-bordered table-hover table-striped mb-0">
-            <thead class="thead-rbcd">
-                <tr>
-                    <th>N° badge</th>
-                    <th class="text-center">Statut</th>
-                    <th>Titulaire</th>
-                    <th class="text-center">Attribuée le</th>
-                    <th class="text-center">Retournée le</th>
-                    <th>Notes</th>
-                    <th class="text-center no-sort" style="width:120px">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($keys as $k): ?>
-                <?php $assigned = $k->member_id !== null; ?>
-                <tr>
-                    <td><strong><?= $k->badge_number ? esc($k->badge_number) : '<span class="text-muted">—</span>' ?></strong></td>
-                    <td class="text-center">
-                        <?php if ($assigned): ?>
-                            <span class="badge badge-warning text-dark"><i class="fas fa-user mr-1"></i>Attribuée</span>
-                        <?php else: ?>
-                            <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Disponible</span>
-                        <?php endif; ?>
-                    </td>
-                    <td><?= $assigned ? esc($k->holder_name) : '<span class="text-muted">—</span>' ?></td>
-                    <td class="text-center"><?= $k->given_date ? date('d/m/Y', strtotime($k->given_date)) : '<span class="text-muted">—</span>' ?></td>
-                    <td class="text-center"><?= $k->returned_date ? date('d/m/Y', strtotime($k->returned_date)) : '<span class="text-muted">—</span>' ?></td>
-                    <td><?= $k->notes ? esc($k->notes) : '<span class="text-muted">—</span>' ?></td>
-                    <td class="text-center">
-                        <?php if (!$assigned): ?>
-                            <button type="button" class="btn btn-xs btn-primary btn-assign"
+        <div class="table-responsive">
+            <table id="keysTable" class="table table-bordered table-hover table-striped mb-0">
+                <thead class="thead-rbcd">
+                    <tr>
+                        <th>N° badge</th>
+                        <th class="text-center">Statut</th>
+                        <th>Titulaire</th>
+                        <th class="text-center">Attribuée le</th>
+                        <th class="text-center">Retournée le</th>
+                        <th>Notes</th>
+                        <th class="text-center no-sort" style="width:120px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($keys as $k): ?>
+                    <?php $assigned = $k->member_id !== null; ?>
+                    <tr>
+                        <td><strong><?= $k->badge_number ? esc($k->badge_number) : '<span class="text-muted">—</span>' ?></strong></td>
+                        <td class="text-center">
+                            <?php if ($assigned): ?>
+                                <span class="badge badge-warning text-dark"><i class="fas fa-user mr-1"></i>Attribuée</span>
+                            <?php else: ?>
+                                <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Disponible</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?= $assigned ? esc($k->holder_name) : '<span class="text-muted">—</span>' ?></td>
+                        <td class="text-center"><?= $k->given_date ? date('d/m/Y', strtotime($k->given_date)) : '<span class="text-muted">—</span>' ?></td>
+                        <td class="text-center"><?= $k->returned_date ? date('d/m/Y', strtotime($k->returned_date)) : '<span class="text-muted">—</span>' ?></td>
+                        <td><?= $k->notes ? esc($k->notes) : '<span class="text-muted">—</span>' ?></td>
+                        <td class="text-center">
+                            <?php if (!$assigned): ?>
+                                <button type="button" class="btn btn-xs btn-primary btn-assign"
+                                        data-id="<?= $k->id ?>"
+                                        data-badge="<?= esc($k->badge_number ?? '') ?>"
+                                        title="Attribuer">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                            <?php else: ?>
+                                <button type="button" class="btn btn-xs btn-warning btn-return"
+                                        data-id="<?= $k->id ?>"
+                                        data-badge="<?= esc($k->badge_number ?? '') ?>"
+                                        data-holder="<?= esc($k->holder_name) ?>"
+                                        title="Retourner">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            <?php endif; ?>
+                            <button type="button" class="btn btn-xs btn-danger btn-delete"
                                     data-id="<?= $k->id ?>"
-                                    data-badge="<?= esc($k->badge_number ?? '') ?>"
-                                    title="Attribuer">
-                                <i class="fas fa-user-plus"></i>
+                                    data-badge="<?= esc($k->badge_number ?? 'sans numéro') ?>"
+                                    title="Supprimer">
+                                <i class="fas fa-trash"></i>
                             </button>
-                        <?php else: ?>
-                            <button type="button" class="btn btn-xs btn-warning btn-return"
-                                    data-id="<?= $k->id ?>"
-                                    data-badge="<?= esc($k->badge_number ?? '') ?>"
-                                    data-holder="<?= esc($k->holder_name) ?>"
-                                    title="Retourner">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                        <?php endif; ?>
-                        <button type="button" class="btn btn-xs btn-danger btn-delete"
-                                data-id="<?= $k->id ?>"
-                                data-badge="<?= esc($k->badge_number ?? 'sans numéro') ?>"
-                                title="Supprimer">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

@@ -106,108 +106,110 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
         </h3>
     </div>
     <div class="card-body p-0">
-        <table id="treasuryTable" class="table table-bordered table-hover table-striped table-sm mb-0">
-            <thead class="thead-rbcd">
+        <div class="table-responsive">
+            <table id="treasuryTable" class="table table-bordered table-hover table-striped table-sm mb-0">
+                <thead class="thead-rbcd">
+                    <tr>
+                        <th>Membre</th>
+                        <th class="text-center">RBCD</th>
+                        <th class="text-center no-sort" style="width:20px"></th>
+                        <th class="text-center">FRBB</th>
+                        <th class="text-center">Forfait F1</th>
+                        <th class="text-center">Forfait F2</th>
+                        <th class="text-center no-sort">Fiche</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($rows as $r): ?>
+                <?php
+                    $editUrl = $r->payment_id
+                        ? base_url("admin/members/{$r->id}/payments/{$r->payment_id}/edit") . '?ref=treasury'
+                        : base_url("admin/members/{$r->id}/payments/add") . '?ref=treasury';
+                ?>
                 <tr>
-                    <th>Membre</th>
-                    <th class="text-center">RBCD</th>
-                    <th class="text-center no-sort" style="width:20px"></th>
-                    <th class="text-center">FRBB</th>
-                    <th class="text-center">Forfait F1</th>
-                    <th class="text-center">Forfait F2</th>
-                    <th class="text-center no-sort">Fiche</th>
+                    <td>
+                        <a href="<?= $editUrl ?>">
+                            <?= esc($r->last_name . ' ' . $r->first_name) ?>
+                        </a>
+                    </td>
+
+                    <!-- RBCD -->
+                    <td class="text-center">
+                        <?php if ($r->payment_id === null): ?>
+                            <span class="badge badge-secondary">—</span>
+                        <?php elseif ($r->rbcd_paid): ?>
+                            <span class="badge badge-success" title="<?= $r->rbcd_paid_date ? date('d/m/Y', strtotime($r->rbcd_paid_date)) : '' ?>">
+                                <i class="fas fa-check"></i>
+                                <?= $r->rbcd_paid_date ? date('d/m/Y', strtotime($r->rbcd_paid_date)) : 'Payé' ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="badge badge-danger"><i class="fas fa-times"></i> Non payé</span>
+                        <?php endif; ?>
+                    </td>
+
+                    <!-- Logo FRBB -->
+                    <td class="text-center p-0" style="width:20px;vertical-align:middle;">
+                        <?php if ($r->is_federated): ?>
+                            <img src="<?= base_url('assets/images/frbb_kbbb_logo_100.png') ?>"
+                                style="height:24px;width:auto;" title="Fédéré FRBB">
+                        <?php endif; ?>
+                    </td>
+
+                    <!-- FRBB -->
+                    <td class="text-center">
+                        <?php if (!$r->is_federated): ?>
+                            <span class="text-muted">—</span>
+                        <?php elseif ($r->payment_id === null): ?>
+                            <span class="badge badge-secondary">—</span>
+                        <?php elseif ($r->frbb_paid): ?>
+                            <span class="badge badge-success" title="<?= $r->frbb_paid_date ? date('d/m/Y', strtotime($r->frbb_paid_date)) : '' ?>">
+                                <i class="fas fa-check"></i>
+                                <?= $r->frbb_paid_date ? date('d/m/Y', strtotime($r->frbb_paid_date)) : 'Payé' ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="badge badge-danger"><i class="fas fa-times"></i> Non payé</span>
+                        <?php endif; ?>
+                    </td>
+
+                    <!-- Forfait F1 -->
+                    <td class="text-center">
+                        <?php if (!$r->payment_id || !$r->forfait_f1_choice): ?>
+                            <span class="text-muted">—</span>
+                        <?php elseif ($r->forfait_f1_paid): ?>
+                            <span class="badge badge-success" title="<?= $r->forfait_f1_paid_date ? date('d/m/Y', strtotime($r->forfait_f1_paid_date)) : '' ?>">
+                                <i class="fas fa-check"></i>
+                                <?= $r->forfait_f1_paid_date ? date('d/m/Y', strtotime($r->forfait_f1_paid_date)) : 'Payé' ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="badge badge-warning text-dark"><i class="fas fa-clock"></i> En attente</span>
+                        <?php endif; ?>
+                    </td>
+
+                    <!-- Forfait F2 -->
+                    <td class="text-center">
+                        <?php if (!$r->payment_id || !$r->forfait_f2_choice): ?>
+                            <span class="text-muted">—</span>
+                        <?php elseif ($r->forfait_f2_paid): ?>
+                            <span class="badge badge-success" title="<?= $r->forfait_f2_paid_date ? date('d/m/Y', strtotime($r->forfait_f2_paid_date)) : '' ?>">
+                                <i class="fas fa-check"></i>
+                                <?= $r->forfait_f2_paid_date ? date('d/m/Y', strtotime($r->forfait_f2_paid_date)) : 'Payé' ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="badge badge-warning text-dark"><i class="fas fa-clock"></i> En attente</span>
+                        <?php endif; ?>
+                    </td>
+
+                    <!-- Lien fiche -->
+                    <td class="text-center">
+                        <a href="<?= $editUrl ?>" class="btn btn-xs btn-info" title="Modifier les paiements">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-            <?php foreach ($rows as $r): ?>
-            <?php
-                $editUrl = $r->payment_id
-                    ? base_url("admin/members/{$r->id}/payments/{$r->payment_id}/edit") . '?ref=treasury'
-                    : base_url("admin/members/{$r->id}/payments/add") . '?ref=treasury';
-            ?>
-            <tr>
-                <td>
-                    <a href="<?= $editUrl ?>">
-                        <?= esc($r->last_name . ' ' . $r->first_name) ?>
-                    </a>
-                </td>
-
-                <!-- RBCD -->
-                <td class="text-center">
-                    <?php if ($r->payment_id === null): ?>
-                        <span class="badge badge-secondary">—</span>
-                    <?php elseif ($r->rbcd_paid): ?>
-                        <span class="badge badge-success" title="<?= $r->rbcd_paid_date ? date('d/m/Y', strtotime($r->rbcd_paid_date)) : '' ?>">
-                            <i class="fas fa-check"></i>
-                            <?= $r->rbcd_paid_date ? date('d/m/Y', strtotime($r->rbcd_paid_date)) : 'Payé' ?>
-                        </span>
-                    <?php else: ?>
-                        <span class="badge badge-danger"><i class="fas fa-times"></i> Non payé</span>
-                    <?php endif; ?>
-                </td>
-
-                <!-- Logo FRBB -->
-                <td class="text-center p-0" style="width:20px;vertical-align:middle;">
-                    <?php if ($r->is_federated): ?>
-                        <img src="<?= base_url('assets/images/frbb_kbbb_logo_100.png') ?>"
-                             style="height:24px;width:auto;" title="Fédéré FRBB">
-                    <?php endif; ?>
-                </td>
-
-                <!-- FRBB -->
-                <td class="text-center">
-                    <?php if (!$r->is_federated): ?>
-                        <span class="text-muted">—</span>
-                    <?php elseif ($r->payment_id === null): ?>
-                        <span class="badge badge-secondary">—</span>
-                    <?php elseif ($r->frbb_paid): ?>
-                        <span class="badge badge-success" title="<?= $r->frbb_paid_date ? date('d/m/Y', strtotime($r->frbb_paid_date)) : '' ?>">
-                            <i class="fas fa-check"></i>
-                            <?= $r->frbb_paid_date ? date('d/m/Y', strtotime($r->frbb_paid_date)) : 'Payé' ?>
-                        </span>
-                    <?php else: ?>
-                        <span class="badge badge-danger"><i class="fas fa-times"></i> Non payé</span>
-                    <?php endif; ?>
-                </td>
-
-                <!-- Forfait F1 -->
-                <td class="text-center">
-                    <?php if (!$r->payment_id || !$r->forfait_f1_choice): ?>
-                        <span class="text-muted">—</span>
-                    <?php elseif ($r->forfait_f1_paid): ?>
-                        <span class="badge badge-success" title="<?= $r->forfait_f1_paid_date ? date('d/m/Y', strtotime($r->forfait_f1_paid_date)) : '' ?>">
-                            <i class="fas fa-check"></i>
-                            <?= $r->forfait_f1_paid_date ? date('d/m/Y', strtotime($r->forfait_f1_paid_date)) : 'Payé' ?>
-                        </span>
-                    <?php else: ?>
-                        <span class="badge badge-warning text-dark"><i class="fas fa-clock"></i> En attente</span>
-                    <?php endif; ?>
-                </td>
-
-                <!-- Forfait F2 -->
-                <td class="text-center">
-                    <?php if (!$r->payment_id || !$r->forfait_f2_choice): ?>
-                        <span class="text-muted">—</span>
-                    <?php elseif ($r->forfait_f2_paid): ?>
-                        <span class="badge badge-success" title="<?= $r->forfait_f2_paid_date ? date('d/m/Y', strtotime($r->forfait_f2_paid_date)) : '' ?>">
-                            <i class="fas fa-check"></i>
-                            <?= $r->forfait_f2_paid_date ? date('d/m/Y', strtotime($r->forfait_f2_paid_date)) : 'Payé' ?>
-                        </span>
-                    <?php else: ?>
-                        <span class="badge badge-warning text-dark"><i class="fas fa-clock"></i> En attente</span>
-                    <?php endif; ?>
-                </td>
-
-                <!-- Lien fiche -->
-                <td class="text-center">
-                    <a href="<?= $editUrl ?>" class="btn btn-xs btn-info" title="Modifier les paiements">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
