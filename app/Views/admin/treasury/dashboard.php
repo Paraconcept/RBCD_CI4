@@ -29,7 +29,7 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
         <div class="small-box bg-white border">
             <div class="inner">
                 <h3><?= $stats['rbcdPaid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['total'] ?></sup></h3>
-                <p>Cotisation RBCD payée</p>
+                <p>Cotisations RBCD payées</p>
                 <div class="progress progress-sm mt-2">
                     <div class="progress-bar" style="width:<?= $pct($stats['rbcdPaid'], $stats['total']) ?>%;background-color:#84252B"></div>
                 </div>
@@ -47,7 +47,7 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
         <div class="small-box bg-white border">
             <div class="inner">
                 <h3><?= $stats['frbbPaid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['frbbTotal'] ?></sup></h3>
-                <p>Cotisation FRBB payée</p>
+                <p>Cotisations FRBB payées</p>
                 <div class="progress progress-sm mt-2">
                     <div class="progress-bar bg-warning" style="width:<?= $pct($stats['frbbPaid'], $stats['frbbTotal']) ?>%"></div>
                 </div>
@@ -65,7 +65,7 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
         <div class="small-box bg-white border">
             <div class="inner">
                 <h3><?= $stats['f1Paid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['f1Total'] ?></sup></h3>
-                <p>Forfait F1 payé</p>
+                <p>Forfaits F1 payés</p>
                 <div class="progress progress-sm mt-2">
                     <div class="progress-bar bg-success" style="width:<?= $pct($stats['f1Paid'], $stats['f1Total']) ?>%"></div>
                 </div>
@@ -83,7 +83,7 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
         <div class="small-box bg-white border">
             <div class="inner">
                 <h3><?= $stats['f2Paid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['f2Total'] ?></sup></h3>
-                <p>Forfait F2 payé</p>
+                <p>Forfaits F2 payés</p>
                 <div class="progress progress-sm mt-2">
                     <div class="progress-bar bg-success" style="width:<?= $pct($stats['f2Paid'], $stats['f2Total']) ?>%"></div>
                 </div>
@@ -122,8 +122,8 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
             <?php foreach ($rows as $r): ?>
             <?php
                 $editUrl = $r->payment_id
-                    ? base_url("admin/members/{$r->id}/payments/{$r->payment_id}/edit")
-                    : base_url("admin/members/{$r->id}/payments/add");
+                    ? base_url("admin/members/{$r->id}/payments/{$r->payment_id}/edit") . '?ref=treasury'
+                    : base_url("admin/members/{$r->id}/payments/add") . '?ref=treasury';
             ?>
             <tr>
                 <td>

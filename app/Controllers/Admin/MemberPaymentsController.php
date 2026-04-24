@@ -24,10 +24,15 @@ class MemberPaymentsController extends BaseController
             return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
         }
 
+        $ref  = $this->request->getGet('ref') ?? '';
+        $first = $ref === 'treasury'
+            ? ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')]
+            : ['title' => 'Membres',    'url' => base_url('admin/members')];
+
         return view('admin/member_payments/index', [
             'title'       => 'Cotisations — ' . esc($member->first_name . ' ' . $member->last_name),
             'breadcrumbs' => [
-                ['title' => 'Membres', 'url' => base_url('admin/members')],
+                $first,
                 ['title' => esc($member->first_name . ' ' . $member->last_name)],
                 ['title' => 'Cotisations'],
             ],
@@ -43,16 +48,23 @@ class MemberPaymentsController extends BaseController
             return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
         }
 
+        $ref         = $this->request->getGet('ref') ?? '';
+        $first       = $ref === 'treasury'
+            ? ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')]
+            : ['title' => 'Membres',    'url' => base_url('admin/members')];
+        $paymentsUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
+
         return view('admin/member_payments/form', [
             'title'       => 'Nouvelle année — ' . esc($member->first_name . ' ' . $member->last_name),
             'breadcrumbs' => [
-                ['title' => 'Membres', 'url' => base_url('admin/members')],
+                $first,
                 ['title' => esc($member->first_name . ' ' . $member->last_name)],
-                ['title' => 'Cotisations', 'url' => base_url("admin/members/{$memberId}/payments")],
+                ['title' => 'Cotisations', 'url' => $paymentsUrl],
                 ['title' => 'Nouvelle année'],
             ],
             'member'  => $member,
             'payment' => null,
+            'ref'     => $ref,
         ]);
     }
 
@@ -64,16 +76,23 @@ class MemberPaymentsController extends BaseController
             return redirect()->to(base_url("admin/members/{$memberId}/payments"))->with('error', 'Enregistrement introuvable.');
         }
 
+        $ref         = $this->request->getGet('ref') ?? '';
+        $first       = $ref === 'treasury'
+            ? ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')]
+            : ['title' => 'Membres',    'url' => base_url('admin/members')];
+        $paymentsUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
+
         return view('admin/member_payments/form', [
             'title'       => "Cotisations {$payment->year} — " . esc($member->first_name . ' ' . $member->last_name),
             'breadcrumbs' => [
-                ['title' => 'Membres', 'url' => base_url('admin/members')],
+                $first,
                 ['title' => esc($member->first_name . ' ' . $member->last_name)],
-                ['title' => 'Cotisations', 'url' => base_url("admin/members/{$memberId}/payments")],
+                ['title' => 'Cotisations', 'url' => $paymentsUrl],
                 ['title' => "Année {$payment->year}"],
             ],
             'member'  => $member,
             'payment' => $payment,
+            'ref'     => $ref,
         ]);
     }
 
@@ -99,8 +118,9 @@ class MemberPaymentsController extends BaseController
 
         $this->paymentModel->insert($this->collectData($memberId, $year));
 
-        return redirect()->to(base_url("admin/members/{$memberId}/payments"))
-                         ->with('success', "Saison {$season} ajoutée.");
+        $ref         = $this->request->getGet('ref') ?? '';
+        $redirectUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
+        return redirect()->to($redirectUrl)->with('success', "Saison {$season} ajoutée.");
     }
 
     public function update(int $memberId, int $paymentId)
@@ -112,9 +132,10 @@ class MemberPaymentsController extends BaseController
 
         $this->paymentModel->update($paymentId, $this->collectData($memberId, (int) $payment->year));
 
-        $season = $payment->year . '-' . ($payment->year + 1);
-        return redirect()->to(base_url("admin/members/{$memberId}/payments"))
-                         ->with('success', "Saison {$season} mise à jour.");
+        $ref         = $this->request->getGet('ref') ?? '';
+        $redirectUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
+        $season      = $payment->year . '-' . ($payment->year + 1);
+        return redirect()->to($redirectUrl)->with('success', "Saison {$season} mise à jour.");
     }
 
     public function delete(int $memberId, int $paymentId)

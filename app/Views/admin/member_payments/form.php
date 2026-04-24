@@ -2,11 +2,13 @@
 <?= $this->section('content') ?>
 
 <?php
-$isEdit     = $payment !== null;
-$errors     = session()->getFlashdata('errors') ?? [];
+$isEdit    = $payment !== null;
+$errors    = session()->getFlashdata('errors') ?? [];
+$ref       = $ref ?? '';
+$refParam  = $ref ? '?ref=' . $ref : '';
 $formAction = $isEdit
-    ? base_url('admin/members/' . $member->id . '/payments/' . $payment->id . '/update')
-    : base_url('admin/members/' . $member->id . '/payments');
+    ? base_url('admin/members/' . $member->id . '/payments/' . $payment->id . '/update') . $refParam
+    : base_url('admin/members/' . $member->id . '/payments') . $refParam;
 
 // Helpers de valeur
 $v   = fn($f, $default = '')  => old($f, $isEdit ? ($payment->$f ?? $default) : $default);
@@ -107,7 +109,7 @@ $y2 = $isEdit ? (int)$payment->year + 1 : ANNEE_2;
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title">
-                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait billard F1 <small class="text-muted">(jan–juin — 75 €)</small>
+                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait billard F1 <small class="text-muted">(janvier – juin &mdash; 75 €)</small>
                 </h3>
             </div>
             <div class="card-body">
@@ -139,7 +141,7 @@ $y2 = $isEdit ? (int)$payment->year + 1 : ANNEE_2;
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title">
-                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait billard F2 <small class="text-muted">(jul–déc — 75 €)</small>
+                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait billard F2 <small class="text-muted">(jullet – décembre &mdash; 75 €)</small>
                 </h3>
             </div>
             <div class="card-body">
@@ -175,7 +177,7 @@ $y2 = $isEdit ? (int)$payment->year + 1 : ANNEE_2;
         <button type="submit" class="btn btn-primary mr-2">
             <i class="fas fa-save mr-1"></i> <?= $isEdit ? 'Mettre à jour' : 'Créer' ?>
         </button>
-        <a href="<?= base_url('admin/members/' . $member->id . '/payments') ?>" class="btn btn-secondary">
+        <a href="<?= base_url('admin/members/' . $member->id . '/payments') . $refParam ?>" class="btn btn-secondary">
             <i class="fas fa-times mr-1"></i> Annuler
         </a>
     </div>
