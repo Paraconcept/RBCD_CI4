@@ -363,16 +363,15 @@ $formAction = $isEdit
         <form action="<?= base_url('admin/members/' . $member->id . '/keys') ?>" method="post" autocomplete="off">
             <?= csrf_field() ?>
             <div class="row align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <div class="form-group mb-0">
                         <label class="small mb-1">Clé <span class="text-danger">*</span></label>
-                        <select name="key_id" id="keySelect" class="form-control" style="width:100%" required>
+                        <select name="key_id" class="form-control form-control-sm" required>
                             <option value="">— Choisir —</option>
                             <?php foreach ($availableKeys as $k): ?>
-                                <option value="<?= $k->id ?>"
-                                        data-badge="<?= esc($k->badge_number ?? '') ?>"
-                                        data-notes="<?= esc($k->notes ?? '') ?>">
-                                    <?= $k->badge_number ? 'Badge #' . esc($k->badge_number) : 'Sans numéro' ?>
+                                <option value="<?= $k->id ?>">
+                                    <?= $k->badge_number ? 'Badge #' . esc($k->badge_number) : 'Clé sans numéro' ?>
+                                    <?= $k->notes ? ' — ' . esc($k->notes) : '' ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -403,22 +402,6 @@ $formAction = $isEdit
 <script>
 $(function() {
     $('.select2').select2({ theme: 'bootstrap4', placeholder: '— Aucun lien —', allowClear: true });
-
-    function formatKey(option) {
-        if (!option.id) return option.text;
-        const badge = $(option.element).data('badge') || 'Sans numéro';
-        const notes = $(option.element).data('notes') || '';
-        return $(`<span style="display:flex;gap:1.5rem">
-            <span style="min-width:90px;font-weight:600">Badge #${badge}</span>
-            <span class="text-muted">${notes}</span>
-        </span>`);
-    }
-    $('#keySelect').select2({
-        theme: 'bootstrap4',
-        placeholder: '— Choisir —',
-        templateResult:    formatKey,
-        templateSelection: formatKey,
-    });
 
     $('#photoInput').on('change', function() {
         const file = this.files[0];
