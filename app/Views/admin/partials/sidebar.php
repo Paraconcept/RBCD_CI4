@@ -33,7 +33,14 @@
                     </a>
                 </li>
 
-                <li class="nav-header">GESTION</li>
+                <li class="nav-header">ADMINISTRATION</li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/users') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/users') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-users-cog"></i>
+                        <p>Membres du Comité</p>
+                    </a>
+                </li>
 
                 <li class="nav-item">
                     <a href="<?= base_url('admin/members') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/members') === 0) ? 'active' : '' ?>">
@@ -41,6 +48,8 @@
                         <p>Membres</p>
                     </a>
                 </li>
+
+                <li class="nav-header">GESTION</li>
 
                 <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'menu-open' : '' ?>">
                     <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'active' : '' ?>">
@@ -63,15 +72,6 @@
                             </a>
                         </li>
                     </ul>
-                </li>
-
-                <li class="nav-header">ADMINISTRATION</li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/users') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/users') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-users-cog"></i>
-                        <p>Membres du Comité</p>
-                    </a>
                 </li>
 
             </ul>
