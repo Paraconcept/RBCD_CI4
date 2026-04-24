@@ -61,6 +61,7 @@ $routes->group('admin', static function ($routes) {
         $routes->get('users/pick-member',                'Admin\AdminUsersController::pickMember');
         $routes->get('users/from-member/(:num)',         'Admin\AdminUsersController::createForMember/$1');
         $routes->post('users',                           'Admin\AdminUsersController::store');
+        $routes->get('users/create',                     'Admin\AdminUsersController::create');
         $routes->get('users/(:num)/edit',                'Admin\AdminUsersController::edit/$1');
         $routes->post('users/(:num)/update',             'Admin\AdminUsersController::update/$1');
         $routes->post('users/(:num)/delete',             'Admin\AdminUsersController::delete/$1');

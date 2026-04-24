@@ -32,11 +32,11 @@ $selectedRoles = old('roles', $userRoles ?? []);
 
         <form action="<?= $formAction ?>" method="post" autocomplete="off">
             <?= csrf_field() ?>
-            <?php if (!$isEdit): ?>
+            <?php if (!$isEdit && $member !== null): ?>
                 <input type="hidden" name="member_id" value="<?= $member->id ?>">
             <?php endif; ?>
 
-            <?php if (!$isEdit): ?>
+            <?php if (!$isEdit && $member !== null): ?>
             <!-- Membre lié (lecture seule) -->
             <div class="alert alert-light border mb-4 d-flex align-items-center">
                 <?php if ($member->photo): ?>
@@ -53,8 +53,8 @@ $selectedRoles = old('roles', $userRoles ?? []);
             </div>
             <?php endif; ?>
 
+            <?php if ($isEdit || $member === null): ?>
             <div class="row">
-                <?php if ($isEdit): ?>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Prénom <span class="text-danger">*</span></label>
@@ -78,8 +78,8 @@ $selectedRoles = old('roles', $userRoles ?? []);
                         <?php endif; ?>
                     </div>
                 </div>
-                <?php endif; ?>
             </div>
+            <?php endif; ?>
 
             <div class="row">
                 <div class="col-md-6">

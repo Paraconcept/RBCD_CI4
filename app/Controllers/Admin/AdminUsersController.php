@@ -64,6 +64,21 @@ class AdminUsersController extends BaseController
         ]);
     }
 
+    public function create(): string
+    {
+        return view('admin/users/form', [
+            'title'       => 'Nouveau compte externe',
+            'breadcrumbs' => [
+                ['title' => 'Membres du Comité', 'url' => base_url('admin/users')],
+                ['title' => 'Compte externe'],
+            ],
+            'user'      => null,
+            'member'    => null,
+            'userRoles' => [],
+            'roles'     => AdminUserModel::ROLES,
+        ]);
+    }
+
     public function createForMember(int $memberId): string
     {
         $member = (new MemberModel())->find($memberId);
@@ -93,15 +108,23 @@ class AdminUsersController extends BaseController
 
     public function store()
     {
-        $memberId = (int) $this->request->getPost('member_id');
-        $member   = (new MemberModel())->find($memberId);
-        if (!$member) {
-            return redirect()->to(base_url('admin/users/pick-member'))->with('error', 'Membre invalide.');
+        $rawMemberId = $this->request->getPost('member_id');
+        $memberId    = $rawMemberId !== null ? (int) $rawMemberId : null;
+        $member      = null;
+
+        if ($memberId) {
+            $member = (new MemberModel())->find($memberId);
+            if (!$member) {
+                return redirect()->to(base_url('admin/users/pick-member'))->with('error', 'Membre invalide.');
+            }
         }
 
-        $rules = [
-            'email' => 'required|valid_email|is_unique[admin_users.email]',
-        ];
+        $rules = ['email' => 'required|valid_email|is_unique[admin_users.email]'];
+        if (!$memberId) {
+            $rules['first_name'] = 'required|min_length[2]|max_length[100]';
+            $rules['last_name']  = 'required|min_length[2]|max_length[100]';
+        }
+
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -114,11 +137,11 @@ class AdminUsersController extends BaseController
         $defaultHash = password_hash('Admin@2026', PASSWORD_BCRYPT);
 
         $userId = $this->model->insert([
-            'first_name'            => $member->first_name,
-            'last_name'             => $member->last_name,
-            'email'                 => $this->request->getPost('email') ?: $member->email,
+            'first_name'            => $member ? $member->first_name : $this->request->getPost('first_name'),
+            'last_name'             => $member ? $member->last_name  : mb_strtoupper($this->request->getPost('last_name'), 'UTF-8'),
+            'email'                 => $this->request->getPost('email') ?: ($member->email ?? ''),
             'is_active'             => (int) $this->request->getPost('is_active'),
-            'member_id'             => $memberId,
+            'member_id'             => $memberId ?: null,
             'password_hash'         => $defaultHash,
             'password_default_hash' => $defaultHash,
         ]);

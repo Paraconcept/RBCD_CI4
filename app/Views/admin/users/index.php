@@ -5,8 +5,11 @@
     <div class="card-header d-flex align-items-center">
         <h3 class="card-title"><i class="fas fa-users-cog mr-2"></i>Utilisateurs admin</h3>
         <div class="ml-auto">
-            <a href="<?= base_url('admin/users/pick-member') ?>" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus mr-1"></i> Nouvel utilisateur
+            <a href="<?= base_url('admin/users/pick-member') ?>" class="btn btn-primary btn-sm mr-1">
+                <i class="fas fa-user-plus mr-1"></i> Membre du comité
+            </a>
+            <a href="<?= base_url('admin/users/create') ?>" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-globe mr-1"></i> Compte externe
             </a>
         </div>
     </div>
