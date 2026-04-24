@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\MemberModel;
 use App\Models\AdminUserModel;
 use App\Models\MemberPaymentModel;
+use App\Models\MemberKeyModel;
 
 class MembersController extends BaseController
 {
@@ -109,6 +110,7 @@ class MembersController extends BaseController
             'member'          => $member,
             'linkedAdminUser' => $linkedAdminUser,
             'freeAdminUsers'  => $this->getFreeAdminUsers($linkedAdminUser?->id),
+            'memberKeys'      => (new MemberKeyModel())->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
         ]);
     }
 
@@ -215,6 +217,29 @@ class MembersController extends BaseController
             'is_active' => $newStatus,
             'message'   => $newStatus ? 'Membre activé.' : 'Membre désactivé.',
         ]);
+    }
+
+    public function storeKey(int $memberId)
+    {
+        if (!$this->model->find($memberId)) {
+            return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
+        }
+
+        $post = $this->request->getPost();
+        (new MemberKeyModel())->insert([
+            'member_id'    => $memberId,
+            'badge_number' => $post['badge_number'] ?: null,
+            'given_date'   => $post['given_date'] ?: null,
+            'notes'        => $post['notes'] ?: null,
+        ]);
+
+        return redirect()->to(base_url('admin/members/' . $memberId . '/edit'))->with('success', 'Clé enregistrée.');
+    }
+
+    public function returnKey(int $memberId, int $keyId)
+    {
+        (new MemberKeyModel())->update($keyId, ['returned_date' => date('Y-m-d')]);
+        return redirect()->to(base_url('admin/members/' . $memberId . '/edit'))->with('success', 'Clé marquée comme retournée.');
     }
 
     // ----------------------------------------------------------------

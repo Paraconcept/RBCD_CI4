@@ -42,11 +42,27 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/treasury') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'active' : '' ?>">
+                <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-euro-sign"></i>
-                        <p>Trésorerie</p>
+                        <p>Trésorerie <i class="right fas fa-angle-left"></i></p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury') ?>"
+                               class="nav-link <?= uri_string() === 'admin/treasury' ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>État des paiements</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/envelopes') ?>"
+                               class="nav-link <?= (strpos(uri_string(), 'admin/treasury/envelopes') === 0) ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Enveloppes de caisse</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
                 <li class="nav-header">ADMINISTRATION</li>

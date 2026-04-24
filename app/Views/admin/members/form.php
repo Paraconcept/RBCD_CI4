@@ -300,6 +300,94 @@ $formAction = $isEdit
 
 </form>
 
+<?php if ($isEdit): ?>
+<div class="card card-outline card-primary">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-key mr-2"></i>Clés du club</h3>
+    </div>
+
+    <?php if (!empty($memberKeys)): ?>
+    <div class="card-body p-0">
+        <table class="table table-sm table-bordered mb-0">
+            <thead class="thead-light">
+                <tr>
+                    <th>N° badge</th>
+                    <th>Remise le</th>
+                    <th>Retournée le</th>
+                    <th>Notes</th>
+                    <th class="text-center" style="width:120px">Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($memberKeys as $key): ?>
+            <tr>
+                <td><?= esc($key->badge_number ?: '—') ?></td>
+                <td><?= $key->given_date ? date('d/m/Y', strtotime($key->given_date)) : '—' ?></td>
+                <td><?= $key->returned_date ? date('d/m/Y', strtotime($key->returned_date)) : '—' ?></td>
+                <td><?= esc($key->notes ?: '') ?></td>
+                <td class="text-center">
+                    <?php if (!$key->returned_date): ?>
+                        <span class="badge badge-success">Active</span>
+                        <form action="<?= base_url('admin/members/' . $member->id . '/keys/' . $key->id . '/return') ?>"
+                              method="post" class="d-inline">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="btn btn-xs btn-warning mt-1"
+                                    onclick="return confirm('Marquer cette clé comme retournée ?')">
+                                <i class="fas fa-undo mr-1"></i>Retourner
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <span class="badge badge-secondary">Retournée</span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php else: ?>
+    <div class="card-body">
+        <p class="text-muted mb-0">Aucune clé enregistrée pour ce membre.</p>
+    </div>
+    <?php endif; ?>
+
+    <div class="card-footer">
+        <p class="text-muted small mb-2"><i class="fas fa-plus-circle mr-1"></i>Remettre une clé</p>
+        <form action="<?= base_url('admin/members/' . $member->id . '/keys') ?>" method="post" autocomplete="off">
+            <?= csrf_field() ?>
+            <div class="row align-items-end">
+                <div class="col-md-3">
+                    <div class="form-group mb-0">
+                        <label class="small mb-1">N° badge</label>
+                        <input type="text" name="badge_number" class="form-control form-control-sm"
+                               placeholder="ex: B42">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-0">
+                        <label class="small mb-1">Date de remise</label>
+                        <input type="date" name="given_date" class="form-control form-control-sm"
+                               value="<?= date('Y-m-d') ?>">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group mb-0">
+                        <label class="small mb-1">Notes</label>
+                        <input type="text" name="notes" class="form-control form-control-sm"
+                               placeholder="Remarques éventuelles">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-plus mr-1"></i> Ajouter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>

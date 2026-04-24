@@ -1,0 +1,107 @@
+<?= $this->extend('admin/layouts/main') ?>
+<?= $this->section('content') ?>
+
+<?php $catLabels = ['bar' => 'Bar / Buvette', 'divers' => 'Divers']; ?>
+
+<div class="d-flex align-items-center mb-3">
+    <form method="get" class="d-flex align-items-center mr-3">
+        <label class="mr-2 mb-0 font-weight-bold">Année :</label>
+        <select name="year" class="form-control form-control-sm mr-2" style="width:120px" onchange="this.form.submit()">
+            <?php foreach ($years as $y): ?>
+                <option value="<?= $y ?>" <?= $y == $year ? 'selected' : '' ?>><?= $y ?></option>
+            <?php endforeach; ?>
+        </select>
+    </form>
+    <a href="<?= base_url('admin/treasury/envelopes/create') ?>" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus mr-1"></i> Nouvelle enveloppe
+    </a>
+</div>
+
+<?php if (empty($byMonth)): ?>
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle mr-1"></i> Aucune enveloppe enregistrée pour <?= $year ?>.
+    </div>
+<?php else: ?>
+    <?php foreach ($byMonth as $month): ?>
+    <?php $ecartMois = $month['found'] - $month['calculated']; ?>
+    <div class="card card-outline card-primary">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-calendar-alt mr-2"></i><?= $month['label'] ?>
+            </h3>
+            <div class="card-tools">
+                <span class="badge badge-light border mr-1">
+                    Calculé : <strong><?= number_format($month['calculated'], 2, ',', '.') ?> €</strong>
+                </span>
+                <span class="badge badge-light border mr-1">
+                    Trouvé : <strong><?= number_format($month['found'], 2, ',', '.') ?> €</strong>
+                </span>
+                <span class="badge <?= $ecartMois == 0 ? 'badge-success' : 'badge-danger' ?>">
+                    Écart : <?= ($ecartMois >= 0 ? '+' : '') . number_format($ecartMois, 2, ',', '.') ?> €
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-sm table-bordered table-hover mb-0">
+                <thead class="thead-rbcd">
+                    <tr>
+                        <th style="width:110px">Date</th>
+                        <th>Catégorie</th>
+                        <th class="text-right" style="width:130px">Calculé</th>
+                        <th class="text-right" style="width:130px">Trouvé</th>
+                        <th class="text-right" style="width:120px">Écart</th>
+                        <th>Clôturé par</th>
+                        <th class="text-center" style="width:80px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($month['rows'] as $r): ?>
+                <?php $ecart = (float)$r->amount_found - (float)$r->amount_calculated; ?>
+                <tr>
+                    <td><?= date('d/m/Y', strtotime($r->date)) ?></td>
+                    <td><?= esc($catLabels[$r->category] ?? $r->category) ?></td>
+                    <td class="text-right"><?= number_format((float)$r->amount_calculated, 2, ',', '.') ?> €</td>
+                    <td class="text-right"><?= number_format((float)$r->amount_found, 2, ',', '.') ?> €</td>
+                    <td class="text-right">
+                        <span class="badge <?= $ecart == 0 ? 'badge-success' : 'badge-danger' ?>">
+                            <?= ($ecart >= 0 ? '+' : '') . number_format($ecart, 2, ',', '.') ?> €
+                        </span>
+                    </td>
+                    <td><?= esc($r->closer_name ?: '—') ?></td>
+                    <td class="text-center">
+                        <a href="<?= base_url('admin/treasury/envelopes/' . $r->id . '/edit') ?>"
+                           class="btn btn-xs btn-info" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="<?= base_url('admin/treasury/envelopes/' . $r->id . '/delete') ?>"
+                              method="post" class="d-inline"
+                              onsubmit="return confirm('Supprimer cette enveloppe ?')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="btn btn-xs btn-danger" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+                <tfoot>
+                    <tr class="font-weight-bold bg-light">
+                        <td colspan="2">Total <?= $month['label'] ?></td>
+                        <td class="text-right"><?= number_format($month['calculated'], 2, ',', '.') ?> €</td>
+                        <td class="text-right"><?= number_format($month['found'], 2, ',', '.') ?> €</td>
+                        <td class="text-right">
+                            <span class="badge <?= $ecartMois == 0 ? 'badge-success' : 'badge-danger' ?>">
+                                <?= ($ecartMois >= 0 ? '+' : '') . number_format($ecartMois, 2, ',', '.') ?> €
+                            </span>
+                        </td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <?php endforeach; ?>
+<?php endif; ?>
+
+<?= $this->endSection() ?>

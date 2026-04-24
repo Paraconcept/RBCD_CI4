@@ -41,8 +41,20 @@ $routes->group('admin', static function ($routes) {
         $routes->post('members/(:num)/payments/(:num)/update',   'Admin\MemberPaymentsController::update/$1/$2');
         $routes->post('members/(:num)/payments/(:num)/delete',   'Admin\MemberPaymentsController::delete/$1/$2');
 
-        // Trésorerie
+        // Trésorerie — paiements
         $routes->get('treasury', 'Admin\TreasuryController::index');
+
+        // Trésorerie — enveloppes de caisse
+        $routes->get ('treasury/envelopes',                'Admin\TreasuryEnvelopesController::index');
+        $routes->get ('treasury/envelopes/create',         'Admin\TreasuryEnvelopesController::create');
+        $routes->post('treasury/envelopes',                'Admin\TreasuryEnvelopesController::store');
+        $routes->get ('treasury/envelopes/(:num)/edit',    'Admin\TreasuryEnvelopesController::edit/$1');
+        $routes->post('treasury/envelopes/(:num)/update',  'Admin\TreasuryEnvelopesController::update/$1');
+        $routes->post('treasury/envelopes/(:num)/delete',  'Admin\TreasuryEnvelopesController::delete/$1');
+
+        // Clés membres
+        $routes->post('members/(:num)/keys',                      'Admin\MembersController::storeKey/$1');
+        $routes->post('members/(:num)/keys/(:num)/return',        'Admin\MembersController::returnKey/$1/$2');
 
         // Utilisateurs admin
         $routes->get('users',                            'Admin\AdminUsersController::index');
