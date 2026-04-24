@@ -352,15 +352,29 @@ $formAction = $isEdit
     <?php endif; ?>
 
     <div class="card-footer">
-        <p class="text-muted small mb-2"><i class="fas fa-plus-circle mr-1"></i>Remettre une clé</p>
+        <?php if (empty($availableKeys)): ?>
+            <p class="text-muted small mb-0">
+                <i class="fas fa-info-circle mr-1"></i>
+                Aucune clé disponible en stock —
+                <a href="<?= base_url('admin/club-keys') ?>">gérer les clés du club</a>.
+            </p>
+        <?php else: ?>
+        <p class="text-muted small mb-2"><i class="fas fa-plus-circle mr-1"></i>Attribuer une clé disponible</p>
         <form action="<?= base_url('admin/members/' . $member->id . '/keys') ?>" method="post" autocomplete="off">
             <?= csrf_field() ?>
             <div class="row align-items-end">
-                <div class="col-md-3">
+                <div class="col-md-5">
                     <div class="form-group mb-0">
-                        <label class="small mb-1">N° badge</label>
-                        <input type="text" name="badge_number" class="form-control form-control-sm"
-                               placeholder="ex: B42">
+                        <label class="small mb-1">Clé <span class="text-danger">*</span></label>
+                        <select name="key_id" class="form-control form-control-sm" required>
+                            <option value="">— Choisir —</option>
+                            <?php foreach ($availableKeys as $k): ?>
+                                <option value="<?= $k->id ?>">
+                                    <?= $k->badge_number ? 'Badge #' . esc($k->badge_number) : 'Clé sans numéro' ?>
+                                    <?= $k->notes ? ' — ' . esc($k->notes) : '' ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -370,20 +384,14 @@ $formAction = $isEdit
                                value="<?= date('Y-m-d') ?>">
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group mb-0">
-                        <label class="small mb-1">Notes</label>
-                        <input type="text" name="notes" class="form-control form-control-sm"
-                               placeholder="Remarques éventuelles">
-                    </div>
-                </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary btn-sm w-100">
-                        <i class="fas fa-plus mr-1"></i> Ajouter
+                        <i class="fas fa-key mr-1"></i> Attribuer
                     </button>
                 </div>
             </div>
         </form>
+        <?php endif; ?>
     </div>
 </div>
 <?php endif; ?>

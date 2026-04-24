@@ -101,6 +101,8 @@ class MembersController extends BaseController
         $db              = \Config\Database::connect();
         $linkedAdminUser = $db->table('admin_users')->where('member_id', $id)->get()->getRowObject();
 
+        $keyModel = new MemberKeyModel();
+
         return view('admin/members/form', [
             'title'       => 'Modifier un membre',
             'breadcrumbs' => [
@@ -110,7 +112,8 @@ class MembersController extends BaseController
             'member'          => $member,
             'linkedAdminUser' => $linkedAdminUser,
             'freeAdminUsers'  => $this->getFreeAdminUsers($linkedAdminUser?->id),
-            'memberKeys'      => (new MemberKeyModel())->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
+            'memberKeys'      => $keyModel->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
+            'availableKeys'   => $keyModel->where('member_id IS NULL')->orderBy('badge_number')->findAll(),
         ]);
     }
 
@@ -225,15 +228,21 @@ class MembersController extends BaseController
             return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
         }
 
-        $post = $this->request->getPost();
-        (new MemberKeyModel())->insert([
-            'member_id'    => $memberId,
-            'badge_number' => $post['badge_number'] ?: null,
-            'given_date'   => $post['given_date'] ?: null,
-            'notes'        => $post['notes'] ?: null,
+        $keyId    = (int) $this->request->getPost('key_id');
+        $keyModel = new MemberKeyModel();
+        $key      = $keyModel->find($keyId);
+
+        if (!$key || $key->member_id !== null) {
+            return redirect()->back()->with('error', 'Clé invalide ou déjà attribuée.');
+        }
+
+        $keyModel->update($keyId, [
+            'member_id'     => $memberId,
+            'given_date'    => $this->request->getPost('given_date') ?: date('Y-m-d'),
+            'returned_date' => null,
         ]);
 
-        return redirect()->to(base_url('admin/members/' . $memberId . '/edit'))->with('success', 'Clé enregistrée.');
+        return redirect()->to(base_url('admin/members/' . $memberId . '/edit'))->with('success', 'Clé attribuée.');
     }
 
     public function returnKey(int $memberId, int $keyId)
