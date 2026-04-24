@@ -61,20 +61,25 @@ class TreasuryEnvelopesController extends BaseController
             array_unshift($years, (string) $year);
         }
 
+        $adminUser       = $db->table('admin_users')->select('member_id')
+                              ->where('id', session()->get('admin_id'))->get()->getRowObject();
+        $currentMemberId = (int) ($adminUser?->member_id ?? 0);
+
         return view('admin/treasury_envelopes/index', [
             'title'       => 'Enveloppes de caisse',
             'breadcrumbs' => [
                 ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')],
                 ['title' => 'Enveloppes'],
             ],
-            'byMonth'      => $byMonth,
-            'year'         => $year,
-            'years'        => $years,
-            'month'        => $month,
-            'maxMonth'     => $maxMonth,
-            'monthNames'   => $monthNames,
-            'currentYear'  => $currentYear,
-            'currentMonth' => $currentMonth,
+            'byMonth'         => $byMonth,
+            'year'            => $year,
+            'years'           => $years,
+            'month'           => $month,
+            'maxMonth'        => $maxMonth,
+            'monthNames'      => $monthNames,
+            'currentYear'     => $currentYear,
+            'currentMonth'    => $currentMonth,
+            'currentMemberId' => $currentMemberId,
         ]);
     }
 
@@ -160,6 +165,20 @@ class TreasuryEnvelopesController extends BaseController
 
     public function delete(int $id)
     {
+        $envelope = $this->model->find($id);
+        if (!$envelope) {
+            return redirect()->to(base_url('admin/treasury/envelopes'))->with('error', 'Enveloppe introuvable.');
+        }
+
+        $db              = \Config\Database::connect();
+        $adminUser       = $db->table('admin_users')->select('member_id')
+                              ->where('id', session()->get('admin_id'))->get()->getRowObject();
+        $currentMemberId = (int) ($adminUser?->member_id ?? 0);
+
+        if ($envelope->encoded_by_member_id !== null && (int)$envelope->encoded_by_member_id !== $currentMemberId) {
+            return redirect()->to(base_url('admin/treasury/envelopes'))->with('error', 'Vous ne pouvez supprimer que les enveloppes que vous avez encodées.');
+        }
+
         $this->model->delete($id);
         return redirect()->to(base_url('admin/treasury/envelopes'))->with('success', 'Enveloppe supprimée.');
     }

@@ -81,14 +81,13 @@
                            class="btn btn-xs btn-info" title="Modifier">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form action="<?= base_url('admin/treasury/envelopes/' . $r->id . '/delete') ?>"
-                              method="post" class="d-inline"
-                              onsubmit="return confirm('Supprimer cette enveloppe ?')">
-                            <?= csrf_field() ?>
-                            <button type="submit" class="btn btn-xs btn-danger" title="Supprimer">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-xs btn-danger btn-delete-env"
+                                data-id="<?= $r->id ?>"
+                                data-encoder-id="<?= (int)$r->encoded_by_member_id ?>"
+                                data-date="<?= date('d/m/Y', strtotime($r->date)) ?>"
+                                title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -112,14 +111,17 @@
     <?php endforeach; ?>
 <?php endif; ?>
 
+<form id="deleteEnvForm" method="post" action=""><?= csrf_field() ?></form>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script>
 $(function () {
-    const currentYear  = <?= $currentYear ?>;
-    const currentMonth = <?= $currentMonth ?>;
-    const allMonths    = <?= json_encode(array_slice($monthNames, 1, null, true)) ?>;
+    const currentYear     = <?= $currentYear ?>;
+    const currentMonth    = <?= $currentMonth ?>;
+    const allMonths       = <?= json_encode(array_slice($monthNames, 1, null, true)) ?>;
+    const currentMemberId = <?= $currentMemberId ?>;
 
     $('#yearSelect').on('change', function () {
         const selectedYear = parseInt($(this).val());
@@ -135,6 +137,36 @@ $(function () {
 
     $('#monthSelect').on('change', function () {
         $('#filterForm').submit();
+    });
+
+    $(document).on('click', '.btn-delete-env', function () {
+        const id        = $(this).data('id');
+        const encoderId = $(this).data('encoder-id');
+        const date      = $(this).data('date');
+
+        if (encoderId && encoderId !== currentMemberId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Action non autorisée',
+                text: 'Seul l\'encodeur peut supprimer cette enveloppe.',
+                confirmButtonColor: '#84252B',
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Supprimer l\'enveloppe ?',
+            html: `Confirmer la suppression de l'enveloppe du <strong>${date}</strong> ?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Supprimer',
+            cancelButtonText: 'Annuler',
+            confirmButtonColor: '#dc3545',
+        }).then(result => {
+            if (result.isConfirmed) {
+                $('#deleteEnvForm').attr('action', `<?= base_url('admin/treasury/envelopes/') ?>${id}/delete`).submit();
+            }
+        });
     });
 });
 </script>

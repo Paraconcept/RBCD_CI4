@@ -328,11 +328,13 @@ $formAction = $isEdit
                 <td class="text-center">
                     <?php if (!$key->returned_date): ?>
                         <span class="badge badge-success">Active</span>
-                        <form action="<?= base_url('admin/members/' . $member->id . '/keys/' . $key->id . '/return') ?>"
+                        <form id="returnKeyForm-<?= $key->id ?>"
+                              action="<?= base_url('admin/members/' . $member->id . '/keys/' . $key->id . '/return') ?>"
                               method="post" class="d-inline">
                             <?= csrf_field() ?>
-                            <button type="submit" class="btn btn-xs btn-warning mt-1"
-                                    onclick="return confirm('Marquer cette clé comme retournée ?')">
+                            <button type="button" class="btn btn-xs btn-warning mt-1 btn-return-key"
+                                    data-form="returnKeyForm-<?= $key->id ?>"
+                                    data-badge="<?= esc($key->badge_number ?: 'sans numéro') ?>">
                                 <i class="fas fa-undo mr-1"></i>Retourner
                             </button>
                         </form>
@@ -363,7 +365,7 @@ $formAction = $isEdit
         <form action="<?= base_url('admin/members/' . $member->id . '/keys') ?>" method="post" autocomplete="off">
             <?= csrf_field() ?>
             <div class="row align-items-end">
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <div class="form-group mb-0">
                         <label class="small mb-1">Clé <span class="text-danger">*</span></label>
                         <select name="key_id" class="form-control form-control-sm" required>
@@ -413,6 +415,24 @@ $(function() {
         };
         reader.readAsDataURL(file);
         $('#remove_photo').prop('checked', false);
+    });
+
+    $(document).on('click', '.btn-return-key', function () {
+        const formId = $(this).data('form');
+        const badge  = $(this).data('badge');
+        Swal.fire({
+            title: 'Retourner la clé ?',
+            html: `Marquer la clé <strong>${badge}</strong> comme retournée ?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Oui, retourner',
+            cancelButtonText: 'Annuler',
+            confirmButtonColor: '#84252B',
+        }).then(result => {
+            if (result.isConfirmed) {
+                $('#' + formId).submit();
+            }
+        });
     });
 });
 </script>
