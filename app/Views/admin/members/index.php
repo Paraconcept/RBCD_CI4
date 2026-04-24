@@ -66,9 +66,6 @@
                     </td>
                     <!-- Actions -->
                     <td class="text-center">
-                        <a href="<?= base_url('admin/members/' . $m->id . '/payments') ?>" class="btn btn-xs btn-outline-secondary" title="Cotisations">
-                            <i class="fas fa-euro-sign"></i>
-                        </a>
                         <a href="<?= base_url('admin/members/' . $m->id . '/edit') ?>" class="btn btn-xs btn-info" title="Modifier">
                             <i class="fas fa-edit"></i>
                         </a>
