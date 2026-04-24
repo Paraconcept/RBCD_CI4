@@ -111,6 +111,7 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
                 <tr>
                     <th>Membre</th>
                     <th class="text-center">RBCD</th>
+                    <th class="text-center no-sort" style="width:20px"></th>
                     <th class="text-center">FRBB</th>
                     <th class="text-center">Forfait F1</th>
                     <th class="text-center">Forfait F2</th>
@@ -142,6 +143,14 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
                         </span>
                     <?php else: ?>
                         <span class="badge badge-danger"><i class="fas fa-times"></i> Non payé</span>
+                    <?php endif; ?>
+                </td>
+
+                <!-- Logo FRBB -->
+                <td class="text-center p-0" style="width:20px;vertical-align:middle;">
+                    <?php if ($r->is_federated): ?>
+                        <img src="<?= base_url('assets/images/frbb_kbbb_logo_100.png') ?>"
+                             style="height:24px;width:auto;" title="Fédéré FRBB">
                     <?php endif; ?>
                 </td>
 

@@ -11,6 +11,9 @@ $formAction = $isEdit
 // Helpers de valeur
 $v   = fn($f, $default = '')  => old($f, $isEdit ? ($payment->$f ?? $default) : $default);
 $chk = fn($f, $default = 0)   => (bool)(old($f) !== null ? old($f) : ($isEdit ? ($payment->$f ?? $default) : $default));
+
+$y1 = $isEdit ? (int)$payment->year     : ANNEE_1;
+$y2 = $isEdit ? (int)$payment->year + 1 : ANNEE_2;
 ?>
 
 <form action="<?= $formAction ?>" method="post" autocomplete="off">
@@ -54,7 +57,9 @@ $chk = fn($f, $default = 0)   => (bool)(old($f) !== null ? old($f) : ($isEdit ? 
         <!-- Cotisation RBCD -->
         <div class="card card-outline card-primary">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-id-badge mr-2"></i>Cotisation RBCD <small class="text-muted">(jan–déc <?= $isEdit ? $payment->year + 1 : '' ?>)</small></h3>
+                <h3 class="card-title">
+                    <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Cotisation RBCD <small class="text-muted">(janvier–décembre <?= $y2 ?>)</small>
+                </h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
@@ -74,7 +79,9 @@ $chk = fn($f, $default = 0)   => (bool)(old($f) !== null ? old($f) : ($isEdit ? 
         <!-- Cotisation FRBB -->
         <div class="card card-outline card-primary">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-medal mr-2"></i>Cotisation FRBB <small class="text-muted">(saison sep–jun)</small></h3>
+                <h3 class="card-title">
+                    <img src="<?= base_url('assets/images/Ecusson_FRBB-LL.png') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Cotisation FRBB <small class="text-muted">(septembre <?= $y1 ?> – juin <?= $y2 ?>)</small>
+                </h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
@@ -99,7 +106,9 @@ $chk = fn($f, $default = 0)   => (bool)(old($f) !== null ? old($f) : ($isEdit ? 
         <!-- Forfait F1 -->
         <div class="card card-outline card-primary">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-billiard-ball mr-2"></i>Forfait billard H1 <small class="text-muted">(jan–juin — 75 €)</small></h3>
+                <h3 class="card-title">
+                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait billard F1 <small class="text-muted">(jan–juin — 75 €)</small>
+                </h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
@@ -129,7 +138,9 @@ $chk = fn($f, $default = 0)   => (bool)(old($f) !== null ? old($f) : ($isEdit ? 
         <!-- Forfait F2 -->
         <div class="card card-outline card-primary">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-billiard-ball mr-2"></i>Forfait billard H2 <small class="text-muted">(jul–déc — 75 €)</small></h3>
+                <h3 class="card-title">
+                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait billard F2 <small class="text-muted">(jul–déc — 75 €)</small>
+                </h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
