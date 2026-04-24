@@ -15,8 +15,12 @@ class AdminUserModel extends Model
         'Président',
         'Vice-Président',
         'Secrétaire',
+        'Secrétaire Adjoint',
         'Directeur Sportif',
+        'Directeur Sportif Adjoint',
         'Trésorier',
+        'Trésorier Adjoint',
+        'Commissaire',
     ];
 
     protected $allowedFields = [

@@ -42,6 +42,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/treasury') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-euro-sign"></i>
+                        <p>Trésorerie</p>
+                    </a>
+                </li>
+
                 <li class="nav-header">ADMINISTRATION</li>
 
                 <li class="nav-item">

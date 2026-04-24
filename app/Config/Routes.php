@@ -41,6 +41,9 @@ $routes->group('admin', static function ($routes) {
         $routes->post('members/(:num)/payments/(:num)/update',   'Admin\MemberPaymentsController::update/$1/$2');
         $routes->post('members/(:num)/payments/(:num)/delete',   'Admin\MemberPaymentsController::delete/$1/$2');
 
+        // Trésorerie
+        $routes->get('treasury', 'Admin\TreasuryController::index');
+
         // Utilisateurs admin
         $routes->get('users',                            'Admin\AdminUsersController::index');
         $routes->get('users/pick-member',                'Admin\AdminUsersController::pickMember');

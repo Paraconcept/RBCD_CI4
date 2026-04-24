@@ -27,9 +27,9 @@
                 <tr>
                     <th>Saison</th>
                     <th class="text-center">Cotis. RBCD<br><small>jan–déc</small></th>
-                    <th class="text-center">Cotis. FRBB<br><small>sep–jun</small></th>
+                    <th class="text-center">Cotis. FRBB<br><small>sep–juin</small></th>
                     <th class="text-center">Forfait H1<br><small>jan–juin</small></th>
-                    <th class="text-center">Forfait H2<br><small>jul–déc</small></th>
+                    <th class="text-center">Forfait H2<br><small>juil–déc</small></th>
                     <th class="text-center no-sort">Actions</th>
                 </tr>
             </thead>
