@@ -144,16 +144,16 @@ class TreasuryEnvelopesController extends BaseController
         }
 
         if (!$this->validate([
-            'date'                => 'required|valid_date',
-            'category'            => 'required|in_list[bar,divers]',
-            'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
-            'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
             'closed_by_member_id' => 'required|is_natural_no_zero',
         ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $this->model->update($id, $this->collectData());
+        $post = $this->request->getPost();
+        $this->model->update($id, [
+            'closed_by_member_id' => $post['closed_by_member_id'] ?: null,
+            'notes'               => $post['notes'] ?: null,
+        ]);
 
         return redirect()->to(base_url('admin/treasury/envelopes'))->with('success', 'Enveloppe mise à jour.');
     }
