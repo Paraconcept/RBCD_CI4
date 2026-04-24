@@ -42,7 +42,7 @@
         <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
-                    <?= esc(session()->get('admin_name')) ?>
+                    <i class="fas fa-caret-square-down mr-1"></i><?= esc(session()->get('admin_name')) ?>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a href="<?= base_url() ?>" class="dropdown-item" target="_blank">
