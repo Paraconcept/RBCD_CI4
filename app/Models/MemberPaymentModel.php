@@ -18,12 +18,12 @@ class MemberPaymentModel extends Model
         'rbcd_paid_date',
         'frbb_paid',
         'frbb_paid_date',
-        'forfait_h1_choice',
-        'forfait_h1_paid',
-        'forfait_h1_paid_date',
-        'forfait_h2_choice',
-        'forfait_h2_paid',
-        'forfait_h2_paid_date',
+        'forfait_f1_choice',
+        'forfait_f1_paid',
+        'forfait_f1_paid_date',
+        'forfait_f2_choice',
+        'forfait_f2_paid',
+        'forfait_f2_paid_date',
     ];
 
     public function createForMember(int $memberId, ?int $startYear = null): void

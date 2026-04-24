@@ -28,8 +28,8 @@
                     <th>Saison</th>
                     <th class="text-center">Cotis. RBCD<br><small>jan–déc</small></th>
                     <th class="text-center">Cotis. FRBB<br><small>sep–juin</small></th>
-                    <th class="text-center">Forfait H1<br><small>jan–juin</small></th>
-                    <th class="text-center">Forfait H2<br><small>juil–déc</small></th>
+                    <th class="text-center">Forfait F1<br><small>jan–juin</small></th>
+                    <th class="text-center">Forfait F2<br><small>juil–déc</small></th>
                     <th class="text-center no-sort">Actions</th>
                 </tr>
             </thead>
@@ -62,28 +62,28 @@
                         <?php endif; ?>
                     </td>
 
-                    <!-- Forfait H1 -->
+                    <!-- Forfait F1 -->
                     <td class="text-center">
-                        <?php if (!$p->forfait_h1_choice): ?>
+                        <?php if (!$p->forfait_f1_choice): ?>
                             <span class="text-muted">—</span>
-                        <?php elseif ($p->forfait_h1_paid): ?>
+                        <?php elseif ($p->forfait_f1_paid): ?>
                             <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
-                            <?php if ($p->forfait_h1_paid_date): ?>
-                                <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_h1_paid_date)) ?></small>
+                            <?php if ($p->forfait_f1_paid_date): ?>
+                                <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_f1_paid_date)) ?></small>
                             <?php endif; ?>
                         <?php else: ?>
                             <span class="badge badge-warning text-dark"><i class="fas fa-clock mr-1"></i>En attente</span>
                         <?php endif; ?>
                     </td>
 
-                    <!-- Forfait H2 -->
+                    <!-- Forfait F2 -->
                     <td class="text-center">
-                        <?php if (!$p->forfait_h2_choice): ?>
+                        <?php if (!$p->forfait_f2_choice): ?>
                             <span class="text-muted">—</span>
-                        <?php elseif ($p->forfait_h2_paid): ?>
+                        <?php elseif ($p->forfait_f2_paid): ?>
                             <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
-                            <?php if ($p->forfait_h2_paid_date): ?>
-                                <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_h2_paid_date)) ?></small>
+                            <?php if ($p->forfait_f2_paid_date): ?>
+                                <br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_f2_paid_date)) ?></small>
                             <?php endif; ?>
                         <?php else: ?>
                             <span class="badge badge-warning text-dark"><i class="fas fa-clock mr-1"></i>En attente</span>

@@ -23,12 +23,12 @@ class TreasuryController extends BaseController
                 'mp.rbcd_paid_date',
                 'mp.frbb_paid',
                 'mp.frbb_paid_date',
-                'mp.forfait_h1_choice',
-                'mp.forfait_h1_paid',
-                'mp.forfait_h1_paid_date',
-                'mp.forfait_h2_choice',
-                'mp.forfait_h2_paid',
-                'mp.forfait_h2_paid_date',
+                'mp.forfait_f1_choice',
+                'mp.forfait_f1_paid',
+                'mp.forfait_f1_paid_date',
+                'mp.forfait_f2_choice',
+                'mp.forfait_f2_paid',
+                'mp.forfait_f2_paid_date',
             ])
             ->join('member_payments mp', "mp.member_id = m.id AND mp.year = {$year}", 'left')
             ->where('m.is_active', 1)
@@ -39,14 +39,14 @@ class TreasuryController extends BaseController
         $total       = count($rows);
         $rbcdPaid    = 0;
         $frbbTotal   = 0; $frbbPaid = 0;
-        $h1Total     = 0; $h1Paid   = 0;
-        $h2Total     = 0; $h2Paid   = 0;
+        $f1Total     = 0; $f1Paid   = 0;
+        $f2Total     = 0; $f2Paid   = 0;
 
         foreach ($rows as $r) {
             if ($r->rbcd_paid)           $rbcdPaid++;
             if ($r->is_federated)      { $frbbTotal++; if ($r->frbb_paid) $frbbPaid++; }
-            if ($r->forfait_h1_choice) { $h1Total++;   if ($r->forfait_h1_paid) $h1Paid++; }
-            if ($r->forfait_h2_choice) { $h2Total++;   if ($r->forfait_h2_paid) $h2Paid++; }
+            if ($r->forfait_f1_choice) { $f1Total++;   if ($r->forfait_f1_paid) $f1Paid++; }
+            if ($r->forfait_f2_choice) { $f2Total++;   if ($r->forfait_f2_paid) $f2Paid++; }
         }
 
         // Années disponibles pour le sélecteur
@@ -67,10 +67,10 @@ class TreasuryController extends BaseController
                 'rbcdPaid'  => $rbcdPaid,
                 'frbbTotal' => $frbbTotal,
                 'frbbPaid'  => $frbbPaid,
-                'h1Total'   => $h1Total,
-                'h1Paid'    => $h1Paid,
-                'h2Total'   => $h2Total,
-                'h2Paid'    => $h2Paid,
+                'f1Total'   => $f1Total,
+                'f1Paid'    => $f1Paid,
+                'f2Total'   => $f2Total,
+                'f2Paid'    => $f2Paid,
             ],
         ]);
     }

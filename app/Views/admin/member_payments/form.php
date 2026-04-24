@@ -96,61 +96,61 @@ $chk = fn($f, $default = 0)   => (bool)(old($f) !== null ? old($f) : ($isEdit ? 
     <!-- ── Colonne droite ────────────────────────────────────── -->
     <div class="col-lg-6">
 
-        <!-- Forfait H1 -->
+        <!-- Forfait F1 -->
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-billiard-ball mr-2"></i>Forfait billard H1 <small class="text-muted">(jan–juin — 75 €)</small></h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
-                    <input type="hidden" name="forfait_h1_choice" value="0">
+                    <input type="hidden" name="forfait_f1_choice" value="0">
                     <input type="checkbox" class="custom-control-input choice-toggle"
-                           id="forfait_h1_choice" name="forfait_h1_choice" value="1"
-                           data-target="#h1_details"
-                           <?= $chk('forfait_h1_choice') ? 'checked' : '' ?>>
-                    <label class="custom-control-label" for="forfait_h1_choice">Le membre a souscrit au forfait H1</label>
+                           id="forfait_f1_choice" name="forfait_f1_choice" value="1"
+                           data-target="#f1_details"
+                           <?= $chk('forfait_f1_choice') ? 'checked' : '' ?>>
+                    <label class="custom-control-label" for="forfait_f1_choice">Le membre a souscrit au forfait F1</label>
                 </div>
-                <div id="h1_details" <?= !$chk('forfait_h1_choice') ? 'style="display:none"' : '' ?>>
+                <div id="f1_details" <?= !$chk('forfait_f1_choice') ? 'style="display:none"' : '' ?>>
                     <div class="custom-control custom-switch mb-3">
-                        <input type="hidden" name="forfait_h1_paid" value="0">
-                        <input type="checkbox" class="custom-control-input" id="forfait_h1_paid"
-                               name="forfait_h1_paid" value="1" <?= $chk('forfait_h1_paid') ? 'checked' : '' ?>>
-                        <label class="custom-control-label" for="forfait_h1_paid">Forfait H1 payé</label>
+                        <input type="hidden" name="forfait_f1_paid" value="0">
+                        <input type="checkbox" class="custom-control-input" id="forfait_f1_paid"
+                               name="forfait_f1_paid" value="1" <?= $chk('forfait_f1_paid') ? 'checked' : '' ?>>
+                        <label class="custom-control-label" for="forfait_f1_paid">Forfait F1 payé</label>
                     </div>
-                    <div class="form-group mb-0" id="h1_date_wrap" <?= !$chk('forfait_h1_paid') ? 'style="display:none"' : '' ?>>
+                    <div class="form-group mb-0" id="f1_date_wrap" <?= !$chk('forfait_f1_paid') ? 'style="display:none"' : '' ?>>
                         <label>Date de paiement</label>
-                        <input type="date" name="forfait_h1_paid_date" class="form-control" style="max-width:180px"
-                               value="<?= esc($v('forfait_h1_paid_date')) ?>">
+                        <input type="date" name="forfait_f1_paid_date" class="form-control" style="max-width:180px"
+                               value="<?= esc($v('forfait_f1_paid_date')) ?>">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Forfait H2 -->
+        <!-- Forfait F2 -->
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-billiard-ball mr-2"></i>Forfait billard H2 <small class="text-muted">(jul–déc — 75 €)</small></h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
-                    <input type="hidden" name="forfait_h2_choice" value="0">
+                    <input type="hidden" name="forfait_f2_choice" value="0">
                     <input type="checkbox" class="custom-control-input choice-toggle"
-                           id="forfait_h2_choice" name="forfait_h2_choice" value="1"
-                           data-target="#h2_details"
-                           <?= $chk('forfait_h2_choice') ? 'checked' : '' ?>>
-                    <label class="custom-control-label" for="forfait_h2_choice">Le membre a souscrit au forfait H2</label>
+                           id="forfait_f2_choice" name="forfait_f2_choice" value="1"
+                           data-target="#f2_details"
+                           <?= $chk('forfait_f2_choice') ? 'checked' : '' ?>>
+                    <label class="custom-control-label" for="forfait_f2_choice">Le membre a souscrit au forfait F2</label>
                 </div>
-                <div id="h2_details" <?= !$chk('forfait_h2_choice') ? 'style="display:none"' : '' ?>>
+                <div id="f2_details" <?= !$chk('forfait_f2_choice') ? 'style="display:none"' : '' ?>>
                     <div class="custom-control custom-switch mb-3">
-                        <input type="hidden" name="forfait_h2_paid" value="0">
-                        <input type="checkbox" class="custom-control-input" id="forfait_h2_paid"
-                               name="forfait_h2_paid" value="1" <?= $chk('forfait_h2_paid') ? 'checked' : '' ?>>
-                        <label class="custom-control-label" for="forfait_h2_paid">Forfait H2 payé</label>
+                        <input type="hidden" name="forfait_f2_paid" value="0">
+                        <input type="checkbox" class="custom-control-input" id="forfait_f2_paid"
+                               name="forfait_f2_paid" value="1" <?= $chk('forfait_f2_paid') ? 'checked' : '' ?>>
+                        <label class="custom-control-label" for="forfait_f2_paid">Forfait F2 payé</label>
                     </div>
-                    <div class="form-group mb-0" id="h2_date_wrap" <?= !$chk('forfait_h2_paid') ? 'style="display:none"' : '' ?>>
+                    <div class="form-group mb-0" id="f2_date_wrap" <?= !$chk('forfait_f2_paid') ? 'style="display:none"' : '' ?>>
                         <label>Date de paiement</label>
-                        <input type="date" name="forfait_h2_paid_date" class="form-control" style="max-width:180px"
-                               value="<?= esc($v('forfait_h2_paid_date')) ?>">
+                        <input type="date" name="forfait_f2_paid_date" class="form-control" style="max-width:180px"
+                               value="<?= esc($v('forfait_f2_paid_date')) ?>">
                     </div>
                 </div>
             </div>
@@ -185,8 +185,8 @@ $(function () {
     }
     toggleDate('rbcd_paid',        '#rbcd_date_wrap');
     toggleDate('frbb_paid',        '#frbb_date_wrap');
-    toggleDate('forfait_h1_paid',  '#h1_date_wrap');
-    toggleDate('forfait_h2_paid',  '#h2_date_wrap');
+    toggleDate('forfait_f1_paid',  '#f1_date_wrap');
+    toggleDate('forfait_f2_paid',  '#f2_date_wrap');
 
     // Affiche/cache le bloc détail forfait quand on coche "a souscrit"
     $('.choice-toggle').on('change', function () {

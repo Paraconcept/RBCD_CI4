@@ -60,33 +60,39 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
         </div>
     </div>
 
-    <!-- Forfait H1 -->
+    <!-- Forfait F1 -->
     <div class="col-lg-3 col-sm-6">
         <div class="small-box bg-white border">
             <div class="inner">
-                <h3><?= $stats['h1Paid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['h1Total'] ?></sup></h3>
-                <p>Forfait H1 payé</p>
+                <h3><?= $stats['f1Paid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['f1Total'] ?></sup></h3>
+                <p>Forfait F1 payé</p>
                 <div class="progress progress-sm mt-2">
-                    <div class="progress-bar bg-success" style="width:<?= $pct($stats['h1Paid'], $stats['h1Total']) ?>%"></div>
+                    <div class="progress-bar bg-success" style="width:<?= $pct($stats['f1Paid'], $stats['f1Total']) ?>%"></div>
                 </div>
-                <small class="text-muted"><?= $pct($stats['h1Paid'], $stats['h1Total']) ?> % des souscrits</small>
+                <small class="text-muted"><?= $pct($stats['f1Paid'], $stats['f1Total']) ?> % des souscrits</small>
             </div>
-            <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="icon" style="position:absolute;right:10px;bottom:55px;z-index:0;">
+                <img src="<?= base_url('assets/images/75euros.gif') ?>"
+                     style="height:80px;width:auto;opacity:1;object-fit:contain;">
+            </div>
         </div>
     </div>
 
-    <!-- Forfait H2 -->
+    <!-- Forfait F2 -->
     <div class="col-lg-3 col-sm-6">
         <div class="small-box bg-white border">
             <div class="inner">
-                <h3><?= $stats['h2Paid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['h2Total'] ?></sup></h3>
-                <p>Forfait H2 payé</p>
+                <h3><?= $stats['f2Paid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['f2Total'] ?></sup></h3>
+                <p>Forfait F2 payé</p>
                 <div class="progress progress-sm mt-2">
-                    <div class="progress-bar bg-success" style="width:<?= $pct($stats['h2Paid'], $stats['h2Total']) ?>%"></div>
+                    <div class="progress-bar bg-success" style="width:<?= $pct($stats['f2Paid'], $stats['f2Total']) ?>%"></div>
                 </div>
-                <small class="text-muted"><?= $pct($stats['h2Paid'], $stats['h2Total']) ?> % des souscrits</small>
+                <small class="text-muted"><?= $pct($stats['f2Paid'], $stats['f2Total']) ?> % des souscrits</small>
             </div>
-            <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="icon" style="position:absolute;right:10px;bottom:55px;z-index:0;">
+                <img src="<?= base_url('assets/images/75euros.gif') ?>"
+                     style="height:80px;width:auto;opacity:1;object-fit:contain;">
+            </div>
         </div>
     </div>
 
@@ -106,8 +112,8 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
                     <th>Membre</th>
                     <th class="text-center">RBCD</th>
                     <th class="text-center">FRBB</th>
-                    <th class="text-center">Forfait H1</th>
-                    <th class="text-center">Forfait H2</th>
+                    <th class="text-center">Forfait F1</th>
+                    <th class="text-center">Forfait F2</th>
                     <th class="text-center no-sort">Fiche</th>
                 </tr>
             </thead>
@@ -155,28 +161,28 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
                     <?php endif; ?>
                 </td>
 
-                <!-- Forfait H1 -->
+                <!-- Forfait F1 -->
                 <td class="text-center">
-                    <?php if (!$r->payment_id || !$r->forfait_h1_choice): ?>
+                    <?php if (!$r->payment_id || !$r->forfait_f1_choice): ?>
                         <span class="text-muted">—</span>
-                    <?php elseif ($r->forfait_h1_paid): ?>
-                        <span class="badge badge-success" title="<?= $r->forfait_h1_paid_date ? date('d/m/Y', strtotime($r->forfait_h1_paid_date)) : '' ?>">
+                    <?php elseif ($r->forfait_f1_paid): ?>
+                        <span class="badge badge-success" title="<?= $r->forfait_f1_paid_date ? date('d/m/Y', strtotime($r->forfait_f1_paid_date)) : '' ?>">
                             <i class="fas fa-check"></i>
-                            <?= $r->forfait_h1_paid_date ? date('d/m/Y', strtotime($r->forfait_h1_paid_date)) : 'Payé' ?>
+                            <?= $r->forfait_f1_paid_date ? date('d/m/Y', strtotime($r->forfait_f1_paid_date)) : 'Payé' ?>
                         </span>
                     <?php else: ?>
                         <span class="badge badge-warning text-dark"><i class="fas fa-clock"></i> En attente</span>
                     <?php endif; ?>
                 </td>
 
-                <!-- Forfait H2 -->
+                <!-- Forfait F2 -->
                 <td class="text-center">
-                    <?php if (!$r->payment_id || !$r->forfait_h2_choice): ?>
+                    <?php if (!$r->payment_id || !$r->forfait_f2_choice): ?>
                         <span class="text-muted">—</span>
-                    <?php elseif ($r->forfait_h2_paid): ?>
-                        <span class="badge badge-success" title="<?= $r->forfait_h2_paid_date ? date('d/m/Y', strtotime($r->forfait_h2_paid_date)) : '' ?>">
+                    <?php elseif ($r->forfait_f2_paid): ?>
+                        <span class="badge badge-success" title="<?= $r->forfait_f2_paid_date ? date('d/m/Y', strtotime($r->forfait_f2_paid_date)) : '' ?>">
                             <i class="fas fa-check"></i>
-                            <?= $r->forfait_h2_paid_date ? date('d/m/Y', strtotime($r->forfait_h2_paid_date)) : 'Payé' ?>
+                            <?= $r->forfait_f2_paid_date ? date('d/m/Y', strtotime($r->forfait_f2_paid_date)) : 'Payé' ?>
                         </span>
                     <?php else: ?>
                         <span class="badge badge-warning text-dark"><i class="fas fa-clock"></i> En attente</span>
