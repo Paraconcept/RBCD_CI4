@@ -4,12 +4,18 @@
 <?php $catLabels = ['bar' => 'Bar / Buvette', 'divers' => 'Divers']; ?>
 
 <div class="d-flex align-items-center mb-3">
-    <form method="get" class="d-flex align-items-center mr-3">
+    <form method="get" class="d-flex align-items-center mr-3" id="filterForm">
         <label class="mr-2 mb-0 font-weight-bold">Année :</label>
-        <select name="year" class="form-control form-control-sm mr-2" style="width:120px" onchange="this.form.submit()">
+        <select name="year" id="yearSelect" class="form-control form-control-sm mr-3" style="width:100px">
             <?php foreach ($years as $y): ?>
                 <option value="<?= $y ?>" <?= $y == $year ? 'selected' : '' ?>><?= $y ?></option>
             <?php endforeach; ?>
+        </select>
+        <label class="mr-2 mb-0 font-weight-bold">Mois :</label>
+        <select name="month" id="monthSelect" class="form-control form-control-sm mr-3" style="width:140px">
+            <?php for ($m = 1; $m <= $maxMonth; $m++): ?>
+                <option value="<?= $m ?>" <?= $m == $month ? 'selected' : '' ?>><?= $monthNames[$m] ?></option>
+            <?php endfor; ?>
         </select>
     </form>
     <a href="<?= base_url('admin/treasury/envelopes/create') ?>" class="btn btn-primary btn-sm">
@@ -106,4 +112,30 @@
     <?php endforeach; ?>
 <?php endif; ?>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+$(function () {
+    const currentYear  = <?= $currentYear ?>;
+    const currentMonth = <?= $currentMonth ?>;
+    const allMonths    = <?= json_encode(array_slice($monthNames, 1, null, true)) ?>;
+
+    $('#yearSelect').on('change', function () {
+        const selectedYear = parseInt($(this).val());
+        const max = (selectedYear >= currentYear) ? currentMonth : 12;
+
+        const $ms = $('#monthSelect').empty();
+        for (let m = 1; m <= max; m++) {
+            $ms.append(new Option(allMonths[m], m));
+        }
+        $ms.val(max);
+        $('#filterForm').submit();
+    });
+
+    $('#monthSelect').on('change', function () {
+        $('#filterForm').submit();
+    });
+});
+</script>
 <?= $this->endSection() ?>

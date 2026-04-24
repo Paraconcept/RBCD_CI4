@@ -19,7 +19,7 @@ class TreasuryEnvelopeModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    public function getWithCloser(?int $year = null): array
+    public function getWithCloser(?int $year = null, ?int $month = null): array
     {
         $builder = $this->db->table('treasury_envelopes te')
             ->select([
@@ -30,9 +30,8 @@ class TreasuryEnvelopeModel extends Model
             ->join('members mc', 'mc.id = te.closed_by_member_id', 'left')
             ->join('members me', 'me.id = te.encoded_by_member_id', 'left');
 
-        if ($year) {
-            $builder->where('YEAR(te.date)', $year);
-        }
+        if ($year)  { $builder->where('YEAR(te.date)',  $year);  }
+        if ($month) { $builder->where('MONTH(te.date)', $month); }
 
         return $builder->orderBy('te.date', 'DESC')->get()->getResultObject();
     }

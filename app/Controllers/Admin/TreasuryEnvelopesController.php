@@ -19,9 +19,18 @@ class TreasuryEnvelopesController extends BaseController
 
     public function index(): string
     {
-        $year = (int) ($this->request->getGet('year') ?? date('Y'));
+        $currentYear  = (int) date('Y');
+        $currentMonth = (int) date('n');
 
-        $rows = $this->model->getWithCloser($year);
+        $year  = (int) ($this->request->getGet('year')  ?? $currentYear);
+        $month = (int) ($this->request->getGet('month') ?? $currentMonth);
+
+        $maxMonth = ($year >= $currentYear) ? $currentMonth : 12;
+        if ($month < 1 || $month > $maxMonth) {
+            $month = $maxMonth;
+        }
+
+        $rows = $this->model->getWithCloser($year, $month);
 
         $monthNames = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
                        'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -58,9 +67,14 @@ class TreasuryEnvelopesController extends BaseController
                 ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')],
                 ['title' => 'Enveloppes'],
             ],
-            'byMonth' => $byMonth,
-            'year'    => $year,
-            'years'   => $years,
+            'byMonth'      => $byMonth,
+            'year'         => $year,
+            'years'        => $years,
+            'month'        => $month,
+            'maxMonth'     => $maxMonth,
+            'monthNames'   => $monthNames,
+            'currentYear'  => $currentYear,
+            'currentMonth' => $currentMonth,
         ]);
     }
 
