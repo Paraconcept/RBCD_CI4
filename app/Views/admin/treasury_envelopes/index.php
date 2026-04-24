@@ -1,7 +1,6 @@
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('content') ?>
 
-<?php $catLabels = ['bar' => 'Bar / Buvette', 'divers' => 'Divers']; ?>
 
 <div class="d-flex align-items-center mb-3">
     <form method="get" class="d-flex align-items-center mr-3" id="filterForm">
@@ -52,7 +51,7 @@
                 <thead class="thead-rbcd">
                     <tr>
                         <th style="width:110px">Date</th>
-                        <th>Catégorie</th>
+                        <th style="width:110px">Nom</th>
                         <th class="text-right" style="width:130px">Calculé</th>
                         <th class="text-right" style="width:130px">Trouvé</th>
                         <th class="text-right" style="width:120px">Écart</th>
@@ -66,7 +65,7 @@
                 <?php $ecart = (float)$r->amount_found - (float)$r->amount_calculated; ?>
                 <tr>
                     <td><?= date('d/m/Y', strtotime($r->date)) ?></td>
-                    <td><?= esc($catLabels[$r->category] ?? $r->category) ?></td>
+                    <td><strong><?= esc($r->name ?: '—') ?></strong></td>
                     <td class="text-right"><?= number_format((float)$r->amount_calculated, 2, ',', '.') ?> €</td>
                     <td class="text-right"><?= number_format((float)$r->amount_found, 2, ',', '.') ?> €</td>
                     <td class="text-right">

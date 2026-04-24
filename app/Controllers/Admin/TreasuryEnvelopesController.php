@@ -102,7 +102,7 @@ class TreasuryEnvelopesController extends BaseController
     {
         if (!$this->validate([
             'date'                => 'required|valid_date',
-            'category'            => 'required|in_list[bar,divers]',
+            'name_seq'            => 'required|in_list[01,02,03,04,05]',
             'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
             'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
             'closed_by_member_id' => 'required|is_natural_no_zero',
@@ -114,7 +114,9 @@ class TreasuryEnvelopesController extends BaseController
         $adminUser = $db->table('admin_users')->select('member_id')
                         ->where('id', session()->get('admin_id'))->get()->getRowObject();
 
+        $post = $this->request->getPost();
         $data = $this->collectData();
+        $data['name']                 = 'E' . date('d.m.', strtotime($post['date'])) . $post['name_seq'];
         $data['encoded_by_member_id'] = $adminUser?->member_id ?: null;
 
         $this->model->insert($data);
@@ -190,7 +192,7 @@ class TreasuryEnvelopesController extends BaseController
         $post = $this->request->getPost();
         return [
             'date'                => $post['date'],
-            'category'            => $post['category'],
+            'category'            => 'bar',
             'amount_calculated'   => (float) $post['amount_calculated'],
             'amount_found'        => (float) $post['amount_found'],
             'closed_by_member_id' => ($post['closed_by_member_id'] ?: null),

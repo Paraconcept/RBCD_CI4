@@ -11,8 +11,8 @@ if ($isEdit) {
     $ecartSign  = $ecartVal >= 0 ? '+' : '';
     $ecartClass = $ecartVal == 0 ? 'badge-success' : 'badge-danger';
     $ecartText  = $ecartSign . number_format($ecartVal, 2, ',', ' ') . ' €';
-    $catLabels  = ['bar' => 'Bar / Buvette', 'divers' => 'Divers'];
 }
+$todayPrefix = 'E' . date('d.m.');
 ?>
 
 <form action="<?= $formAction ?>" method="post" autocomplete="off">
@@ -47,7 +47,8 @@ if ($isEdit) {
                             <?php if ($isEdit): ?>
                                 <input type="text" class="form-control" value="<?= date('d/m/Y', strtotime($envelope->date)) ?>" disabled>
                             <?php else: ?>
-                                <input type="date" name="date" class="form-control <?= isset($errors['date']) ? 'is-invalid' : '' ?>"
+                                <input type="date" name="date" id="envelopeDate"
+                                       class="form-control <?= isset($errors['date']) ? 'is-invalid' : '' ?>"
                                        value="<?= esc($v('date', date('Y-m-d'))) ?>" required>
                                 <?php if (isset($errors['date'])): ?>
                                     <div class="invalid-feedback"><?= $errors['date'] ?></div>
@@ -57,15 +58,22 @@ if ($isEdit) {
                     </div>
                     <div class="col-md-7">
                         <div class="form-group">
-                            <label>Catégorie <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
+                            <label>Nom de l'enveloppe <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
-                                <input type="text" class="form-control" value="<?= esc($catLabels[$envelope->category] ?? $envelope->category) ?>" disabled>
+                                <input type="text" class="form-control font-weight-bold" value="<?= esc($envelope->name ?? '—') ?>" disabled>
                             <?php else: ?>
-                                <select name="category" class="form-control">
-                                    <?php $cat = $v('category', 'bar'); ?>
-                                    <option value="bar"    <?= $cat === 'bar'    ? 'selected' : '' ?>>Bar / Buvette</option>
-                                    <option value="divers" <?= $cat === 'divers' ? 'selected' : '' ?>>Divers</option>
-                                </select>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text font-weight-bold" id="namePrefix"><?= $todayPrefix ?></span>
+                                    </div>
+                                    <select name="name_seq" id="nameSeq" class="form-control" style="max-width:80px" required>
+                                        <?php $seq = old('name_seq', '01'); ?>
+                                        <?php foreach (['01','02','03','04','05'] as $s): ?>
+                                            <option value="<?= $s ?>" <?= $seq === $s ? 'selected' : '' ?>><?= $s ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <small class="text-muted">Nom généré : <strong id="namePreview"><?= $todayPrefix ?>01</strong></small>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -178,6 +186,20 @@ $(function () {
     $('.select2').select2({ theme: 'bootstrap4', placeholder: '— Sélectionner —' });
 
     <?php if (!$isEdit): ?>
+    function updateNamePrefix() {
+        const dateVal = $('#envelopeDate').val();
+        if (!dateVal) return;
+        const parts = dateVal.split('-'); // YYYY-MM-DD
+        const prefix = 'E' + parts[2] + '.' + parts[1] + '.';
+        $('#namePrefix').text(prefix);
+        $('#namePreview').text(prefix + $('#nameSeq').val());
+    }
+
+    $('#envelopeDate').on('change', updateNamePrefix);
+    $('#nameSeq').on('change', function () {
+        $('#namePreview').text($('#namePrefix').text() + $(this).val());
+    });
+
     function calcEcart() {
         const calc  = parseFloat($('#amount_calculated').val()) || 0;
         const found = parseFloat($('#amount_found').val()) || 0;
