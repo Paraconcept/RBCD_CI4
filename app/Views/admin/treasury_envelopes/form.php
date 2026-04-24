@@ -198,6 +198,8 @@ $(function () {
         const prefix = 'E' + parts[2] + '.' + parts[1] + '.';
         $('#namePrefix').text(prefix);
 
+        const current = $('#nameSeq').val(); // lire avant de modifier les options
+
         let firstAvailable = null;
         $('#nameSeq option').each(function () {
             const name  = prefix + $(this).val();
@@ -206,12 +208,11 @@ $(function () {
             if (!taken && firstAvailable === null) firstAvailable = $(this).val();
         });
 
-        // Sélectionner le premier disponible si le courant est pris
-        const current = $('#nameSeq').val();
-        if (usedNames.includes(prefix + current)) {
-            $('#nameSeq').val(firstAvailable);
-        }
-        $('#namePreview').text(prefix + $('#nameSeq').val());
+        const selected = (firstAvailable !== null && usedNames.includes(prefix + current))
+            ? firstAvailable
+            : current;
+        $('#nameSeq').val(selected);
+        $('#namePreview').text(prefix + selected);
     }
 
     $('#envelopeDate').on('change', updateNameOptions);
