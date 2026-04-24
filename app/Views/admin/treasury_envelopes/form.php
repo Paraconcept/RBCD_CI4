@@ -45,7 +45,7 @@ if ($isEdit) {
                         <div class="form-group">
                             <label>Date <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
-                                <p class="form-control-plaintext font-weight-bold"><?= date('d/m/Y', strtotime($envelope->date)) ?></p>
+                                <input type="text" class="form-control" value="<?= date('d/m/Y', strtotime($envelope->date)) ?>" disabled>
                             <?php else: ?>
                                 <input type="date" name="date" class="form-control <?= isset($errors['date']) ? 'is-invalid' : '' ?>"
                                        value="<?= esc($v('date', date('Y-m-d'))) ?>" required>
@@ -59,7 +59,7 @@ if ($isEdit) {
                         <div class="form-group">
                             <label>Catégorie <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
-                                <p class="form-control-plaintext font-weight-bold"><?= esc($catLabels[$envelope->category] ?? $envelope->category) ?></p>
+                                <input type="text" class="form-control" value="<?= esc($catLabels[$envelope->category] ?? $envelope->category) ?>" disabled>
                             <?php else: ?>
                                 <select name="category" class="form-control">
                                     <?php $cat = $v('category', 'bar'); ?>
@@ -76,7 +76,8 @@ if ($isEdit) {
                         <div class="form-group">
                             <label>Montant calculé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
-                                <p class="form-control-plaintext font-weight-bold"><?= number_format((float)$envelope->amount_calculated, 2, ',', ' ') ?> €</p>
+                                <input type="text" class="form-control text-right"
+                                       value="<?= number_format((float)$envelope->amount_calculated, 2, ',', ' ') ?> €" disabled>
                             <?php else: ?>
                                 <input type="number" name="amount_calculated" id="amount_calculated"
                                        class="form-control text-right <?= isset($errors['amount_calculated']) ? 'is-invalid' : '' ?>"
@@ -92,7 +93,8 @@ if ($isEdit) {
                         <div class="form-group">
                             <label>Montant trouvé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
-                                <p class="form-control-plaintext font-weight-bold"><?= number_format((float)$envelope->amount_found, 2, ',', ' ') ?> €</p>
+                                <input type="text" class="form-control text-right"
+                                       value="<?= number_format((float)$envelope->amount_found, 2, ',', ' ') ?> €" disabled>
                             <?php else: ?>
                                 <input type="number" name="amount_found" id="amount_found"
                                        class="form-control text-right <?= isset($errors['amount_found']) ? 'is-invalid' : '' ?>"
