@@ -88,9 +88,11 @@ $v      = fn($f, $default = '') => old($f, $isEdit ? ($envelope->$f ?? $default)
                 </div>
 
                 <div class="form-group">
-                    <label>Clôturé par</label>
-                    <select name="closed_by_member_id" class="form-control select2" style="width:100%">
-                        <option value="">— Non précisé —</option>
+                    <label>Clôturé par <span class="text-danger">*</span></label>
+                    <select name="closed_by_member_id"
+                            class="form-control select2 <?= isset($errors['closed_by_member_id']) ? 'is-invalid' : '' ?>"
+                            style="width:100%" required>
+                        <option value="">— Sélectionner —</option>
                         <?php $closedBy = (int) $v('closed_by_member_id', 0); ?>
                         <?php foreach ($keyHolders as $kh): ?>
                             <option value="<?= $kh->id ?>" <?= $kh->id == $closedBy ? 'selected' : '' ?>>
@@ -98,7 +100,9 @@ $v      = fn($f, $default = '') => old($f, $isEdit ? ($envelope->$f ?? $default)
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <?php if (empty($keyHolders)): ?>
+                    <?php if (isset($errors['closed_by_member_id'])): ?>
+                        <div class="invalid-feedback d-block"><?= $errors['closed_by_member_id'] ?></div>
+                    <?php elseif (empty($keyHolders)): ?>
                         <small class="text-muted">
                             Aucun porteur de clé enregistré —
                             <a href="<?= base_url('admin/members') ?>">gérer les membres</a>
@@ -134,7 +138,7 @@ $v      = fn($f, $default = '') => old($f, $isEdit ? ($envelope->$f ?? $default)
 <?= $this->section('scripts') ?>
 <script>
 $(function () {
-    $('.select2').select2({ theme: 'bootstrap4', allowClear: true, placeholder: '— Non précisé —' });
+    $('.select2').select2({ theme: 'bootstrap4', placeholder: '— Sélectionner —' });
 
     function calcEcart() {
         const calc  = parseFloat($('#amount_calculated').val()) || 0;

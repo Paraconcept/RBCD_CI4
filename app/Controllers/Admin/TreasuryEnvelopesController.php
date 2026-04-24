@@ -82,10 +82,11 @@ class TreasuryEnvelopesController extends BaseController
     public function store()
     {
         if (!$this->validate([
-            'date'              => 'required|valid_date',
-            'category'          => 'required|in_list[bar,divers]',
-            'amount_calculated' => 'required|decimal|greater_than_equal_to[0]',
-            'amount_found'      => 'required|decimal|greater_than_equal_to[0]',
+            'date'                => 'required|valid_date',
+            'category'            => 'required|in_list[bar,divers]',
+            'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
+            'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
+            'closed_by_member_id' => 'required|is_natural_no_zero',
         ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -129,10 +130,11 @@ class TreasuryEnvelopesController extends BaseController
         }
 
         if (!$this->validate([
-            'date'              => 'required|valid_date',
-            'category'          => 'required|in_list[bar,divers]',
-            'amount_calculated' => 'required|decimal|greater_than_equal_to[0]',
-            'amount_found'      => 'required|decimal|greater_than_equal_to[0]',
+            'date'                => 'required|valid_date',
+            'category'            => 'required|in_list[bar,divers]',
+            'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
+            'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
+            'closed_by_member_id' => 'required|is_natural_no_zero',
         ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
