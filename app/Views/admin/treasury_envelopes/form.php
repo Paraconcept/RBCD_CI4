@@ -74,6 +74,9 @@ $todayPrefix = 'E' . date('d.m.');
                                     </select>
                                 </div>
                                 <small class="text-muted">Nom généré : <strong id="namePreview"><?= $todayPrefix ?>01</strong></small>
+                                <?php if (isset($errors['name'])): ?>
+                                    <div class="text-danger small mt-1"><?= $errors['name'] ?></div>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -186,19 +189,36 @@ $(function () {
     $('.select2').select2({ theme: 'bootstrap4', placeholder: '— Sélectionner —' });
 
     <?php if (!$isEdit): ?>
-    function updateNamePrefix() {
+    const usedNames = <?= json_encode($usedNames ?? []) ?>;
+
+    function updateNameOptions() {
         const dateVal = $('#envelopeDate').val();
         if (!dateVal) return;
-        const parts = dateVal.split('-'); // YYYY-MM-DD
+        const parts  = dateVal.split('-');
         const prefix = 'E' + parts[2] + '.' + parts[1] + '.';
         $('#namePrefix').text(prefix);
+
+        let firstAvailable = null;
+        $('#nameSeq option').each(function () {
+            const name  = prefix + $(this).val();
+            const taken = usedNames.includes(name);
+            $(this).prop('disabled', taken).toggleClass('text-muted', taken);
+            if (!taken && firstAvailable === null) firstAvailable = $(this).val();
+        });
+
+        // Sélectionner le premier disponible si le courant est pris
+        const current = $('#nameSeq').val();
+        if (usedNames.includes(prefix + current)) {
+            $('#nameSeq').val(firstAvailable);
+        }
         $('#namePreview').text(prefix + $('#nameSeq').val());
     }
 
-    $('#envelopeDate').on('change', updateNamePrefix);
+    $('#envelopeDate').on('change', updateNameOptions);
     $('#nameSeq').on('change', function () {
         $('#namePreview').text($('#namePrefix').text() + $(this).val());
     });
+    updateNameOptions();
 
     function calcEcart() {
         const calc  = parseFloat($('#amount_calculated').val()) || 0;

@@ -95,6 +95,7 @@ class TreasuryEnvelopesController extends BaseController
             'envelope'   => null,
             'keyHolders' => $this->keyModel->getActiveKeyHolders(),
             'formAction' => base_url('admin/treasury/envelopes'),
+            'usedNames'  => $this->getUsedNames(),
         ]);
     }
 
@@ -115,8 +116,15 @@ class TreasuryEnvelopesController extends BaseController
                         ->where('id', session()->get('admin_id'))->get()->getRowObject();
 
         $post = $this->request->getPost();
+        $name = 'E' . date('d.m.', strtotime($post['date'])) . $post['name_seq'];
+
+        if ($this->model->where('name', $name)->countAllResults() > 0) {
+            return redirect()->back()->withInput()
+                ->with('errors', ['name' => "L'enveloppe <strong>{$name}</strong> existe déjà."]);
+        }
+
         $data = $this->collectData();
-        $data['name']                 = 'E' . date('d.m.', strtotime($post['date'])) . $post['name_seq'];
+        $data['name']                 = $name;
         $data['encoded_by_member_id'] = $adminUser?->member_id ?: null;
 
         $this->model->insert($data);
@@ -186,6 +194,12 @@ class TreasuryEnvelopesController extends BaseController
     }
 
     // ----------------------------------------------------------------
+
+    private function getUsedNames(): array
+    {
+        $rows = $this->model->select('name')->where('name IS NOT NULL')->findAll();
+        return array_column(array_map(fn($r) => (array)$r, $rows), 'name');
+    }
 
     private function collectData(): array
     {
