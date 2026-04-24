@@ -73,7 +73,7 @@ $todayPrefix = 'E' . date('d.m.');
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <small class="text-muted">Nom généré : <strong id="namePreview"><?= $todayPrefix ?>01</strong></small>
+                                <span class="text-muted"><small>Nom généré</small> : <strong id="namePreview"><?= $todayPrefix ?>01</strong></span>
                                 <?php if (isset($errors['name'])): ?>
                                     <div class="text-danger small mt-1"><?= $errors['name'] ?></div>
                                 <?php endif; ?>

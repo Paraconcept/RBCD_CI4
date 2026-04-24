@@ -169,6 +169,7 @@ a:hover { color: var(--rbcd-primary-dark); }
    ---------------------------------------------------------------- */
 .tfoot-total td {
     background-color: #ced4da !important;
+    border-top: #4a535d 2px solid !important;
 }
 
 /* ----------------------------------------------------------------
