@@ -51,7 +51,7 @@
                 <thead class="thead-rbcd">
                     <tr>
                         <th style="width:110px">Date</th>
-                        <th style="width:110px">Nom</th>
+                        <th class="text-right" style="width:110px">Nom</th>
                         <th class="text-right" style="width:130px">Calculé</th>
                         <th class="text-right" style="width:130px">Trouvé</th>
                         <th class="text-right" style="width:120px">Écart</th>
@@ -65,7 +65,7 @@
                 <?php $ecart = (float)$r->amount_found - (float)$r->amount_calculated; ?>
                 <tr>
                     <td><?= date('d/m/Y', strtotime($r->date)) ?></td>
-                    <td><strong><?= esc($r->name ?: '—') ?></strong></td>
+                    <td class="text-right"><strong><?= esc($r->name ?: '—') ?></strong></td>
                     <td class="text-right"><?= number_format((float)$r->amount_calculated, 2, ',', '.') ?> €</td>
                     <td class="text-right"><?= number_format((float)$r->amount_found, 2, ',', '.') ?> €</td>
                     <td class="text-right">
@@ -92,7 +92,7 @@
                 <?php endforeach; ?>
                 </tbody>
                 <tfoot>
-                    <tr class="font-weight-bold bg-light">
+                    <tr class="font-weight-bold tfoot-total">
                         <td colspan="2">Total <?= $month['label'] ?></td>
                         <td class="text-right"><?= number_format($month['calculated'], 2, ',', '.') ?> €</td>
                         <td class="text-right"><?= number_format($month['found'], 2, ',', '.') ?> €</td>
