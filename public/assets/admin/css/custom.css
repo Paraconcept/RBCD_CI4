@@ -139,6 +139,11 @@ a:hover { color: var(--rbcd-primary-dark); }
 .nav-sidebar .nav-link.active {
     background-color: var(--rbcd-primary) !important;
 }
+.nav-sidebar .nav-treeview .nav-link.active,
+.nav-sidebar .nav-treeview .nav-link.active p,
+.nav-sidebar .nav-treeview .nav-link.active i {
+    color: #fff !important;
+}
 
 /* ----------------------------------------------------------------
    SELECT2
