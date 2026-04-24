@@ -70,7 +70,7 @@
                 <li class="nav-item">
                     <a href="<?= base_url('admin/users') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/users') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-users-cog"></i>
-                        <p>Utilisateurs admin</p>
+                        <p>Membres du Comité</p>
                     </a>
                 </li>
 
