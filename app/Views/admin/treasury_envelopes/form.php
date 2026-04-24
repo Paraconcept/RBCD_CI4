@@ -89,9 +89,9 @@ $v      = fn($f, $default = '') => old($f, $isEdit ? ($envelope->$f ?? $default)
 
                 <div class="form-group">
                     <label>Clôturé par <span class="text-danger">*</span></label>
-                    <select name="closed_by_member_id"
+                    <select name="closed_by_member_id" id="closed_by_member_id"
                             class="form-control select2 <?= isset($errors['closed_by_member_id']) ? 'is-invalid' : '' ?>"
-                            style="width:100%" required>
+                            style="width:100%">
                         <option value="">— Sélectionner —</option>
                         <?php $closedBy = (int) $v('closed_by_member_id', 0); ?>
                         <?php foreach ($keyHolders as $kh): ?>
@@ -153,6 +153,18 @@ $(function () {
 
     $('#amount_calculated, #amount_found').on('input', calcEcart);
     calcEcart();
+
+    $('form').on('submit', function (e) {
+        if (!$('#closed_by_member_id').val()) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Champ obligatoire',
+                text: 'Renseignez la personne qui a clôturé !',
+                confirmButtonColor: '#84252B',
+            });
+        }
+    });
 });
 </script>
 <?= $this->endSection() ?>
