@@ -34,8 +34,8 @@ class AdminUsersController extends BaseController
         }
 
         return view('admin/users/index', [
-            'title'       => 'Utilisateurs admin',
-            'breadcrumbs' => [['title' => 'Utilisateurs admin']],
+            'title'       => 'Membres du Comité',
+            'breadcrumbs' => [['title' => 'Membres du Comité']],
             'users'       => $users,
             'rolesMap'    => $rolesMap,
         ]);
