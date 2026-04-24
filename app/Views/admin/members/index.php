@@ -17,7 +17,7 @@
                     <tr>
                         <th style="width:40px"></th>
                         <th>Nom</th>
-                        <th class="text-center" style="width:50px">G.</th>
+                        <th class="text-center no-sort" style="width:30px">&nbsp;</th>
                         <th>Licence FRBB</th>
                         <th class="text-center">Comité</th>
                         <th class="text-center">Statut</th>
@@ -109,7 +109,7 @@ $(function() {
     $('#membersTable').DataTable({
         order: [[1, 'asc']],
         columnDefs: [
-            { orderable: false, targets: [0, 6] }
+            { orderable: false, targets: [0, 2, 6] }
         ]
     });
 
