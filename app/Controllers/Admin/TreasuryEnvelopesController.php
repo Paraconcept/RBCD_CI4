@@ -90,7 +90,14 @@ class TreasuryEnvelopesController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $this->model->insert($this->collectData());
+        $db        = \Config\Database::connect();
+        $adminUser = $db->table('admin_users')->select('member_id')
+                        ->where('id', session()->get('admin_id'))->get()->getRowObject();
+
+        $data = $this->collectData();
+        $data['encoded_by_member_id'] = $adminUser?->member_id ?: null;
+
+        $this->model->insert($data);
 
         return redirect()->to(base_url('admin/treasury/envelopes'))->with('success', 'Enveloppe enregistrée.');
     }
