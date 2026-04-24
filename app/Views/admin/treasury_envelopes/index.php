@@ -47,64 +47,66 @@
             </div>
         </div>
         <div class="card-body p-0">
-            <table class="table table-sm table-bordered table-hover mb-0">
-                <thead class="thead-rbcd">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-hover mb-0">
+                    <thead class="thead-rbcd">
+                        <tr>
+                            <th style="width:110px">Date</th>
+                            <th class="text-right" style="width:110px">Nom</th>
+                            <th class="text-right" style="width:130px">Calculé</th>
+                            <th class="text-right" style="width:130px">Trouvé</th>
+                            <th class="text-right" style="width:120px">Écart</th>
+                            <th>Clôturé par</th>
+                            <th>Encodé par</th>
+                            <th class="text-center" style="width:80px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($month['rows'] as $r): ?>
+                    <?php $ecart = (float)$r->amount_found - (float)$r->amount_calculated; ?>
                     <tr>
-                        <th style="width:110px">Date</th>
-                        <th class="text-right" style="width:110px">Nom</th>
-                        <th class="text-right" style="width:130px">Calculé</th>
-                        <th class="text-right" style="width:130px">Trouvé</th>
-                        <th class="text-right" style="width:120px">Écart</th>
-                        <th>Clôturé par</th>
-                        <th>Encodé par</th>
-                        <th class="text-center" style="width:80px">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($month['rows'] as $r): ?>
-                <?php $ecart = (float)$r->amount_found - (float)$r->amount_calculated; ?>
-                <tr>
-                    <td><?= date('d/m/Y', strtotime($r->date)) ?></td>
-                    <td class="text-right"><strong><?= esc($r->name ?: '—') ?></strong></td>
-                    <td class="text-right"><?= number_format((float)$r->amount_calculated, 2, ',', '.') ?> €</td>
-                    <td class="text-right"><?= number_format((float)$r->amount_found, 2, ',', '.') ?> €</td>
-                    <td class="text-right">
-                        <span class="badge <?= $ecart == 0 ? 'badge-success' : 'badge-danger' ?>">
-                            <?= ($ecart >= 0 ? '+' : '') . number_format($ecart, 2, ',', '.') ?> €
-                        </span>
-                    </td>
-                    <td><?= esc($r->closer_name ?: '—') ?></td>
-                    <td><?= esc($r->encoder_name ?: '—') ?></td>
-                    <td class="text-center">
-                        <a href="<?= base_url('admin/treasury/envelopes/' . $r->id . '/edit') ?>"
-                           class="btn btn-xs btn-info" title="Modifier">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <button type="button" class="btn btn-xs btn-danger btn-delete-env"
-                                data-id="<?= $r->id ?>"
-                                data-encoder-id="<?= (int)$r->encoded_by_member_id ?>"
-                                data-date="<?= date('d/m/Y', strtotime($r->date)) ?>"
-                                title="Supprimer">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-                </tbody>
-                <tfoot>
-                    <tr class="font-weight-bold tfoot-total">
-                        <td colspan="2">Total <?= $month['label'] ?></td>
-                        <td class="text-right"><?= number_format($month['calculated'], 2, ',', '.') ?> €</td>
-                        <td class="text-right"><?= number_format($month['found'], 2, ',', '.') ?> €</td>
+                        <td><?= date('d/m/Y', strtotime($r->date)) ?></td>
+                        <td class="text-right"><strong><?= esc($r->name ?: '—') ?></strong></td>
+                        <td class="text-right"><?= number_format((float)$r->amount_calculated, 2, ',', '.') ?> €</td>
+                        <td class="text-right"><?= number_format((float)$r->amount_found, 2, ',', '.') ?> €</td>
                         <td class="text-right">
-                            <span class="badge <?= $ecartMois == 0 ? 'badge-success' : 'badge-danger' ?>">
-                                <?= ($ecartMois >= 0 ? '+' : '') . number_format($ecartMois, 2, ',', '.') ?> €
+                            <span class="badge <?= $ecart == 0 ? 'badge-success' : 'badge-danger' ?>">
+                                <?= ($ecart >= 0 ? '+' : '') . number_format($ecart, 2, ',', '.') ?> €
                             </span>
                         </td>
-                        <td colspan="3"></td>
+                        <td><?= esc($r->closer_name ?: '—') ?></td>
+                        <td><?= esc($r->encoder_name ?: '—') ?></td>
+                        <td class="text-center">
+                            <a href="<?= base_url('admin/treasury/envelopes/' . $r->id . '/edit') ?>"
+                            class="btn btn-xs btn-info" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-xs btn-danger btn-delete-env"
+                                    data-id="<?= $r->id ?>"
+                                    data-encoder-id="<?= (int)$r->encoded_by_member_id ?>"
+                                    data-date="<?= date('d/m/Y', strtotime($r->date)) ?>"
+                                    title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>
-                </tfoot>
-            </table>
+                    <?php endforeach; ?>
+                    </tbody>
+                    <tfoot>
+                        <tr class="font-weight-bold tfoot-total">
+                            <td colspan="2">Total <?= $month['label'] ?></td>
+                            <td class="text-right"><?= number_format($month['calculated'], 2, ',', '.') ?> €</td>
+                            <td class="text-right"><?= number_format($month['found'], 2, ',', '.') ?> €</td>
+                            <td class="text-right">
+                                <span class="badge <?= $ecartMois == 0 ? 'badge-success' : 'badge-danger' ?>">
+                                    <?= ($ecartMois >= 0 ? '+' : '') . number_format($ecartMois, 2, ',', '.') ?> €
+                                </span>
+                            </td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </div>
     <?php endforeach; ?>
