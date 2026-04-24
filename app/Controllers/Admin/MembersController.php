@@ -238,7 +238,10 @@ class MembersController extends BaseController
 
     public function returnKey(int $memberId, int $keyId)
     {
-        (new MemberKeyModel())->update($keyId, ['returned_date' => date('Y-m-d')]);
+        (new MemberKeyModel())->update($keyId, [
+            'member_id'     => null,
+            'returned_date' => date('Y-m-d'),
+        ]);
         return redirect()->to(base_url('admin/members/' . $memberId . '/edit'))->with('success', 'Clé marquée comme retournée.');
     }
 

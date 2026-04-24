@@ -51,6 +51,13 @@
 
                 <li class="nav-header">GESTION</li>
 
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/club-keys') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/club-keys') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-key"></i>
+                        <p>Clés du club</p>
+                    </a>
+                </li>
+
                 <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'menu-open' : '' ?>">
                     <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-euro-sign"></i>

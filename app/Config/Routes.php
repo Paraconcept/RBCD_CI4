@@ -52,9 +52,16 @@ $routes->group('admin', static function ($routes) {
         $routes->post('treasury/envelopes/(:num)/update',  'Admin\TreasuryEnvelopesController::update/$1');
         $routes->post('treasury/envelopes/(:num)/delete',  'Admin\TreasuryEnvelopesController::delete/$1');
 
-        // Clés membres
-        $routes->post('members/(:num)/keys',                      'Admin\MembersController::storeKey/$1');
-        $routes->post('members/(:num)/keys/(:num)/return',        'Admin\MembersController::returnKey/$1/$2');
+        // Clés membres (depuis fiche membre)
+        $routes->post('members/(:num)/keys',               'Admin\MembersController::storeKey/$1');
+        $routes->post('members/(:num)/keys/(:num)/return', 'Admin\MembersController::returnKey/$1/$2');
+
+        // Clés du club (page centrale)
+        $routes->get ('club-keys',                   'Admin\ClubKeysController::index');
+        $routes->post('club-keys',                   'Admin\ClubKeysController::store');
+        $routes->post('club-keys/(:num)/assign',     'Admin\ClubKeysController::assign/$1');
+        $routes->post('club-keys/(:num)/return',     'Admin\ClubKeysController::returnKey/$1');
+        $routes->post('club-keys/(:num)/delete',     'Admin\ClubKeysController::delete/$1');
 
         // Utilisateurs admin
         $routes->get('users',                            'Admin\AdminUsersController::index');
