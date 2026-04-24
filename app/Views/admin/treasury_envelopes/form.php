@@ -191,14 +191,14 @@ $(function () {
     <?php if (!$isEdit): ?>
     const usedNames = <?= json_encode($usedNames ?? []) ?>;
 
-    function updateNameOptions() {
+    function updateNameOptions(forceFirst) {
         const dateVal = $('#envelopeDate').val();
         if (!dateVal) return;
         const parts  = dateVal.split('-');
         const prefix = 'E' + parts[2] + '.' + parts[1] + '.';
         $('#namePrefix').text(prefix);
 
-        const current = $('#nameSeq').val(); // lire avant de modifier les options
+        const current = forceFirst ? null : $('#nameSeq').val();
 
         let firstAvailable = null;
         $('#nameSeq option').each(function () {
@@ -208,18 +208,18 @@ $(function () {
             if (!taken && firstAvailable === null) firstAvailable = $(this).val();
         });
 
-        const selected = (firstAvailable !== null && usedNames.includes(prefix + current))
+        const selected = (current === null || usedNames.includes(prefix + current))
             ? firstAvailable
             : current;
         $('#nameSeq').val(selected);
-        $('#namePreview').text(prefix + selected);
+        $('#namePreview').text(prefix + (selected || ''));
     }
 
-    $('#envelopeDate').on('change', updateNameOptions);
+    $('#envelopeDate').on('change', () => updateNameOptions(true));
     $('#nameSeq').on('change', function () {
         $('#namePreview').text($('#namePrefix').text() + $(this).val());
     });
-    updateNameOptions();
+    updateNameOptions(false); // page load : respecte la valeur PHP old()
 
     function calcEcart() {
         const calc  = parseFloat($('#amount_calculated').val()) || 0;
