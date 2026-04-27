@@ -185,6 +185,7 @@ a:hover { color: var(--rbcd-primary-dark); }
 .tooltip-rbcd .tooltip-inner {
     background-color: var(--rbcd-primary);
     color: #fff;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, .35);
 }
 .tooltip-rbcd.bs-tooltip-top    .arrow::before { border-top-color:    var(--rbcd-primary); }
 .tooltip-rbcd.bs-tooltip-bottom .arrow::before { border-bottom-color: var(--rbcd-primary); }
