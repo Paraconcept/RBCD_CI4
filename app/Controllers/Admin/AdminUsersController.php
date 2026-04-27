@@ -72,10 +72,11 @@ class AdminUsersController extends BaseController
                 ['title' => 'Membres du Comité', 'url' => base_url('admin/users')],
                 ['title' => 'Compte externe'],
             ],
-            'user'      => null,
-            'member'    => null,
-            'userRoles' => [],
-            'roles'     => AdminUserModel::ROLES,
+            'user'       => null,
+            'member'     => null,
+            'userRoles'  => [],
+            'roles'      => AdminUserModel::ROLES,
+            'isExternal' => true,
         ]);
     }
 
@@ -99,10 +100,11 @@ class AdminUsersController extends BaseController
                 ['title' => 'Choisir un membre', 'url' => base_url('admin/users/pick-member')],
                 ['title' => 'Nouveau'],
             ],
-            'user'      => null,
-            'member'    => $member,
-            'userRoles' => [],
-            'roles'     => AdminUserModel::ROLES,
+            'user'       => null,
+            'member'     => $member,
+            'userRoles'  => [],
+            'roles'      => AdminUserModel::ROLES,
+            'isExternal' => false,
         ]);
     }
 
@@ -129,7 +131,7 @@ class AdminUsersController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $selectedRoles = $this->request->getPost('roles') ?? [];
+        $selectedRoles = $memberId ? ($this->request->getPost('roles') ?? []) : ['Webmaster'];
         if (empty($selectedRoles)) {
             return redirect()->back()->withInput()->with('errors', ['roles' => 'Sélectionnez au moins un rôle.']);
         }
@@ -164,10 +166,11 @@ class AdminUsersController extends BaseController
                 ['title' => 'Utilisateurs admin', 'url' => base_url('admin/users')],
                 ['title' => 'Modifier'],
             ],
-            'user'      => $user,
-            'member'    => null,
-            'userRoles' => $this->roleModel->getRolesForUser($id),
-            'roles'     => AdminUserModel::ROLES,
+            'user'       => $user,
+            'member'     => null,
+            'userRoles'  => $this->roleModel->getRolesForUser($id),
+            'roles'      => AdminUserModel::ROLES,
+            'isExternal' => $user->member_id === null,
         ]);
     }
 
@@ -194,7 +197,7 @@ class AdminUsersController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $selectedRoles = $this->request->getPost('roles') ?? [];
+        $selectedRoles = $user->member_id === null ? ['Webmaster'] : ($this->request->getPost('roles') ?? []);
         if (empty($selectedRoles)) {
             return redirect()->back()->withInput()->with('errors', ['roles' => 'Sélectionnez au moins un rôle.']);
         }

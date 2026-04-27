@@ -99,21 +99,40 @@ $selectedRoles = old('roles', $userRoles ?? []);
                         <?php if (isset($errors['roles'])): ?>
                             <div class="text-danger small mb-1"><?= $errors['roles'] ?></div>
                         <?php endif; ?>
-                        <div class="border rounded p-2 <?= isset($errors['roles']) ? 'border-danger' : '' ?>">
-                            <?php foreach ($roles as $role): ?>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox"
-                                       class="custom-control-input"
-                                       id="role_<?= md5($role) ?>"
-                                       name="roles[]"
-                                       value="<?= esc($role) ?>"
-                                       <?= in_array($role, (array)$selectedRoles) ? 'checked' : '' ?>>
-                                <label class="custom-control-label" for="role_<?= md5($role) ?>">
-                                    <?= esc($role) ?>
-                                </label>
+                        <?php if ($isExternal): ?>
+                            <div class="alert alert-warning py-2 mb-2">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                Un compte externe ne peut être que <strong>Webmaster</strong>.<br>
+                                <small>Les autres rôles exigent d'être membre du club en ordre de cotisation
+                                (et fédéré FRBB pour certains postes).</small>
                             </div>
-                            <?php endforeach; ?>
-                        </div>
+                            <input type="hidden" name="roles[]" value="Webmaster">
+                            <div class="border rounded p-2 bg-light">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input"
+                                           id="role_webmaster" checked disabled>
+                                    <label class="custom-control-label" for="role_webmaster">
+                                        Webmaster
+                                    </label>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="border rounded p-2 <?= isset($errors['roles']) ? 'border-danger' : '' ?>">
+                                <?php foreach ($roles as $role): ?>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox"
+                                           class="custom-control-input"
+                                           id="role_<?= md5($role) ?>"
+                                           name="roles[]"
+                                           value="<?= esc($role) ?>"
+                                           <?= in_array($role, (array)$selectedRoles) ? 'checked' : '' ?>>
+                                    <label class="custom-control-label" for="role_<?= md5($role) ?>">
+                                        <?= esc($role) ?>
+                                    </label>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
