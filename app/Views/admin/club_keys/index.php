@@ -42,10 +42,11 @@
                         <td><?= $k->notes ? esc($k->notes) : '<span class="text-muted">—</span>' ?></td>
                         <td class="text-center">
                             <?php if (!$assigned): ?>
-                                <button type="button" class="btn btn-xs btn-primary btn-assign"
+                                <button type="button" class="btn btn-xs btn-primary btn-assign tt-rbcd"
                                         data-id="<?= $k->id ?>"
                                         data-badge="<?= esc($k->badge_number ?? '') ?>"
-                                        title="Attribuer">
+                                        data-toggle="tooltip" data-placement="top"
+                                        title="Attribuer la clé <?= $k->badge_number ? '#' . esc($k->badge_number) : 'sans numéro' ?>">
                                     <i class="fas fa-user-plus"></i>
                                 </button>
                             <?php else: ?>
@@ -146,6 +147,7 @@
 <?= $this->section('scripts') ?>
 <script>
 $('.tt-rbcd').tooltip({
+    html:     true,
     template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
 });
 
