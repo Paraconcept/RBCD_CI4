@@ -98,8 +98,8 @@ class ScheduleController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Rencontre introuvable.']);
         }
 
-        // Prevent double signup
-        if ($this->arbitrage->getUserSignup($encounterId, $adminUserId)) {
+        // Prevent double signup (volunteer by admin_user_id OR already designated by member_id)
+        if ($this->getMyArbitrageRow($encounterId, $adminUserId)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Vous êtes déjà inscrit pour cette rencontre.']);
         }
 
@@ -143,7 +143,7 @@ class ScheduleController extends BaseController
         $this->response->setHeader('Content-Type', 'application/json');
 
         $adminUserId = (int) session()->get('admin_id');
-        $existing    = $this->arbitrage->getUserSignup($encounterId, $adminUserId);
+        $existing    = $this->getMyArbitrageRow($encounterId, $adminUserId);
 
         if (!$existing) {
             return $this->response->setJSON(['success' => false, 'message' => 'Inscription non trouvée.']);
@@ -163,7 +163,7 @@ class ScheduleController extends BaseController
         $this->response->setHeader('Content-Type', 'application/json');
 
         $adminUserId = (int) session()->get('admin_id');
-        $existing    = $this->arbitrage->getUserSignup($encounterId, $adminUserId);
+        $existing    = $this->getMyArbitrageRow($encounterId, $adminUserId);
 
         if (!$existing || $existing->assignment_type !== 'designated') {
             return $this->response->setJSON(['success' => false, 'message' => 'Convocation non trouvée.']);
@@ -227,6 +227,29 @@ class ScheduleController extends BaseController
         $this->barDuties->delete($id);
 
         return $this->response->setJSON(['success' => true]);
+    }
+
+    // Cherche la ligne arbitrage du membre connecté : d'abord par admin_user_id
+    // (volunteer), puis par member_id (désigné par le DS sans compte admin_user_id).
+    private function getMyArbitrageRow(int $encounterId, int $adminUserId): ?object
+    {
+        $row = $this->arbitrage->getUserSignup($encounterId, $adminUserId);
+        if ($row) {
+            return $row;
+        }
+
+        $adminRow = \Config\Database::connect()
+            ->table('admin_users')->select('member_id')
+            ->where('id', $adminUserId)->get()->getRowObject();
+        $memberId = $adminRow ? (int) $adminRow->member_id : 0;
+
+        if (!$memberId) {
+            return null;
+        }
+
+        return $this->arbitrage->where('encounter_id', $encounterId)
+                               ->where('member_id', $memberId)
+                               ->first();
     }
 
     private function getWeekDates(int $week, int $year): array
