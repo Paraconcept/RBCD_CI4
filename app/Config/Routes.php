@@ -94,6 +94,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('schedule/(:num)/delete',          'Admin\ScheduleController::delete/$1');
         $routes->post('schedule/(:num)/referee',         'Admin\ScheduleController::designateReferee/$1');
         $routes->post('schedule/(:num)/referee/remove',  'Admin\ScheduleController::removeReferee/$1');
+        $routes->post('schedule/bar/assign',             'Admin\ScheduleController::assignBar');
 
         // Utilisateurs admin
         $routes->get('users',                            'Admin\AdminUsersController::index');

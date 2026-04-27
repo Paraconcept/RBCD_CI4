@@ -12,7 +12,7 @@ class ScheduleBarDutyModel extends Model
     protected $returnType    = 'object';
 
     protected $allowedFields = [
-        'duty_date', 'period', 'admin_user_id',
+        'duty_date', 'period', 'admin_user_id', 'member_id',
     ];
 
     public function getForDates(array $dates): array
@@ -22,29 +22,15 @@ class ScheduleBarDutyModel extends Model
         }
 
         $rows = $this->db->table('schedule_bar_duties bd')
-            ->select('bd.*, au.last_name, au.first_name')
-            ->join('admin_users au', 'au.id = bd.admin_user_id')
+            ->select('bd.*, COALESCE(m.last_name, au.last_name) AS last_name, COALESCE(m.first_name, au.first_name) AS first_name')
+            ->join('members m',     'm.id  = bd.member_id',    'left')
+            ->join('admin_users au','au.id = bd.admin_user_id', 'left')
             ->whereIn('bd.duty_date', $dates)
             ->get()->getResultObject();
 
         $indexed = [];
         foreach ($rows as $row) {
             $indexed[$row->duty_date][$row->period] = $row;
-        }
-        return $indexed;
-    }
-
-    public function getForDate(string $date): array
-    {
-        $rows = $this->db->table('schedule_bar_duties bd')
-            ->select('bd.*, au.last_name, au.first_name')
-            ->join('admin_users au', 'au.id = bd.admin_user_id')
-            ->where('bd.duty_date', $date)
-            ->get()->getResultObject();
-
-        $indexed = [];
-        foreach ($rows as $row) {
-            $indexed[$row->period] = $row;
         }
         return $indexed;
     }

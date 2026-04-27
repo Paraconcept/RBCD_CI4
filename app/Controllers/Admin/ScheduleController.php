@@ -47,7 +47,9 @@ class ScheduleController extends BaseController
 
         $nav = $this->getPrevNextWeek($week, $year);
 
-        $members = (new MemberModel())->where('is_active', 1)->where('is_federated', 1)->orderBy('last_name')->orderBy('first_name')->findAll();
+        $memberModel   = new MemberModel();
+        $members       = $memberModel->where('is_active', 1)->where('is_federated', 1)->orderBy('last_name')->orderBy('first_name')->findAll();
+        $allMembers    = $memberModel->where('is_active', 1)->orderBy('last_name')->orderBy('first_name')->findAll();
 
         return view('admin/schedule/index', [
             'title'       => 'Tableau des rencontres',
@@ -60,6 +62,7 @@ class ScheduleController extends BaseController
             'prev'        => $nav['prev'],
             'next'        => $nav['next'],
             'members'     => $members,
+            'allMembers'  => $allMembers,
         ]);
     }
 
@@ -241,6 +244,40 @@ class ScheduleController extends BaseController
         }
 
         return $this->response->setJSON(['success' => true]);
+    }
+
+    public function assignBar()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $memberId = (int) $this->request->getPost('member_id');
+        $date     = $this->request->getPost('duty_date');
+        $period   = $this->request->getPost('period');
+
+        if (!$memberId || !$date || !in_array($period, ['am', 'soir'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Données invalides.']);
+        }
+
+        if ($this->barDuties->isSlotTaken($date, $period)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Ce créneau est déjà pris.']);
+        }
+
+        $id = $this->barDuties->insert([
+            'duty_date'     => $date,
+            'period'        => $period,
+            'admin_user_id' => null,
+            'member_id'     => $memberId,
+        ]);
+
+        $member = \Config\Database::connect()
+            ->table('members')->select('last_name, first_name')
+            ->where('id', $memberId)->get()->getRowObject();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'id'      => $id,
+            'name'    => $member->last_name . ' ' . mb_substr($member->first_name, 0, 1) . '.',
+        ]);
     }
 
     private function validateEncounterForm(): bool

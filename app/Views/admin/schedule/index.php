@@ -122,16 +122,18 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
             <span class="text-muted" style="font-size:.75rem">Bar AM :</span>
             <?php if ($barAm): ?>
                 <span class="badge badge-success"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
-                <button class="btn btn-xs btn-outline-danger btn-bar-cancel" data-id="<?= $barAm->id ?>"><i class="fas fa-times"></i></button>
+                <button class="btn btn-xs btn-danger btn-bar-cancel" data-id="<?= $barAm->id ?>"><i class="fas fa-times"></i></button>
             <?php else: ?>
-                <span class="text-muted badge badge-light">libre</span>
+                <span class="badge badge-info btn-bar-assign" style="cursor:pointer"
+                      data-date="<?= $date ?>" data-period="am">libre</span>
             <?php endif; ?>
             <span class="text-muted ml-2" style="font-size:.75rem">Bar soir :</span>
             <?php if ($barSoir): ?>
                 <span class="badge badge-success"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
-                <button class="btn btn-xs btn-outline-danger btn-bar-cancel" data-id="<?= $barSoir->id ?>"><i class="fas fa-times"></i></button>
+                <button class="btn btn-xs btn-danger btn-bar-cancel" data-id="<?= $barSoir->id ?>"><i class="fas fa-times"></i></button>
             <?php else: ?>
-                <span class="text-muted badge badge-light">libre</span>
+                <span class="badge badge-info btn-bar-assign" style="cursor:pointer"
+                      data-date="<?= $date ?>" data-period="soir">libre</span>
             <?php endif; ?>
         </div>
     </div>
@@ -160,7 +162,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         <?php if ($enc->is_home): ?>
                             <i class="fas fa-home text-success" title="À domicile"></i>
                         <?php else: ?>
-                            <i class="fas fa-car-side text-away" title="En déplacement"></i>
+                            <i class="fas fa-car-side text-away mr-3" title="En déplacement"></i>
                             <?php if ($enc->venue): ?>
                                 <span class="loc-venue"><?= esc($enc->venue) ?></span>
                             <?php endif; ?>
@@ -254,6 +256,37 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
 </div>
 
 <?php endforeach; ?>
+
+<!-- Modal assignation bar -->
+<div class="modal fade" id="modalBar" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-glass-cheers mr-2"></i>Service bar</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modalBarDate">
+                <input type="hidden" id="modalBarPeriod">
+                <div class="form-group mb-0">
+                    <label id="modalBarLabel">Membre</label>
+                    <select class="form-control" id="modalBarMemberId">
+                        <option value="">— Sélectionner —</option>
+                        <?php foreach ($allMembers as $m): ?>
+                        <option value="<?= $m->id ?>"><?= esc($m->last_name) ?> <?= esc($m->first_name) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btnConfirmBar">
+                    <i class="fas fa-check mr-1"></i>Assigner
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal désignation arbitre -->
 <div class="modal fade" id="modalArbitrage" tabindex="-1">
@@ -411,6 +444,84 @@ function bindRemoveReferee(btn) {
     });
 }
 document.querySelectorAll('.btn-remove-referee').forEach(bindRemoveReferee);
+
+// ── Supprimer barman ──
+function bindBarCancel(btn) {
+    btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        Swal.fire({
+            title: 'Retirer ce barman ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Oui, retirer',
+            cancelButtonText: 'Annuler',
+        }).then(result => {
+            if (!result.isConfirmed) return;
+            fetch(`<?= base_url('tableau/bar/') ?>${id}/cancel`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+                body: `<?= csrf_token() ?>=${csrfToken}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) return;
+                const btn   = document.querySelector(`.btn-bar-cancel[data-id="${id}"]`);
+                const badge = btn?.previousElementSibling;
+                const period = btn?.dataset.period;
+                const date   = btn?.dataset.date;
+                if (badge) badge.remove();
+                if (btn) btn.remove();
+            });
+        });
+    });
+}
+document.querySelectorAll('.btn-bar-cancel').forEach(bindBarCancel);
+
+// ── Assigner barman ──
+document.querySelectorAll('.btn-bar-assign').forEach(badge => {
+    badge.addEventListener('click', function() {
+        const periodLabel = this.dataset.period === 'am' ? 'Bar après-midi' : 'Bar soirée';
+        document.getElementById('modalBarDate').value   = this.dataset.date;
+        document.getElementById('modalBarPeriod').value = this.dataset.period;
+        document.getElementById('modalBarLabel').textContent = periodLabel;
+        document.getElementById('modalBarMemberId').value = '';
+        this._sourceBadge = this;
+        $('#modalBar').modal('show');
+    });
+});
+
+document.getElementById('btnConfirmBar').addEventListener('click', function() {
+    const date     = document.getElementById('modalBarDate').value;
+    const period   = document.getElementById('modalBarPeriod').value;
+    const memberId = document.getElementById('modalBarMemberId').value;
+    if (!memberId) return;
+
+    fetch('<?= base_url('admin/schedule/bar/assign') ?>', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+        body: `<?= csrf_token() ?>=${csrfToken}&duty_date=${date}&period=${period}&member_id=${memberId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) return;
+        $('#modalBar').modal('hide');
+        // Remplacer le badge "libre" par le nom + bouton supprimer
+        const badge = document.querySelector(`.btn-bar-assign[data-date="${date}"][data-period="${period}"]`);
+        if (badge) {
+            const successBadge = document.createElement('span');
+            successBadge.className = 'badge badge-success';
+            successBadge.textContent = data.name;
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn btn-xs btn-danger btn-bar-cancel';
+            cancelBtn.dataset.id = data.id;
+            cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+            bindBarCancel(cancelBtn);
+            badge.replaceWith(successBadge);
+            successBadge.insertAdjacentElement('afterend', cancelBtn);
+        }
+    });
+});
 
 // ── Supprimer rencontre ──
 document.querySelectorAll('.btn-delete-encounter').forEach(btn => {
