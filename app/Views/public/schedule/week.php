@@ -157,7 +157,7 @@ $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
     <div class="text-center">
         <?php if (!$isCurrentWeek): ?>
             <div class="mb-1">
-                <a href="<?= base_url('tableau') ?>" class="btn btn-outline-primary btn-sm">
+                <a href="<?= base_url('tableau') ?>" class="btn btn-outline-secondary">
                     <i class="fas fa-calendar-day mr-1"></i>Semaine en cours
                 </a>
             </div>
