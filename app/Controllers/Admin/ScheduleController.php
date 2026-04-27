@@ -88,7 +88,7 @@ class ScheduleController extends BaseController
             'match_time'  => $this->request->getPost('match_time'),
             'is_home'     => (int) $this->request->getPost('is_home'),
             'venue'       => $this->request->getPost('venue') ?: null,
-            'competition' => $this->request->getPost('competition'),
+            'competition' => $this->request->getPost('competition') ?? '',
             'team_label'  => $this->request->getPost('team_label') ?: null,
             'notes'       => $this->request->getPost('notes') ?: null,
         ]);
@@ -133,7 +133,7 @@ class ScheduleController extends BaseController
             'match_time'  => $this->request->getPost('match_time'),
             'is_home'     => (int) $this->request->getPost('is_home'),
             'venue'       => $this->request->getPost('venue') ?: null,
-            'competition' => $this->request->getPost('competition'),
+            'competition' => $this->request->getPost('competition') ?? '',
             'team_label'  => $this->request->getPost('team_label') ?: null,
             'notes'       => $this->request->getPost('notes') ?: null,
         ]);
@@ -215,9 +215,8 @@ class ScheduleController extends BaseController
     private function validateEncounterForm(): bool
     {
         return $this->validate([
-            'match_date'  => 'required|valid_date[Y-m-d]',
-            'match_time'  => 'required',
-            'competition' => 'required|max_length[100]',
+            'match_date' => 'required|valid_date[Y-m-d]',
+            'match_time' => 'required',
         ]);
     }
 

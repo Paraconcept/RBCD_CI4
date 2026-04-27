@@ -59,9 +59,9 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
                             <input type="radio" name="is_home" value="1" <?= $isHome ? 'checked' : '' ?>>
                             <i class="fas fa-home mr-1"></i> Domicile
                         </label>
-                        <label class="btn btn-outline-warning btn-sm <?= !$isHome ? 'active' : '' ?>">
+                        <label class="btn btn-outline-danger btn-sm <?= !$isHome ? 'active' : '' ?>">
                             <input type="radio" name="is_home" value="0" <?= !$isHome ? 'checked' : '' ?>>
-                            <i class="fas fa-bus mr-1"></i> Déplacement
+                            <i class="fas fa-car-side mr-1"></i> Déplacement
                         </label>
                     </div>
                 </div>
@@ -70,31 +70,19 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
                 <div class="col-md-4 form-group" id="venueGroup" <?= $isHome ? 'style="display:none"' : '' ?>>
                     <label>Lieu de déplacement</label>
                     <input type="text" name="venue" class="form-control"
-                           placeholder="ex: Salle de Verviers"
+                           placeholder="ex: BC Herstalien"
                            value="<?= esc(old('venue', $isEdit ? $encounter->venue ?? '' : '')) ?>">
                 </div>
             </div>
 
             <div class="row">
-                <!-- Compétition -->
-                <div class="col-md-4 form-group">
-                    <label>Compétition <span class="text-danger">*</span></label>
-                    <?php
-                    $competitions = ['3 Bandes', 'PLPF', '3ème Bande', 'Coupe FRBB', 'Coupe RBCD', 'Championnat'];
-                    $currentComp = old('competition', $isEdit ? $encounter->competition : '');
-                    $isCustom = $currentComp && !in_array($currentComp, $competitions);
-                    ?>
-                    <select name="competition" class="form-control" id="competitionSelect">
-                        <option value="">— Sélectionner —</option>
-                        <?php foreach ($competitions as $c): ?>
-                            <option value="<?= $c ?>" <?= $currentComp === $c ? 'selected' : '' ?>><?= $c ?></option>
-                        <?php endforeach; ?>
-                        <option value="__other__" <?= $isCustom ? 'selected' : '' ?>>Autre…</option>
-                    </select>
-                    <input type="text" name="competition_custom" id="competitionCustom" class="form-control mt-1"
-                           placeholder="Nom de la compétition"
-                           value="<?= $isCustom ? esc($currentComp) : '' ?>"
-                           style="<?= $isCustom ? '' : 'display:none' ?>">
+                <!-- Compétition (affiché dans le tableau) -->
+                <div class="col-md-5 form-group">
+                    <label>Compétition</label>
+                    <input type="text" name="notes" class="form-control"
+                           placeholder="ex: Championnat Provincial 3B — Ronde 2"
+                           value="<?= esc(old('notes', $isEdit ? $encounter->notes ?? '' : '')) ?>">
+                    <small class="text-muted">Affiché dans la colonne Compétition du tableau.</small>
                 </div>
 
                 <!-- Équipe RBCD -->
@@ -105,12 +93,12 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
                            value="<?= esc(old('team_label', $isEdit ? $encounter->team_label ?? '' : '')) ?>">
                 </div>
 
-                <!-- Notes -->
-                <div class="col-md-5 form-group">
-                    <label>Notes</label>
-                    <input type="text" name="notes" class="form-control"
-                           placeholder="Remarques éventuelles"
-                           value="<?= esc(old('notes', $isEdit ? $encounter->notes ?? '' : '')) ?>">
+                <!-- Notes internes -->
+                <div class="col-md-4 form-group">
+                    <label>Notes internes</label>
+                    <input type="text" name="competition" class="form-control"
+                           placeholder="Remarques diverses"
+                           value="<?= esc(old('competition', $isEdit ? $encounter->competition ?? '' : '')) ?>">
                 </div>
             </div>
 
@@ -209,20 +197,6 @@ document.querySelectorAll('input[name="is_home"]').forEach(radio => {
     radio.addEventListener('change', function() {
         document.getElementById('venueGroup').style.display = this.value === '0' ? '' : 'none';
     });
-});
-
-// Custom competition
-document.getElementById('competitionSelect').addEventListener('change', function() {
-    const customInput = document.getElementById('competitionCustom');
-    if (this.value === '__other__') {
-        customInput.style.display = '';
-        customInput.name = 'competition';
-        this.name = '';
-    } else {
-        customInput.style.display = 'none';
-        customInput.name = 'competition_custom';
-        this.name = 'competition';
-    }
 });
 
 // Add player row

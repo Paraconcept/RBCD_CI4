@@ -4,8 +4,9 @@
 /* ── Tableau public — styles du tableau hebdomadaire ── */
 :root {
     --clr-home: #198754;
-    --clr-away: #fd7e14;
+    --clr-away: #c6000d;
     --clr-3b:   #0dcaf0;
+
     --clr-plpf: #198754;
     --clr-3eme: #6f42c1;
     --clr-coupe:#fd7e14;
@@ -16,7 +17,13 @@
 .week-title { font-size:1.1rem; font-weight:700; }
 
 /* Day card */
-.day-card { border:1px solid #dee2e6; border-radius:.5rem; margin-bottom:1.25rem; overflow:hidden; }
+.day-card { 
+    border:1px solid #dee2e6; 
+    border-top: 4px solid #84252B;
+    border-radius:.5rem; 
+    margin-bottom:1.25rem; 
+    overflow:hidden; 
+}
 .day-card-header {
     display:flex; align-items:center; justify-content:space-between;
     padding:.6rem 1rem;
@@ -37,8 +44,8 @@
     gap:.5rem;
 }
 .enc-block:last-child { border-bottom:none; }
-.enc-block.home { border-left:4px solid var(--clr-home); }
-.enc-block.away { border-left:4px solid var(--clr-away); }
+.enc-block.home { border-left:4px solid var(--clr-home); background: #e8f5e9; }
+.enc-block.away { border-left:4px solid var(--clr-away); background: #f8d7da; }
 
 /* Time badge */
 .time-pill {
@@ -53,22 +60,22 @@
 .loc-home { color:var(--clr-home); }
 .loc-away { color:var(--clr-away); }
 
-/* Players */
+/* Players — VS aligné en colonne */
 .players-col { line-height:1.6; }
-.match-line { font-size:.9rem; }
-.vs-sep { color:#aaa; font-size:.8rem; margin:0 4px; }
-
-/* Competition badge */
-.comp-badge {
-    display:inline-block; border-radius:12px;
-    padding:2px 10px; font-size:.75rem; font-weight:600; color:#fff;
-    white-space:nowrap;
+.match-line {
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+    gap:4px;
+    font-size:.88rem;
+    margin-bottom:2px;
 }
-.cb-3b   { background:var(--clr-3b);   color:#000!important; }
-.cb-plpf { background:var(--clr-plpf); }
-.cb-3eme { background:var(--clr-3eme); }
-.cb-coupe{ background:var(--clr-coupe);}
-.cb-comp { background:var(--clr-comp); }
+.player-home { text-align:right; font-weight:600; }
+.player-away { text-align:left; }
+.vs-sep { color:#aaa; font-size:.78rem; text-align:center; }
+
+/* Compétition (texte libre) */
+.comp-label { font-size:.8rem; color:#555; font-style:italic; line-height:1.3; }
 
 /* Arbitrage / Bar col */
 .arb-col, .bar-col { font-size:.88rem; }
@@ -114,15 +121,6 @@ function frDay(string $ymd, array $frDays, array $frMonths): string {
     return $frDays[$dow] . ' ' . $d . ' ' . $frMonths[$m];
 }
 
-function compClass(string $comp): string {
-    $lc = strtolower($comp);
-    if (str_contains($lc,'3 bandes') || $lc==='3b') return 'cb-3b';
-    if (str_contains($lc,'plpf'))                   return 'cb-plpf';
-    if (str_contains($lc,'3ème')||str_contains($lc,'3eme')) return 'cb-3eme';
-    if (str_contains($lc,'coupe'))                  return 'cb-coupe';
-    return 'cb-comp';
-}
-
 $monday = new \DateTime($weekDates[0]);
 $sunday = new \DateTime($weekDates[6]);
 $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
@@ -153,11 +151,12 @@ $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
 
 <?php foreach ($weekDates as $date): ?>
 <?php
-$dayEncs   = $byDate[$date] ?? [];
-$barAm     = $barByDate[$date]['am']   ?? null;
-$barSoir   = $barByDate[$date]['soir'] ?? null;
-$isActive  = !empty($activeDates[$date]);
-$dayLabel  = frDay($date, $frDays, $frMonths);
+$dayEncs      = $byDate[$date] ?? [];
+$barAm        = $barByDate[$date]['am']   ?? null;
+$barSoir      = $barByDate[$date]['soir'] ?? null;
+$isActive     = !empty($activeDates[$date]);
+$hasHomeMatch = !empty($homeDateFlags[$date]);
+$dayLabel     = frDay($date, $frDays, $frMonths);
 ?>
 
 <div class="day-card <?= $isActive ? '' : 'day-empty' ?>">
@@ -197,12 +196,14 @@ $dayLabel  = frDay($date, $frDays, $frMonths);
                             data-date="<?= $date ?>"
                             data-period="soir">Annuler</button>
                 <?php endif; ?>
-            <?php elseif ($isLogged): ?>
+            <?php elseif ($hasHomeMatch && $isLogged): ?>
                 <button class="btn-signup btn-bar-signup"
                         data-date="<?= $date ?>"
                         data-period="soir">S'inscrire</button>
-            <?php else: ?>
+            <?php elseif ($hasHomeMatch): ?>
                 <span class="bar-slot-free">libre</span>
+            <?php else: ?>
+                <span class="bar-slot-free" title="Pas de match à domicile">—</span>
             <?php endif; ?>
         </div>
     </div>
@@ -222,7 +223,7 @@ $dayLabel  = frDay($date, $frDays, $frMonths);
                 <?php if ($enc->is_home): ?>
                     <i class="fas fa-home loc-home" title="À domicile"></i>
                 <?php else: ?>
-                    <i class="fas fa-bus loc-away" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
+                    <i class="fas fa-car-side loc-away" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
                 <?php endif; ?>
             </div>
 
@@ -233,9 +234,9 @@ $dayLabel  = frDay($date, $frDays, $frMonths);
                 <?php endif; ?>
                 <?php foreach ($enc->players as $p): ?>
                     <div class="match-line">
-                        <strong><?= esc($p->last_name) ?> <?= esc(mb_substr($p->first_name,0,1)) ?>.</strong>
+                        <span class="player-home"><?= esc($p->last_name) ?> <?= esc(mb_substr($p->first_name,0,1)) ?>.</span>
                         <span class="vs-sep">vs</span>
-                        <?= esc($p->opponent_name) ?>
+                        <span class="player-away"><?= esc($p->opponent_name) ?></span>
                     </div>
                 <?php endforeach; ?>
                 <?php if (!$enc->is_home && $enc->venue): ?>
@@ -245,18 +246,24 @@ $dayLabel  = frDay($date, $frDays, $frMonths);
                 <?php endif; ?>
             </div>
 
-            <!-- Compétition -->
-            <div><span class="comp-badge <?= compClass($enc->competition) ?>"><?= esc($enc->competition) ?></span></div>
+            <!-- Compétition (champ notes) -->
+            <div>
+                <?php if ($enc->notes): ?>
+                    <span class="comp-label"><?= esc($enc->notes) ?></span>
+                <?php else: ?>
+                    <span class="text-muted" style="font-size:.8rem">—</span>
+                <?php endif; ?>
+            </div>
 
-            <!-- Arbitrage -->
+            <!-- Arbitrage — uniquement à domicile -->
             <div class="arb-col" id="arb-<?= $enc->id ?>">
-                <?php if ($enc->arbitrage): ?>
-                    <?php
-                    $arb    = $enc->arbitrage;
-                    $isMe   = $isLogged && $arb->admin_user_id == $currentUser;
-                    $isConv = $arb->assignment_type === 'designated';
-                    ?>
-                    <div>
+                <?php if ($enc->is_home): ?>
+                    <?php if ($enc->arbitrage): ?>
+                        <?php
+                        $arb    = $enc->arbitrage;
+                        $isMe   = $isLogged && $arb->admin_user_id == $currentUser;
+                        $isConv = $arb->assignment_type === 'designated';
+                        ?>
                         <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(mb_substr($arb->first_name,0,1)) ?>.</span>
                         <?php if ($isMe && $isConv && !$arb->confirmed): ?>
                             <span class="badge-conv ml-1">Convoqué</span>
@@ -278,17 +285,16 @@ $dayLabel  = frDay($date, $frDays, $frMonths);
                         <?php if ($isMe): ?>
                             <span class="badge-mine ml-1">Vous</span>
                         <?php endif; ?>
-                    </div>
-                <?php elseif ($isLogged): ?>
-                    <button class="btn-signup btn-arb-signup" data-encounter="<?= $enc->id ?>">
-                        <i class="fas fa-hand-paper mr-1"></i>Arbitrer
-                    </button>
-                <?php else: ?>
-                    <span class="text-muted" style="font-size:.82rem">—</span>
+                    <?php elseif ($isLogged): ?>
+                        <button class="btn-signup btn-arb-signup" data-encounter="<?= $enc->id ?>">
+                            <i class="fas fa-hand-paper mr-1"></i>Arbitrer
+                        </button>
+                    <?php else: ?>
+                        <span class="text-muted" style="font-size:.82rem">libre</span>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
 
-            <!-- Col vide (réservé pour extensions futures) -->
             <div></div>
         </div>
         <?php endforeach; ?>

@@ -6,8 +6,11 @@
 .badge-3eme    { background:#6f42c1; color:#fff; }
 .badge-coupe   { background:#fd7e14; color:#fff; }
 .badge-comp    { background:#6c757d; color:#fff; }
-.enc-home      { border-left:4px solid #28a745; }
-.enc-away      { border-left:4px solid #fd7e14; }
+.enc-home      { border-left:4px solid #28a745; background: #e8f5e9; }
+.enc-away      { border-left:4px solid #c6000d; background: #f8d7da; }
+
+.text-away     { color: #c6000d; }
+
 .enc-row       { transition:background .15s; }
 .enc-row:hover { background:#f8f9fa; }
 .arb-name      { font-weight:600; }
@@ -132,7 +135,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         <span title="À domicile"><i class="fas fa-home text-success"></i></span>
                     <?php else: ?>
                         <span title="En déplacement <?= esc($enc->venue ?? '') ?>">
-                            <i class="fas fa-bus text-warning"></i>
+                            <i class="fas fa-car-side text-away"></i>
                         </span>
                     <?php endif; ?>
                 </td>
@@ -151,11 +154,15 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         <span class="text-muted">—</span>
                     <?php endif; ?>
                     <?php if (!$enc->is_home && $enc->venue): ?>
-                        <br><small class="text-warning"><i class="fas fa-map-marker-alt mr-1"></i><?= esc($enc->venue) ?></small>
+                        <br><small class="text-away"><i class="fas fa-map-marker-alt mr-1"></i><?= esc($enc->venue) ?></small>
                     <?php endif; ?>
                 </td>
                 <td class="align-middle">
-                    <span class="badge <?= compBadge($enc->competition) ?>"><?= esc($enc->competition) ?></span>
+                    <?php if ($enc->notes): ?>
+                        <span style="font-size:.82rem;color:#495057;font-style:italic"><?= esc($enc->notes) ?></span>
+                    <?php else: ?>
+                        <span class="text-muted">—</span>
+                    <?php endif; ?>
                 </td>
                 <td class="align-middle" id="arb-cell-<?= $enc->id ?>">
                     <?php if ($enc->arbitrage): ?>

@@ -34,19 +34,23 @@ class ScheduleController extends BaseController
         $arbitrageByEncounter = $this->arbitrage->getForEncounters($encounterIds);
         $barByDate            = $this->barDuties->getForDates($weekDates);
 
-        $byDate     = [];
-        $activeDates = [];
+        $byDate        = [];
+        $activeDates   = [];
+        $homeDateFlags = [];
         foreach ($encounters as $enc) {
             $enc->players   = $playersByEncounter[$enc->id] ?? [];
             $enc->arbitrage = $arbitrageByEncounter[$enc->id] ?? null;
             $byDate[$enc->match_date][] = $enc;
             $activeDates[$enc->match_date] = true;
+            if ($enc->is_home) {
+                $homeDateFlags[$enc->match_date] = true;
+            }
         }
         foreach ($barByDate as $date => $_) {
             $activeDates[$date] = true;
         }
 
-        $nav        = $this->getPrevNextWeek($week, $year);
+        $nav         = $this->getPrevNextWeek($week, $year);
         $currentUser = session()->get('admin_id');
 
         return view('public/schedule/week', [
@@ -56,11 +60,12 @@ class ScheduleController extends BaseController
             'weekDates'   => $weekDates,
             'byDate'      => $byDate,
             'barByDate'   => $barByDate,
-            'activeDates' => $activeDates,
-            'prev'        => $nav['prev'],
-            'next'        => $nav['next'],
-            'currentUser' => $currentUser,
-            'isLogged'    => (bool) session()->get('admin_logged_in'),
+            'activeDates'   => $activeDates,
+            'homeDateFlags' => $homeDateFlags,
+            'prev'          => $nav['prev'],
+            'next'          => $nav['next'],
+            'currentUser'   => $currentUser,
+            'isLogged'      => (bool) session()->get('admin_logged_in'),
         ]);
     }
 
