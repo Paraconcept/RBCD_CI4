@@ -58,21 +58,6 @@ $isFinale      = $encType === 'finale';
                             <i class="fas fa-trophy mr-1"></i> Finale / Tournoi
                         </label>
                     </div>
-                    <!-- Nombre de tours — visible uniquement en mode Finale -->
-                    <div id="roundsCountGroup" <?= !$isFinale ? 'style="display:none"' : '' ?>>
-                        <div class="input-group input-group-sm" style="width:160px">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-list-ol"></i></span>
-                            </div>
-                            <input type="number" name="rounds_count" class="form-control"
-                                   min="1" max="8" placeholder="Tours"
-                                   value="<?= esc(old('rounds_count', $isEdit ? ($encounter->rounds_count ?? 3) : 3)) ?>"
-                                   title="Nombre de tours de la compétition">
-                            <div class="input-group-append">
-                                <span class="input-group-text">tour(s)</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <small class="text-muted d-block mt-1" id="finaleNote" <?= !$isFinale ? 'style="display:none!important"' : '' ?>>
                     En mode Finale, les joueurs ne sont pas liés à la base membres — aucun impact sur les stats d'arbitrage.
@@ -123,6 +108,23 @@ $isFinale      = $encType === 'finale';
                     <input type="text" name="competition" class="form-control"
                            placeholder="ex: Championnat Régional 3° 3B PF"
                            value="<?= esc(old('competition', $isEdit ? $encounter->competition ?? '' : '')) ?>">
+                </div>
+
+                <!-- Nombre de tours — visible uniquement en mode Finale -->
+                <div class="col-md-3 form-group" id="roundsCountGroup" <?= !$isFinale ? 'style="display:none"' : '' ?>>
+                    <label>Nombre de tours</label>
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-list-ol"></i></span>
+                        </div>
+                        <input type="number" name="rounds_count" class="form-control"
+                               min="1" max="8" placeholder="Tours"
+                               value="<?= esc(old('rounds_count', $isEdit ? ($encounter->rounds_count ?? 3) : 3)) ?>"
+                               title="Nombre de tours de la compétition">
+                        <div class="input-group-append">
+                            <span class="input-group-text">tour(s)</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Notes internes -->
