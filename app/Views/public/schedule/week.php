@@ -300,7 +300,7 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                         <div class="arb-row">
                             <span class="arb-label">Arbitrage :</span>
                             <?php if ($isLogged): ?>
-                            <button class="btn-signup btn-arb-signup <?= $myArb ? 'd-none' : '' ?>"
+                            <button class="btn btn-info btn-sm btn-arb-signup <?= $myArb ? 'd-none' : '' ?>"
                                     data-encounter="<?= $enc->id ?>"
                                     data-type="finale"
                                     data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
@@ -341,7 +341,7 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                                 <?php endif; ?>
                                 <?php if ($isMe): ?><span class="badge-mine">Vous</span><?php endif; ?>
                             <?php elseif ($isLogged): ?>
-                                <button class="btn-signup btn-arb-signup" data-encounter="<?= $enc->id ?>" data-type="normal">
+                                <button class="btn btn-info btn-sm btn-arb-signup" data-encounter="<?= $enc->id ?>" data-type="normal">
                                     <i class="fas fa-hand-paper mr-1"></i>Arbitrer
                                 </button>
                             <?php else: ?>
@@ -496,7 +496,7 @@ function bindArbCancel(btn) {
                 const div = document.getElementById(`arb-normal-${encId}`);
                 div.innerHTML = `
                     <span class="arb-label">Arbitrage :</span>
-                    <button class="btn-signup btn-arb-signup" data-encounter="${encId}" data-type="normal">
+                    <button class="btn btn-info btn-sm btn-arb-signup" data-encounter="${encId}" data-type="normal">
                         <i class="fas fa-hand-paper mr-1"></i>Arbitrer
                     </button>`;
                 bindArbSignup(div.querySelector('.btn-arb-signup'));
