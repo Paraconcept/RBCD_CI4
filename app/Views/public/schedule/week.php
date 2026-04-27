@@ -188,7 +188,7 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                     <button class="btn-cancel btn-bar-cancel" data-id="<?= $barAm->id ?>" data-date="<?= $date ?>" data-period="am">Annuler</button>
                 <?php endif; ?>
             <?php elseif ($isLogged): ?>
-                <button class="btn-signup btn-bar-signup" data-date="<?= $date ?>" data-period="am">S'inscrire</button>
+                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="am">S'inscrire</button>
             <?php else: ?>
                 <span class="bar-slot-free">libre</span>
             <?php endif; ?>
@@ -200,7 +200,7 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                     <button class="btn-cancel btn-bar-cancel" data-id="<?= $barSoir->id ?>" data-date="<?= $date ?>" data-period="soir">Annuler</button>
                 <?php endif; ?>
             <?php elseif ($isLogged): ?>
-                <button class="btn-signup btn-bar-signup" data-date="<?= $date ?>" data-period="soir">S'inscrire</button>
+                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="soir">S'inscrire</button>
             <?php else: ?>
                 <span class="bar-slot-free">libre</span>
             <?php endif; ?>
@@ -556,7 +556,7 @@ function bindBarCancel(btn) {
             const nameEl = this.previousElementSibling;
             if (nameEl) nameEl.remove();
             this.outerHTML = `
-                <button class="btn-signup btn-bar-signup" data-date="${date}" data-period="${period}">S'inscrire</button>`;
+                <button class="btn btn-info btn-sm btn-bar-signup" data-date="${date}" data-period="${period}">S'inscrire</button>`;
             document.querySelectorAll('.btn-bar-signup').forEach(bindBarSignup);
         });
     });
