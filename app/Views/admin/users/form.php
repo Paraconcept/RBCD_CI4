@@ -164,7 +164,7 @@ $selectedRoles = old('roles', $userRoles ?? []);
                 </div>
             </div>
             <?php else: ?>
-            <div class="alert alert-warning">
+            <div class="alert alert-info">
                 <i class="fas fa-key mr-2"></i>
                 Mot de passe par défaut : <strong>Admin@2026</strong> — à communiquer à l'utilisateur.
             </div>
