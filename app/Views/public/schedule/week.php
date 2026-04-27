@@ -337,9 +337,9 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                         <i class="fas fa-check mr-1"></i>Confirmer
                                     </button>
                                 <?php elseif ($arb->confirmed): ?>
-                                    <span class="badge-confirmed">✓</span>
+                                    <span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
                                 <?php elseif (!$arb->confirmed && $isConv): ?>
-                                    <span class="badge-pending">En attente</span>
+                                    <span class="badge-pending" data-toggle="tooltip" data-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
                                 <?php endif; ?>
                             </div>
                             <?php endforeach; ?>
@@ -380,9 +380,9 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                         <i class="fas fa-check mr-1"></i>Confirmer
                                     </button>
                                 <?php elseif ($arb->confirmed): ?>
-                                    <span class="badge-confirmed">✓ Confirmé</span>
+                                    <span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
                                 <?php else: ?>
-                                    <span class="badge-pending">En attente</span>
+                                    <span class="badge-pending" data-toggle="tooltip" data-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
                                 <?php endif; ?>
                             <?php elseif ($isLogged): ?>
                                 <button class="btn btn-info btn-sm btn-arb-signup" data-encounter="<?= $enc->id ?>" data-type="normal">
@@ -497,18 +497,19 @@ function doSignup(encId, round, btn) {
                 <div class="arb-row" data-arb-id="${data.arb_id}">
                     <span class="arb-name me-highlight">${data.name}</span>
                     ${roundTip}
-                    <span class="badge-confirmed">✓</span>
+                    <span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
                 </div>`;
             const list = document.getElementById(`arb-list-${encId}`);
             list.insertAdjacentHTML('beforeend', newRow);
-            $(list.lastElementChild.querySelector('[data-toggle="tooltip"]')).tooltip({ template: rbcdTooltipTemplate });
+            $(list.lastElementChild).find('[data-toggle="tooltip"]').tooltip({ template: rbcdTooltipTemplate });
             btn.classList.add('d-none');
         } else {
             const div = document.getElementById(`arb-normal-${encId}`);
             div.innerHTML = `
                 <span class="arb-label">Arbitrage :</span>
                 <span class="arb-name me-highlight">${data.name}</span>
-                <span class="badge-confirmed">✓ Confirmé</span>`;
+                <span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>`;
+            $(div).find('[data-toggle="tooltip"]').tooltip({ template: rbcdTooltipTemplate });
         }
     });
 }
@@ -525,7 +526,10 @@ document.querySelectorAll('.btn-arb-confirm').forEach(btn => {
             const row = this.closest('.arb-row') || document.getElementById(`arb-normal-${encId}`);
             const convBadge = row.querySelector('.badge-conv');
             const confirmBtn = row.querySelector('.btn-arb-confirm');
-            if (convBadge) convBadge.outerHTML = '<span class="badge-confirmed">✓ Confirmé</span>';
+            if (convBadge) {
+                convBadge.outerHTML = '<span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>';
+                $(row).find('.badge-confirmed[data-toggle="tooltip"]').tooltip({ template: rbcdTooltipTemplate });
+            }
             if (confirmBtn) confirmBtn.remove();
         });
     });
