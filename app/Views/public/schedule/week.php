@@ -137,6 +137,11 @@ function decodeTours(int $mask): string {
     return $t ? implode(' · ', $t) : '';
 }
 
+$nowDt         = new \DateTime();
+$nowWeek       = (int) $nowDt->format('W');
+$nowYear       = (int) $nowDt->format('o');
+$isCurrentWeek = ($week == $nowWeek && $year == $nowYear);
+
 $monday = new \DateTime($weekDates[0]);
 $sunday = new \DateTime($weekDates[6]);
 $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
@@ -150,6 +155,13 @@ $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
         <i class="fas fa-chevron-left mr-1"></i>Semaine précédente
     </a>
     <div class="text-center">
+        <?php if (!$isCurrentWeek): ?>
+            <div class="mb-1">
+                <a href="<?= base_url('tableau') ?>" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-calendar-day mr-1"></i>Semaine en cours
+                </a>
+            </div>
+        <?php endif; ?>
         <div class="week-title">Semaine <?= $week ?></div>
         <div class="text-muted" style="font-size:.9rem"><?= esc($periodStr) ?></div>
     </div>
