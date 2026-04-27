@@ -41,9 +41,22 @@
                             <?php endif; ?>
                         </td>
                         <td class="text-center">
-                            <span id="badge-<?= $u->id ?>" class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?>">
-                                <?= $u->is_active ? 'Actif' : 'Inactif' ?>
-                            </span>
+                            <?php if (session()->get('admin_id') != $u->id): ?>
+                                <span id="badge-<?= $u->id ?>"
+                                      class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?> btn-toggle tt-rbcd"
+                                      role="button" style="cursor:pointer"
+                                      data-id="<?= $u->id ?>"
+                                      data-active="<?= $u->is_active ?>"
+                                      data-name="<?= esc($u->last_name . ' ' . $u->first_name) ?>"
+                                      data-toggle="tooltip" data-placement="top"
+                                      title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?><br><?= esc($u->last_name . ' ' . $u->first_name) ?> du comité">
+                                    <?= $u->is_active ? 'Actif' : 'Inactif' ?>
+                                </span>
+                            <?php else: ?>
+                                <span id="badge-<?= $u->id ?>" class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?>">
+                                    <?= $u->is_active ? 'Actif' : 'Inactif' ?>
+                                </span>
+                            <?php endif; ?>
                         </td>
                         <td><?= $u->last_login ? date('d/m/Y H:i', strtotime($u->last_login)) : '<span class="text-muted">Jamais</span>' ?></td>
                         <td class="text-center">
@@ -54,16 +67,6 @@
                             </a>
 
                             <?php if (session()->get('admin_id') != $u->id): ?>
-                                <button type="button"
-                                    class="btn btn-xs <?= $u->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle tt-rbcd"
-                                    data-id="<?= $u->id ?>"
-                                    data-active="<?= $u->is_active ?>"
-                                    data-name="<?= esc($u->last_name . ' ' . $u->first_name) ?>"
-                                    data-toggle="tooltip" data-placement="top"
-                                    title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?> <br> <?= esc($u->last_name . ' ' . $u->first_name) ?> <br>du comité">
-                                    <i class="fas fa-power-off"></i>
-                                </button>
-
                                 <button type="button" class="btn btn-xs btn-danger btn-delete tt-rbcd"
                                     data-id="<?= $u->id ?>"
                                     data-name="<?= esc($u->first_name . ' ' . $u->last_name) ?>"
@@ -121,13 +124,16 @@ $(function() {
             }).done(function(res) {
                 if (res.success) {
                     const badge = $(`#badge-${id}`);
-                    const btn   = $(`[data-id="${id}"].btn-toggle`);
                     if (res.is_active) {
-                        badge.removeClass('badge-danger').addClass('badge-success').text('Actif');
-                        btn.removeClass('btn-success').addClass('btn-warning').attr('data-original-title','Désactiver ' + name).data('active',1).html('<i class="fas fa-power-off"></i>');
+                        badge.removeClass('badge-danger').addClass('badge-success')
+                             .text('Actif')
+                             .attr('data-original-title', 'Désactiver ' + name)
+                             .data('active', 1);
                     } else {
-                        badge.removeClass('badge-success').addClass('badge-danger').text('Inactif');
-                        btn.removeClass('btn-warning').addClass('btn-success').attr('data-original-title','Activer ' + name).data('active',0).html('<i class="fas fa-power-off"></i>');
+                        badge.removeClass('badge-success').addClass('badge-danger')
+                             .text('Inactif')
+                             .attr('data-original-title', 'Activer ' + name)
+                             .data('active', 0);
                     }
                     Swal.fire({ icon: 'success', title: res.message, timer: 1500, showConfirmButton: false });
                 } else {
