@@ -164,10 +164,15 @@ class TreasuryEnvelopesController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $db        = \Config\Database::connect();
+        $adminUser = $db->table('admin_users')->select('member_id')
+                        ->where('id', session()->get('admin_id'))->get()->getRowObject();
+
         $post = $this->request->getPost();
         $this->model->update($id, [
-            'closed_by_member_id' => $post['closed_by_member_id'] ?: null,
-            'notes'               => $post['notes'] ?: null,
+            'closed_by_member_id'  => $post['closed_by_member_id'] ?: null,
+            'notes'                => $post['notes'] ?: null,
+            'modified_by_member_id' => $adminUser?->member_id ?: null,
         ]);
 
         return redirect()->to(base_url('admin/treasury/envelopes'))->with('success', 'Enveloppe mise à jour.');

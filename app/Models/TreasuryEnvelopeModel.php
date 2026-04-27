@@ -12,7 +12,7 @@ class TreasuryEnvelopeModel extends Model
 
     protected $allowedFields = [
         'name', 'date', 'category', 'amount_calculated', 'amount_found',
-        'closed_by_member_id', 'encoded_by_member_id', 'notes',
+        'closed_by_member_id', 'encoded_by_member_id', 'modified_by_member_id', 'notes',
     ];
 
     protected $useTimestamps = true;
@@ -26,9 +26,11 @@ class TreasuryEnvelopeModel extends Model
                 'te.*',
                 "CONCAT(mc.last_name, ' ', mc.first_name) AS closer_name",
                 "CONCAT(me.last_name, ' ', me.first_name) AS encoder_name",
+                "CONCAT(mm.last_name, ' ', mm.first_name) AS modifier_name",
             ])
             ->join('members mc', 'mc.id = te.closed_by_member_id', 'left')
-            ->join('members me', 'me.id = te.encoded_by_member_id', 'left');
+            ->join('members me', 'me.id = te.encoded_by_member_id', 'left')
+            ->join('members mm', 'mm.id = te.modified_by_member_id', 'left');
 
         if ($year)  { $builder->where('YEAR(te.date)',  $year);  }
         if ($month) { $builder->where('MONTH(te.date)', $month); }

@@ -58,6 +58,7 @@
                             <th class="text-right" style="width:120px">Écart</th>
                             <th>Clôturé par</th>
                             <th>Encodé par</th>
+                            <th>Modifié par</th>
                             <th class="text-center" style="width:80px">Actions</th>
                         </tr>
                     </thead>
@@ -76,6 +77,7 @@
                         </td>
                         <td><?= esc($r->closer_name ?: '—') ?></td>
                         <td><?= esc($r->encoder_name ?: '—') ?></td>
+                        <td><?= esc($r->modifier_name ?: '—') ?></td>
                         <td class="text-center">
                             <a href="<?= base_url('admin/treasury/envelopes/' . $r->id . '/edit') ?>"
                             class="btn btn-xs btn-info" title="Modifier">
@@ -102,7 +104,7 @@
                                     <?= ($ecartMois >= 0 ? '+' : '') . number_format($ecartMois, 2, ',', '.') ?> €
                                 </span>
                             </td>
-                            <td colspan="3"></td>
+                            <td colspan="4"></td>
                         </tr>
                     </tfoot>
                 </table>
