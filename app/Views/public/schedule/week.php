@@ -284,16 +284,19 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                             <?php endforeach; ?>
                         </div>
                         <!-- Bouton toujours visible si pas encore inscrit -->
-                        <?php if ($isLogged): ?>
-                        <button class="btn-signup btn-arb-signup <?= $myArb ? 'd-none' : '' ?>"
-                                data-encounter="<?= $enc->id ?>"
-                                data-type="finale"
-                                data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
-                            <i class="fas fa-hand-paper mr-1"></i>Arbitrer
-                        </button>
-                        <?php elseif (empty($enc->arbitrageRows)): ?>
-                            <span class="text-muted" style="font-size:.82rem">libre</span>
-                        <?php endif; ?>
+                        <div class="arb-row">
+                            <span class="arb-label">Arbitrage :</span>
+                            <?php if ($isLogged): ?>
+                            <button class="btn-signup btn-arb-signup <?= $myArb ? 'd-none' : '' ?>"
+                                    data-encounter="<?= $enc->id ?>"
+                                    data-type="finale"
+                                    data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
+                                <i class="fas fa-hand-paper mr-1"></i>Arbitrer
+                            </button>
+                            <?php elseif (empty($enc->arbitrageRows)): ?>
+                                <span class="text-muted" style="font-size:.82rem">libre</span>
+                            <?php endif; ?>
+                        </div>
 
                     <?php else: ?>
                         <!-- Match normal : 1 seul arbitre -->
