@@ -61,7 +61,14 @@
                         </td>
                         <!-- Statut -->
                         <td class="text-center">
-                            <span id="badge-<?= $m->id ?>" class="badge <?= $m->is_active ? 'badge-success' : 'badge-danger' ?>">
+                            <span id="badge-<?= $m->id ?>"
+                                  class="badge <?= $m->is_active ? 'badge-success' : 'badge-danger' ?> btn-toggle tt-rbcd"
+                                  role="button" style="cursor:pointer"
+                                  data-id="<?= $m->id ?>"
+                                  data-active="<?= $m->is_active ?>"
+                                  data-name="<?= esc($m->last_name . ' ' . $m->first_name) ?>"
+                                  data-toggle="tooltip" data-placement="top"
+                                  title="<?= $m->is_active ? 'Désactiver' : 'Activer' ?><br><?= esc($m->last_name . ' ' . $m->first_name) ?>">
                                 <?= $m->is_active ? 'Actif' : 'Inactif' ?>
                             </span>
                         </td>
@@ -72,15 +79,7 @@
                                title="Modifier<br> <?= esc($m->last_name . ' ' . $m->first_name) ?>">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <button type="button"
-                                class="btn btn-xs <?= $m->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle tt-rbcd"
-                                data-id="<?= $m->id ?>" data-active="<?= $m->is_active ?>"
-                                data-name="<?= esc($m->last_name . ' ' . $m->first_name) ?>"
-                                data-toggle="tooltip" data-placement="top"
-                                title="<?= $m->is_active ? 'Désactiver' : 'Activer' ?> <br> <?= esc($m->last_name . ' ' . $m->first_name) ?>">
-                                <i class="fas fa-power-off"></i>
-                            </button>
-                            <button type="button" class="btn btn-xs btn-danger btn-delete tt-rbcd"
+<button type="button" class="btn btn-xs btn-danger btn-delete tt-rbcd"
                                 data-id="<?= $m->id ?>"
                                 data-name="<?= esc($m->first_name . ' ' . $m->last_name) ?>"
                                 data-toggle="tooltip" data-placement="top"
@@ -142,13 +141,16 @@ $(function() {
             }).done(function(res) {
                 if (res.success) {
                     const badge = $(`#badge-${id}`);
-                    const btn   = $(`[data-id="${id}"].btn-toggle`);
                     if (res.is_active) {
-                        badge.removeClass('badge-danger').addClass('badge-success').text('Actif');
-                        btn.removeClass('btn-success').addClass('btn-warning').attr('data-original-title','Désactiver ' + name).data('active',1).html('<i class="fas fa-power-off"></i>');
+                        badge.removeClass('badge-danger').addClass('badge-success')
+                             .text('Actif')
+                             .attr('data-original-title', 'Désactiver ' + name)
+                             .data('active', 1);
                     } else {
-                        badge.removeClass('badge-success').addClass('badge-danger').text('Inactif');
-                        btn.removeClass('btn-warning').addClass('btn-success').attr('data-original-title','Activer ' + name).data('active',0).html('<i class="fas fa-power-off"></i>');
+                        badge.removeClass('badge-success').addClass('badge-danger')
+                             .text('Inactif')
+                             .attr('data-original-title', 'Activer ' + name)
+                             .data('active', 0);
                     }
                     Swal.fire({ icon: 'success', title: res.message, timer: 1500, showConfirmButton: false });
                 } else {
