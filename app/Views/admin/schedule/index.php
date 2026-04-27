@@ -41,12 +41,12 @@
 $frDays   = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 $frMonths = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
-// Bitmask → "Tour 1 · Tour 3" (bit0=T1, bit1=T2, bit2=T3)
+// Bitmask → "Tour 1 · Tour 3" (bit i → Tour i+1, up to 8 tours)
 function decodeTours(int $mask): string {
     $t = [];
-    if ($mask & 1) $t[] = 'Tour 1';
-    if ($mask & 2) $t[] = 'Tour 2';
-    if ($mask & 4) $t[] = 'Tour 3';
+    for ($i = 0; $i < 8; $i++) {
+        if ($mask & (1 << $i)) $t[] = 'Tour ' . ($i + 1);
+    }
     return $t ? implode(' · ', $t) : '';
 }
 
@@ -207,7 +207,8 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         <!-- Bouton Désigner — toujours visible pour les domiciles -->
                         <button class="btn btn-xs btn-info btn-designate-referee"
                                 data-encounter="<?= $enc->id ?>"
-                                data-type="<?= $enc->encounter_type ?>">
+                                data-type="<?= $enc->encounter_type ?>"
+                                data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
                             <i class="fas fa-user-plus mr-1"></i>Désigner
                         </button>
                     <?php endif; ?>
@@ -256,20 +257,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                 </div>
                 <div class="form-group mb-0" id="modalRoundGroup" style="display:none">
                     <label>Tours à arbitrer</label>
-                    <div class="d-flex" style="gap:1.2rem">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="roundChk1" value="1" checked>
-                            <label class="custom-control-label" for="roundChk1">Tour 1</label>
-                        </div>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="roundChk2" value="2" checked>
-                            <label class="custom-control-label" for="roundChk2">Tour 2</label>
-                        </div>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="roundChk4" value="4" checked>
-                            <label class="custom-control-label" for="roundChk4">Tour 3</label>
-                        </div>
-                    </div>
+                    <div id="modalRoundCheckboxes" class="d-flex flex-wrap" style="gap:.8rem 1.2rem"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -296,24 +284,37 @@ document.querySelectorAll('.btn-designate-referee').forEach(btn => {
     btn.addEventListener('click', function() { openDesignateModal(this); });
 });
 
-// Bitmask → "Tour 1 · Tour 3"
+// Bitmask → "Tour 1 · Tour N" (générique, jusqu'à 8 tours)
 function decodeTours(mask) {
     const t = [];
-    if (mask & 1) t.push('Tour 1');
-    if (mask & 2) t.push('Tour 2');
-    if (mask & 4) t.push('Tour 3');
+    for (let i = 0; i < 8; i++) {
+        if (mask & (1 << i)) t.push('Tour ' + (i + 1));
+    }
     return t.join(' · ');
 }
 
+let currentModalRounds = 3;
+
 function openDesignateModal(btn) {
     const type = btn.dataset.type || 'normal';
+    currentModalRounds = parseInt(btn.dataset.rounds || 3);
     document.getElementById('modalEncounterId').value   = btn.dataset.encounter;
     document.getElementById('modalEncounterType').value = type;
     document.getElementById('modalAdminUserId').value   = '';
-    // Afficher / masquer le sélecteur de tours
     document.getElementById('modalRoundGroup').style.display = type === 'finale' ? '' : 'none';
-    // Tout cocher par défaut
-    document.querySelectorAll('#modalRoundGroup input[type="checkbox"]').forEach(c => c.checked = true);
+    // Générer les cases à cocher selon le nombre de tours de la compétition
+    const container = document.getElementById('modalRoundCheckboxes');
+    container.innerHTML = '';
+    for (let i = 0; i < currentModalRounds; i++) {
+        const val = 1 << i;
+        const id  = 'roundChk' + val;
+        container.insertAdjacentHTML('beforeend',
+            `<div class="custom-control custom-checkbox">` +
+            `<input type="checkbox" class="custom-control-input" id="${id}" value="${val}" checked>` +
+            `<label class="custom-control-label" for="${id}">Tour ${i + 1}</label>` +
+            `</div>`
+        );
+    }
     $('#modalArbitrage').modal('show');
 }
 
@@ -326,10 +327,10 @@ document.getElementById('btnConfirmArbitrage').addEventListener('click', functio
 
     let round = 0;
     if (type === 'finale') {
-        document.querySelectorAll('#modalRoundGroup input[type="checkbox"]:checked').forEach(c => {
+        document.querySelectorAll('#modalRoundCheckboxes input[type="checkbox"]:checked').forEach(c => {
             round |= parseInt(c.value);
         });
-        if (!round) round = 7; // aucune case = tout par défaut
+        if (!round) round = (1 << currentModalRounds) - 1; // aucune case = tous les tours
     }
 
     fetch(`<?= base_url('admin/schedule/') ?>${encounterId}/referee`, {

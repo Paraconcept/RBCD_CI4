@@ -47,15 +47,32 @@ $isFinale      = $encType === 'finale';
             <!-- Toggle Normal / Finale -->
             <div class="form-group">
                 <label class="d-block">Type de rencontre</label>
-                <div class="btn-group btn-group-toggle" data-toggle="buttons" id="encounterTypeToggle">
-                    <label class="btn btn-outline-rbcd btn-sm <?= !$isFinale ? 'active' : '' ?>">
-                        <input type="radio" name="_enc_type" value="normal" <?= !$isFinale ? 'checked' : '' ?>>
-                        <i class="fas fa-people-arrows mr-1"></i> Match normal
-                    </label>
-                    <label class="btn btn-outline-warning btn-sm <?= $isFinale ? 'active' : '' ?>">
-                        <input type="radio" name="_enc_type" value="finale" <?= $isFinale ? 'checked' : '' ?>>
-                        <i class="fas fa-trophy mr-1"></i> Finale / Tournoi
-                    </label>
+                <div class="d-flex align-items-center flex-wrap" style="gap:1rem">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons" id="encounterTypeToggle">
+                        <label class="btn btn-outline-rbcd btn-sm <?= !$isFinale ? 'active' : '' ?>">
+                            <input type="radio" name="_enc_type" value="normal" <?= !$isFinale ? 'checked' : '' ?>>
+                            <i class="fas fa-people-arrows mr-1"></i> Match normal
+                        </label>
+                        <label class="btn btn-outline-warning btn-sm <?= $isFinale ? 'active' : '' ?>">
+                            <input type="radio" name="_enc_type" value="finale" <?= $isFinale ? 'checked' : '' ?>>
+                            <i class="fas fa-trophy mr-1"></i> Finale / Tournoi
+                        </label>
+                    </div>
+                    <!-- Nombre de tours — visible uniquement en mode Finale -->
+                    <div id="roundsCountGroup" <?= !$isFinale ? 'style="display:none"' : '' ?>>
+                        <div class="input-group input-group-sm" style="width:160px">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-list-ol"></i></span>
+                            </div>
+                            <input type="number" name="rounds_count" class="form-control"
+                                   min="1" max="8" placeholder="Tours"
+                                   value="<?= esc(old('rounds_count', $isEdit ? ($encounter->rounds_count ?? 3) : 3)) ?>"
+                                   title="Nombre de tours de la compétition">
+                            <div class="input-group-append">
+                                <span class="input-group-text">tour(s)</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <small class="text-muted d-block mt-1" id="finaleNote" <?= !$isFinale ? 'style="display:none!important"' : '' ?>>
                     En mode Finale, les joueurs ne sont pas liés à la base membres — aucun impact sur les stats d'arbitrage.
@@ -267,6 +284,7 @@ document.querySelectorAll('input[name="_enc_type"]').forEach(radio => {
 
         const note = document.getElementById('finaleNote');
         note.style.display = currentType === 'finale' ? '' : 'none';
+        document.getElementById('roundsCountGroup').style.display = currentType === 'finale' ? '' : 'none';
 
         // Reconstruire toutes les lignes existantes dans le bon mode
         const container = document.getElementById('playersContainer');

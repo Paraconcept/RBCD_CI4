@@ -127,12 +127,12 @@ function frDay(string $ymd, array $frDays, array $frMonths): string {
     return $frDays[$dow] . ' ' . $d . ' ' . $frMonths[$m];
 }
 
-// Bitmask → "Tour 1 · Tour 3" (bit0=T1, bit1=T2, bit2=T3)
+// Bitmask → "Tour 1 · Tour N" (bit i → Tour i+1, jusqu'à 8 tours)
 function decodeTours(int $mask): string {
     $t = [];
-    if ($mask & 1) $t[] = 'Tour 1';
-    if ($mask & 2) $t[] = 'Tour 2';
-    if ($mask & 4) $t[] = 'Tour 3';
+    for ($i = 0; $i < 8; $i++) {
+        if ($mask & (1 << $i)) $t[] = 'Tour ' . ($i + 1);
+    }
     return $t ? implode(' · ', $t) : '';
 }
 
@@ -287,7 +287,8 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                         <?php if ($isLogged): ?>
                         <button class="btn-signup btn-arb-signup <?= $myArb ? 'd-none' : '' ?>"
                                 data-encounter="<?= $enc->id ?>"
-                                data-type="finale">
+                                data-type="finale"
+                                data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
                             <i class="fas fa-hand-paper mr-1"></i>Arbitrer
                         </button>
                         <?php elseif (empty($enc->arbitrageRows)): ?>
@@ -370,22 +371,19 @@ function bindArbSignup(btn) {
         const self  = this;
 
         if (type === 'finale') {
-            // SweetAlert pour choisir le nombre de tours
+            const rounds = parseInt(this.dataset.rounds || 3);
+            // Générer les cases à cocher selon le nombre de tours de la compétition
+            let chkHtml = '';
+            for (let i = 0; i < rounds; i++) {
+                const val = 1 << i;
+                chkHtml += `<div class="${i < rounds - 1 ? 'mb-1' : ''}"><label style="cursor:pointer">` +
+                    `<input type="checkbox" class="swal-round-chk" value="${val}" checked style="margin-right:6px">Tour ${i + 1}` +
+                    `</label></div>`;
+            }
             Swal.fire({
                 title: '<i class="fas fa-trophy mr-2" style="color:#ffc107"></i>Inscription — Finale',
-                html: `
-                    <p class="mb-3">Quels tours souhaitez-vous arbitrer ?</p>
-                    <div class="text-left pl-4" id="swalRoundGroup">
-                        <div class="mb-1"><label style="cursor:pointer">
-                            <input type="checkbox" id="swalR1" value="1" checked style="margin-right:6px">Tour 1
-                        </label></div>
-                        <div class="mb-1"><label style="cursor:pointer">
-                            <input type="checkbox" id="swalR2" value="2" checked style="margin-right:6px">Tour 2
-                        </label></div>
-                        <div><label style="cursor:pointer">
-                            <input type="checkbox" id="swalR4" value="4" checked style="margin-right:6px">Tour 3
-                        </label></div>
-                    </div>`,
+                html: `<p class="mb-3">Quels tours souhaitez-vous arbitrer ?</p>
+                    <div class="text-left pl-4">${chkHtml}</div>`,
                 showCancelButton: true,
                 confirmButtonText: '<i class="fas fa-hand-paper mr-1"></i>S\'inscrire',
                 cancelButtonText: 'Annuler',
@@ -393,9 +391,8 @@ function bindArbSignup(btn) {
                 buttonsStyling: false,
                 preConfirm: () => {
                     let mask = 0;
-                    [1, 2, 4].forEach(v => {
-                        const el = document.getElementById(`swalR${v}`);
-                        if (el && el.checked) mask |= v;
+                    document.querySelectorAll('.swal-round-chk').forEach(el => {
+                        if (el.checked) mask |= parseInt(el.value);
                     });
                     if (!mask) {
                         Swal.showValidationMessage('Veuillez sélectionner au moins un tour');
@@ -414,12 +411,12 @@ function bindArbSignup(btn) {
     });
 }
 
-// Bitmask → "Tour 1 · Tour 3"
+// Bitmask → "Tour 1 · Tour N" (générique, jusqu'à 8 tours)
 function decodeTours(mask) {
     const t = [];
-    if (mask & 1) t.push('Tour 1');
-    if (mask & 2) t.push('Tour 2');
-    if (mask & 4) t.push('Tour 3');
+    for (let i = 0; i < 8; i++) {
+        if (mask & (1 << i)) t.push('Tour ' + (i + 1));
+    }
     return t.join(' · ');
 }
 
