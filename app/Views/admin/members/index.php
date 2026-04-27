@@ -18,6 +18,7 @@
                         <th style="width:40px"></th>
                         <th>Nom</th>
                         <th class="text-center no-sort" style="width:30px">&nbsp;</th>
+                        <th class="text-center no-sort" style="width:20px"></th>
                         <th>Licence FRBB</th>
                         <th class="text-center">Comité</th>
                         <th class="text-center">Statut</th>
@@ -47,6 +48,13 @@
                             <span class="badge <?= $m->gender === 'F' ? 'badge-pink' : 'badge-info' ?>">
                                 <?= $m->gender ?>
                             </span>
+                        </td>
+                        <!-- Logo FRBB -->
+                        <td class="text-center p-0" style="width:20px;vertical-align:middle;">
+                            <?php if ($m->is_federated): ?>
+                                <img src="<?= base_url('assets/images/frbb_kbbb_logo_100.png') ?>"
+                                     style="height:24px;width:auto;" title="Fédéré FRBB">
+                            <?php endif; ?>
                         </td>
                         <!-- Licence -->
                         <td><?= $m->frbb_license ? esc($m->frbb_license) : '<span class="text-muted">—</span>' ?></td>
@@ -117,7 +125,7 @@ $(function() {
     const table = $('#membersTable').DataTable({
         order: [[1, 'asc']],
         columnDefs: [
-            { orderable: false, targets: [0, 2, 6] }
+            { orderable: false, targets: [0, 2, 3, 7] }
         ]
     });
     $('.tt-rbcd').tooltip(tooltipOpts);
