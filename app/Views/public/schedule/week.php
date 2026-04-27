@@ -34,7 +34,7 @@
 /* Encounter row */
 .enc-block {
     display:grid;
-    grid-template-columns: 72px 100px 1fr 240px 1fr;
+    grid-template-columns: 70px 140px 1fr 240px 1fr;
     align-items:start;
     padding:.65rem 1rem;
     border-bottom:1px solid #f0f0f0;
@@ -53,7 +53,8 @@
 }
 
 /* Location icon */
-.loc-icon { font-size:1rem; display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.loc-icon { font-size:1rem; display:flex; align-items:flex-start; gap:5px; }
+.loc-icon i { margin-top:2px; flex-shrink:0; }
 .loc-home { color:var(--clr-home); }
 .loc-away { color:var(--clr-away); }
 
@@ -283,7 +284,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 <?php else: ?>
                     <i class="fas fa-car-side loc-away" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
                     <?php if ($enc->venue): ?>
-                        <span style="font-size:.72rem;margin-left:15px;color:var(--clr-away)"><?= esc($enc->venue) ?></span>
+                        <span style="font-size:.72rem;color:var(--clr-away);line-height:1.3"><?= esc($enc->venue) ?></span>
                     <?php endif; ?>
                 <?php endif; ?>
             </div>
