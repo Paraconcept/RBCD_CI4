@@ -201,7 +201,9 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
 
                     <!-- Lien fiche -->
                     <td class="text-center">
-                        <a href="<?= $editUrl ?>" class="btn btn-xs btn-info" title="Modifier les paiements">
+                        <a href="<?= $editUrl ?>" class="btn btn-xs btn-info tt-rbcd"
+                           data-toggle="tooltip" data-placement="top"
+                           title="Modifier les paiements de<br><?= esc($r->last_name . ' ' . $r->first_name) ?>">
                             <i class="fas fa-edit"></i>
                         </a>
                     </td>
@@ -218,7 +220,11 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
 <?= $this->section('scripts') ?>
 <script>
 $(function () {
-    $('#treasuryTable').DataTable({
+    const tooltipOpts = {
+        html:     true,
+        template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+    };
+    const table = $('#treasuryTable').DataTable({
         order: [[0, 'asc']],
         pageLength: 50,
         columnDefs: [{ orderable: false, targets: 'no-sort' }],
@@ -228,6 +234,10 @@ $(function () {
             info: '_START_ à _END_ sur _TOTAL_ membres',
             paginate: { previous: 'Préc.', next: 'Suiv.' },
         }
+    });
+    $('.tt-rbcd').tooltip(tooltipOpts);
+    table.on('draw.dt', function() {
+        $('.tt-rbcd').tooltip('dispose').tooltip(tooltipOpts);
     });
 });
 </script>
