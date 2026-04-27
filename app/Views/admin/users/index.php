@@ -98,14 +98,17 @@
 <?= $this->section('scripts') ?>
 <script>
 $(function() {
-    $('#usersTable').DataTable({
+    const tooltipOpts = {
+        html:     true,
+        template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+    };
+    const table = $('#usersTable').DataTable({
         order: [[0, 'asc']],
         columnDefs: [{ orderable: false, targets: 'no-sort' }]
     });
-
-    $('.tt-rbcd').tooltip({
-        html:     true,
-        template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+    $('.tt-rbcd').tooltip(tooltipOpts);
+    table.on('draw.dt', function() {
+        $('.tt-rbcd').tooltip('dispose').tooltip(tooltipOpts);
     });
 
     $(document).on('click', '.btn-toggle', function() {

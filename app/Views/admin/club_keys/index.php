@@ -46,7 +46,7 @@
                                         data-id="<?= $k->id ?>"
                                         data-badge="<?= esc($k->badge_number ?? '') ?>"
                                         data-toggle="tooltip" data-placement="top"
-                                        title="Attribuer la clé <?= $k->badge_number ? '#' . esc($k->badge_number) : 'sans numéro' ?>">
+                                        title="Attribuer la clé<br> <?= $k->badge_number ? '#' . esc($k->badge_number) : 'sans numéro' ?>">
                                     <i class="fas fa-user-plus"></i>
                                 </button>
                             <?php else: ?>
@@ -55,7 +55,7 @@
                                         data-badge="<?= esc($k->badge_number ?? '') ?>"
                                         data-holder="<?= esc($k->holder_name) ?>"
                                         data-toggle="tooltip" data-placement="top"
-                                        title="Retourner la clé de <?= esc($k->holder_name) ?>">
+                                        title="Retourner la clé de<br> <?= esc($k->holder_name) ?>">
                                     <i class="fas fa-undo"></i>
                                 </button>
                             <?php endif; ?>
@@ -63,7 +63,7 @@
                                     data-id="<?= $k->id ?>"
                                     data-badge="<?= esc($k->badge_number ?? 'sans numéro') ?>"
                                     data-toggle="tooltip" data-placement="top"
-                                    title="Supprimer la clé <?= $k->badge_number ? '#' . esc($k->badge_number) : 'sans numéro' ?>">
+                                    title="Supprimer la clé <br><?= $k->badge_number ? '#' . esc($k->badge_number) : 'sans numéro' ?>">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -146,16 +146,19 @@
 
 <?= $this->section('scripts') ?>
 <script>
-$('.tt-rbcd').tooltip({
-    html:     true,
-    template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
-});
-
 $(function () {
-    $('#keysTable').DataTable({
+    const tooltipOpts = {
+        html:     true,
+        template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+    };
+    const table = $('#keysTable').DataTable({
         order: [[2, 'asc']],
         columnDefs: [{ orderable: false, targets: 'no-sort' }],
         pageLength: 25,
+    });
+    $('.tt-rbcd').tooltip(tooltipOpts);
+    table.on('draw.dt', function() {
+        $('.tt-rbcd').tooltip('dispose').tooltip(tooltipOpts);
     });
 
     $('.select2-assign').select2({ theme: 'bootstrap4', dropdownParent: $('#assignModal') });
