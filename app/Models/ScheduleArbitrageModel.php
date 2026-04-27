@@ -12,7 +12,7 @@ class ScheduleArbitrageModel extends Model
     protected $returnType    = 'object';
 
     protected $allowedFields = [
-        'encounter_id', 'round', 'admin_user_id', 'assignment_type',
+        'encounter_id', 'member_id', 'round', 'admin_user_id', 'assignment_type',
         'confirmed', 'confirmed_at',
     ];
 
@@ -24,8 +24,9 @@ class ScheduleArbitrageModel extends Model
         }
 
         $rows = $this->db->table('schedule_arbitrage sa')
-            ->select('sa.*, au.last_name, au.first_name')
-            ->join('admin_users au', 'au.id = sa.admin_user_id')
+            ->select('sa.*, COALESCE(m.last_name, au.last_name) AS last_name, COALESCE(m.first_name, au.first_name) AS first_name')
+            ->join('members m',     'm.id = sa.member_id',     'left')
+            ->join('admin_users au','au.id = sa.admin_user_id','left')
             ->whereIn('sa.encounter_id', $encounterIds)
             ->get()->getResultObject();
 

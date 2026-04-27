@@ -47,7 +47,7 @@ class ScheduleController extends BaseController
 
         $nav = $this->getPrevNextWeek($week, $year);
 
-        $adminUsers = $this->getAdminUsersList();
+        $members = (new MemberModel())->where('is_active', 1)->orderBy('last_name')->orderBy('first_name')->findAll();
 
         return view('admin/schedule/index', [
             'title'       => 'Tableau des rencontres',
@@ -59,7 +59,7 @@ class ScheduleController extends BaseController
             'barByDate'   => $barByDate,
             'prev'        => $nav['prev'],
             'next'        => $nav['next'],
-            'adminUsers'  => $adminUsers,
+            'members'     => $members,
         ]);
     }
 
@@ -176,13 +176,15 @@ class ScheduleController extends BaseController
     {
         $this->response->setHeader('Content-Type', 'application/json');
 
-        $adminUserId = (int) $this->request->getPost('admin_user_id');
-        if (!$adminUserId) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Utilisateur invalide.']);
+        $memberId = (int) $this->request->getPost('member_id');
+        if (!$memberId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Membre invalide.']);
         }
 
-        $round    = max(0, min(7, (int) $this->request->getPost('round')));
-        $existing = $this->arbitrage->getUserSignup($encounterId, $adminUserId);
+        $round    = max(0, min(255, (int) $this->request->getPost('round')));
+        $existing = $this->arbitrage->where('encounter_id', $encounterId)
+                                    ->where('member_id', $memberId)
+                                    ->first();
 
         if ($existing) {
             $this->arbitrage->update($existing->id, [
@@ -195,8 +197,9 @@ class ScheduleController extends BaseController
         } else {
             $arbId = $this->arbitrage->insert([
                 'encounter_id'    => $encounterId,
+                'member_id'       => $memberId,
+                'admin_user_id'   => null,
                 'round'           => $round,
-                'admin_user_id'   => $adminUserId,
                 'assignment_type' => 'designated',
                 'confirmed'       => 0,
             ]);
@@ -204,8 +207,8 @@ class ScheduleController extends BaseController
 
         $arb = $this->arbitrage->db
             ->table('schedule_arbitrage sa')
-            ->select('sa.*, au.last_name, au.first_name')
-            ->join('admin_users au', 'au.id = sa.admin_user_id')
+            ->select('sa.*, m.last_name, m.first_name')
+            ->join('members m', 'm.id = sa.member_id')
             ->where('sa.id', $arbId)
             ->get()->getRowObject();
 

@@ -247,11 +247,11 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                 <input type="hidden" id="modalEncounterId">
                 <input type="hidden" id="modalEncounterType" value="normal">
                 <div class="form-group">
-                    <label>Membre</label>
-                    <select class="form-control" id="modalAdminUserId">
+                    <label>Membre fédéré</label>
+                    <select class="form-control" id="modalMemberId">
                         <option value="">— Sélectionner —</option>
-                        <?php foreach ($adminUsers as $u): ?>
-                        <option value="<?= $u->id ?>"><?= esc($u->last_name) ?> <?= esc($u->first_name) ?></option>
+                        <?php foreach ($members as $m): ?>
+                        <option value="<?= $m->id ?>"><?= esc($m->last_name) ?> <?= esc($m->first_name) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -300,7 +300,7 @@ function openDesignateModal(btn) {
     currentModalRounds = parseInt(btn.dataset.rounds || 3);
     document.getElementById('modalEncounterId').value   = btn.dataset.encounter;
     document.getElementById('modalEncounterType').value = type;
-    document.getElementById('modalAdminUserId').value   = '';
+    document.getElementById('modalMemberId').value      = '';
     document.getElementById('modalRoundGroup').style.display = type === 'finale' ? '' : 'none';
     // Générer les cases à cocher selon le nombre de tours de la compétition
     const container = document.getElementById('modalRoundCheckboxes');
@@ -321,9 +321,9 @@ function openDesignateModal(btn) {
 // ── Confirmer la désignation ──
 document.getElementById('btnConfirmArbitrage').addEventListener('click', function() {
     const encounterId = document.getElementById('modalEncounterId').value;
-    const adminUserId = document.getElementById('modalAdminUserId').value;
+    const memberId    = document.getElementById('modalMemberId').value;
     const type        = document.getElementById('modalEncounterType').value;
-    if (!adminUserId) return;
+    if (!memberId) return;
 
     let round = 0;
     if (type === 'finale') {
@@ -336,7 +336,7 @@ document.getElementById('btnConfirmArbitrage').addEventListener('click', functio
     fetch(`<?= base_url('admin/schedule/') ?>${encounterId}/referee`, {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
-        body: `<?= csrf_token() ?>=${csrfToken}&admin_user_id=${adminUserId}&round=${round}`
+        body: `<?= csrf_token() ?>=${csrfToken}&member_id=${memberId}&round=${round}`
     })
     .then(r => r.json())
     .then(data => {
