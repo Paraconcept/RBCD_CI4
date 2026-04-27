@@ -338,7 +338,6 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                 <?php else: ?>
                                     <span class="badge-pending">En attente</span>
                                 <?php endif; ?>
-                                <?php if ($isMe): ?><span class="badge-mine">Vous</span><?php endif; ?>
                             <?php elseif ($isLogged): ?>
                                 <button class="btn btn-info btn-sm btn-arb-signup" data-encounter="<?= $enc->id ?>" data-type="normal">
                                     <i class="fas fa-hand-paper mr-1"></i>Arbitrer
@@ -468,7 +467,6 @@ function doSignup(encId, round, btn) {
                 <span class="arb-label">Arbitrage :</span>
                 <span class="arb-name me-highlight">${data.name}</span>
                 <span class="badge-confirmed">✓ Confirmé</span>
-                <span class="badge-mine">Vous</span>
                 <button class="btn-cancel btn-arb-cancel" data-encounter="${encId}">Annuler</button>`;
             bindArbCancel(div.querySelector('.btn-arb-cancel'));
         }

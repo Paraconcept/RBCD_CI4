@@ -193,7 +193,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                                         <span class="badge badge-warning">En attente</span>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <span class="badge badge-info">Vol.</span>
+                                    <span class="badge badge-info">Volontaire</span>
                                 <?php endif; ?>
                                 <button class="btn btn-xs btn-danger btn-remove-referee"
                                         data-encounter="<?= $enc->id ?>"
