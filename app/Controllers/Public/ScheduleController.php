@@ -34,12 +34,24 @@ class ScheduleController extends BaseController
         $arbitrageByEncounter = $this->arbitrage->getForEncounters($encounterIds);
         $barByDate            = $this->barDuties->getForDates($weekDates);
 
+        $currentUser = (int) session()->get('admin_id');
+
         $byDate        = [];
         $activeDates   = [];
         $homeDateFlags = [];
         foreach ($encounters as $enc) {
-            $enc->players          = $playersByEncounter[$enc->id] ?? [];
-            $enc->arbitrageByRound = $arbitrageByEncounter[$enc->id] ?? [];
+            $enc->players       = $playersByEncounter[$enc->id] ?? [];
+            $enc->arbitrageRows = $arbitrageByEncounter[$enc->id] ?? [];
+            // Current user's own signup for this encounter (null if not signed up)
+            $enc->myArb = null;
+            if ($currentUser) {
+                foreach ($enc->arbitrageRows as $arb) {
+                    if ($arb->admin_user_id == $currentUser) {
+                        $enc->myArb = $arb;
+                        break;
+                    }
+                }
+            }
             $byDate[$enc->match_date][] = $enc;
             $activeDates[$enc->match_date] = true;
             if ($enc->is_home) {
@@ -50,8 +62,7 @@ class ScheduleController extends BaseController
             $activeDates[$date] = true;
         }
 
-        $nav         = $this->getPrevNextWeek($week, $year);
-        $currentUser = session()->get('admin_id');
+        $nav = $this->getPrevNextWeek($week, $year);
 
         return view('public/schedule/week', [
             'title'       => "Tableau — Semaine {$week}",
@@ -74,14 +85,28 @@ class ScheduleController extends BaseController
         $this->response->setHeader('Content-Type', 'application/json');
 
         $adminUserId = (int) session()->get('admin_id');
-        $round       = (int) $this->request->getPost('round');
-
-        $existing = $this->arbitrage->where('encounter_id', $encounterId)->where('round', $round)->first();
-        if ($existing) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Un arbitre est déjà inscrit pour ce tour.']);
+        $encounter   = $this->encounters->find($encounterId);
+        if (!$encounter) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Rencontre introuvable.']);
         }
 
-        $this->arbitrage->insert([
+        // Prevent double signup
+        if ($this->arbitrage->getUserSignup($encounterId, $adminUserId)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Vous êtes déjà inscrit pour cette rencontre.']);
+        }
+
+        $round = 0;
+        if ($encounter->encounter_type === 'finale') {
+            $round = max(1, min(3, (int) $this->request->getPost('round')));
+        } else {
+            // Normal match — 1 referee max
+            $existing = $this->arbitrage->where('encounter_id', $encounterId)->first();
+            if ($existing) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Un arbitre est déjà inscrit.']);
+            }
+        }
+
+        $arbId = $this->arbitrage->insert([
             'encounter_id'    => $encounterId,
             'round'           => $round,
             'admin_user_id'   => $adminUserId,
@@ -90,14 +115,17 @@ class ScheduleController extends BaseController
             'confirmed_at'    => date('Y-m-d H:i:s'),
         ]);
 
-        $arb = $this->arbitrage->getForEncounter($encounterId, $round);
+        $arb = $this->arbitrage->db
+            ->table('schedule_arbitrage sa')
+            ->select('sa.*, au.last_name, au.first_name')
+            ->join('admin_users au', 'au.id = sa.admin_user_id')
+            ->where('sa.id', $arbId)
+            ->get()->getRowObject();
 
         return $this->response->setJSON([
             'success'     => true,
+            'arb_id'      => $arbId,
             'name'        => $arb->last_name . ' ' . mb_substr($arb->first_name, 0, 1) . '.',
-            'is_me'       => true,
-            'type'        => 'volunteer',
-            'arbitrage_id'=> $arb->id,
             'round'       => $round,
         ]);
     }
@@ -107,25 +135,19 @@ class ScheduleController extends BaseController
         $this->response->setHeader('Content-Type', 'application/json');
 
         $adminUserId = (int) session()->get('admin_id');
-        $round       = (int) $this->request->getPost('round');
-
-        $existing = $this->arbitrage->where('encounter_id', $encounterId)
-                                    ->where('admin_user_id', $adminUserId)
-                                    ->where('round', $round)
-                                    ->first();
+        $existing    = $this->arbitrage->getUserSignup($encounterId, $adminUserId);
 
         if (!$existing) {
             return $this->response->setJSON(['success' => false, 'message' => 'Inscription non trouvée.']);
         }
 
-        // Seul un volontaire peut se désinscrire (pas une convocation DS)
         if ($existing->assignment_type === 'designated') {
             return $this->response->setJSON(['success' => false, 'message' => 'Vous avez été convoqué par le DS — contactez-le pour annuler.']);
         }
 
         $this->arbitrage->delete($existing->id);
 
-        return $this->response->setJSON(['success' => true, 'round' => $round]);
+        return $this->response->setJSON(['success' => true]);
     }
 
     public function confirmArbitrage(int $encounterId)
@@ -133,15 +155,9 @@ class ScheduleController extends BaseController
         $this->response->setHeader('Content-Type', 'application/json');
 
         $adminUserId = (int) session()->get('admin_id');
-        $round       = (int) $this->request->getPost('round');
+        $existing    = $this->arbitrage->getUserSignup($encounterId, $adminUserId);
 
-        $existing = $this->arbitrage->where('encounter_id', $encounterId)
-                                    ->where('admin_user_id', $adminUserId)
-                                    ->where('assignment_type', 'designated')
-                                    ->where('round', $round)
-                                    ->first();
-
-        if (!$existing) {
+        if (!$existing || $existing->assignment_type !== 'designated') {
             return $this->response->setJSON(['success' => false, 'message' => 'Convocation non trouvée.']);
         }
 
@@ -150,7 +166,7 @@ class ScheduleController extends BaseController
             'confirmed_at' => date('Y-m-d H:i:s'),
         ]);
 
-        return $this->response->setJSON(['success' => true, 'round' => $round]);
+        return $this->response->setJSON(['success' => true]);
     }
 
     public function signupBar()

@@ -1,16 +1,9 @@
 <?= $this->extend('public/layouts/main') ?>
 <?= $this->section('styles') ?>
 <style>
-/* ── Tableau public — styles du tableau hebdomadaire ── */
 :root {
     --clr-home: #198754;
     --clr-away: #c6000d;
-    --clr-3b:   #0dcaf0;
-
-    --clr-plpf: #198754;
-    --clr-3eme: #6f42c1;
-    --clr-coupe:#fd7e14;
-    --clr-comp: #6c757d;
 }
 
 .week-nav .btn { min-width:160px; }
@@ -60,7 +53,7 @@
 .loc-home { color:var(--clr-home); }
 .loc-away { color:var(--clr-away); }
 
-/* Players — VS aligné en colonne */
+/* Players */
 .players-col { line-height:1.6; }
 .match-line {
     display:grid;
@@ -74,7 +67,7 @@
 .player-away { text-align:left; }
 .vs-sep { color:#aaa; font-size:.78rem; text-align:center; }
 
-/* Compétition (texte libre) */
+/* Compétition */
 .comp-col { border-left:2px solid rgba(0,0,0,.08); border-right:2px solid rgba(0,0,0,.08); padding:0 .8rem; }
 .comp-label { font-size:.8rem; color:#555; font-style:italic; line-height:1.3; }
 
@@ -83,22 +76,23 @@
                 padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
 
 /* Arbitrage col */
-.arb-col  { display:flex; flex-direction:column; gap:4px; font-size:.88rem; }
-.arb-row  { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+.arb-col   { display:flex; flex-direction:column; gap:4px; font-size:.88rem; }
+.arb-row   { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
 .arb-label { font-size:.75rem; color:#888; font-weight:600; white-space:nowrap; }
-.arb-name { font-weight:600; }
+.arb-name  { font-weight:600; }
+.arb-rounds { color:#888; cursor:default; font-size:.85rem; }
 
 .badge-confirmed { background:#198754; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; }
 .badge-pending   { background:#ffc107; color:#000; border-radius:10px; padding:1px 7px; font-size:.73rem; }
 .badge-mine      { background:#0d6efd; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; }
 .badge-conv      { background:#fd7e14; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; }
 
-/* Bar slot in day-header */
+/* Bar */
 .bar-slots { display:flex; align-items:center; gap:.5rem; font-size:.83rem; }
 .bar-slot-taken  { font-weight:600; color:#198754; }
 .bar-slot-free   { color:#aaa; font-style:italic; }
 
-/* Signup buttons */
+/* Buttons */
 .btn-signup, .btn-cancel { font-size:.78rem; padding:2px 8px; border-radius:10px; }
 .btn-signup { background:#e8f4fd; color:#0d6efd; border:1px solid #bee3fd; }
 .btn-signup:hover { background:#0d6efd; color:#fff; }
@@ -111,7 +105,6 @@
     .enc-block { grid-template-columns: 1fr; }
     .week-nav .btn { min-width:auto; }
     .comp-col { border:none; padding:0; }
-    /* Matchs : affichage inline gauche sur mobile */
     .match-line { display:block; margin-bottom:1px; }
     .player-home { display:inline; text-align:left; font-weight:600; }
     .vs-sep      { display:inline; margin:0 3px; }
@@ -168,68 +161,49 @@ $dayEncs      = $byDate[$date] ?? [];
 $barAm        = $barByDate[$date]['am']   ?? null;
 $barSoir      = $barByDate[$date]['soir'] ?? null;
 $isActive     = !empty($activeDates[$date]);
-$hasHomeMatch = !empty($homeDateFlags[$date]);
 $dayLabel     = frDay($date, $frDays, $frMonths);
 ?>
 
 <div class="day-card <?= $isActive ? '' : 'day-empty' ?>">
-    <!-- En-tête du jour -->
     <div class="day-card-header">
         <span><?= esc($dayLabel) ?></span>
-
-        <!-- Bar AM / Soir -->
         <div class="bar-slots">
             <span class="text-muted">Bar AM :</span>
             <?php if ($barAm): ?>
-                <span class="bar-slot-taken">
-                    <?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.
-                </span>
+                <span class="bar-slot-taken"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
                 <?php if ($isLogged && $barAm->admin_user_id == $currentUser): ?>
-                    <button class="btn-cancel btn-bar-cancel"
-                            data-id="<?= $barAm->id ?>"
-                            data-date="<?= $date ?>"
-                            data-period="am">Annuler</button>
+                    <button class="btn-cancel btn-bar-cancel" data-id="<?= $barAm->id ?>" data-date="<?= $date ?>" data-period="am">Annuler</button>
                 <?php endif; ?>
             <?php elseif ($isLogged): ?>
-                <button class="btn-signup btn-bar-signup"
-                        data-date="<?= $date ?>"
-                        data-period="am">S'inscrire</button>
+                <button class="btn-signup btn-bar-signup" data-date="<?= $date ?>" data-period="am">S'inscrire</button>
             <?php else: ?>
                 <span class="bar-slot-free">libre</span>
             <?php endif; ?>
-
             <span class="text-muted ml-2">Bar soirée :</span>
             <?php if ($barSoir): ?>
-                <span class="bar-slot-taken">
-                    <?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.
-                </span>
+                <span class="bar-slot-taken"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
                 <?php if ($isLogged && $barSoir->admin_user_id == $currentUser): ?>
-                    <button class="btn-cancel btn-bar-cancel"
-                            data-id="<?= $barSoir->id ?>"
-                            data-date="<?= $date ?>"
-                            data-period="soir">Annuler</button>
+                    <button class="btn-cancel btn-bar-cancel" data-id="<?= $barSoir->id ?>" data-date="<?= $date ?>" data-period="soir">Annuler</button>
                 <?php endif; ?>
             <?php elseif ($isLogged): ?>
-                <button class="btn-signup btn-bar-signup"
-                        data-date="<?= $date ?>"
-                        data-period="soir">S'inscrire</button>
+                <button class="btn-signup btn-bar-signup" data-date="<?= $date ?>" data-period="soir">S'inscrire</button>
             <?php else: ?>
                 <span class="bar-slot-free">libre</span>
             <?php endif; ?>
         </div>
     </div>
 
-    <!-- Rencontres du jour -->
     <?php if (!empty($dayEncs)): ?>
     <div class="day-card-body">
         <?php foreach ($dayEncs as $enc): ?>
-        <div class="enc-block <?= $enc->is_home ? 'home' : 'away' ?>"
-             data-encounter="<?= $enc->id ?>">
+        <?php
+        $isFinale = $enc->encounter_type === 'finale';
+        $myArb    = $enc->myArb;
+        ?>
+        <div class="enc-block <?= $enc->is_home ? 'home' : 'away' ?>" data-encounter="<?= $enc->id ?>">
 
-            <!-- Heure -->
             <div><span class="time-pill"><?= esc(substr($enc->match_time, 0, 5)) ?></span></div>
 
-            <!-- Domicile / Déplacement -->
             <div class="loc-icon">
                 <?php if ($enc->is_home): ?>
                     <i class="fas fa-home loc-home" title="À domicile"></i>
@@ -241,9 +215,8 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                 <?php endif; ?>
             </div>
 
-            <!-- Rencontre -->
             <div class="players-col">
-                <?php if ($enc->encounter_type === 'finale'): ?>
+                <?php if ($isFinale): ?>
                     <span class="badge-finale"><i class="fas fa-trophy mr-1"></i>Finale</span>
                 <?php endif; ?>
                 <?php foreach ($enc->players as $p): ?>
@@ -259,7 +232,6 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                 <?php endforeach; ?>
             </div>
 
-            <!-- Compétition -->
             <div class="comp-col">
                 <?php if ($enc->competition): ?>
                     <span class="comp-label"><?= esc($enc->competition) ?></span>
@@ -271,70 +243,78 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
             <!-- Arbitrage -->
             <div class="arb-col" id="arb-<?= $enc->id ?>">
                 <?php if ($enc->is_home): ?>
-                    <?php if ($enc->encounter_type === 'finale'): ?>
-                        <?php foreach ([1, 2, 3] as $r): ?>
-                            <?php $arbSlot = $enc->arbitrageByRound[$r] ?? null; ?>
-                            <div class="arb-row" id="arb-<?= $enc->id ?>-<?= $r ?>">
-                                <span class="arb-label">Tour <?= $r ?> :</span>
-                                <?php if ($arbSlot): ?>
-                                    <?php
-                                    $isMe   = $isLogged && $arbSlot->admin_user_id == $currentUser;
-                                    $isConv = $arbSlot->assignment_type === 'designated';
-                                    ?>
-                                    <span class="arb-name"><?= esc($arbSlot->last_name) ?> <?= esc(mb_substr($arbSlot->first_name,0,1)) ?>.</span>
-                                    <?php if ($isMe && $isConv && !$arbSlot->confirmed): ?>
-                                        <span class="badge-conv">Convoqué</span>
-                                        <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>" data-round="<?= $r ?>">
-                                            <i class="fas fa-check mr-1"></i>Confirmer
-                                        </button>
-                                    <?php elseif ($arbSlot->confirmed): ?>
-                                        <span class="badge-confirmed">✓ Confirmé</span>
-                                        <?php if ($isMe && !$isConv): ?>
-                                            <button class="btn-cancel btn-arb-cancel" data-encounter="<?= $enc->id ?>" data-round="<?= $r ?>">Annuler</button>
-                                        <?php endif; ?>
-                                    <?php else: ?>
-                                        <span class="badge-pending">En attente</span>
-                                    <?php endif; ?>
-                                    <?php if ($isMe): ?>
-                                        <span class="badge-mine">Vous</span>
-                                    <?php endif; ?>
-                                <?php elseif ($isLogged): ?>
-                                    <button class="btn-signup btn-arb-signup" data-encounter="<?= $enc->id ?>" data-round="<?= $r ?>">
-                                        <i class="fas fa-hand-paper mr-1"></i>Arbitrer
+
+                    <?php if ($isFinale): ?>
+                        <!-- Finale : liste libre d'arbitres inscrits -->
+                        <div id="arb-list-<?= $enc->id ?>">
+                            <?php foreach ($enc->arbitrageRows as $arb): ?>
+                            <?php
+                            $isMe   = $isLogged && $arb->admin_user_id == $currentUser;
+                            $isConv = $arb->assignment_type === 'designated';
+                            $roundTip = $arb->round ? ($arb->round . ' tour' . ($arb->round > 1 ? 's' : '')) : '';
+                            ?>
+                            <div class="arb-row" data-arb-id="<?= $arb->id ?>">
+                                <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(mb_substr($arb->first_name,0,1)) ?>.</span>
+                                <?php if ($arb->round): ?>
+                                    <i class="far fa-clock arb-rounds" data-toggle="tooltip" title="<?= esc($roundTip) ?>"></i>
+                                <?php endif; ?>
+                                <?php if ($isMe && $isConv && !$arb->confirmed): ?>
+                                    <span class="badge-conv">Convoqué</span>
+                                    <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
+                                        <i class="fas fa-check mr-1"></i>Confirmer
                                     </button>
-                                <?php else: ?>
-                                    <span class="text-muted" style="font-size:.82rem">libre</span>
+                                <?php elseif ($arb->confirmed): ?>
+                                    <span class="badge-confirmed">✓</span>
+                                <?php elseif (!$arb->confirmed && $isConv): ?>
+                                    <span class="badge-pending">En attente</span>
+                                <?php endif; ?>
+                                <?php if ($isMe): ?>
+                                    <span class="badge-mine">Vous</span>
+                                    <?php if (!$isConv): ?>
+                                        <button class="btn-cancel btn-arb-cancel" data-encounter="<?= $enc->id ?>">Annuler</button>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </div>
+                        <!-- Bouton toujours visible si pas encore inscrit -->
+                        <?php if ($isLogged): ?>
+                        <button class="btn-signup btn-arb-signup <?= $myArb ? 'd-none' : '' ?>"
+                                data-encounter="<?= $enc->id ?>"
+                                data-type="finale">
+                            <i class="fas fa-hand-paper mr-1"></i>Arbitrer
+                        </button>
+                        <?php elseif (empty($enc->arbitrageRows)): ?>
+                            <span class="text-muted" style="font-size:.82rem">libre</span>
+                        <?php endif; ?>
+
                     <?php else: ?>
-                        <div class="arb-row" id="arb-<?= $enc->id ?>-0">
+                        <!-- Match normal : 1 seul arbitre -->
+                        <div class="arb-row" id="arb-normal-<?= $enc->id ?>">
                             <span class="arb-label">Arbitrage :</span>
-                            <?php if ($enc->arbitrageByRound[0] ?? null): ?>
+                            <?php if (!empty($enc->arbitrageRows)): ?>
                                 <?php
-                                $arb    = $enc->arbitrageByRound[0];
+                                $arb    = $enc->arbitrageRows[0];
                                 $isMe   = $isLogged && $arb->admin_user_id == $currentUser;
                                 $isConv = $arb->assignment_type === 'designated';
                                 ?>
                                 <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(mb_substr($arb->first_name,0,1)) ?>.</span>
                                 <?php if ($isMe && $isConv && !$arb->confirmed): ?>
                                     <span class="badge-conv">Convoqué</span>
-                                    <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>" data-round="0">
+                                    <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
                                         <i class="fas fa-check mr-1"></i>Confirmer
                                     </button>
                                 <?php elseif ($arb->confirmed): ?>
                                     <span class="badge-confirmed">✓ Confirmé</span>
                                     <?php if ($isMe && !$isConv): ?>
-                                        <button class="btn-cancel btn-arb-cancel" data-encounter="<?= $enc->id ?>" data-round="0">Annuler</button>
+                                        <button class="btn-cancel btn-arb-cancel" data-encounter="<?= $enc->id ?>">Annuler</button>
                                     <?php endif; ?>
                                 <?php else: ?>
                                     <span class="badge-pending">En attente</span>
                                 <?php endif; ?>
-                                <?php if ($isMe): ?>
-                                    <span class="badge-mine">Vous</span>
-                                <?php endif; ?>
+                                <?php if ($isMe): ?><span class="badge-mine">Vous</span><?php endif; ?>
                             <?php elseif ($isLogged): ?>
-                                <button class="btn-signup btn-arb-signup" data-encounter="<?= $enc->id ?>" data-round="0">
+                                <button class="btn-signup btn-arb-signup" data-encounter="<?= $enc->id ?>" data-type="normal">
                                     <i class="fas fa-hand-paper mr-1"></i>Arbitrer
                                 </button>
                             <?php else: ?>
@@ -342,6 +322,7 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
+
                 <?php endif; ?>
             </div>
         </div>
@@ -361,67 +342,134 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
 const csrfName  = '<?= csrf_token() ?>';
 let   csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+// Initialiser les tooltips Bootstrap
+$(function() { $('[data-toggle="tooltip"]').tooltip(); });
+
 function postJson(url, body) {
     return fetch(url, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
+        headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
         body: Object.entries({...body, [csrfName]: csrfToken})
                     .map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&'),
     }).then(r => r.json());
 }
 
-// Retourne le div cible : toujours arb-{encId}-{round}
-function getArbRow(encId, round) {
-    return document.getElementById(`arb-${encId}-${round}`);
-}
-
-// Label arbitrage pour le innerHTML
-function arbLabel(round) {
-    return parseInt(round) > 0
-        ? `<span class="arb-label">Tour ${round} :</span>`
-        : `<span class="arb-label">Arbitrage :</span>`;
-}
-
 // ── Arbitrage : s'inscrire ──
-document.querySelectorAll('.btn-arb-signup').forEach(btn => {
+document.querySelectorAll('.btn-arb-signup').forEach(bindArbSignup);
+
+function bindArbSignup(btn) {
     btn.addEventListener('click', function() {
         const encId = this.dataset.encounter;
-        const round = this.dataset.round || '0';
-        postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/signup`, {round})
-        .then(data => {
-            if (!data.success) return Swal.fire('Erreur', data.message, 'error');
-            const row = getArbRow(encId, round);
-            row.innerHTML = `
-                ${arbLabel(round)}
+        const type  = this.dataset.type || 'normal';
+        const self  = this;
+
+        if (type === 'finale') {
+            // SweetAlert pour choisir le nombre de tours
+            Swal.fire({
+                title: '<i class="fas fa-trophy mr-2" style="color:#ffc107"></i>Inscription — Finale',
+                html: `
+                    <p class="mb-3">Combien de tours souhaitez-vous arbitrer ?</p>
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons" id="swalRoundGroup">
+                        <label class="btn btn-outline-secondary active">
+                            <input type="radio" name="swal_round" value="1" checked> 1 tour
+                        </label>
+                        <label class="btn btn-outline-secondary">
+                            <input type="radio" name="swal_round" value="2"> 2 tours
+                        </label>
+                        <label class="btn btn-outline-secondary">
+                            <input type="radio" name="swal_round" value="3"> 3 tours
+                        </label>
+                    </div>`,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-hand-paper mr-1"></i>S\'inscrire',
+                cancelButtonText: 'Annuler',
+                customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-secondary ml-2' },
+                buttonsStyling: false,
+                didOpen: () => {
+                    // Activer les Bootstrap radio toggle dans la SweetAlert
+                    document.querySelectorAll('#swalRoundGroup .btn').forEach(lbl => {
+                        lbl.addEventListener('click', function() {
+                            document.querySelectorAll('#swalRoundGroup .btn').forEach(b => b.classList.remove('active'));
+                            this.classList.add('active');
+                        });
+                    });
+                },
+                preConfirm: () => {
+                    const sel = document.querySelector('#swalRoundGroup input:checked');
+                    return sel ? parseInt(sel.value) : 1;
+                }
+            }).then(result => {
+                if (!result.isConfirmed) return;
+                const round = result.value;
+                doSignup(encId, round, self);
+            });
+        } else {
+            doSignup(encId, 0, self);
+        }
+    });
+}
+
+function doSignup(encId, round, btn) {
+    postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/signup`, {round})
+    .then(data => {
+        if (!data.success) return Swal.fire('Erreur', data.message, 'error');
+
+        if (btn.dataset.type === 'finale') {
+            // Ajouter la ligne dans la liste
+            const roundTip = round > 0 ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${round} tour${round > 1 ? 's' : ''}"></i>` : '';
+            const newRow = `
+                <div class="arb-row" data-arb-id="${data.arb_id}">
+                    <span class="arb-name">${data.name}</span>
+                    ${roundTip}
+                    <span class="badge-confirmed">✓</span>
+                    <span class="badge-mine">Vous</span>
+                    <button class="btn-cancel btn-arb-cancel" data-encounter="${encId}">Annuler</button>
+                </div>`;
+            const list = document.getElementById(`arb-list-${encId}`);
+            list.insertAdjacentHTML('beforeend', newRow);
+            // Tooltip sur le nouvel élément
+            $(list.lastElementChild.querySelector('[data-toggle="tooltip"]')).tooltip();
+            bindArbCancel(list.lastElementChild.querySelector('.btn-arb-cancel'));
+            // Masquer le bouton Arbitrer
+            btn.classList.add('d-none');
+        } else {
+            // Match normal — remplacer le contenu de la div
+            const div = document.getElementById(`arb-normal-${encId}`);
+            div.innerHTML = `
+                <span class="arb-label">Arbitrage :</span>
                 <span class="arb-name">${data.name}</span>
                 <span class="badge-confirmed">✓ Confirmé</span>
                 <span class="badge-mine">Vous</span>
-                <button class="btn-cancel btn-arb-cancel" data-encounter="${encId}" data-round="${round}">Annuler</button>`;
-            bindArbCancel(row.querySelector('.btn-arb-cancel'));
-        });
+                <button class="btn-cancel btn-arb-cancel" data-encounter="${encId}">Annuler</button>`;
+            bindArbCancel(div.querySelector('.btn-arb-cancel'));
+        }
     });
-});
+}
 
 // ── Arbitrage : annuler ──
 function bindArbCancel(btn) {
     btn.addEventListener('click', function() {
         const encId = this.dataset.encounter;
-        const round = this.dataset.round || '0';
-        postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/cancel`, {round})
+        postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/cancel`, {})
         .then(data => {
             if (!data.success) return Swal.fire('Info', data.message, 'info');
-            const row = getArbRow(encId, round);
-            row.innerHTML = `
-                ${arbLabel(round)}
-                <button class="btn-signup btn-arb-signup" data-encounter="${encId}" data-round="${round}">
-                    <i class="fas fa-hand-paper mr-1"></i>Arbitrer
-                </button>`;
-            row.querySelector('.btn-arb-signup').addEventListener('click', function() {
-                location.reload();
-            });
+
+            // Finale : retirer la ligne et réafficher le bouton
+            const row = this.closest('.arb-row');
+            if (row && row.closest(`#arb-list-${encId}`)) {
+                row.remove();
+                const signupBtn = document.querySelector(`.btn-arb-signup[data-encounter="${encId}"]`);
+                if (signupBtn) signupBtn.classList.remove('d-none');
+            } else {
+                // Match normal
+                const div = document.getElementById(`arb-normal-${encId}`);
+                div.innerHTML = `
+                    <span class="arb-label">Arbitrage :</span>
+                    <button class="btn-signup btn-arb-signup" data-encounter="${encId}" data-type="normal">
+                        <i class="fas fa-hand-paper mr-1"></i>Arbitrer
+                    </button>`;
+                bindArbSignup(div.querySelector('.btn-arb-signup'));
+            }
         });
     });
 }
@@ -431,18 +479,15 @@ document.querySelectorAll('.btn-arb-cancel').forEach(bindArbCancel);
 document.querySelectorAll('.btn-arb-confirm').forEach(btn => {
     btn.addEventListener('click', function() {
         const encId = this.dataset.encounter;
-        const round = this.dataset.round || '0';
-        postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/confirm`, {round})
+        postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/confirm`, {})
         .then(data => {
             if (!data.success) return Swal.fire('Erreur', data.message, 'error');
-            const row    = getArbRow(encId, round);
-            const nameEl = row.querySelector('.arb-name');
-            const name   = nameEl ? nameEl.textContent : '';
-            row.innerHTML = `
-                ${arbLabel(round)}
-                <span class="arb-name">${name}</span>
-                <span class="badge-confirmed">✓ Confirmé</span>
-                <span class="badge-mine">Vous</span>`;
+            // Remplacer Convoqué + Confirmer par ✓
+            const row = this.closest('.arb-row') || document.getElementById(`arb-normal-${encId}`);
+            const convBadge = row.querySelector('.badge-conv');
+            const confirmBtn = row.querySelector('.btn-arb-confirm');
+            if (convBadge) convBadge.outerHTML = '<span class="badge-confirmed">✓ Confirmé</span>';
+            if (confirmBtn) confirmBtn.remove();
         });
     });
 });

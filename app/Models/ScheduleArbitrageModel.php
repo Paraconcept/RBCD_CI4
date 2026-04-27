@@ -16,17 +16,7 @@ class ScheduleArbitrageModel extends Model
         'confirmed', 'confirmed_at',
     ];
 
-    public function getForEncounter(int $encounterId, int $round = 0): ?object
-    {
-        return $this->db->table('schedule_arbitrage sa')
-            ->select('sa.*, au.last_name, au.first_name, au.id as user_id')
-            ->join('admin_users au', 'au.id = sa.admin_user_id')
-            ->where('sa.encounter_id', $encounterId)
-            ->where('sa.round', $round)
-            ->get()->getRowObject();
-    }
-
-    // Returns [encounter_id => [round => row]]
+    // Returns [encounter_id => [row, row, ...]] — multiple rows per encounter for finales
     public function getForEncounters(array $encounterIds): array
     {
         if (empty($encounterIds)) {
@@ -41,8 +31,16 @@ class ScheduleArbitrageModel extends Model
 
         $indexed = [];
         foreach ($rows as $row) {
-            $indexed[$row->encounter_id][$row->round] = $row;
+            $indexed[$row->encounter_id][] = $row;
         }
         return $indexed;
+    }
+
+    // Get single user's signup for an encounter (UNIQUE enc+user guarantees at most 1)
+    public function getUserSignup(int $encounterId, int $userId): ?object
+    {
+        return $this->where('encounter_id', $encounterId)
+                    ->where('admin_user_id', $userId)
+                    ->first();
     }
 }

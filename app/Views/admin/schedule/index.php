@@ -1,16 +1,9 @@
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('styles') ?>
 <style>
-.badge-3b      { background:#17a2b8; color:#fff; }
-.badge-plpf    { background:#28a745; color:#fff; }
-.badge-3eme    { background:#6f42c1; color:#fff; }
-.badge-coupe   { background:#fd7e14; color:#fff; }
-.badge-comp    { background:#6c757d; color:#fff; }
 .enc-home      { border-left:4px solid #28a745; background: #e8f5e9; }
 .enc-away      { border-left:4px solid #c6000d; background: #DC656D24; }
-
 .text-away     { color: #c6000d; }
-
 .enc-row        { transition:background .15s; }
 .enc-home:hover { background: #d0f7d3; }
 .enc-away:hover { background: #dc656d47; }
@@ -23,29 +16,20 @@
 .match-line    { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:4px; font-size:.88rem; margin-bottom:2px; }
 .player-home   { text-align:right; font-weight:600; }
 .player-away   { text-align:left; }
-
-/* Arbitrage finale — créneaux empilés */
-.arb-slots    { display:flex; flex-direction:column; gap:3px; }
-.arb-slot-row { display:flex; align-items:center; gap:.3rem; flex-wrap:wrap; font-size:.85rem; }
+/* Liste d'arbitres pour les finales */
+.arb-list      { display:flex; flex-direction:column; gap:3px; margin-bottom:3px; }
+.arb-item      { display:flex; align-items:center; gap:.3rem; flex-wrap:wrap; font-size:.83rem; }
+.arb-rounds    { color:#888; cursor:default; }
 
 @media (max-width:767px) {
-    /* Masquer l'en-tête du tableau */
     .day-card thead { display:none; }
-    /* Chaque ligne devient un bloc */
     .day-card .enc-row { display:block; border-bottom:2px solid #dee2e6; }
-    .day-card .enc-row td {
-        display:block; border:none;
-        padding:.2rem .75rem; width:100%;
-        box-sizing:border-box;
-    }
-    /* VS inline gauche sur mobile */
+    .day-card .enc-row td { display:block; border:none; padding:.2rem .75rem; width:100%; box-sizing:border-box; }
     .match-line  { display:block; margin-bottom:1px; }
     .player-home { display:inline; text-align:left; }
     .player-away { display:inline; }
-    /* Arbitrage (Désigner) + Actions (Edit/Delete) → droite */
     .day-card .enc-row td:nth-child(5),
     .day-card .enc-row td:nth-child(6) { text-align:right; }
-    /* Venue sous l'icône sur mobile (pas de flex-wrap forcé) */
     .loc-cell { flex-wrap:nowrap; }
 }
 </style>
@@ -66,16 +50,6 @@ function frDate(string $ymd, array $frDays, array $frMonths): string {
     return $frDays[$dow] . ' ' . $day . ' ' . $frMonths[$month] . ' ' . $year;
 }
 
-function compBadge(string $comp): string {
-    $lc = strtolower($comp);
-    if (str_contains($lc,'3 bandes') || $lc === '3b')  return 'badge-3b';
-    if (str_contains($lc,'plpf'))                       return 'badge-plpf';
-    if (str_contains($lc,'3ème') || str_contains($lc,'3eme')) return 'badge-3eme';
-    if (str_contains($lc,'coupe'))                      return 'badge-coupe';
-    return 'badge-comp';
-}
-
-// Période de la semaine
 $monday = new \DateTime($weekDates[0]);
 $sunday = new \DateTime($weekDates[6]);
 $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
@@ -120,23 +94,18 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
         <?php if (!$hasContent): ?>
             <span class="ml-2 text-muted" style="font-size:.8rem">— pas de rencontre</span>
         <?php endif; ?>
-        <!-- Bar AM / Soir -->
         <div class="ml-auto d-flex align-items-center" style="gap:.5rem">
             <span class="text-muted" style="font-size:.75rem">Bar AM :</span>
             <?php if ($barAm): ?>
                 <span class="badge badge-success"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
-                <button class="btn btn-xs btn-outline-danger btn-bar-cancel" data-id="<?= $barAm->id ?>">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="btn btn-xs btn-outline-danger btn-bar-cancel" data-id="<?= $barAm->id ?>"><i class="fas fa-times"></i></button>
             <?php else: ?>
                 <span class="text-muted badge badge-light">libre</span>
             <?php endif; ?>
             <span class="text-muted ml-2" style="font-size:.75rem">Bar soir :</span>
             <?php if ($barSoir): ?>
                 <span class="badge badge-success"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
-                <button class="btn btn-xs btn-outline-danger btn-bar-cancel" data-id="<?= $barSoir->id ?>">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="btn btn-xs btn-outline-danger btn-bar-cancel" data-id="<?= $barSoir->id ?>"><i class="fas fa-times"></i></button>
             <?php else: ?>
                 <span class="text-muted badge badge-light">libre</span>
             <?php endif; ?>
@@ -152,7 +121,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     <th style="width:110px"></th>
                     <th>Rencontre</th>
                     <th style="width:110px">Compétition</th>
-                    <th style="width:220px">Arbitrage</th>
+                    <th style="width:230px">Arbitrage</th>
                     <th style="width:80px" class="text-right">Actions</th>
                 </tr>
             </thead>
@@ -203,66 +172,38 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                 </td>
                 <td class="align-middle" id="arb-cell-<?= $enc->id ?>">
                     <?php if ($enc->is_home): ?>
-                        <?php if ($enc->encounter_type === 'finale'): ?>
-                            <div class="arb-slots">
-                                <?php foreach ([1, 2, 3] as $r): ?>
-                                    <?php $arbSlot = $enc->arbitrageByRound[$r] ?? null; ?>
-                                    <div class="arb-slot-row" id="arb-slot-<?= $enc->id ?>-<?= $r ?>">
-                                        <small class="text-muted mr-1">Tour <?= $r ?> :</small>
-                                        <?php if ($arbSlot): ?>
-                                            <span class="arb-name"><?= esc($arbSlot->last_name) ?> <?= esc(mb_substr($arbSlot->first_name,0,1)) ?>.</span>
-                                            <?php if ($arbSlot->assignment_type === 'designated'): ?>
-                                                <?php if ($arbSlot->confirmed): ?>
-                                                    <span class="badge badge-success"><i class="fas fa-check"></i> Confirmé</span>
-                                                <?php else: ?>
-                                                    <span class="badge badge-warning">En attente</span>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <span class="badge badge-info">Volontaire</span>
-                                            <?php endif; ?>
-                                            <button class="btn btn-xs btn-danger btn-remove-referee"
-                                                    data-encounter="<?= $enc->id ?>"
-                                                    data-round="<?= $r ?>"
-                                                    title="Retirer l'arbitre">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        <?php else: ?>
-                                            <button class="btn btn-xs btn-info btn-designate-referee"
-                                                    data-encounter="<?= $enc->id ?>"
-                                                    data-round="<?= $r ?>">
-                                                <i class="fas fa-user-plus mr-1"></i>Désigner
-                                            </button>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php else: ?>
-                            <?php $arb = $enc->arbitrageByRound[0] ?? null; ?>
-                            <?php if ($arb): ?>
+                        <!-- Liste des arbitres déjà inscrits -->
+                        <div class="arb-list" id="arb-list-<?= $enc->id ?>">
+                            <?php foreach ($enc->arbitrageRows as $arb): ?>
+                            <div class="arb-item" data-arb-id="<?= $arb->id ?>">
                                 <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(mb_substr($arb->first_name,0,1)) ?>.</span>
+                                <?php if ($arb->round): ?>
+                                    <i class="far fa-clock arb-rounds" data-toggle="tooltip" title="<?= $arb->round ?> tour<?= $arb->round > 1 ? 's' : '' ?>"></i>
+                                <?php endif; ?>
                                 <?php if ($arb->assignment_type === 'designated'): ?>
                                     <?php if ($arb->confirmed): ?>
-                                        <span class="badge badge-success ml-1"><i class="fas fa-check"></i> Confirmé</span>
+                                        <span class="badge badge-success"><i class="fas fa-check"></i></span>
                                     <?php else: ?>
-                                        <span class="badge badge-warning ml-1">En attente</span>
+                                        <span class="badge badge-warning">En attente</span>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <span class="badge badge-info ml-1">Volontaire</span>
+                                    <span class="badge badge-info">Vol.</span>
                                 <?php endif; ?>
-                                <button class="btn btn-xs btn-danger ml-1 btn-remove-referee"
+                                <button class="btn btn-xs btn-danger btn-remove-referee"
                                         data-encounter="<?= $enc->id ?>"
-                                        data-round="0"
-                                        title="Retirer l'arbitre">
+                                        data-arb-id="<?= $arb->id ?>"
+                                        title="Retirer">
                                     <i class="fas fa-times"></i>
                                 </button>
-                            <?php else: ?>
-                                <button class="btn btn-xs btn-info btn-designate-referee"
-                                        data-encounter="<?= $enc->id ?>"
-                                        data-round="0">
-                                    <i class="fas fa-user-plus mr-1"></i>Désigner
-                                </button>
-                            <?php endif; ?>
-                        <?php endif; ?>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <!-- Bouton Désigner — toujours visible pour les domiciles -->
+                        <button class="btn btn-xs btn-info btn-designate-referee"
+                                data-encounter="<?= $enc->id ?>"
+                                data-type="<?= $enc->encounter_type ?>">
+                            <i class="fas fa-user-plus mr-1"></i>Désigner
+                        </button>
                     <?php endif; ?>
                 </td>
                 <td class="align-middle text-right text-nowrap">
@@ -297,8 +238,8 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
             </div>
             <div class="modal-body">
                 <input type="hidden" id="modalEncounterId">
-                <input type="hidden" id="modalRound" value="0">
-                <div class="form-group mb-0">
+                <input type="hidden" id="modalEncounterType" value="normal">
+                <div class="form-group">
                     <label>Membre</label>
                     <select class="form-control" id="modalAdminUserId">
                         <option value="">— Sélectionner —</option>
@@ -306,6 +247,20 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         <option value="<?= $u->id ?>"><?= esc($u->last_name) ?> <?= esc($u->first_name) ?></option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+                <div class="form-group mb-0" id="modalRoundGroup" style="display:none">
+                    <label>Nombre de tours à arbitrer</label>
+                    <div class="btn-group btn-group-toggle d-block" data-toggle="buttons" id="roundToggle">
+                        <label class="btn btn-outline-secondary btn-sm active">
+                            <input type="radio" name="modal_round" value="1" checked> 1 tour
+                        </label>
+                        <label class="btn btn-outline-secondary btn-sm">
+                            <input type="radio" name="modal_round" value="2"> 2 tours
+                        </label>
+                        <label class="btn btn-outline-secondary btn-sm">
+                            <input type="radio" name="modal_round" value="3"> 3 tours
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -324,23 +279,40 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-// Ouvrir le modal désignation
-function openDesignateModal(btn) {
-    document.getElementById('modalEncounterId').value = btn.dataset.encounter;
-    document.getElementById('modalRound').value       = btn.dataset.round ?? '0';
-    document.getElementById('modalAdminUserId').value = '';
-    $('#modalArbitrage').modal('show');
-}
+// Initialiser les tooltips
+$(function() { $('[data-toggle="tooltip"]').tooltip(); });
+
+// ── Ouvrir le modal désignation ──
 document.querySelectorAll('.btn-designate-referee').forEach(btn => {
     btn.addEventListener('click', function() { openDesignateModal(this); });
 });
 
-// Confirmer la désignation
+function openDesignateModal(btn) {
+    const type = btn.dataset.type || 'normal';
+    document.getElementById('modalEncounterId').value  = btn.dataset.encounter;
+    document.getElementById('modalEncounterType').value = type;
+    document.getElementById('modalAdminUserId').value  = '';
+    // Afficher le sélecteur de tours seulement pour les finales
+    document.getElementById('modalRoundGroup').style.display = type === 'finale' ? '' : 'none';
+    // Réinitialiser la sélection à 1 tour
+    const first = document.querySelector('#roundToggle label:first-child');
+    if (first) { first.classList.add('active'); first.querySelector('input').checked = true; }
+    document.querySelectorAll('#roundToggle label:not(:first-child)').forEach(l => l.classList.remove('active'));
+    $('#modalArbitrage').modal('show');
+}
+
+// ── Confirmer la désignation ──
 document.getElementById('btnConfirmArbitrage').addEventListener('click', function() {
     const encounterId = document.getElementById('modalEncounterId').value;
     const adminUserId = document.getElementById('modalAdminUserId').value;
-    const round       = document.getElementById('modalRound').value || '0';
-    if (!adminUserId) { return; }
+    const type        = document.getElementById('modalEncounterType').value;
+    if (!adminUserId) return;
+
+    let round = 0;
+    if (type === 'finale') {
+        const sel = document.querySelector('input[name="modal_round"]:checked');
+        round = sel ? parseInt(sel.value) : 1;
+    }
 
     fetch(`<?= base_url('admin/schedule/') ?>${encounterId}/referee`, {
         method: 'POST',
@@ -352,39 +324,30 @@ document.getElementById('btnConfirmArbitrage').addEventListener('click', functio
         if (!data.success) return;
         $('#modalArbitrage').modal('hide');
 
-        const r = parseInt(round);
-        if (r > 0) {
-            // Finale — mise à jour du slot
-            const slot = document.getElementById(`arb-slot-${encounterId}-${r}`);
-            slot.innerHTML = `
-                <small class="text-muted mr-1">Tour ${r} :</small>
+        const roundLabel  = round > 0 ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${round} tour${round > 1 ? 's' : ''}"></i>` : '';
+        const newItem = `
+            <div class="arb-item" data-arb-id="${data.arb_id}">
                 <span class="arb-name">${data.name}</span>
+                ${roundLabel}
                 <span class="badge badge-warning">En attente</span>
                 <button class="btn btn-xs btn-danger btn-remove-referee"
-                        data-encounter="${encounterId}" data-round="${r}" title="Retirer l'arbitre">
+                        data-encounter="${encounterId}" data-arb-id="${data.arb_id}" title="Retirer">
                     <i class="fas fa-times"></i>
-                </button>`;
-            bindRemoveReferee(slot.querySelector('.btn-remove-referee'));
-        } else {
-            // Match normal — mise à jour de la cellule entière
-            const cell = document.getElementById(`arb-cell-${encounterId}`);
-            cell.innerHTML = `
-                <span class="arb-name">${data.name}</span>
-                <span class="badge badge-warning ml-1">En attente</span>
-                <button class="btn btn-xs btn-danger ml-1 btn-remove-referee"
-                        data-encounter="${encounterId}" data-round="0" title="Retirer l'arbitre">
-                    <i class="fas fa-times"></i>
-                </button>`;
-            bindRemoveReferee(cell.querySelector('.btn-remove-referee'));
-        }
+                </button>
+            </div>`;
+        const list = document.getElementById(`arb-list-${encounterId}`);
+        list.insertAdjacentHTML('beforeend', newItem);
+        // Réinitialiser le tooltip sur le nouvel élément
+        $(list.lastElementChild.querySelector('[data-toggle="tooltip"]')).tooltip();
+        bindRemoveReferee(list.lastElementChild.querySelector('.btn-remove-referee'));
     });
 });
 
-// Retirer arbitre
+// ── Retirer arbitre ──
 function bindRemoveReferee(btn) {
     btn.addEventListener('click', function() {
         const encId = this.dataset.encounter;
-        const round = this.dataset.round ?? '0';
+        const arbId = this.dataset.arbId;
         Swal.fire({
             title: 'Retirer l\'arbitre ?',
             icon: 'warning',
@@ -397,41 +360,20 @@ function bindRemoveReferee(btn) {
             fetch(`<?= base_url('admin/schedule/') ?>${encId}/referee/remove`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
-                body: `<?= csrf_token() ?>=${csrfToken}&round=${round}`
+                body: `<?= csrf_token() ?>=${csrfToken}&arb_id=${arbId}`
             })
             .then(r => r.json())
             .then(data => {
                 if (!data.success) return;
-                const r = parseInt(round);
-                if (r > 0) {
-                    const slot = document.getElementById(`arb-slot-${encId}-${r}`);
-                    slot.innerHTML = `
-                        <small class="text-muted mr-1">Tour ${r} :</small>
-                        <button class="btn btn-xs btn-info btn-designate-referee"
-                                data-encounter="${encId}" data-round="${r}">
-                            <i class="fas fa-user-plus mr-1"></i>Désigner
-                        </button>`;
-                    slot.querySelector('.btn-designate-referee').addEventListener('click', function() {
-                        openDesignateModal(this);
-                    });
-                } else {
-                    const cell = document.getElementById(`arb-cell-${encId}`);
-                    cell.innerHTML = `
-                        <button class="btn btn-xs btn-info btn-designate-referee"
-                                data-encounter="${encId}" data-round="0">
-                            <i class="fas fa-user-plus mr-1"></i>Désigner
-                        </button>`;
-                    cell.querySelector('.btn-designate-referee').addEventListener('click', function() {
-                        openDesignateModal(this);
-                    });
-                }
+                const item = document.querySelector(`#arb-list-${encId} [data-arb-id="${arbId}"]`);
+                if (item) item.remove();
             });
         });
     });
 }
 document.querySelectorAll('.btn-remove-referee').forEach(bindRemoveReferee);
 
-// Supprimer rencontre
+// ── Supprimer rencontre ──
 document.querySelectorAll('.btn-delete-encounter').forEach(btn => {
     btn.addEventListener('click', function() {
         const url = this.dataset.url;

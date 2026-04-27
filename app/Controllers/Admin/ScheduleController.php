@@ -40,8 +40,8 @@ class ScheduleController extends BaseController
 
         $byDate = [];
         foreach ($encounters as $enc) {
-            $enc->players          = $playersByEncounter[$enc->id] ?? [];
-            $enc->arbitrageByRound = $arbitrageByEncounter[$enc->id] ?? [];
+            $enc->players       = $playersByEncounter[$enc->id] ?? [];
+            $enc->arbitrageRows = $arbitrageByEncounter[$enc->id] ?? [];
             $byDate[$enc->match_date][] = $enc;
         }
 
@@ -173,18 +173,19 @@ class ScheduleController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Utilisateur invalide.']);
         }
 
-        $round    = (int) $this->request->getPost('round');
-        $existing = $this->arbitrage->where('encounter_id', $encounterId)->where('round', $round)->first();
+        $round    = max(0, (int) $this->request->getPost('round'));
+        $existing = $this->arbitrage->getUserSignup($encounterId, $adminUserId);
 
         if ($existing) {
             $this->arbitrage->update($existing->id, [
-                'admin_user_id'   => $adminUserId,
+                'round'           => $round,
                 'assignment_type' => 'designated',
                 'confirmed'       => 0,
                 'confirmed_at'    => null,
             ]);
+            $arbId = $existing->id;
         } else {
-            $this->arbitrage->insert([
+            $arbId = $this->arbitrage->insert([
                 'encounter_id'    => $encounterId,
                 'round'           => $round,
                 'admin_user_id'   => $adminUserId,
@@ -193,14 +194,20 @@ class ScheduleController extends BaseController
             ]);
         }
 
-        $arb = $this->arbitrage->getForEncounter($encounterId, $round);
+        $arb = $this->arbitrage->db
+            ->table('schedule_arbitrage sa')
+            ->select('sa.*, au.last_name, au.first_name')
+            ->join('admin_users au', 'au.id = sa.admin_user_id')
+            ->where('sa.id', $arbId)
+            ->get()->getRowObject();
 
         return $this->response->setJSON([
-            'success'  => true,
-            'name'     => $arb->last_name . ' ' . mb_substr($arb->first_name, 0, 1) . '.',
-            'type'     => 'designated',
-            'confirmed'=> 0,
-            'round'    => $round,
+            'success'     => true,
+            'arb_id'      => $arbId,
+            'name'        => $arb->last_name . ' ' . mb_substr($arb->first_name, 0, 1) . '.',
+            'round'       => $round,
+            'type'        => 'designated',
+            'confirmed'   => 0,
         ]);
     }
 
@@ -208,14 +215,21 @@ class ScheduleController extends BaseController
     {
         $this->response->setHeader('Content-Type', 'application/json');
 
-        $round    = (int) $this->request->getPost('round');
-        $existing = $this->arbitrage->where('encounter_id', $encounterId)->where('round', $round)->first();
-
-        if ($existing) {
-            $this->arbitrage->delete($existing->id);
+        $arbId = (int) $this->request->getPost('arb_id');
+        if ($arbId) {
+            $row = $this->arbitrage->find($arbId);
+            if ($row && $row->encounter_id == $encounterId) {
+                $this->arbitrage->delete($arbId);
+            }
+        } else {
+            // Fallback : normal match (1 seul arbitre)
+            $existing = $this->arbitrage->where('encounter_id', $encounterId)->first();
+            if ($existing) {
+                $this->arbitrage->delete($existing->id);
+            }
         }
 
-        return $this->response->setJSON(['success' => true, 'round' => $round]);
+        return $this->response->setJSON(['success' => true]);
     }
 
     private function validateEncounterForm(): bool
