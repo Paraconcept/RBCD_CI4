@@ -49,18 +49,20 @@
                                     <i class="fas fa-user-plus"></i>
                                 </button>
                             <?php else: ?>
-                                <button type="button" class="btn btn-xs btn-warning btn-return"
+                                <button type="button" class="btn btn-xs btn-warning btn-return tt-rbcd"
                                         data-id="<?= $k->id ?>"
                                         data-badge="<?= esc($k->badge_number ?? '') ?>"
                                         data-holder="<?= esc($k->holder_name) ?>"
-                                        title="Retourner">
+                                        data-toggle="tooltip" data-placement="top"
+                                        title="Retourner la clé de <?= esc($k->holder_name) ?>">
                                     <i class="fas fa-undo"></i>
                                 </button>
                             <?php endif; ?>
-                            <button type="button" class="btn btn-xs btn-danger btn-delete"
+                            <button type="button" class="btn btn-xs btn-danger btn-delete tt-rbcd"
                                     data-id="<?= $k->id ?>"
                                     data-badge="<?= esc($k->badge_number ?? 'sans numéro') ?>"
-                                    title="Supprimer">
+                                    data-toggle="tooltip" data-placement="top"
+                                    title="Supprimer la clé <?= $k->badge_number ? '#' . esc($k->badge_number) : 'sans numéro' ?>">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -143,6 +145,10 @@
 
 <?= $this->section('scripts') ?>
 <script>
+$('.tt-rbcd').tooltip({
+    template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+});
+
 $(function () {
     $('#keysTable').DataTable({
         order: [[2, 'asc']],

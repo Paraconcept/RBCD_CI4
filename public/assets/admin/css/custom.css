@@ -180,6 +180,18 @@ a:hover { color: var(--rbcd-primary-dark); }
 }
 
 /* ----------------------------------------------------------------
+   TOOLTIPS — couleur RBCD
+   ---------------------------------------------------------------- */
+.tooltip-rbcd .tooltip-inner {
+    background-color: var(--rbcd-primary);
+    color: #fff;
+}
+.tooltip-rbcd.bs-tooltip-top    .arrow::before { border-top-color:    var(--rbcd-primary); }
+.tooltip-rbcd.bs-tooltip-bottom .arrow::before { border-bottom-color: var(--rbcd-primary); }
+.tooltip-rbcd.bs-tooltip-left   .arrow::before { border-left-color:   var(--rbcd-primary); }
+.tooltip-rbcd.bs-tooltip-right  .arrow::before { border-right-color:  var(--rbcd-primary); }
+
+/* ----------------------------------------------------------------
    PAGE LOGIN
    ---------------------------------------------------------------- */
 .login-logo {
