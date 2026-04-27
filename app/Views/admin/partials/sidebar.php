@@ -49,15 +49,6 @@
                     </a>
                 </li>
 
-                <li class="nav-header">SPORT</li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/schedule') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-calendar-week"></i>
-                        <p>Tableau des rencontres</p>
-                    </a>
-                </li>
-
                 <li class="nav-header">GESTION</li>
 
                 <li class="nav-item">
@@ -88,6 +79,15 @@
                             </a>
                         </li>
                     </ul>
+                </li>
+
+                <li class="nav-header">DIRECTION SPORTIVE</li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/schedule') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-calendar-week"></i>
+                        <p>Tableau des rencontres</p>
+                    </a>
                 </li>
 
             </ul>
