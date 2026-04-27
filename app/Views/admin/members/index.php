@@ -69,7 +69,7 @@
                         <td class="text-center">
                             <a href="<?= base_url('admin/members/' . $m->id . '/edit') ?>" class="btn btn-xs btn-info tt-rbcd"
                                data-toggle="tooltip" data-placement="top"
-                               title="Modifier <?= esc($m->last_name . ' ' . $m->first_name) ?>">
+                               title="Modifier<br> <?= esc($m->last_name . ' ' . $m->first_name) ?>">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <button type="button"
@@ -77,14 +77,14 @@
                                 data-id="<?= $m->id ?>" data-active="<?= $m->is_active ?>"
                                 data-name="<?= esc($m->last_name . ' ' . $m->first_name) ?>"
                                 data-toggle="tooltip" data-placement="top"
-                                title="<?= $m->is_active ? 'Désactiver' : 'Activer' ?> <?= esc($m->last_name . ' ' . $m->first_name) ?>">
-                                <i class="fas <?= $m->is_active ? 'fa-ban' : 'fa-check' ?>"></i>
+                                title="<?= $m->is_active ? 'Désactiver' : 'Activer' ?> <br> <?= esc($m->last_name . ' ' . $m->first_name) ?>">
+                                <i class="fas fa-power-off"></i>
                             </button>
                             <button type="button" class="btn btn-xs btn-danger btn-delete tt-rbcd"
                                 data-id="<?= $m->id ?>"
                                 data-name="<?= esc($m->first_name . ' ' . $m->last_name) ?>"
                                 data-toggle="tooltip" data-placement="top"
-                                title="Supprimer <?= esc($m->last_name . ' ' . $m->first_name) ?>">
+                                title="Supprimer <br><?= esc($m->last_name . ' ' . $m->first_name) ?>">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -145,10 +145,10 @@ $(function() {
                     const btn   = $(`[data-id="${id}"].btn-toggle`);
                     if (res.is_active) {
                         badge.removeClass('badge-danger').addClass('badge-success').text('Actif');
-                        btn.removeClass('btn-success').addClass('btn-warning').attr('data-original-title','Désactiver ' + name).data('active',1).html('<i class="fas fa-ban"></i>');
+                        btn.removeClass('btn-success').addClass('btn-warning').attr('data-original-title','Désactiver ' + name).data('active',1).html('<i class="fas fa-power-off"></i>');
                     } else {
                         badge.removeClass('badge-success').addClass('badge-danger').text('Inactif');
-                        btn.removeClass('btn-warning').addClass('btn-success').attr('data-original-title','Activer ' + name).data('active',0).html('<i class="fas fa-check"></i>');
+                        btn.removeClass('btn-warning').addClass('btn-success').attr('data-original-title','Activer ' + name).data('active',0).html('<i class="fas fa-power-off"></i>');
                     }
                     Swal.fire({ icon: 'success', title: res.message, timer: 1500, showConfirmButton: false });
                 } else {

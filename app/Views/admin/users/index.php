@@ -49,7 +49,7 @@
                         <td class="text-center">
                             <a href="<?= base_url('admin/users/' . $u->id . '/edit') ?>" class="btn btn-xs btn-info tt-rbcd"
                                data-toggle="tooltip" data-placement="top"
-                               title="Modifier <br> <?= esc($u->last_name . ' ' . $u->first_name) ?>">
+                               title="Modifier<br>le(s) mandat(s) de<br> <?= esc($u->last_name . ' ' . $u->first_name) ?>">
                                 <i class="fas fa-edit"></i>
                             </a>
 
@@ -61,7 +61,7 @@
                                     data-name="<?= esc($u->last_name . ' ' . $u->first_name) ?>"
                                     data-toggle="tooltip" data-placement="top"
                                     title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?> <br> <?= esc($u->last_name . ' ' . $u->first_name) ?> <br>du comité">
-                                    <i class="fas <?= $u->is_active ? 'fa-ban' : 'fa-check' ?>"></i>
+                                    <i class="fas fa-power-off"></i>
                                 </button>
 
                                 <button type="button" class="btn btn-xs btn-danger btn-delete tt-rbcd"
@@ -108,7 +108,7 @@ $(function() {
         const name   = $(this).data('name');
         Swal.fire({
             title: 'Confirmer',
-            html: `Voulez-vous ${active ? 'désactiver' : 'activer'} l'accès comité de <strong>${name}</strong> ?<br><small class="text-muted">La fiche membre reste inchangée.</small>`,
+            html: `Voulez-vous ${active ? 'désactiver' : 'activer'} l'accès comité de<br> <strong>${name}</strong> ?<br><small class="text-muted">La fiche membre reste inchangée.</small>`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Oui',
@@ -124,10 +124,10 @@ $(function() {
                     const btn   = $(`[data-id="${id}"].btn-toggle`);
                     if (res.is_active) {
                         badge.removeClass('badge-danger').addClass('badge-success').text('Actif');
-                        btn.removeClass('btn-success').addClass('btn-warning').attr('data-original-title','Désactiver ' + name).data('active',1).html('<i class="fas fa-ban"></i>');
+                        btn.removeClass('btn-success').addClass('btn-warning').attr('data-original-title','Désactiver ' + name).data('active',1).html('<i class="fas fa-power-off"></i>');
                     } else {
                         badge.removeClass('badge-success').addClass('badge-danger').text('Inactif');
-                        btn.removeClass('btn-warning').addClass('btn-success').attr('data-original-title','Activer ' + name).data('active',0).html('<i class="fas fa-check"></i>');
+                        btn.removeClass('btn-warning').addClass('btn-success').attr('data-original-title','Activer ' + name).data('active',0).html('<i class="fas fa-power-off"></i>');
                     }
                     Swal.fire({ icon: 'success', title: res.message, timer: 1500, showConfirmButton: false });
                 } else {
