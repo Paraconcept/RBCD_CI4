@@ -6,12 +6,12 @@
     --clr-away: #c6000d;
 }
 
-.week-nav .btn { min-width:160px; }
 .week-title { font-size:1.1rem; font-weight:700; }
-
-@media (max-width:767px) {
-    .week-nav-next   { order:2; }
-    .week-nav-center { order:3; flex-basis:100%; margin-top:.5rem; }
+.week-nav-next   { order:2; }
+.week-nav-center { order:3; flex-basis:100%; margin-top:.5rem; }
+.week-nav-select { width:auto; display:inline-block; }
+@media (max-width:575px) {
+    .week-nav-select { width:100%; display:block; }
 }
 
 /* Day card */
@@ -67,7 +67,8 @@
     font-size:.88rem;
     margin-bottom:2px;
 }
-.player-home { text-align:right; font-weight:600; }
+.player-home { text-align:right; }
+.player-rbcd { font-weight:600; }
 .player-away { text-align:left; }
 .vs-sep { color:#aaa; font-size:.78rem; text-align:center; }
 
@@ -106,6 +107,17 @@
 
 /* Surlignage du membre connecté */
 .me-highlight { background:#fff59d; border-radius:3px; padding:0 3px; font-weight:700; }
+
+/* Tooltips couleur RBCD */
+.tooltip-rbcd .tooltip-inner {
+    background-color: #84252B;
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(0,0,0,.35);
+}
+.tooltip-rbcd.bs-tooltip-top    .arrow::before { border-top-color:    #84252B; }
+.tooltip-rbcd.bs-tooltip-bottom .arrow::before { border-bottom-color: #84252B; }
+.tooltip-rbcd.bs-tooltip-left   .arrow::before { border-left-color:   #84252B; }
+.tooltip-rbcd.bs-tooltip-right  .arrow::before { border-right-color:  #84252B; }
 
 @media (max-width:767px) {
     .enc-block { grid-template-columns: 1fr; }
@@ -192,7 +204,7 @@ while ($swDt <= $swEnd) {
         <div class="week-title">Semaine <?= $week ?></div>
         <div class="text-muted" style="font-size:.9rem"><?= esc($periodStr) ?></div>
         <div class="mt-2">
-            <select class="form-control form-control-sm" style="min-width:280px"
+            <select class="form-control form-control-sm week-nav-select"
                     onchange="location.href=this.value">
                 <?php foreach ($seasonWeeks as $sw): ?>
                 <option value="<?= base_url("tableau/{$sw['week']}/{$sw['year']}") ?>"
@@ -235,7 +247,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                     <button class="btn-cancel btn-bar-cancel" data-id="<?= $barAm->id ?>" data-date="<?= $date ?>" data-period="am">Annuler</button>
                 <?php endif; ?>
             <?php elseif ($isLogged): ?>
-                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="am">S'inscrire</button>
+                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="am" data-toggle="tooltip" data-html="true" title="S'inscrire au bar<br><?= $isSunday ? 'le matin' : "l'après-midi" ?>"><i class="fas fa-user-plus"></i></button>
             <?php else: ?>
                 <span class="bar-slot-free">libre</span>
             <?php endif; ?>
@@ -247,7 +259,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                     <button class="btn-cancel btn-bar-cancel" data-id="<?= $barSoir->id ?>" data-date="<?= $date ?>" data-period="soir">Annuler</button>
                 <?php endif; ?>
             <?php elseif ($isLogged): ?>
-                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="soir">S'inscrire</button>
+                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="soir" data-toggle="tooltip" data-html="true" title="S'inscrire au bar<br>en soirée"><i class="fas fa-user-plus"></i></button>
             <?php else: ?>
                 <span class="bar-slot-free">libre</span>
             <?php endif; ?>
@@ -278,18 +290,18 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
 
             <div class="players-col">
                 <?php foreach ($enc->players as $p): ?>
-                <?php $isMyPlayer = $currentMemberId && $p->member_id == $currentMemberId; ?>
+                <?php
+                $isMyPlayer = $currentMemberId && $p->member_id == $currentMemberId;
+                $pName = $p->member_id
+                    ? esc($p->last_name . ' ' . mb_substr($p->first_name, 0, 1) . '.')
+                    : esc($p->player_home_name ?? '—');
+                $pName = $isMyPlayer ? "<span class=\"me-highlight\">{$pName}</span>" : $pName;
+                $oppName = esc($p->opponent_name);
+                ?>
                     <div class="match-line">
-                        <span class="player-home">
-                            <?php if ($p->member_id): ?>
-                                <?php $pName = esc($p->last_name . ' ' . mb_substr($p->first_name, 0, 1) . '.'); ?>
-                                <?= $isMyPlayer ? "<span class=\"me-highlight\">{$pName}</span>" : $pName ?>
-                            <?php else: ?>
-                                <?= esc($p->player_home_name ?? '—') ?>
-                            <?php endif; ?>
-                        </span>
+                        <span class="player-home <?= (!$isFinale && $enc->is_home)  ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $pName : $oppName ?></span>
                         <span class="vs-sep">vs</span>
-                        <span class="player-away"><?= esc($p->opponent_name) ?></span>
+                        <span class="player-away <?= (!$isFinale && !$enc->is_home) ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $oppName : $pName ?></span>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -414,8 +426,10 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
 const csrfName  = '<?= csrf_token() ?>';
 let   csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+const rbcdTooltipTemplate = '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>';
+
 // Initialiser les tooltips Bootstrap
-$(function() { $('[data-toggle="tooltip"]').tooltip(); });
+$(function() { $('[data-toggle="tooltip"]').tooltip({ template: rbcdTooltipTemplate }); });
 
 function postJson(url, body) {
     return fetch(url, {
@@ -503,7 +517,7 @@ function doSignup(encId, round, btn) {
             const list = document.getElementById(`arb-list-${encId}`);
             list.insertAdjacentHTML('beforeend', newRow);
             // Tooltip sur le nouvel élément
-            $(list.lastElementChild.querySelector('[data-toggle="tooltip"]')).tooltip();
+            $(list.lastElementChild.querySelector('[data-toggle="tooltip"]')).tooltip({ template: rbcdTooltipTemplate });
             bindArbCancel(list.lastElementChild.querySelector('.btn-arb-cancel'));
             // Masquer le bouton Arbitrer
             btn.classList.add('d-none');
@@ -598,9 +612,19 @@ function bindBarCancel(btn) {
             if (!data.success) return Swal.fire('Erreur', data.message, 'error');
             const nameEl = this.previousElementSibling;
             if (nameEl) nameEl.remove();
-            this.outerHTML = `
-                <button class="btn btn-info btn-sm btn-bar-signup" data-date="${date}" data-period="${period}">S'inscrire</button>`;
-            document.querySelectorAll('.btn-bar-signup').forEach(bindBarSignup);
+            const newBtn = document.createElement('button');
+            newBtn.className = 'btn btn-info btn-sm btn-bar-signup';
+            newBtn.dataset.date   = date;
+            newBtn.dataset.period = period;
+            newBtn.dataset.toggle = 'tooltip';
+            newBtn.dataset.html   = 'true';
+            const isSun = new Date(date).getDay() === 0;
+            newBtn.title = period === 'soir' ? "S'inscrire au bar<br>en soirée"
+                         : (isSun ? "S'inscrire au bar<br>le matin" : "S'inscrire au bar<br>l'après-midi");
+            newBtn.innerHTML = '<i class="fas fa-user-plus"></i>';
+            this.replaceWith(newBtn);
+            $(newBtn).tooltip({ template: rbcdTooltipTemplate });
+            bindBarSignup(newBtn);
         });
     });
 }

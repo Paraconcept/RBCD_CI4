@@ -14,12 +14,16 @@
 .loc-cell      { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
 .loc-venue     { font-size:.72rem; color:#c6000d; margin-left:15px; }
 .match-line    { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:4px; font-size:.88rem; margin-bottom:2px; }
-.player-home   { text-align:right; font-weight:600; }
+.player-home   { text-align:right; }
 .player-away   { text-align:left; }
+.player-rbcd   { font-weight:600; }
 /* Liste d'arbitres pour les finales */
 .arb-list      { display:flex; flex-direction:column; gap:3px; margin-bottom:3px; }
 .arb-item      { display:flex; align-items:center; gap:.3rem; flex-wrap:wrap; font-size:.83rem; }
 .arb-rounds    { color:#888; cursor:default; }
+
+.wna-next   { order:2; }
+.wna-center { order:3; flex-basis:100%; margin-top:.3rem; }
 
 @media (max-width:767px) {
     .day-card thead { display:none; }
@@ -64,6 +68,9 @@ $sunday = new \DateTime($weekDates[6]);
 $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
            . ' — ' . $sunday->format('j') . ' ' . $frMonths[(int)$sunday->format('n')-1]
            . ' ' . $sunday->format('Y');
+
+$nowDt = new \DateTime();
+$isCurrentWeek = ($week == (int)$nowDt->format('W') && $year == (int)$nowDt->format('o'));
 ?>
 
 <!-- Navigation semaine -->
@@ -71,14 +78,21 @@ $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
     <a href="<?= base_url("admin/schedule/{$prev['week']}/{$prev['year']}") ?>" class="btn btn-outline-secondary btn-sm">
         <i class="fas fa-chevron-left mr-1"></i> Semaine précédente
     </a>
-    <div class="text-center">
+    <a href="<?= base_url("admin/schedule/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary btn-sm wna-next">
+        Semaine suivante <i class="fas fa-chevron-right ml-1"></i>
+    </a>
+    <div class="text-center wna-center">
+        <?php if (!$isCurrentWeek): ?>
+            <div class="mb-1">
+                <a href="<?= base_url('admin/schedule') ?>" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-chevron-down mr-1"></i>Semaine en cours
+                </a>
+            </div>
+        <?php endif; ?>
         <span class="badge badge-primary" style="font-size:1rem;padding:.5rem 1rem;">
             Semaine <?= $week ?> — <?= esc($periodStr) ?>
         </span>
     </div>
-    <a href="<?= base_url("admin/schedule/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary btn-sm">
-        Semaine suivante <i class="fas fa-chevron-right ml-1"></i>
-    </a>
 </div>
 
 <div class="d-flex justify-content-end mb-3">
@@ -128,8 +142,8 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                 <tr>
                     <th style="width:70px">Heure</th>
                     <th style="width:110px"></th>
-                    <th>Rencontre</th>
-                    <th style="width:110px">Compétition</th>
+                    <th class="text-center">Rencontre</th>
+                    <th style="width:180px">Compétition</th>
                     <th style="width:230px">Arbitrage</th>
                     <th style="width:80px" class="text-right">Actions</th>
                 </tr>
@@ -154,15 +168,20 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                 </td>
                 <td class="align-middle">
                     <?php if (!empty($enc->players)): ?>
+                        <?php
+                        $isFinaleRow = $enc->encounter_type === 'finale';
+                        ?>
                         <?php foreach ($enc->players as $p): ?>
+                        <?php
+                        $pName   = $p->member_id
+                            ? esc($p->last_name . ' ' . mb_substr($p->first_name, 0, 1) . '.')
+                            : esc($p->player_home_name ?? '—');
+                        $oppName = esc($p->opponent_name);
+                        ?>
                             <div class="match-line">
-                                <span class="player-home">
-                                    <?= $p->member_id
-                                        ? esc($p->last_name . ' ' . mb_substr($p->first_name, 0, 1) . '.')
-                                        : esc($p->player_home_name ?? '—') ?>
-                                </span>
+                                <span class="player-home <?= (!$isFinaleRow && $enc->is_home)  ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $pName : $oppName ?></span>
                                 <span class="text-muted" style="font-size:.78rem;padding:0 2px">vs</span>
-                                <span class="player-away"><?= esc($p->opponent_name) ?></span>
+                                <span class="player-away <?= (!$isFinaleRow && !$enc->is_home) ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $oppName : $pName ?></span>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
