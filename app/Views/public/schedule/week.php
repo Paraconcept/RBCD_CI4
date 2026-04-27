@@ -101,6 +101,9 @@
 .btn-confirm { font-size:.78rem; padding:2px 8px; border-radius:10px; background:#fff3cd; color:#856404; border:1px solid #ffc107; }
 .btn-confirm:hover { background:#ffc107; color:#000; }
 
+/* Surlignage du membre connecté */
+.me-highlight { background:#fff59d; border-radius:3px; padding:0 3px; font-weight:700; }
+
 @media (max-width:767px) {
     .enc-block { grid-template-columns: 1fr; }
     .week-nav .btn { min-width:auto; }
@@ -179,8 +182,9 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
         <div class="bar-slots">
             <span class="text-muted">Bar AM :</span>
             <?php if ($barAm): ?>
-                <span class="bar-slot-taken"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
-                <?php if ($isLogged && $barAm->admin_user_id == $currentUser): ?>
+                <?php $isMyBar = $isLogged && $barAm->admin_user_id == $currentUser; ?>
+                <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
+                <?php if ($isMyBar): ?>
                     <button class="btn-cancel btn-bar-cancel" data-id="<?= $barAm->id ?>" data-date="<?= $date ?>" data-period="am">Annuler</button>
                 <?php endif; ?>
             <?php elseif ($isLogged): ?>
@@ -190,8 +194,9 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
             <?php endif; ?>
             <span class="text-muted ml-2">Bar soirée :</span>
             <?php if ($barSoir): ?>
-                <span class="bar-slot-taken"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
-                <?php if ($isLogged && $barSoir->admin_user_id == $currentUser): ?>
+                <?php $isMyBar = $isLogged && $barSoir->admin_user_id == $currentUser; ?>
+                <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
+                <?php if ($isMyBar): ?>
                     <button class="btn-cancel btn-bar-cancel" data-id="<?= $barSoir->id ?>" data-date="<?= $date ?>" data-period="soir">Annuler</button>
                 <?php endif; ?>
             <?php elseif ($isLogged): ?>
@@ -226,11 +231,15 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
 
             <div class="players-col">
                 <?php foreach ($enc->players as $p): ?>
+                <?php $isMyPlayer = $currentMemberId && $p->member_id == $currentMemberId; ?>
                     <div class="match-line">
                         <span class="player-home">
-                            <?= $p->member_id
-                                ? esc($p->last_name . ' ' . mb_substr($p->first_name, 0, 1) . '.')
-                                : esc($p->player_home_name ?? '—') ?>
+                            <?php if ($p->member_id): ?>
+                                <?php $pName = esc($p->last_name . ' ' . mb_substr($p->first_name, 0, 1) . '.'); ?>
+                                <?= $isMyPlayer ? "<span class=\"me-highlight\">{$pName}</span>" : $pName ?>
+                            <?php else: ?>
+                                <?= esc($p->player_home_name ?? '—') ?>
+                            <?php endif; ?>
                         </span>
                         <span class="vs-sep">vs</span>
                         <span class="player-away"><?= esc($p->opponent_name) ?></span>
@@ -255,12 +264,16 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                         <div id="arb-list-<?= $enc->id ?>">
                             <?php foreach ($enc->arbitrageRows as $arb): ?>
                             <?php
-                            $isMe   = $isLogged && $arb->admin_user_id == $currentUser;
+                            $isMe   = $isLogged && (
+                                ($arb->admin_user_id && $arb->admin_user_id == $currentUser) ||
+                                ($arb->member_id     && $arb->member_id     == $currentMemberId)
+                            );
                             $isConv = $arb->assignment_type === 'designated';
                             $roundTip = $arb->round ? decodeTours($arb->round) : '';
+                            $arbName  = esc($arb->last_name) . ' ' . esc(mb_substr($arb->first_name,0,1)) . '.';
                             ?>
                             <div class="arb-row" data-arb-id="<?= $arb->id ?>">
-                                <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(mb_substr($arb->first_name,0,1)) ?>.</span>
+                                <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
                                 <?php if ($arb->round): ?>
                                     <i class="far fa-clock arb-rounds" data-toggle="tooltip" title="<?= esc($roundTip) ?>"></i>
                                 <?php endif; ?>
@@ -305,10 +318,14 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                             <?php if (!empty($enc->arbitrageRows)): ?>
                                 <?php
                                 $arb    = $enc->arbitrageRows[0];
-                                $isMe   = $isLogged && $arb->admin_user_id == $currentUser;
-                                $isConv = $arb->assignment_type === 'designated';
+                                $isMe   = $isLogged && (
+                                    ($arb->admin_user_id && $arb->admin_user_id == $currentUser) ||
+                                    ($arb->member_id     && $arb->member_id     == $currentMemberId)
+                                );
+                                $isConv  = $arb->assignment_type === 'designated';
+                                $arbName = esc($arb->last_name) . ' ' . esc(mb_substr($arb->first_name,0,1)) . '.';
                                 ?>
-                                <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(mb_substr($arb->first_name,0,1)) ?>.</span>
+                                <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
                                 <?php if ($isMe && $isConv && !$arb->confirmed): ?>
                                     <span class="badge-conv">Convoqué</span>
                                     <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">

@@ -35,6 +35,13 @@ class ScheduleController extends BaseController
         $barByDate            = $this->barDuties->getForDates($weekDates);
 
         $currentUser = (int) session()->get('admin_id');
+        $currentMemberId = 0;
+        if ($currentUser) {
+            $adminRow = \Config\Database::connect()
+                ->table('admin_users')->select('member_id')
+                ->where('id', $currentUser)->get()->getRowObject();
+            $currentMemberId = $adminRow ? (int) $adminRow->member_id : 0;
+        }
 
         $byDate        = [];
         $activeDates   = [];
@@ -75,8 +82,9 @@ class ScheduleController extends BaseController
             'homeDateFlags' => $homeDateFlags,
             'prev'          => $nav['prev'],
             'next'          => $nav['next'],
-            'currentUser'   => $currentUser,
-            'isLogged'      => (bool) session()->get('admin_logged_in'),
+            'currentUser'     => $currentUser,
+            'currentMemberId' => $currentMemberId,
+            'isLogged'        => (bool) session()->get('admin_logged_in'),
         ]);
     }
 
