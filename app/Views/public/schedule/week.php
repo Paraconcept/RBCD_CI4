@@ -24,7 +24,6 @@
     border-bottom:1px solid #dee2e6;
     font-weight:700; font-size:.95rem;
 }
-.day-empty .day-card-header { opacity:.5; }
 .day-card-body { padding:0; }
 
 /* Encounter row */
@@ -176,7 +175,7 @@ $isActive     = !empty($activeDates[$date]);
 $dayLabel     = frDay($date, $frDays, $frMonths);
 ?>
 
-<div class="day-card <?= $isActive ? '' : 'day-empty' ?>">
+<div class="day-card">
     <div class="day-card-header">
         <span><?= esc($dayLabel) ?></span>
         <div class="bar-slots">
