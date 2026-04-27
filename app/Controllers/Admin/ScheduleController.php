@@ -47,7 +47,7 @@ class ScheduleController extends BaseController
 
         $nav = $this->getPrevNextWeek($week, $year);
 
-        $members = (new MemberModel())->where('is_active', 1)->orderBy('last_name')->orderBy('first_name')->findAll();
+        $members = (new MemberModel())->where('is_active', 1)->where('is_federated', 1)->orderBy('last_name')->orderBy('first_name')->findAll();
 
         return view('admin/schedule/index', [
             'title'       => 'Tableau des rencontres',
