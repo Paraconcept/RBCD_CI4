@@ -356,7 +356,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
         </div>
         <?php endforeach; ?>
     </div>
-    <?php elseif (!$isActive): ?>
+    <?php else: ?>
     <div class="p-3 text-muted" style="font-size:.85rem">Pas de rencontre ce jour.</div>
     <?php endif; ?>
 </div>
