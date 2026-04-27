@@ -69,6 +69,6 @@ class AuthController extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to(base_url('connexion'))->with('success', 'Vous avez été déconnecté.');
+        return redirect()->to(base_url('tableau'))->with('success', 'Vous avez été déconnecté.');
     }
 }
