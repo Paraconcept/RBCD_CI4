@@ -53,7 +53,10 @@
                                     <?= $u->is_active ? 'Actif' : 'Inactif' ?>
                                 </span>
                             <?php else: ?>
-                                <span id="badge-<?= $u->id ?>" class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?>">
+                                <span id="badge-<?= $u->id ?>"
+                                      class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?> tt-rbcd"
+                                      data-toggle="tooltip" data-placement="top"
+                                      title="<?= $u->is_active ? 'Je ne peux pas me désactiver moi-même' : 'Je ne peux pas m\'activer moi-même' ?>">
                                     <?= $u->is_active ? 'Actif' : 'Inactif' ?>
                                 </span>
                             <?php endif; ?>
