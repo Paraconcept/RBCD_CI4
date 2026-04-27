@@ -83,7 +83,6 @@
 
 .badge-confirmed { background:#198754; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; }
 .badge-pending   { background:#ffc107; color:#000; border-radius:10px; padding:1px 7px; font-size:.73rem; }
-.badge-mine      { background:#0d6efd; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; }
 .badge-conv      { background:#fd7e14; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; }
 
 /* Bar */
@@ -289,7 +288,6 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                     <span class="badge-pending">En attente</span>
                                 <?php endif; ?>
                                 <?php if ($isMe): ?>
-                                    <span class="badge-mine">Vous</span>
                                     <?php if (!$isConv): ?>
                                         <button class="btn-cancel btn-arb-cancel" data-encounter="<?= $enc->id ?>">Annuler</button>
                                     <?php endif; ?>
@@ -454,7 +452,6 @@ function doSignup(encId, round, btn) {
                     <span class="arb-name me-highlight">${data.name}</span>
                     ${roundTip}
                     <span class="badge-confirmed">✓</span>
-                    <span class="badge-mine">Vous</span>
                     <button class="btn-cancel btn-arb-cancel" data-encounter="${encId}">Annuler</button>
                 </div>`;
             const list = document.getElementById(`arb-list-${encId}`);
