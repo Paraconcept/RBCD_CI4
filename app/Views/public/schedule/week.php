@@ -9,6 +9,11 @@
 .week-nav .btn { min-width:160px; }
 .week-title { font-size:1.1rem; font-weight:700; }
 
+@media (max-width:767px) {
+    .week-nav-next   { order:2; }
+    .week-nav-center { order:3; flex-basis:100%; margin-top:.5rem; }
+}
+
 /* Day card */
 .day-card {
     border:1px solid #dee2e6;
@@ -173,7 +178,10 @@ while ($swDt <= $swEnd) {
     <a href="<?= base_url("tableau/{$prev['week']}/{$prev['year']}") ?>" class="btn btn-outline-secondary">
         <i class="fas fa-chevron-left mr-1"></i>Semaine précédente
     </a>
-    <div class="text-center">
+    <a href="<?= base_url("tableau/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary week-nav-next">
+        Semaine suivante <i class="fas fa-chevron-right ml-1"></i>
+    </a>
+    <div class="text-center week-nav-center">
         <?php if (!$isCurrentWeek): ?>
             <div class="mb-1">
                 <a href="<?= base_url('tableau') ?>" class="btn btn-outline-secondary">
@@ -195,9 +203,6 @@ while ($swDt <= $swEnd) {
             </select>
         </div>
     </div>
-    <a href="<?= base_url("tableau/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary">
-        Semaine suivante <i class="fas fa-chevron-right ml-1"></i>
-    </a>
 </div>
 
 <?php if (!$isLogged): ?>
