@@ -49,7 +49,7 @@
                         <td class="text-center">
                             <a href="<?= base_url('admin/users/' . $u->id . '/edit') ?>" class="btn btn-xs btn-info tt-rbcd"
                                data-toggle="tooltip" data-placement="top"
-                               title="Modifier <?= esc($u->last_name . ' ' . $u->first_name) ?>">
+                               title="Modifier <br> <?= esc($u->last_name . ' ' . $u->first_name) ?>">
                                 <i class="fas fa-edit"></i>
                             </a>
 
@@ -60,7 +60,7 @@
                                     data-active="<?= $u->is_active ?>"
                                     data-name="<?= esc($u->last_name . ' ' . $u->first_name) ?>"
                                     data-toggle="tooltip" data-placement="top"
-                                    title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?> <?= esc($u->last_name . ' ' . $u->first_name) ?>">
+                                    title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?> <br> <?= esc($u->last_name . ' ' . $u->first_name) ?> <br>du comité">
                                     <i class="fas <?= $u->is_active ? 'fa-ban' : 'fa-check' ?>"></i>
                                 </button>
 
@@ -68,7 +68,7 @@
                                     data-id="<?= $u->id ?>"
                                     data-name="<?= esc($u->first_name . ' ' . $u->last_name) ?>"
                                     data-toggle="tooltip" data-placement="top"
-                                    title="Supprimer <?= esc($u->last_name . ' ' . $u->first_name) ?>">
+                                    title="Supprimer <br> <?= esc($u->last_name . ' ' . $u->first_name) ?>">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             <?php else: ?>
@@ -108,7 +108,7 @@ $(function() {
         const name   = $(this).data('name');
         Swal.fire({
             title: 'Confirmer',
-            text: `Voulez-vous ${active ? 'désactiver' : 'activer'} cet utilisateur ?`,
+            html: `Voulez-vous ${active ? 'désactiver' : 'activer'} l'accès comité de <strong>${name}</strong> ?<br><small class="text-muted">La fiche membre reste inchangée.</small>`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Oui',
@@ -142,7 +142,7 @@ $(function() {
         const name = $(this).data('name');
         Swal.fire({
             title: 'Supprimer ?',
-            html: `Confirmer la suppression de <strong>${name}</strong> ?<br><small class="text-muted">Cette action est irréversible.</small>`,
+            html: `Supprimer le compte comité de <strong>${name}</strong> ?<br><small class="text-muted">La fiche membre reste intacte. Cette action est irréversible.</small>`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Supprimer',
