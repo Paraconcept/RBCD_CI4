@@ -80,14 +80,17 @@
                         <td><?= esc($r->modifier_name ?: '—') ?></td>
                         <td class="text-center">
                             <a href="<?= base_url('admin/treasury/envelopes/' . $r->id . '/edit') ?>"
-                            class="btn btn-xs btn-info" title="Modifier">
+                               class="btn btn-xs btn-info tt-rbcd"
+                               data-toggle="tooltip" data-placement="top"
+                               title="Modifier l'enveloppe <?= esc($r->name ?: '—') ?>">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <button type="button" class="btn btn-xs btn-danger btn-delete-env"
+                            <button type="button" class="btn btn-xs btn-danger btn-delete-env tt-rbcd"
                                     data-id="<?= $r->id ?>"
                                     data-encoder-id="<?= (int)$r->encoded_by_member_id ?>"
                                     data-date="<?= date('d/m/Y', strtotime($r->date)) ?>"
-                                    title="Supprimer">
+                                    data-toggle="tooltip" data-placement="top"
+                                    title="Supprimer l'enveloppe <?= esc($r->name ?: '—') ?>">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -121,6 +124,11 @@
 <?= $this->section('scripts') ?>
 <script>
 $(function () {
+    $('.tt-rbcd').tooltip({
+        html:     true,
+        template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+    });
+
     const currentYear     = <?= $currentYear ?>;
     const currentMonth    = <?= $currentMonth ?>;
     const allMonths       = <?= json_encode(array_slice($monthNames, 1, null, true)) ?>;

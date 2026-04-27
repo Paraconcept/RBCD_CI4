@@ -47,23 +47,28 @@
                         </td>
                         <td><?= $u->last_login ? date('d/m/Y H:i', strtotime($u->last_login)) : '<span class="text-muted">Jamais</span>' ?></td>
                         <td class="text-center">
-                            <a href="<?= base_url('admin/users/' . $u->id . '/edit') ?>" class="btn btn-xs btn-info" title="Modifier">
+                            <a href="<?= base_url('admin/users/' . $u->id . '/edit') ?>" class="btn btn-xs btn-info tt-rbcd"
+                               data-toggle="tooltip" data-placement="top"
+                               title="Modifier <?= esc($u->last_name . ' ' . $u->first_name) ?>">
                                 <i class="fas fa-edit"></i>
                             </a>
 
                             <?php if (session()->get('admin_id') != $u->id): ?>
                                 <button type="button"
-                                    class="btn btn-xs <?= $u->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle"
+                                    class="btn btn-xs <?= $u->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle tt-rbcd"
                                     data-id="<?= $u->id ?>"
                                     data-active="<?= $u->is_active ?>"
-                                    title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?>">
+                                    data-name="<?= esc($u->last_name . ' ' . $u->first_name) ?>"
+                                    data-toggle="tooltip" data-placement="top"
+                                    title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?> <?= esc($u->last_name . ' ' . $u->first_name) ?>">
                                     <i class="fas <?= $u->is_active ? 'fa-ban' : 'fa-check' ?>"></i>
                                 </button>
 
-                                <button type="button" class="btn btn-xs btn-danger btn-delete"
+                                <button type="button" class="btn btn-xs btn-danger btn-delete tt-rbcd"
                                     data-id="<?= $u->id ?>"
                                     data-name="<?= esc($u->first_name . ' ' . $u->last_name) ?>"
-                                    title="Supprimer">
+                                    data-toggle="tooltip" data-placement="top"
+                                    title="Supprimer <?= esc($u->last_name . ' ' . $u->first_name) ?>">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             <?php else: ?>
@@ -92,9 +97,15 @@ $(function() {
         columnDefs: [{ orderable: false, targets: 'no-sort' }]
     });
 
+    $('.tt-rbcd').tooltip({
+        html:     true,
+        template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+    });
+
     $(document).on('click', '.btn-toggle', function() {
         const id     = $(this).data('id');
         const active = $(this).data('active');
+        const name   = $(this).data('name');
         Swal.fire({
             title: 'Confirmer',
             text: `Voulez-vous ${active ? 'désactiver' : 'activer'} cet utilisateur ?`,
@@ -113,10 +124,10 @@ $(function() {
                     const btn   = $(`[data-id="${id}"].btn-toggle`);
                     if (res.is_active) {
                         badge.removeClass('badge-danger').addClass('badge-success').text('Actif');
-                        btn.removeClass('btn-success').addClass('btn-warning').attr('title','Désactiver').data('active',1).html('<i class="fas fa-ban"></i>');
+                        btn.removeClass('btn-success').addClass('btn-warning').attr('data-original-title','Désactiver ' + name).data('active',1).html('<i class="fas fa-ban"></i>');
                     } else {
                         badge.removeClass('badge-success').addClass('badge-danger').text('Inactif');
-                        btn.removeClass('btn-warning').addClass('btn-success').attr('title','Activer').data('active',0).html('<i class="fas fa-check"></i>');
+                        btn.removeClass('btn-warning').addClass('btn-success').attr('data-original-title','Activer ' + name).data('active',0).html('<i class="fas fa-check"></i>');
                     }
                     Swal.fire({ icon: 'success', title: res.message, timer: 1500, showConfirmButton: false });
                 } else {

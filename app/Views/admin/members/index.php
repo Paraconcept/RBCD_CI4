@@ -67,19 +67,24 @@
                         </td>
                         <!-- Actions -->
                         <td class="text-center">
-                            <a href="<?= base_url('admin/members/' . $m->id . '/edit') ?>" class="btn btn-xs btn-info" title="Modifier">
+                            <a href="<?= base_url('admin/members/' . $m->id . '/edit') ?>" class="btn btn-xs btn-info tt-rbcd"
+                               data-toggle="tooltip" data-placement="top"
+                               title="Modifier <?= esc($m->last_name . ' ' . $m->first_name) ?>">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <button type="button"
-                                class="btn btn-xs <?= $m->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle"
+                                class="btn btn-xs <?= $m->is_active ? 'btn-warning' : 'btn-success' ?> btn-toggle tt-rbcd"
                                 data-id="<?= $m->id ?>" data-active="<?= $m->is_active ?>"
-                                title="<?= $m->is_active ? 'Désactiver' : 'Activer' ?>">
+                                data-name="<?= esc($m->last_name . ' ' . $m->first_name) ?>"
+                                data-toggle="tooltip" data-placement="top"
+                                title="<?= $m->is_active ? 'Désactiver' : 'Activer' ?> <?= esc($m->last_name . ' ' . $m->first_name) ?>">
                                 <i class="fas <?= $m->is_active ? 'fa-ban' : 'fa-check' ?>"></i>
                             </button>
-                            <button type="button" class="btn btn-xs btn-danger btn-delete"
+                            <button type="button" class="btn btn-xs btn-danger btn-delete tt-rbcd"
                                 data-id="<?= $m->id ?>"
                                 data-name="<?= esc($m->first_name . ' ' . $m->last_name) ?>"
-                                title="Supprimer">
+                                data-toggle="tooltip" data-placement="top"
+                                title="Supprimer <?= esc($m->last_name . ' ' . $m->first_name) ?>">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -113,9 +118,15 @@ $(function() {
         ]
     });
 
+    $('.tt-rbcd').tooltip({
+        html:     true,
+        template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+    });
+
     $(document).on('click', '.btn-toggle', function() {
         const id     = $(this).data('id');
         const active = $(this).data('active');
+        const name   = $(this).data('name');
         Swal.fire({
             title: 'Confirmer',
             text: `Voulez-vous ${active ? 'désactiver' : 'activer'} ce membre ?`,
@@ -134,10 +145,10 @@ $(function() {
                     const btn   = $(`[data-id="${id}"].btn-toggle`);
                     if (res.is_active) {
                         badge.removeClass('badge-danger').addClass('badge-success').text('Actif');
-                        btn.removeClass('btn-success').addClass('btn-warning').attr('title','Désactiver').data('active',1).html('<i class="fas fa-ban"></i>');
+                        btn.removeClass('btn-success').addClass('btn-warning').attr('data-original-title','Désactiver ' + name).data('active',1).html('<i class="fas fa-ban"></i>');
                     } else {
                         badge.removeClass('badge-success').addClass('badge-danger').text('Inactif');
-                        btn.removeClass('btn-warning').addClass('btn-success').attr('title','Activer').data('active',0).html('<i class="fas fa-check"></i>');
+                        btn.removeClass('btn-warning').addClass('btn-success').attr('data-original-title','Activer ' + name).data('active',0).html('<i class="fas fa-check"></i>');
                     }
                     Swal.fire({ icon: 'success', title: res.message, timer: 1500, showConfirmButton: false });
                 } else {
