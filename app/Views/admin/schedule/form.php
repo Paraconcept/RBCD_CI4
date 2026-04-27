@@ -2,17 +2,22 @@
 <?= $this->section('styles') ?>
 <style>
 .player-row { background:#f8f9fa; border-radius:4px; padding:.5rem; margin-bottom:.5rem; }
+.btn-outline-rbcd { color:#84252B; border-color:#84252B; background:transparent; }
+.btn-outline-rbcd:hover,
+.btn-outline-rbcd.active { background:#84252B; border-color:#84252B; color:#fff; }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 
 <?php
-$isEdit  = $encounter !== null;
-$formUrl = $isEdit
+$isEdit        = $encounter !== null;
+$formUrl       = $isEdit
     ? base_url("admin/schedule/{$encounter->id}/update")
     : base_url('admin/schedule');
-$isHome  = $isEdit ? (int)$encounter->is_home : 1;
+$isHome        = $isEdit ? (int)$encounter->is_home : 1;
+$encType       = $isEdit ? ($encounter->encounter_type ?? 'normal') : 'normal';
+$isFinale      = $encType === 'finale';
 ?>
 
 <div class="card card-outline card-primary">
@@ -25,6 +30,7 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
 
     <form method="POST" action="<?= $formUrl ?>">
         <?= csrf_field() ?>
+        <input type="hidden" name="encounter_type" id="encounterTypeInput" value="<?= $encType ?>">
 
         <div class="card-body">
 
@@ -37,6 +43,24 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
                     </ul>
                 </div>
             <?php endif; ?>
+
+            <!-- Toggle Normal / Finale -->
+            <div class="form-group">
+                <label class="d-block">Type de rencontre</label>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons" id="encounterTypeToggle">
+                    <label class="btn btn-outline-rbcd btn-sm <?= !$isFinale ? 'active' : '' ?>">
+                        <input type="radio" name="_enc_type" value="normal" <?= !$isFinale ? 'checked' : '' ?>>
+                        <i class="fas fa-people-arrows mr-1"></i> Match normal
+                    </label>
+                    <label class="btn btn-outline-warning btn-sm <?= $isFinale ? 'active' : '' ?>">
+                        <input type="radio" name="_enc_type" value="finale" <?= $isFinale ? 'checked' : '' ?>>
+                        <i class="fas fa-trophy mr-1"></i> Finale / Tournoi
+                    </label>
+                </div>
+                <small class="text-muted d-block mt-1" id="finaleNote" <?= !$isFinale ? 'style="display:none!important"' : '' ?>>
+                    En mode Finale, les joueurs ne sont pas liés à la base membres — aucun impact sur les stats d'arbitrage.
+                </small>
+            </div>
 
             <div class="row">
                 <!-- Date + Heure -->
@@ -76,29 +100,19 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
             </div>
 
             <div class="row">
-                <!-- Compétition (affiché dans le tableau) -->
+                <!-- Compétition -->
                 <div class="col-md-5 form-group">
                     <label>Compétition</label>
-                    <input type="text" name="notes" class="form-control"
-                           placeholder="ex: Championnat Provincial 3B — Ronde 2"
-                           value="<?= esc(old('notes', $isEdit ? $encounter->notes ?? '' : '')) ?>">
-                    <small class="text-muted">Affiché dans la colonne Compétition du tableau.</small>
-                </div>
-
-                <!-- Équipe RBCD -->
-                <div class="col-md-3 form-group">
-                    <label>Équipe RBCD</label>
-                    <input type="text" name="team_label" class="form-control"
-                           placeholder="ex: RBCD 1, RBCD 2"
-                           value="<?= esc(old('team_label', $isEdit ? $encounter->team_label ?? '' : '')) ?>">
+                    <input type="text" name="competition" class="form-control"
+                           placeholder="ex: Championnat Régional 3° 3B PF"
+                           value="<?= esc(old('competition', $isEdit ? $encounter->competition ?? '' : '')) ?>">
                 </div>
 
                 <!-- Notes internes -->
                 <div class="col-md-4 form-group">
                     <label>Notes internes</label>
-                    <input type="text" name="competition" class="form-control"
-                           placeholder="Remarques diverses"
-                           value="<?= esc(old('competition', $isEdit ? $encounter->competition ?? '' : '')) ?>">
+                    <textarea name="notes" class="form-control" rows="2"
+                              placeholder="Remarques diverses"><?= esc(old('notes', $isEdit ? $encounter->notes ?? '' : '')) ?></textarea>
                 </div>
             </div>
 
@@ -109,12 +123,30 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
             <div id="playersContainer">
                 <?php if (!empty($existingPlayers)): ?>
                     <?php foreach ($existingPlayers as $p): ?>
+                    <?php if ($isFinale): ?>
+                    <div class="player-row d-flex align-items-center" style="gap:.5rem">
+                        <div style="flex:1">
+                            <input type="text" name="player_home_name[]" class="form-control form-control-sm"
+                                   placeholder="Joueur domicile"
+                                   value="<?= esc($p->player_home_name ?? '') ?>">
+                        </div>
+                        <span class="text-muted">vs</span>
+                        <div style="flex:1">
+                            <input type="text" name="opponent_name[]" class="form-control form-control-sm"
+                                   placeholder="Joueur adverse"
+                                   value="<?= esc($p->opponent_name) ?>">
+                        </div>
+                        <button type="button" class="btn btn-xs btn-outline-danger btn-remove-player">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <?php else: ?>
                     <div class="player-row d-flex align-items-center" style="gap:.5rem">
                         <div style="flex:1">
                             <select name="member_id[]" class="form-control form-control-sm">
                                 <option value="">— Joueur RBCD —</option>
                                 <?php foreach ($members as $m): ?>
-                                <option value="<?= $m->id ?>" <?= $p->member_id == $m->id ? 'selected' : '' ?>>
+                                <option value="<?= $m->id ?>" <?= ($p->member_id ?? 0) == $m->id ? 'selected' : '' ?>>
                                     <?= esc($m->last_name) ?> <?= esc($m->first_name) ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -130,9 +162,20 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
+                    <?php endif; ?>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div class="player-row d-flex align-items-center" style="gap:.5rem">
+                    <!-- Ligne vide par défaut — le JS gère le bon template -->
+                    <div class="player-row d-flex align-items-center" style="gap:.5rem" data-row-type="<?= $encType ?>">
+                        <?php if ($isFinale): ?>
+                        <div style="flex:1">
+                            <input type="text" name="player_home_name[]" class="form-control form-control-sm" placeholder="Joueur domicile">
+                        </div>
+                        <span class="text-muted">vs</span>
+                        <div style="flex:1">
+                            <input type="text" name="opponent_name[]" class="form-control form-control-sm" placeholder="Joueur adverse">
+                        </div>
+                        <?php else: ?>
                         <div style="flex:1">
                             <select name="member_id[]" class="form-control form-control-sm">
                                 <option value="">— Joueur RBCD —</option>
@@ -143,9 +186,9 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
                         </div>
                         <span class="text-muted">vs</span>
                         <div style="flex:1">
-                            <input type="text" name="opponent_name[]" class="form-control form-control-sm"
-                                   placeholder="Nom de l'adversaire">
+                            <input type="text" name="opponent_name[]" class="form-control form-control-sm" placeholder="Nom de l'adversaire">
                         </div>
+                        <?php endif; ?>
                         <button type="button" class="btn btn-xs btn-outline-danger btn-remove-player">
                             <i class="fas fa-times"></i>
                         </button>
@@ -167,8 +210,8 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
     </form>
 </div>
 
-<!-- Template ligne joueur (hidden) -->
-<template id="playerRowTemplate">
+<!-- Templates lignes joueurs -->
+<template id="playerRowNormal">
     <div class="player-row d-flex align-items-center" style="gap:.5rem">
         <div style="flex:1">
             <select name="member_id[]" class="form-control form-control-sm">
@@ -188,25 +231,64 @@ $isHome  = $isEdit ? (int)$encounter->is_home : 1;
     </div>
 </template>
 
+<template id="playerRowFinale">
+    <div class="player-row d-flex align-items-center" style="gap:.5rem">
+        <div style="flex:1">
+            <input type="text" name="player_home_name[]" class="form-control form-control-sm" placeholder="Joueur domicile">
+        </div>
+        <span class="text-muted">vs</span>
+        <div style="flex:1">
+            <input type="text" name="opponent_name[]" class="form-control form-control-sm" placeholder="Joueur adverse">
+        </div>
+        <button type="button" class="btn btn-xs btn-outline-danger btn-remove-player">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</template>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script>
-// Toggle venue
+// ── Toggle venue ──
 document.querySelectorAll('input[name="is_home"]').forEach(radio => {
     radio.addEventListener('change', function() {
         document.getElementById('venueGroup').style.display = this.value === '0' ? '' : 'none';
     });
 });
 
-// Add player row
-document.getElementById('btnAddPlayer').addEventListener('click', function() {
-    const tmpl    = document.getElementById('playerRowTemplate');
-    const clone   = tmpl.content.cloneNode(true);
-    document.getElementById('playersContainer').appendChild(clone);
+// ── Toggle Normal / Finale ──
+let currentType = '<?= $encType ?>';
+
+document.querySelectorAll('input[name="_enc_type"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        currentType = this.value;
+        document.getElementById('encounterTypeInput').value = currentType;
+
+        const note = document.getElementById('finaleNote');
+        note.style.display = currentType === 'finale' ? '' : 'none';
+
+        // Reconstruire toutes les lignes existantes dans le bon mode
+        const container = document.getElementById('playersContainer');
+        const count = container.querySelectorAll('.player-row').length || 1;
+        container.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            addPlayerRow();
+        }
+    });
 });
 
-// Remove player row (delegated)
+// ── Ajouter une ligne joueur ──
+function addPlayerRow() {
+    const tmplId = currentType === 'finale' ? 'playerRowFinale' : 'playerRowNormal';
+    const tmpl   = document.getElementById(tmplId);
+    const clone  = tmpl.content.cloneNode(true);
+    document.getElementById('playersContainer').appendChild(clone);
+}
+
+document.getElementById('btnAddPlayer').addEventListener('click', addPlayerRow);
+
+// ── Supprimer une ligne joueur (délégué) ──
 document.getElementById('playersContainer').addEventListener('click', function(e) {
     const btn = e.target.closest('.btn-remove-player');
     if (btn) {

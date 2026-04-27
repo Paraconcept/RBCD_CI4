@@ -13,7 +13,7 @@ class ScheduleEncounterPlayerModel extends Model
     protected $createdField  = 'created_at';
 
     protected $allowedFields = [
-        'encounter_id', 'member_id', 'opponent_name', 'created_at',
+        'encounter_id', 'member_id', 'player_home_name', 'opponent_name', 'created_at',
     ];
 
     public function deleteByEncounter(int $encounterId): void

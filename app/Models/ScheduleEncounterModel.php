@@ -12,8 +12,8 @@ class ScheduleEncounterModel extends Model
     protected $returnType    = 'object';
 
     protected $allowedFields = [
-        'match_date', 'match_time', 'is_home', 'venue',
-        'competition', 'team_label', 'notes',
+        'encounter_type', 'match_date', 'match_time', 'is_home', 'venue',
+        'competition', 'notes',
     ];
 
     public function getWeek(int $week, int $year): array
@@ -37,8 +37,8 @@ class ScheduleEncounterModel extends Model
 
         $encounter->players = \Config\Database::connect()
             ->table('schedule_encounter_players sep')
-            ->select('sep.id, sep.member_id, sep.opponent_name, m.last_name, m.first_name')
-            ->join('members m', 'm.id = sep.member_id')
+            ->select('sep.id, sep.member_id, sep.player_home_name, sep.opponent_name, m.last_name, m.first_name')
+            ->join('members m', 'm.id = sep.member_id', 'left')
             ->where('sep.encounter_id', $id)
             ->get()->getResultObject();
 

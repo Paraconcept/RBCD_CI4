@@ -12,19 +12,21 @@ class ScheduleArbitrageModel extends Model
     protected $returnType    = 'object';
 
     protected $allowedFields = [
-        'encounter_id', 'admin_user_id', 'assignment_type',
+        'encounter_id', 'round', 'admin_user_id', 'assignment_type',
         'confirmed', 'confirmed_at',
     ];
 
-    public function getForEncounter(int $encounterId): ?object
+    public function getForEncounter(int $encounterId, int $round = 0): ?object
     {
         return $this->db->table('schedule_arbitrage sa')
             ->select('sa.*, au.last_name, au.first_name, au.id as user_id')
             ->join('admin_users au', 'au.id = sa.admin_user_id')
             ->where('sa.encounter_id', $encounterId)
+            ->where('sa.round', $round)
             ->get()->getRowObject();
     }
 
+    // Returns [encounter_id => [round => row]]
     public function getForEncounters(array $encounterIds): array
     {
         if (empty($encounterIds)) {
@@ -39,7 +41,7 @@ class ScheduleArbitrageModel extends Model
 
         $indexed = [];
         foreach ($rows as $row) {
-            $indexed[$row->encounter_id] = $row;
+            $indexed[$row->encounter_id][$row->round] = $row;
         }
         return $indexed;
     }

@@ -40,8 +40,8 @@ class ScheduleController extends BaseController
 
         $byDate = [];
         foreach ($encounters as $enc) {
-            $enc->players   = $playersByEncounter[$enc->id] ?? [];
-            $enc->arbitrage = $arbitrageByEncounter[$enc->id] ?? null;
+            $enc->players          = $playersByEncounter[$enc->id] ?? [];
+            $enc->arbitrageByRound = $arbitrageByEncounter[$enc->id] ?? [];
             $byDate[$enc->match_date][] = $enc;
         }
 
@@ -84,12 +84,12 @@ class ScheduleController extends BaseController
         }
 
         $encounterId = $this->encounters->insert([
+            'encounter_type' => $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal',
             'match_date'  => $this->request->getPost('match_date'),
             'match_time'  => $this->request->getPost('match_time'),
             'is_home'     => (int) $this->request->getPost('is_home'),
             'venue'       => $this->request->getPost('venue') ?: null,
             'competition' => $this->request->getPost('competition') ?? '',
-            'team_label'  => $this->request->getPost('team_label') ?: null,
             'notes'       => $this->request->getPost('notes') ?: null,
         ]);
 
@@ -129,12 +129,12 @@ class ScheduleController extends BaseController
         }
 
         $this->encounters->update($id, [
+            'encounter_type' => $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal',
             'match_date'  => $this->request->getPost('match_date'),
             'match_time'  => $this->request->getPost('match_time'),
             'is_home'     => (int) $this->request->getPost('is_home'),
             'venue'       => $this->request->getPost('venue') ?: null,
             'competition' => $this->request->getPost('competition') ?? '',
-            'team_label'  => $this->request->getPost('team_label') ?: null,
             'notes'       => $this->request->getPost('notes') ?: null,
         ]);
 
@@ -173,7 +173,9 @@ class ScheduleController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Utilisateur invalide.']);
         }
 
-        $existing = $this->arbitrage->where('encounter_id', $encounterId)->first();
+        $round    = (int) $this->request->getPost('round');
+        $existing = $this->arbitrage->where('encounter_id', $encounterId)->where('round', $round)->first();
+
         if ($existing) {
             $this->arbitrage->update($existing->id, [
                 'admin_user_id'   => $adminUserId,
@@ -184,19 +186,21 @@ class ScheduleController extends BaseController
         } else {
             $this->arbitrage->insert([
                 'encounter_id'    => $encounterId,
+                'round'           => $round,
                 'admin_user_id'   => $adminUserId,
                 'assignment_type' => 'designated',
                 'confirmed'       => 0,
             ]);
         }
 
-        $arb = $this->arbitrage->getForEncounter($encounterId);
+        $arb = $this->arbitrage->getForEncounter($encounterId, $round);
 
         return $this->response->setJSON([
             'success'  => true,
             'name'     => $arb->last_name . ' ' . mb_substr($arb->first_name, 0, 1) . '.',
             'type'     => 'designated',
             'confirmed'=> 0,
+            'round'    => $round,
         ]);
     }
 
@@ -204,12 +208,14 @@ class ScheduleController extends BaseController
     {
         $this->response->setHeader('Content-Type', 'application/json');
 
-        $existing = $this->arbitrage->where('encounter_id', $encounterId)->first();
+        $round    = (int) $this->request->getPost('round');
+        $existing = $this->arbitrage->where('encounter_id', $encounterId)->where('round', $round)->first();
+
         if ($existing) {
             $this->arbitrage->delete($existing->id);
         }
 
-        return $this->response->setJSON(['success' => true]);
+        return $this->response->setJSON(['success' => true, 'round' => $round]);
     }
 
     private function validateEncounterForm(): bool
@@ -222,21 +228,39 @@ class ScheduleController extends BaseController
 
     private function savePlayers(int $encounterId): void
     {
-        $memberIds     = $this->request->getPost('member_id') ?? [];
+        $type          = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
         $opponentNames = $this->request->getPost('opponent_name') ?? [];
         $now           = date('Y-m-d H:i:s');
 
-        foreach ($memberIds as $i => $memberId) {
-            $memberId     = (int) $memberId;
-            $opponentName = trim($opponentNames[$i] ?? '');
-
-            if ($memberId && $opponentName !== '') {
-                $this->players->insert([
-                    'encounter_id'  => $encounterId,
-                    'member_id'     => $memberId,
-                    'opponent_name' => $opponentName,
-                    'created_at'    => $now,
-                ]);
+        if ($type === 'finale') {
+            $homeNames = $this->request->getPost('player_home_name') ?? [];
+            foreach ($homeNames as $i => $homeName) {
+                $homeName     = trim($homeName);
+                $opponentName = trim($opponentNames[$i] ?? '');
+                if ($homeName !== '' && $opponentName !== '') {
+                    $this->players->insert([
+                        'encounter_id'     => $encounterId,
+                        'member_id'        => null,
+                        'player_home_name' => $homeName,
+                        'opponent_name'    => $opponentName,
+                        'created_at'       => $now,
+                    ]);
+                }
+            }
+        } else {
+            $memberIds = $this->request->getPost('member_id') ?? [];
+            foreach ($memberIds as $i => $memberId) {
+                $memberId     = (int) $memberId;
+                $opponentName = trim($opponentNames[$i] ?? '');
+                if ($memberId && $opponentName !== '') {
+                    $this->players->insert([
+                        'encounter_id'     => $encounterId,
+                        'member_id'        => $memberId,
+                        'player_home_name' => null,
+                        'opponent_name'    => $opponentName,
+                        'created_at'       => $now,
+                    ]);
+                }
             }
         }
     }
@@ -250,7 +274,7 @@ class ScheduleController extends BaseController
         $rows = \Config\Database::connect()
             ->table('schedule_encounter_players sep')
             ->select('sep.*, m.last_name, m.first_name')
-            ->join('members m', 'm.id = sep.member_id')
+            ->join('members m', 'm.id = sep.member_id', 'left')
             ->whereIn('sep.encounter_id', $ids)
             ->get()->getResultObject();
 

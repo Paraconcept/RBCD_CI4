@@ -38,8 +38,8 @@ class ScheduleController extends BaseController
         $activeDates   = [];
         $homeDateFlags = [];
         foreach ($encounters as $enc) {
-            $enc->players   = $playersByEncounter[$enc->id] ?? [];
-            $enc->arbitrage = $arbitrageByEncounter[$enc->id] ?? null;
+            $enc->players          = $playersByEncounter[$enc->id] ?? [];
+            $enc->arbitrageByRound = $arbitrageByEncounter[$enc->id] ?? [];
             $byDate[$enc->match_date][] = $enc;
             $activeDates[$enc->match_date] = true;
             if ($enc->is_home) {
@@ -74,21 +74,23 @@ class ScheduleController extends BaseController
         $this->response->setHeader('Content-Type', 'application/json');
 
         $adminUserId = (int) session()->get('admin_id');
+        $round       = (int) $this->request->getPost('round');
 
-        $existing = $this->arbitrage->where('encounter_id', $encounterId)->first();
+        $existing = $this->arbitrage->where('encounter_id', $encounterId)->where('round', $round)->first();
         if ($existing) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Un arbitre est déjà inscrit.']);
+            return $this->response->setJSON(['success' => false, 'message' => 'Un arbitre est déjà inscrit pour ce tour.']);
         }
 
         $this->arbitrage->insert([
             'encounter_id'    => $encounterId,
+            'round'           => $round,
             'admin_user_id'   => $adminUserId,
             'assignment_type' => 'volunteer',
             'confirmed'       => 1,
             'confirmed_at'    => date('Y-m-d H:i:s'),
         ]);
 
-        $arb = $this->arbitrage->getForEncounter($encounterId);
+        $arb = $this->arbitrage->getForEncounter($encounterId, $round);
 
         return $this->response->setJSON([
             'success'     => true,
@@ -96,6 +98,7 @@ class ScheduleController extends BaseController
             'is_me'       => true,
             'type'        => 'volunteer',
             'arbitrage_id'=> $arb->id,
+            'round'       => $round,
         ]);
     }
 
@@ -104,9 +107,11 @@ class ScheduleController extends BaseController
         $this->response->setHeader('Content-Type', 'application/json');
 
         $adminUserId = (int) session()->get('admin_id');
+        $round       = (int) $this->request->getPost('round');
 
         $existing = $this->arbitrage->where('encounter_id', $encounterId)
                                     ->where('admin_user_id', $adminUserId)
+                                    ->where('round', $round)
                                     ->first();
 
         if (!$existing) {
@@ -120,7 +125,7 @@ class ScheduleController extends BaseController
 
         $this->arbitrage->delete($existing->id);
 
-        return $this->response->setJSON(['success' => true]);
+        return $this->response->setJSON(['success' => true, 'round' => $round]);
     }
 
     public function confirmArbitrage(int $encounterId)
@@ -128,10 +133,12 @@ class ScheduleController extends BaseController
         $this->response->setHeader('Content-Type', 'application/json');
 
         $adminUserId = (int) session()->get('admin_id');
+        $round       = (int) $this->request->getPost('round');
 
         $existing = $this->arbitrage->where('encounter_id', $encounterId)
                                     ->where('admin_user_id', $adminUserId)
                                     ->where('assignment_type', 'designated')
+                                    ->where('round', $round)
                                     ->first();
 
         if (!$existing) {
@@ -143,7 +150,7 @@ class ScheduleController extends BaseController
             'confirmed_at' => date('Y-m-d H:i:s'),
         ]);
 
-        return $this->response->setJSON(['success' => true]);
+        return $this->response->setJSON(['success' => true, 'round' => $round]);
     }
 
     public function signupBar()
@@ -228,7 +235,7 @@ class ScheduleController extends BaseController
         $rows = \Config\Database::connect()
             ->table('schedule_encounter_players sep')
             ->select('sep.*, m.last_name, m.first_name')
-            ->join('members m', 'm.id = sep.member_id')
+            ->join('members m', 'm.id = sep.member_id', 'left')
             ->whereIn('sep.encounter_id', $ids)
             ->get()->getResultObject();
 
