@@ -244,9 +244,6 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             <?php if ($barAm): ?>
                 <?php $isMyBar = $isLogged && $barAm->admin_user_id == $currentUser; ?>
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
-                <?php if ($isMyBar): ?>
-                    <button class="btn-cancel btn-bar-cancel" data-id="<?= $barAm->id ?>" data-date="<?= $date ?>" data-period="am">Annuler</button>
-                <?php endif; ?>
             <?php elseif ($isLogged): ?>
                 <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="am" data-toggle="tooltip" data-html="true" title="S'inscrire au bar<br><?= $isSunday ? 'le matin' : "l'après-midi" ?>"><i class="fas fa-user-plus"></i></button>
             <?php else: ?>
@@ -256,9 +253,6 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             <?php if ($barSoir): ?>
                 <?php $isMyBar = $isLogged && $barSoir->admin_user_id == $currentUser; ?>
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
-                <?php if ($isMyBar): ?>
-                    <button class="btn-cancel btn-bar-cancel" data-id="<?= $barSoir->id ?>" data-date="<?= $date ?>" data-period="soir">Annuler</button>
-                <?php endif; ?>
             <?php elseif ($isLogged): ?>
                 <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="soir" data-toggle="tooltip" data-html="true" title="S'inscrire au bar<br>en soirée"><i class="fas fa-user-plus"></i></button>
             <?php else: ?>
@@ -282,7 +276,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 <?php if ($enc->is_home): ?>
                     <i class="fas fa-home loc-home" title="À domicile"></i>
                 <?php else: ?>
-                    <i class="fas fa-car-side loc-away" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
+                    <i class="fas fa-car-side loc-away mr-3" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
                     <?php if ($enc->venue): ?>
                         <span style="font-size:.72rem;color:var(--clr-away);line-height:1.3"><?= esc($enc->venue) ?></span>
                     <?php endif; ?>
@@ -335,7 +329,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                             <div class="arb-row" data-arb-id="<?= $arb->id ?>">
                                 <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
                                 <?php if ($arb->round): ?>
-                                    <i class="far fa-clock arb-rounds" data-toggle="tooltip" title="<?= esc($roundTip) ?>"></i>
+                                    <i class="far fa-clock arb-rounds" data-toggle="tooltip" data-html="true" title="Disponible :<br><?= esc($roundTip) ?>"></i>
                                 <?php endif; ?>
                                 <?php if ($isMe && $isConv && !$arb->confirmed): ?>
                                     <span class="badge-conv">Convoqué</span>
@@ -346,11 +340,6 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                     <span class="badge-confirmed">✓</span>
                                 <?php elseif (!$arb->confirmed && $isConv): ?>
                                     <span class="badge-pending">En attente</span>
-                                <?php endif; ?>
-                                <?php if ($isMe): ?>
-                                    <?php if (!$isConv): ?>
-                                        <button class="btn-cancel btn-arb-cancel" data-encounter="<?= $enc->id ?>">Annuler</button>
-                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                             <?php endforeach; ?>
@@ -392,9 +381,6 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                     </button>
                                 <?php elseif ($arb->confirmed): ?>
                                     <span class="badge-confirmed">✓ Confirmé</span>
-                                    <?php if ($isMe && !$isConv): ?>
-                                        <button class="btn-cancel btn-arb-cancel" data-encounter="<?= $enc->id ?>">Annuler</button>
-                                    <?php endif; ?>
                                 <?php else: ?>
                                     <span class="badge-pending">En attente</span>
                                 <?php endif; ?>
@@ -506,63 +492,27 @@ function doSignup(encId, round, btn) {
         if (!data.success) return Swal.fire('Erreur', data.message, 'error');
 
         if (btn.dataset.type === 'finale') {
-            // Ajouter la ligne dans la liste
             const roundTip = round > 0 ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${decodeTours(round)}"></i>` : '';
             const newRow = `
                 <div class="arb-row" data-arb-id="${data.arb_id}">
                     <span class="arb-name me-highlight">${data.name}</span>
                     ${roundTip}
                     <span class="badge-confirmed">✓</span>
-                    <button class="btn-cancel btn-arb-cancel" data-encounter="${encId}">Annuler</button>
                 </div>`;
             const list = document.getElementById(`arb-list-${encId}`);
             list.insertAdjacentHTML('beforeend', newRow);
-            // Tooltip sur le nouvel élément
             $(list.lastElementChild.querySelector('[data-toggle="tooltip"]')).tooltip({ template: rbcdTooltipTemplate });
-            bindArbCancel(list.lastElementChild.querySelector('.btn-arb-cancel'));
-            // Masquer le bouton Arbitrer
             btn.classList.add('d-none');
         } else {
-            // Match normal — remplacer le contenu de la div
             const div = document.getElementById(`arb-normal-${encId}`);
             div.innerHTML = `
                 <span class="arb-label">Arbitrage :</span>
                 <span class="arb-name me-highlight">${data.name}</span>
-                <span class="badge-confirmed">✓ Confirmé</span>
-                <button class="btn-cancel btn-arb-cancel" data-encounter="${encId}">Annuler</button>`;
-            bindArbCancel(div.querySelector('.btn-arb-cancel'));
+                <span class="badge-confirmed">✓ Confirmé</span>`;
         }
     });
 }
 
-// ── Arbitrage : annuler ──
-function bindArbCancel(btn) {
-    btn.addEventListener('click', function() {
-        const encId = this.dataset.encounter;
-        postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/cancel`, {})
-        .then(data => {
-            if (!data.success) return Swal.fire('Info', data.message, 'info');
-
-            // Finale : retirer la ligne et réafficher le bouton
-            const row = this.closest('.arb-row');
-            if (row && row.closest(`#arb-list-${encId}`)) {
-                row.remove();
-                const signupBtn = document.querySelector(`.btn-arb-signup[data-encounter="${encId}"]`);
-                if (signupBtn) signupBtn.classList.remove('d-none');
-            } else {
-                // Match normal
-                const div = document.getElementById(`arb-normal-${encId}`);
-                div.innerHTML = `
-                    <span class="arb-label">Arbitrage :</span>
-                    <button class="btn btn-info btn-sm btn-arb-signup" data-encounter="${encId}" data-type="normal">
-                        <i class="fas fa-hand-paper mr-1"></i>Arbitrer
-                    </button>`;
-                bindArbSignup(div.querySelector('.btn-arb-signup'));
-            }
-        });
-    });
-}
-document.querySelectorAll('.btn-arb-cancel').forEach(bindArbCancel);
 
 // ── Arbitrage : confirmer convocation ──
 document.querySelectorAll('.btn-arb-confirm').forEach(btn => {
@@ -600,34 +550,5 @@ function bindBarSignup(btn) {
     });
 }
 
-// ── Bar : annuler ──
-document.querySelectorAll('.btn-bar-cancel').forEach(bindBarCancel);
-
-function bindBarCancel(btn) {
-    btn.addEventListener('click', function() {
-        const id     = this.dataset.id;
-        const period = this.dataset.period;
-        const date   = this.dataset.date;
-        postJson(`<?= base_url('tableau/bar/') ?>${id}/cancel`, {})
-        .then(data => {
-            if (!data.success) return Swal.fire('Erreur', data.message, 'error');
-            const nameEl = this.previousElementSibling;
-            if (nameEl) nameEl.remove();
-            const newBtn = document.createElement('button');
-            newBtn.className = 'btn btn-info btn-sm btn-bar-signup';
-            newBtn.dataset.date   = date;
-            newBtn.dataset.period = period;
-            newBtn.dataset.toggle = 'tooltip';
-            newBtn.dataset.html   = 'true';
-            const isSun = new Date(date).getDay() === 0;
-            newBtn.title = period === 'soir' ? "S'inscrire au bar<br>en soirée"
-                         : (isSun ? "S'inscrire au bar<br>le matin" : "S'inscrire au bar<br>l'après-midi");
-            newBtn.innerHTML = '<i class="fas fa-user-plus"></i>';
-            this.replaceWith(newBtn);
-            $(newBtn).tooltip({ template: rbcdTooltipTemplate });
-            bindBarSignup(newBtn);
-        });
-    });
-}
 </script>
 <?= $this->endSection() ?>
