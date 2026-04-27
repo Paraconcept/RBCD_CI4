@@ -173,13 +173,15 @@ $barAm        = $barByDate[$date]['am']   ?? null;
 $barSoir      = $barByDate[$date]['soir'] ?? null;
 $isActive     = !empty($activeDates[$date]);
 $dayLabel     = frDay($date, $frDays, $frMonths);
+$isSunday     = (int)(new \DateTime($date))->format('N') === 7;
+$barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
 ?>
 
 <div class="day-card">
     <div class="day-card-header">
         <span><?= esc($dayLabel) ?></span>
         <div class="bar-slots">
-            <span class="text-muted">Bar AM :</span>
+            <span class="text-muted"><?= $barAmLabel ?> :</span>
             <?php if ($barAm): ?>
                 <?php $isMyBar = $isLogged && $barAm->admin_user_id == $currentUser; ?>
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
