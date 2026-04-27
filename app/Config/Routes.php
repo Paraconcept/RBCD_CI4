@@ -6,6 +6,24 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
+// Site public — Auth membres
+$routes->get('connexion',  'Public\AuthController::login');
+$routes->post('connexion', 'Public\AuthController::loginPost');
+$routes->get('deconnexion','Public\AuthController::logout');
+
+// Site public — Tableau hebdomadaire (lecture libre)
+$routes->get('tableau',               'Public\ScheduleController::week');
+$routes->get('tableau/(:num)/(:num)', 'Public\ScheduleController::week/$1/$2');
+
+// Site public — Actions protégées (membres connectés)
+$routes->group('tableau', ['filter' => 'publicAuth'], static function ($routes) {
+    $routes->post('arbitrage/(:num)/signup',  'Public\ScheduleController::signupArbitrage/$1');
+    $routes->post('arbitrage/(:num)/cancel',  'Public\ScheduleController::cancelArbitrage/$1');
+    $routes->post('arbitrage/(:num)/confirm', 'Public\ScheduleController::confirmArbitrage/$1');
+    $routes->post('bar/signup',               'Public\ScheduleController::signupBar');
+    $routes->post('bar/(:num)/cancel',        'Public\ScheduleController::cancelBar/$1');
+});
+
 // Site public
 $routes->get('/', 'Home::index');
 
@@ -65,6 +83,17 @@ $routes->group('admin', static function ($routes) {
         $routes->post('club-keys/(:num)/assign',     'Admin\ClubKeysController::assign/$1');
         $routes->post('club-keys/(:num)/return',     'Admin\ClubKeysController::returnKey/$1');
         $routes->post('club-keys/(:num)/delete',     'Admin\ClubKeysController::delete/$1');
+
+        // Tableau des rencontres
+        $routes->get ('schedule',                        'Admin\ScheduleController::index');
+        $routes->get ('schedule/(:num)/(:num)',          'Admin\ScheduleController::index/$1/$2');
+        $routes->get ('schedule/create',                 'Admin\ScheduleController::create');
+        $routes->post('schedule',                        'Admin\ScheduleController::store');
+        $routes->get ('schedule/(:num)/edit',            'Admin\ScheduleController::edit/$1');
+        $routes->post('schedule/(:num)/update',          'Admin\ScheduleController::update/$1');
+        $routes->post('schedule/(:num)/delete',          'Admin\ScheduleController::delete/$1');
+        $routes->post('schedule/(:num)/referee',         'Admin\ScheduleController::designateReferee/$1');
+        $routes->post('schedule/(:num)/referee/remove',  'Admin\ScheduleController::removeReferee/$1');
 
         // Utilisateurs admin
         $routes->get('users',                            'Admin\AdminUsersController::index');

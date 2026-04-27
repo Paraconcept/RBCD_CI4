@@ -1,0 +1,236 @@
+<?php
+
+namespace App\Controllers\Public;
+
+use App\Controllers\BaseController;
+use App\Models\ScheduleEncounterModel;
+use App\Models\ScheduleArbitrageModel;
+use App\Models\ScheduleBarDutyModel;
+
+class ScheduleController extends BaseController
+{
+    private ScheduleEncounterModel $encounters;
+    private ScheduleArbitrageModel $arbitrage;
+    private ScheduleBarDutyModel   $barDuties;
+
+    public function __construct()
+    {
+        $this->encounters = new ScheduleEncounterModel();
+        $this->arbitrage  = new ScheduleArbitrageModel();
+        $this->barDuties  = new ScheduleBarDutyModel();
+    }
+
+    public function week(?string $week = null, ?string $year = null): string
+    {
+        $now  = new \DateTime();
+        $week = $week ? (int) $week : (int) $now->format('W');
+        $year = $year ? (int) $year : (int) $now->format('o');
+
+        $weekDates    = $this->getWeekDates($week, $year);
+        $encounters   = $this->encounters->getWeek($week, $year);
+        $encounterIds = array_map(fn($e) => $e->id, $encounters);
+
+        $playersByEncounter   = $this->getPlayersByEncounter($encounterIds);
+        $arbitrageByEncounter = $this->arbitrage->getForEncounters($encounterIds);
+        $barByDate            = $this->barDuties->getForDates($weekDates);
+
+        $byDate     = [];
+        $activeDates = [];
+        foreach ($encounters as $enc) {
+            $enc->players   = $playersByEncounter[$enc->id] ?? [];
+            $enc->arbitrage = $arbitrageByEncounter[$enc->id] ?? null;
+            $byDate[$enc->match_date][] = $enc;
+            $activeDates[$enc->match_date] = true;
+        }
+        foreach ($barByDate as $date => $_) {
+            $activeDates[$date] = true;
+        }
+
+        $nav        = $this->getPrevNextWeek($week, $year);
+        $currentUser = session()->get('admin_id');
+
+        return view('public/schedule/week', [
+            'title'       => "Tableau — Semaine {$week}",
+            'week'        => $week,
+            'year'        => $year,
+            'weekDates'   => $weekDates,
+            'byDate'      => $byDate,
+            'barByDate'   => $barByDate,
+            'activeDates' => $activeDates,
+            'prev'        => $nav['prev'],
+            'next'        => $nav['next'],
+            'currentUser' => $currentUser,
+            'isLogged'    => (bool) session()->get('admin_logged_in'),
+        ]);
+    }
+
+    public function signupArbitrage(int $encounterId)
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $adminUserId = (int) session()->get('admin_id');
+
+        $existing = $this->arbitrage->where('encounter_id', $encounterId)->first();
+        if ($existing) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Un arbitre est déjà inscrit.']);
+        }
+
+        $this->arbitrage->insert([
+            'encounter_id'    => $encounterId,
+            'admin_user_id'   => $adminUserId,
+            'assignment_type' => 'volunteer',
+            'confirmed'       => 1,
+            'confirmed_at'    => date('Y-m-d H:i:s'),
+        ]);
+
+        $arb = $this->arbitrage->getForEncounter($encounterId);
+
+        return $this->response->setJSON([
+            'success'     => true,
+            'name'        => $arb->last_name . ' ' . mb_substr($arb->first_name, 0, 1) . '.',
+            'is_me'       => true,
+            'type'        => 'volunteer',
+            'arbitrage_id'=> $arb->id,
+        ]);
+    }
+
+    public function cancelArbitrage(int $encounterId)
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $adminUserId = (int) session()->get('admin_id');
+
+        $existing = $this->arbitrage->where('encounter_id', $encounterId)
+                                    ->where('admin_user_id', $adminUserId)
+                                    ->first();
+
+        if (!$existing) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Inscription non trouvée.']);
+        }
+
+        // Seul un volontaire peut se désinscrire (pas une convocation DS)
+        if ($existing->assignment_type === 'designated') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Vous avez été convoqué par le DS — contactez-le pour annuler.']);
+        }
+
+        $this->arbitrage->delete($existing->id);
+
+        return $this->response->setJSON(['success' => true]);
+    }
+
+    public function confirmArbitrage(int $encounterId)
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $adminUserId = (int) session()->get('admin_id');
+
+        $existing = $this->arbitrage->where('encounter_id', $encounterId)
+                                    ->where('admin_user_id', $adminUserId)
+                                    ->where('assignment_type', 'designated')
+                                    ->first();
+
+        if (!$existing) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Convocation non trouvée.']);
+        }
+
+        $this->arbitrage->update($existing->id, [
+            'confirmed'    => 1,
+            'confirmed_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        return $this->response->setJSON(['success' => true]);
+    }
+
+    public function signupBar()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $adminUserId = (int) session()->get('admin_id');
+        $date        = $this->request->getPost('date');
+        $period      = $this->request->getPost('period');
+
+        if (!$date || !in_array($period, ['am', 'soir'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Données invalides.']);
+        }
+
+        if ($this->barDuties->isSlotTaken($date, $period)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Ce créneau est déjà pris.']);
+        }
+
+        $id = $this->barDuties->insert([
+            'duty_date'     => $date,
+            'period'        => $period,
+            'admin_user_id' => $adminUserId,
+        ]);
+
+        $duty = $this->barDuties->db
+            ->table('schedule_bar_duties bd')
+            ->select('bd.*, au.last_name, au.first_name')
+            ->join('admin_users au', 'au.id = bd.admin_user_id')
+            ->where('bd.id', $id)
+            ->get()->getRowObject();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'id'      => $id,
+            'name'    => $duty->last_name . ' ' . mb_substr($duty->first_name, 0, 1) . '.',
+        ]);
+    }
+
+    public function cancelBar(int $id)
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $adminUserId = (int) session()->get('admin_id');
+        $duty        = $this->barDuties->find($id);
+
+        if (!$duty || $duty->admin_user_id != $adminUserId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Inscription non trouvée.']);
+        }
+
+        $this->barDuties->delete($id);
+
+        return $this->response->setJSON(['success' => true]);
+    }
+
+    private function getWeekDates(int $week, int $year): array
+    {
+        $dates = [];
+        for ($day = 1; $day <= 7; $day++) {
+            $dates[] = (new \DateTime())->setISODate($year, $week, $day)->format('Y-m-d');
+        }
+        return $dates;
+    }
+
+    private function getPrevNextWeek(int $week, int $year): array
+    {
+        $current  = (new \DateTime())->setISODate($year, $week, 1);
+        $prevDate = (clone $current)->modify('-1 week');
+        $nextDate = (clone $current)->modify('+1 week');
+
+        return [
+            'prev' => ['week' => (int) $prevDate->format('W'), 'year' => (int) $prevDate->format('o')],
+            'next' => ['week' => (int) $nextDate->format('W'), 'year' => (int) $nextDate->format('o')],
+        ];
+    }
+
+    private function getPlayersByEncounter(array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $rows = \Config\Database::connect()
+            ->table('schedule_encounter_players sep')
+            ->select('sep.*, m.last_name, m.first_name')
+            ->join('members m', 'm.id = sep.member_id')
+            ->whereIn('sep.encounter_id', $ids)
+            ->get()->getResultObject();
+
+        $indexed = [];
+        foreach ($rows as $row) {
+            $indexed[$row->encounter_id][] = $row;
+        }
+        return $indexed;
+    }
+}

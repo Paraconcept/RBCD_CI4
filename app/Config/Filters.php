@@ -13,6 +13,7 @@ use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
 use App\Filters\AdminAuthFilter;
+use App\Filters\PublicAuthFilter;
 
 class Filters extends BaseFilters
 {
@@ -27,6 +28,7 @@ class Filters extends BaseFilters
      */
     public array $aliases = [
         'adminAuth'     => AdminAuthFilter::class,
+        'publicAuth'    => PublicAuthFilter::class,
         'csrf'          => CSRF::class,
         'toolbar'       => DebugToolbar::class,
         'honeypot'      => Honeypot::class,
