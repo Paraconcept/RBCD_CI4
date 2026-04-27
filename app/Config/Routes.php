@@ -21,6 +21,9 @@ $routes->group('admin', static function ($routes) {
 
     // Zone protégée
     $routes->group('', ['filter' => 'adminAuth'], static function ($routes) {
+        $routes->get ('change-password', 'Admin\AuthController::changePassword');
+        $routes->post('change-password', 'Admin\AuthController::changePasswordPost');
+
         $routes->get('dashboard', 'Admin\DashboardController::index');
         $routes->get('/',        'Admin\DashboardController::index');
 
