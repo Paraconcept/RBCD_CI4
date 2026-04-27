@@ -11,8 +11,9 @@
 .arb-name      { font-weight:600; }
 .day-card      { margin-bottom:1.25rem; }
 .time-badge    { font-size:.82rem; background:#e9ecef; color:#343a40; border-radius:4px; padding:2px 7px; white-space:nowrap; }
-.loc-cell      { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
-.loc-venue     { font-size:.72rem; color:#c6000d; margin-left:15px; }
+.loc-cell      { display:flex; align-items:flex-start; gap:5px; }
+.loc-cell i    { margin-top:2px; flex-shrink:0; }
+.loc-venue     { font-size:.72rem; color:#c6000d; line-height:1.3; }
 .match-line    { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:4px; font-size:.88rem; margin-bottom:2px; }
 .player-home   { text-align:right; }
 .player-away   { text-align:left; }
@@ -180,7 +181,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         ?>
                             <div class="match-line">
                                 <span class="player-home <?= (!$isFinaleRow && $enc->is_home)  ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $pName : $oppName ?></span>
-                                <span class="text-muted" style="font-size:.78rem;padding:0 2px">vs</span>
+                                <span class="text-muted" style="font-size:.78rem;padding:0 2px"><i class="fas fa-arrows-alt-h mr-2 ml-2"></i></span>
                                 <span class="player-away <?= (!$isFinaleRow && !$enc->is_home) ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $oppName : $pName ?></span>
                             </div>
                         <?php endforeach; ?>
