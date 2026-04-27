@@ -450,7 +450,7 @@ function doSignup(encId, round, btn) {
             const roundTip = round > 0 ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${decodeTours(round)}"></i>` : '';
             const newRow = `
                 <div class="arb-row" data-arb-id="${data.arb_id}">
-                    <span class="arb-name">${data.name}</span>
+                    <span class="arb-name me-highlight">${data.name}</span>
                     ${roundTip}
                     <span class="badge-confirmed">✓</span>
                     <span class="badge-mine">Vous</span>
@@ -468,7 +468,7 @@ function doSignup(encId, round, btn) {
             const div = document.getElementById(`arb-normal-${encId}`);
             div.innerHTML = `
                 <span class="arb-label">Arbitrage :</span>
-                <span class="arb-name">${data.name}</span>
+                <span class="arb-name me-highlight">${data.name}</span>
                 <span class="badge-confirmed">✓ Confirmé</span>
                 <span class="badge-mine">Vous</span>
                 <button class="btn-cancel btn-arb-cancel" data-encounter="${encId}">Annuler</button>`;
