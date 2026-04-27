@@ -16,6 +16,9 @@
 .arb-name      { font-weight:600; }
 .day-card      { margin-bottom:1.25rem; }
 .time-badge    { font-size:.82rem; background:#e9ecef; color:#343a40; border-radius:4px; padding:2px 7px; white-space:nowrap; }
+.match-line    { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:4px; font-size:.88rem; margin-bottom:2px; }
+.player-home   { text-align:right; font-weight:600; }
+.player-away   { text-align:left; }
 </style>
 <?= $this->endSection() ?>
 
@@ -144,11 +147,12 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         <strong><?= esc($enc->team_label) ?></strong> —
                     <?php endif; ?>
                     <?php if (!empty($enc->players)): ?>
-                        <?php foreach ($enc->players as $i => $p): ?>
-                            <?= $i > 0 ? '<br>' : '' ?>
-                            <span><?= esc($p->last_name) ?> <?= esc(mb_substr($p->first_name,0,1)) ?>.</span>
-                            <span class="text-muted mx-1">vs</span>
-                            <span><?= esc($p->opponent_name) ?></span>
+                        <?php foreach ($enc->players as $p): ?>
+                            <div class="match-line">
+                                <span class="player-home"><?= esc($p->last_name) ?> <?= esc(mb_substr($p->first_name,0,1)) ?>.</span>
+                                <span class="text-muted" style="font-size:.78rem;padding:0 2px">vs</span>
+                                <span class="player-away"><?= esc($p->opponent_name) ?></span>
+                            </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <span class="text-muted">—</span>

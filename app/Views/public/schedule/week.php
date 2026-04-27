@@ -37,7 +37,7 @@
 /* Encounter row */
 .enc-block {
     display:grid;
-    grid-template-columns: 72px 36px 1fr 120px 1fr 1fr;
+    grid-template-columns: 72px 36px 1fr 200px 1fr 1fr;
     align-items:start;
     padding:.65rem 1rem;
     border-bottom:1px solid #f0f0f0;
@@ -196,14 +196,12 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                             data-date="<?= $date ?>"
                             data-period="soir">Annuler</button>
                 <?php endif; ?>
-            <?php elseif ($hasHomeMatch && $isLogged): ?>
+            <?php elseif ($isLogged): ?>
                 <button class="btn-signup btn-bar-signup"
                         data-date="<?= $date ?>"
                         data-period="soir">S'inscrire</button>
-            <?php elseif ($hasHomeMatch): ?>
-                <span class="bar-slot-free">libre</span>
             <?php else: ?>
-                <span class="bar-slot-free" title="Pas de match à domicile">—</span>
+                <span class="bar-slot-free">libre</span>
             <?php endif; ?>
         </div>
     </div>
