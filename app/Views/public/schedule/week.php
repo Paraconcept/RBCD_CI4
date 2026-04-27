@@ -147,6 +147,25 @@ $sunday = new \DateTime($weekDates[6]);
 $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
            . ' — ' . $sunday->format('j') . ' ' . $frMonths[(int)$sunday->format('n')-1]
            . ' ' . $sunday->format('Y');
+
+// Saison août → juillet : générer toutes les semaines
+$seasonStartYear = (int)$nowDt->format('n') >= 8 ? (int)$nowDt->format('Y') : (int)$nowDt->format('Y') - 1;
+$aug1  = new \DateTime($seasonStartYear       . '-08-01');
+$jul31 = new \DateTime(($seasonStartYear + 1) . '-07-31');
+$seasonWeeks = [];
+$swDt = (new \DateTime())->setISODate((int)$aug1->format('o'),  (int)$aug1->format('W'),  1);
+$swEnd= (new \DateTime())->setISODate((int)$jul31->format('o'), (int)$jul31->format('W'), 1);
+while ($swDt <= $swEnd) {
+    $sw = (int)$swDt->format('W');
+    $sy = (int)$swDt->format('o');
+    $swSun = (clone $swDt)->modify('+6 days');
+    $seasonWeeks[] = [
+        'week'  => $sw,
+        'year'  => $sy,
+        'label' => "Semaine {$sw} — du " . $swDt->format('d-m-Y') . ' au ' . $swSun->format('d-m-Y'),
+    ];
+    $swDt->modify('+1 week');
+}
 ?>
 
 <!-- Navigation semaine -->
@@ -158,12 +177,23 @@ $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
         <?php if (!$isCurrentWeek): ?>
             <div class="mb-1">
                 <a href="<?= base_url('tableau') ?>" class="btn btn-outline-secondary">
-                    <i class="fas fa-calendar-day mr-1"></i>Semaine en cours
+                    <i class="fas fa-chevron-down mr-1"></i>Semaine en cours
                 </a>
             </div>
         <?php endif; ?>
         <div class="week-title">Semaine <?= $week ?></div>
         <div class="text-muted" style="font-size:.9rem"><?= esc($periodStr) ?></div>
+        <div class="mt-2">
+            <select class="form-control form-control-sm" style="min-width:280px"
+                    onchange="location.href=this.value">
+                <?php foreach ($seasonWeeks as $sw): ?>
+                <option value="<?= base_url("tableau/{$sw['week']}/{$sw['year']}") ?>"
+                        <?= ($sw['week'] == $week && $sw['year'] == $year) ? 'selected' : '' ?>>
+                    <?= esc($sw['label']) ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
     </div>
     <a href="<?= base_url("tableau/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary">
         Semaine suivante <i class="fas fa-chevron-right ml-1"></i>
