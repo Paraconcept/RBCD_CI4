@@ -295,7 +295,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 ?>
                     <div class="match-line">
                         <span class="player-home <?= (!$isFinale && $enc->is_home)  ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $pName : $oppName ?></span>
-                        <span class="vs-sep">vs</span>
+                        <span class="vs-sep"><i class="fas fa-arrows-alt-h mr-2 ml-2"></i></span>
                         <span class="player-away <?= (!$isFinale && !$enc->is_home) ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $oppName : $pName ?></span>
                     </div>
                 <?php endforeach; ?>
@@ -385,7 +385,10 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                     <span class="badge-pending" data-toggle="tooltip" data-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
                                 <?php endif; ?>
                             <?php elseif ($isLogged): ?>
-                                <button class="btn btn-info btn-sm btn-arb-signup" data-encounter="<?= $enc->id ?>" data-type="normal">
+                                <button class="btn btn-info btn-sm btn-arb-signup"
+                                        data-encounter="<?= $enc->id ?>"
+                                        data-type="normal"
+                                        data-date-label="<?= esc(frDay($enc->match_date, $frDays, $frMonths)) ?>">
                                     <i class="fas fa-hand-paper mr-1"></i>Arbitrer
                                 </button>
                             <?php else: ?>
@@ -472,7 +475,19 @@ function bindArbSignup(btn) {
                 doSignup(encId, round, self);
             });
         } else {
-            doSignup(encId, 0, self);
+            const dateLabel = self.dataset.dateLabel || '';
+            Swal.fire({
+                title: '<i class="fas fa-hand-paper mr-2" style="color:#0dcaf0"></i>Arbitrage',
+                html: `Je me mets à l'arbitrage pour ce<br><strong>${dateLabel}</strong>`,
+                showCancelButton: true,
+                confirmButtonText: 'Je confirme',
+                cancelButtonText: 'Annuler',
+                customClass: { confirmButton: 'btn btn-info', cancelButton: 'btn btn-secondary ml-2' },
+                buttonsStyling: false,
+            }).then(result => {
+                if (!result.isConfirmed) return;
+                doSignup(encId, 0, self);
+            });
         }
     });
 }
