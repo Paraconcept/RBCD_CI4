@@ -97,7 +97,7 @@ class ScheduleController extends BaseController
 
         $round = 0;
         if ($encounter->encounter_type === 'finale') {
-            $round = max(1, min(3, (int) $this->request->getPost('round')));
+            $round = max(1, min(7, (int) $this->request->getPost('round')));
         } else {
             // Normal match — 1 referee max
             $existing = $this->arbitrage->where('encounter_id', $encounterId)->first();

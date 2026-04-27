@@ -127,6 +127,15 @@ function frDay(string $ymd, array $frDays, array $frMonths): string {
     return $frDays[$dow] . ' ' . $d . ' ' . $frMonths[$m];
 }
 
+// Bitmask → "Tour 1 · Tour 3" (bit0=T1, bit1=T2, bit2=T3)
+function decodeTours(int $mask): string {
+    $t = [];
+    if ($mask & 1) $t[] = 'Tour 1';
+    if ($mask & 2) $t[] = 'Tour 2';
+    if ($mask & 4) $t[] = 'Tour 3';
+    return $t ? implode(' · ', $t) : '';
+}
+
 $monday = new \DateTime($weekDates[0]);
 $sunday = new \DateTime($weekDates[6]);
 $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
@@ -216,9 +225,6 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
             </div>
 
             <div class="players-col">
-                <?php if ($isFinale): ?>
-                    <span class="badge-finale"><i class="fas fa-trophy mr-1"></i>Finale</span>
-                <?php endif; ?>
                 <?php foreach ($enc->players as $p): ?>
                     <div class="match-line">
                         <span class="player-home">
@@ -251,7 +257,7 @@ $dayLabel     = frDay($date, $frDays, $frMonths);
                             <?php
                             $isMe   = $isLogged && $arb->admin_user_id == $currentUser;
                             $isConv = $arb->assignment_type === 'designated';
-                            $roundTip = $arb->round ? ($arb->round . ' tour' . ($arb->round > 1 ? 's' : '')) : '';
+                            $roundTip = $arb->round ? decodeTours($arb->round) : '';
                             ?>
                             <div class="arb-row" data-arb-id="<?= $arb->id ?>">
                                 <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(mb_substr($arb->first_name,0,1)) ?>.</span>
@@ -368,35 +374,34 @@ function bindArbSignup(btn) {
             Swal.fire({
                 title: '<i class="fas fa-trophy mr-2" style="color:#ffc107"></i>Inscription — Finale',
                 html: `
-                    <p class="mb-3">Combien de tours souhaitez-vous arbitrer ?</p>
-                    <div class="btn-group btn-group-toggle" data-toggle="buttons" id="swalRoundGroup">
-                        <label class="btn btn-outline-secondary active">
-                            <input type="radio" name="swal_round" value="1" checked> 1 tour
-                        </label>
-                        <label class="btn btn-outline-secondary">
-                            <input type="radio" name="swal_round" value="2"> 2 tours
-                        </label>
-                        <label class="btn btn-outline-secondary">
-                            <input type="radio" name="swal_round" value="3"> 3 tours
-                        </label>
+                    <p class="mb-3">Quels tours souhaitez-vous arbitrer ?</p>
+                    <div class="text-left pl-4" id="swalRoundGroup">
+                        <div class="mb-1"><label style="cursor:pointer">
+                            <input type="checkbox" id="swalR1" value="1" checked style="margin-right:6px">Tour 1
+                        </label></div>
+                        <div class="mb-1"><label style="cursor:pointer">
+                            <input type="checkbox" id="swalR2" value="2" checked style="margin-right:6px">Tour 2
+                        </label></div>
+                        <div><label style="cursor:pointer">
+                            <input type="checkbox" id="swalR4" value="4" checked style="margin-right:6px">Tour 3
+                        </label></div>
                     </div>`,
                 showCancelButton: true,
                 confirmButtonText: '<i class="fas fa-hand-paper mr-1"></i>S\'inscrire',
                 cancelButtonText: 'Annuler',
                 customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-secondary ml-2' },
                 buttonsStyling: false,
-                didOpen: () => {
-                    // Activer les Bootstrap radio toggle dans la SweetAlert
-                    document.querySelectorAll('#swalRoundGroup .btn').forEach(lbl => {
-                        lbl.addEventListener('click', function() {
-                            document.querySelectorAll('#swalRoundGroup .btn').forEach(b => b.classList.remove('active'));
-                            this.classList.add('active');
-                        });
-                    });
-                },
                 preConfirm: () => {
-                    const sel = document.querySelector('#swalRoundGroup input:checked');
-                    return sel ? parseInt(sel.value) : 1;
+                    let mask = 0;
+                    [1, 2, 4].forEach(v => {
+                        const el = document.getElementById(`swalR${v}`);
+                        if (el && el.checked) mask |= v;
+                    });
+                    if (!mask) {
+                        Swal.showValidationMessage('Veuillez sélectionner au moins un tour');
+                        return false;
+                    }
+                    return mask;
                 }
             }).then(result => {
                 if (!result.isConfirmed) return;
@@ -409,6 +414,15 @@ function bindArbSignup(btn) {
     });
 }
 
+// Bitmask → "Tour 1 · Tour 3"
+function decodeTours(mask) {
+    const t = [];
+    if (mask & 1) t.push('Tour 1');
+    if (mask & 2) t.push('Tour 2');
+    if (mask & 4) t.push('Tour 3');
+    return t.join(' · ');
+}
+
 function doSignup(encId, round, btn) {
     postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/signup`, {round})
     .then(data => {
@@ -416,7 +430,7 @@ function doSignup(encId, round, btn) {
 
         if (btn.dataset.type === 'finale') {
             // Ajouter la ligne dans la liste
-            const roundTip = round > 0 ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${round} tour${round > 1 ? 's' : ''}"></i>` : '';
+            const roundTip = round > 0 ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${decodeTours(round)}"></i>` : '';
             const newRow = `
                 <div class="arb-row" data-arb-id="${data.arb_id}">
                     <span class="arb-name">${data.name}</span>

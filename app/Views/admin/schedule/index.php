@@ -41,6 +41,15 @@
 $frDays   = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 $frMonths = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
+// Bitmask → "Tour 1 · Tour 3" (bit0=T1, bit1=T2, bit2=T3)
+function decodeTours(int $mask): string {
+    $t = [];
+    if ($mask & 1) $t[] = 'Tour 1';
+    if ($mask & 2) $t[] = 'Tour 2';
+    if ($mask & 4) $t[] = 'Tour 3';
+    return $t ? implode(' · ', $t) : '';
+}
+
 function frDate(string $ymd, array $frDays, array $frMonths): string {
     $dt    = new \DateTime($ymd);
     $dow   = (int)$dt->format('N') - 1;
@@ -144,9 +153,6 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     </div>
                 </td>
                 <td class="align-middle">
-                    <?php if ($enc->encounter_type === 'finale'): ?>
-                        <span class="badge badge-warning mr-1"><i class="fas fa-trophy mr-1"></i>Finale</span>
-                    <?php endif; ?>
                     <?php if (!empty($enc->players)): ?>
                         <?php foreach ($enc->players as $p): ?>
                             <div class="match-line">
@@ -178,7 +184,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                             <div class="arb-item" data-arb-id="<?= $arb->id ?>">
                                 <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(mb_substr($arb->first_name,0,1)) ?>.</span>
                                 <?php if ($arb->round): ?>
-                                    <i class="far fa-clock arb-rounds" data-toggle="tooltip" title="<?= $arb->round ?> tour<?= $arb->round > 1 ? 's' : '' ?>"></i>
+                                    <i class="far fa-clock arb-rounds" data-toggle="tooltip" title="<?= esc(decodeTours($arb->round)) ?>"></i>
                                 <?php endif; ?>
                                 <?php if ($arb->assignment_type === 'designated'): ?>
                                     <?php if ($arb->confirmed): ?>
@@ -249,17 +255,20 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     </select>
                 </div>
                 <div class="form-group mb-0" id="modalRoundGroup" style="display:none">
-                    <label>Nombre de tours à arbitrer</label>
-                    <div class="btn-group btn-group-toggle d-block" data-toggle="buttons" id="roundToggle">
-                        <label class="btn btn-outline-secondary btn-sm active">
-                            <input type="radio" name="modal_round" value="1" checked> 1 tour
-                        </label>
-                        <label class="btn btn-outline-secondary btn-sm">
-                            <input type="radio" name="modal_round" value="2"> 2 tours
-                        </label>
-                        <label class="btn btn-outline-secondary btn-sm">
-                            <input type="radio" name="modal_round" value="3"> 3 tours
-                        </label>
+                    <label>Tours à arbitrer</label>
+                    <div class="d-flex" style="gap:1.2rem">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="roundChk1" value="1" checked>
+                            <label class="custom-control-label" for="roundChk1">Tour 1</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="roundChk2" value="2" checked>
+                            <label class="custom-control-label" for="roundChk2">Tour 2</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="roundChk4" value="4" checked>
+                            <label class="custom-control-label" for="roundChk4">Tour 3</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -287,17 +296,24 @@ document.querySelectorAll('.btn-designate-referee').forEach(btn => {
     btn.addEventListener('click', function() { openDesignateModal(this); });
 });
 
+// Bitmask → "Tour 1 · Tour 3"
+function decodeTours(mask) {
+    const t = [];
+    if (mask & 1) t.push('Tour 1');
+    if (mask & 2) t.push('Tour 2');
+    if (mask & 4) t.push('Tour 3');
+    return t.join(' · ');
+}
+
 function openDesignateModal(btn) {
     const type = btn.dataset.type || 'normal';
-    document.getElementById('modalEncounterId').value  = btn.dataset.encounter;
+    document.getElementById('modalEncounterId').value   = btn.dataset.encounter;
     document.getElementById('modalEncounterType').value = type;
-    document.getElementById('modalAdminUserId').value  = '';
-    // Afficher le sélecteur de tours seulement pour les finales
+    document.getElementById('modalAdminUserId').value   = '';
+    // Afficher / masquer le sélecteur de tours
     document.getElementById('modalRoundGroup').style.display = type === 'finale' ? '' : 'none';
-    // Réinitialiser la sélection à 1 tour
-    const first = document.querySelector('#roundToggle label:first-child');
-    if (first) { first.classList.add('active'); first.querySelector('input').checked = true; }
-    document.querySelectorAll('#roundToggle label:not(:first-child)').forEach(l => l.classList.remove('active'));
+    // Tout cocher par défaut
+    document.querySelectorAll('#modalRoundGroup input[type="checkbox"]').forEach(c => c.checked = true);
     $('#modalArbitrage').modal('show');
 }
 
@@ -310,8 +326,10 @@ document.getElementById('btnConfirmArbitrage').addEventListener('click', functio
 
     let round = 0;
     if (type === 'finale') {
-        const sel = document.querySelector('input[name="modal_round"]:checked');
-        round = sel ? parseInt(sel.value) : 1;
+        document.querySelectorAll('#modalRoundGroup input[type="checkbox"]:checked').forEach(c => {
+            round |= parseInt(c.value);
+        });
+        if (!round) round = 7; // aucune case = tout par défaut
     }
 
     fetch(`<?= base_url('admin/schedule/') ?>${encounterId}/referee`, {
@@ -324,7 +342,7 @@ document.getElementById('btnConfirmArbitrage').addEventListener('click', functio
         if (!data.success) return;
         $('#modalArbitrage').modal('hide');
 
-        const roundLabel  = round > 0 ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${round} tour${round > 1 ? 's' : ''}"></i>` : '';
+        const roundLabel  = round > 0 ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${decodeTours(round)}"></i>` : '';
         const newItem = `
             <div class="arb-item" data-arb-id="${data.arb_id}">
                 <span class="arb-name">${data.name}</span>

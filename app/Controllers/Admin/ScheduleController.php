@@ -173,7 +173,7 @@ class ScheduleController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Utilisateur invalide.']);
         }
 
-        $round    = max(0, (int) $this->request->getPost('round'));
+        $round    = max(0, min(7, (int) $this->request->getPost('round')));
         $existing = $this->arbitrage->getUserSignup($encounterId, $adminUserId);
 
         if ($existing) {
