@@ -19,7 +19,7 @@
                         <th>Nom</th>
                         <th class="text-center no-sort" style="width:30px">&nbsp;</th>
                         <th class="text-center no-sort" style="width:20px"></th>
-                        <th>Licence FRBB</th>
+                        <th class="text-center no-sort" style="width:100px">Licence&nbsp;FRBB</th>
                         <th class="text-center">Comité</th>
                         <th class="text-center">Statut</th>
                         <th class="text-center no-sort">Actions</th>
@@ -57,7 +57,7 @@
                             <?php endif; ?>
                         </td>
                         <!-- Licence -->
-                        <td><?= $m->frbb_license ? esc($m->frbb_license) : '<span class="text-muted">—</span>' ?></td>
+                        <td class="text-center"><?= $m->frbb_license ? esc($m->frbb_license) : '<span class="text-muted">—</span>' ?></td>
                         <!-- Comité -->
                         <td class="text-center">
                             <?php if (isset($committeeMap[$m->id])): ?>
@@ -125,7 +125,7 @@ $(function() {
     const table = $('#membersTable').DataTable({
         order: [[1, 'asc']],
         columnDefs: [
-            { orderable: false, targets: [0, 2, 3, 7] }
+            { orderable: false, targets: [0, 2, 3, 4, 7] }
         ]
     });
     $('.tt-rbcd').tooltip(tooltipOpts);

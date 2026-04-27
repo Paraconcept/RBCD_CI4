@@ -203,7 +203,7 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
                     <td class="text-center">
                         <a href="<?= $editUrl ?>" class="btn btn-xs btn-info tt-rbcd"
                            data-toggle="tooltip" data-placement="top"
-                           title="Modifier les paiements de<br><?= esc($r->last_name . ' ' . $r->first_name) ?>">
+                           title="Modifier<br>les paiements de<br><?= esc($r->last_name . ' ' . $r->first_name) ?>">
                             <i class="fas fa-edit"></i>
                         </a>
                     </td>
