@@ -86,11 +86,11 @@
 .arb-row   { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
 .arb-label { font-size:.75rem; color:#888; font-weight:600; white-space:nowrap; }
 .arb-name  { font-weight:600; }
-.arb-rounds { color:#888; cursor:default; font-size:.85rem; }
+.arb-rounds { color:#888; cursor:help; font-size:.85rem; }
 
-.badge-confirmed { background:#198754; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; }
-.badge-pending   { background:#ffc107; color:#000; border-radius:10px; padding:1px 7px; font-size:.73rem; }
-.badge-conv      { background:#fd7e14; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; }
+.badge-confirmed { background:#198754; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; cursor:help; }
+.badge-pending   { background:#ffc107; color:#000; border-radius:10px; padding:1px 7px; font-size:.73rem; cursor:help; }
+.badge-conv      { background:#fd7e14; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; cursor:help; }
 
 /* Bar */
 .bar-slots { display:flex; align-items:center; gap:.5rem; font-size:.83rem; }
