@@ -23,6 +23,8 @@
 .arb-item      { display:flex; align-items:center; gap:.3rem; flex-wrap:wrap; font-size:.83rem; }
 .arb-rounds    { color:#888; cursor:default; }
 
+.col-actions { border-left:2px solid rgba(0,0,0,.08); border-right:2px solid rgba(0,0,0,.08); padding:0 .8rem; }
+
 .wna-next   { order:2; }
 .wna-center { order:3; flex-basis:100%; margin-top:.3rem; }
 
@@ -235,7 +237,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         </button>
                     <?php endif; ?>
                 </td>
-                <td class="align-middle text-right text-nowrap">
+                <td class="align-middle text-right text-nowrap col-actions">
                     <a href="<?= base_url("admin/schedule/{$enc->id}/edit") ?>"
                        class="btn btn-xs btn-warning" title="Modifier">
                         <i class="fas fa-pencil-alt"></i>

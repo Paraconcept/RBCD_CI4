@@ -249,7 +249,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             <?php else: ?>
                 <span class="bar-slot-free">libre</span>
             <?php endif; ?>
-            <span class="text-muted ml-2">Bar soirée :</span>
+            <span class="text-muted ml-4">Bar soirée :</span>
             <?php if ($barSoir): ?>
                 <?php $isMyBar = $isLogged && $barSoir->admin_user_id == $currentUser; ?>
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
