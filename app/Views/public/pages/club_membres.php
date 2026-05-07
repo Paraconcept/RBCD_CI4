@@ -2,9 +2,17 @@
 
 <?= $this->section('styles') ?>
 <style>
+.members-grid {
+    column-count: 3;
+    column-gap: 24px;
+}
+@media (max-width: 575px) {
+    .members-grid { column-count: 2; }
+}
 .member-card {
+    break-inside: avoid;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 28px;
 }
 .member-photo-wrap {
     width: 120px;
@@ -75,51 +83,37 @@
     <small class="text-muted ms-auto fst-italic">Cliquez sur un nom pour la fiche détaillée</small>
   </div>
 
-  <div class="row">
+  <?php if (empty($members)): ?>
+    <div class="alert alert-info">Aucun membre actif pour le moment.</div>
+  <?php else: ?>
+  <div class="members-grid">
     <?php foreach ($members as $m): ?>
-    <?php
-        $photo = $m->photo ? base_url('uploads/members/' . $m->photo) : null;
-    ?>
-    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-      <div class="member-card">
-        <div class="member-photo-wrap">
-          <?php if ($m->photo): ?>
-            <img src="<?= esc($photo) ?>" alt="<?= esc($m->last_name . ' ' . $m->first_name) ?>">
-          <?php else: ?>
-            <i class="fas fa-user member-no-photo"></i>
-          <?php endif; ?>
-        </div>
-        <div class="member-name">
-          <?= esc($m->last_name) ?><br>
-          <span style="font-weight:400"><?= esc($m->first_name) ?></span>
-        </div>
-        <?php if ($m->ranking): ?>
-          <div class="member-ranking">Cl. <?= (int) $m->ranking ?></div>
+    <?php $photo = $m->photo ? base_url('uploads/members/' . $m->photo) : null; ?>
+    <div class="member-card">
+      <div class="member-photo-wrap">
+        <?php if ($m->photo): ?>
+          <img src="<?= esc($photo) ?>" alt="<?= esc($m->last_name . ' ' . $m->first_name) ?>">
+        <?php else: ?>
+          <i class="fas fa-user member-no-photo"></i>
         <?php endif; ?>
-        <div class="member-badges">
-          <?php if ($m->is_federated): ?>
-            <span class="badge-frbb">FRBB</span>
-          <?php endif; ?>
-          <?php if ($m->is_junior): ?>
-            <span class="badge-junior">Junior</span>
-          <?php endif; ?>
-          <?php if ($m->is_school): ?>
-            <span class="badge-school">École</span>
-          <?php endif; ?>
-          <?php if ($m->is_supporter): ?>
-            <span class="badge-supporter">Supporter</span>
-          <?php endif; ?>
-        </div>
+      </div>
+      <div class="member-name">
+        <?= esc($m->last_name) ?><br>
+        <span style="font-weight:400"><?= esc($m->first_name) ?></span>
+      </div>
+      <?php if ($m->ranking): ?>
+        <div class="member-ranking">Cl. <?= (int) $m->ranking ?></div>
+      <?php endif; ?>
+      <div class="member-badges">
+        <?php if ($m->is_federated): ?><span class="badge-frbb">FRBB</span><?php endif; ?>
+        <?php if ($m->is_junior): ?><span class="badge-junior">Junior</span><?php endif; ?>
+        <?php if ($m->is_school): ?><span class="badge-school">École</span><?php endif; ?>
+        <?php if ($m->is_supporter): ?><span class="badge-supporter">Supporter</span><?php endif; ?>
       </div>
     </div>
     <?php endforeach; ?>
-
-    <?php if (empty($members)): ?>
-      <div class="col-12">
-        <div class="alert alert-info">Aucun membre actif pour le moment.</div>
-      </div>
-    <?php endif; ?>
   </div>
+  <?php endif; ?>
 
 </div>
 
