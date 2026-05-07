@@ -12,6 +12,8 @@
 .week-nav-select { width:auto; display:inline-block; }
 @media (max-width:575px) {
     .week-nav-select { width:100%; display:block; }
+    .week-nav        { flex-direction: column !important; align-items: center !important; }
+    .week-nav-center { flex-basis: auto; margin-top: 0; }
 }
 
 /* Day card */
