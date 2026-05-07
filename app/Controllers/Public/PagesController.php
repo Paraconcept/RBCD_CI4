@@ -41,6 +41,30 @@ class PagesController extends BaseController
         ]);
     }
 
+    public function clubMembre(int $id): string
+    {
+        $model  = new \App\Models\MemberModel();
+        $member = $model->where('is_active', 1)->find($id);
+
+        if (!$member) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $name = esc($member->last_name . ' ' . $member->first_name);
+
+        return view('public/pages/club_membre', [
+            'title'       => $name . ' — RBC Disonais',
+            'page_title'  => $name,
+            'breadcrumbs' => [
+                ['label' => 'Accueil',      'url' => base_url('/')],
+                ['label' => 'Le Club',      'url' => '#'],
+                ['label' => 'Nos Membres',  'url' => base_url('club/membres')],
+                ['label' => $name],
+            ],
+            'member' => $member,
+        ]);
+    }
+
     public function ecoleBillard(): string
     {
         return $this->placeholder('Notre école de billard', 'Le Club');

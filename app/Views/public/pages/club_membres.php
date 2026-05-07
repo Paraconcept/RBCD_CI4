@@ -19,6 +19,7 @@
     border-radius: 8px;
     transition: background .2s;
 }
+a.member-card { text-decoration: none; color: inherit; }
 .member-card:hover { background: #f8f8f8; }
 .member-photo-wrap {
     flex-shrink: 0;
@@ -97,7 +98,7 @@
   <div class="members-grid">
     <?php foreach ($members as $m): ?>
     <?php $photo = $m->photo ? base_url('uploads/members/' . $m->photo) : null; ?>
-    <div class="member-card">
+    <a href="<?= base_url('club/membres/' . $m->id) ?>" class="member-card">
       <div class="member-photo-wrap">
         <?php if ($m->photo): ?>
           <img src="<?= esc($photo) ?>" alt="<?= esc($m->last_name . ' ' . $m->first_name) ?>">
@@ -117,7 +118,7 @@
           <?php if ($m->is_supporter): ?><span class="badge-supporter">Supporter</span><?php endif; ?>
         </div>
       </div>
-    </div>
+    </a>
     <?php endforeach; ?>
   </div>
   <?php endif; ?>
