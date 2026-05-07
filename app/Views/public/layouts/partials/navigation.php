@@ -11,7 +11,7 @@
           </ul>
         </div>
         <div class="col-xl-auto ms-xl-auto header-top-right align-self-center text-center text-xl-right">
-          <div class="element pt-0 pt-xl-10 pb-0">
+          <div>
             <?php if (session()->get('admin_logged_in')): ?>
               <button type="button" class="btn btn-theme-colored2 btn-sm btn-logout-ajax">
                 <i class="fa fa-sign-out-alt me-1"></i>Déconnexion
