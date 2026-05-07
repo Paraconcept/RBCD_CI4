@@ -81,11 +81,6 @@
             </ul>
           </div>
           <div class="col-xl-auto ms-xl-auto header-top-right align-self-center text-center text-xl-right">
-            <div class="element pt-0 pb-0">
-              <ul class="styled-icons icon-dark icon-theme-colored1 icon-circled clearfix">
-                <li><a class="social-link" href="https://www.facebook.com/rbcdisonais" target="_blank"><i class="fab fa-facebook"></i></a></li>
-              </ul>
-            </div>
             <div class="element pt-0 pt-lg-10 pb-0">
               <?php if (session()->get('admin_logged_in')): ?>
                 <button type="button" class="btn btn-theme-colored2 btn-sm btn-logout-ajax">
@@ -103,14 +98,14 @@
       </div>
     </div>
 
-    <div class="header-nav tm-enable-navbar-hide-on-scroll">
+    <div class="header-nav">
       <div class="header-nav-wrapper navbar-scrolltofixed">
         <div class="menuzord-container header-nav-container">
           <div class="container position-relative">
             <div class="row header-nav-col-row">
               <div class="col-sm-auto align-self-center">
                 <a class="menuzord-brand site-brand" href="<?= base_url('/') ?>">
-                  <img class="logo-default logo-1x" src="<?= base_url('assets/images/logo-rbcd.png') ?>" onerror="this.src='<?= base_url('studypress/images/logo-wide.png') ?>'" alt="RBC Disonais">
+                  <img class="logo-default logo-1x" src="<?= base_url('assets/images/logo_rbcd.png') ?>" onerror="this.src='<?= base_url('studypress/images/logo-wide.png') ?>'" alt="RBC Disonais">
                 </a>
               </div>
               <div class="col-sm-auto ms-auto pr-0 align-self-center">
@@ -332,7 +327,7 @@
     <div class="modal-content border-0 shadow">
       <div class="modal-header text-white border-0" style="background:#84252B">
         <h4 class="modal-title text-white fw-semibold" id="loginModalLabel">
-          <i class="fas fa-user-lock me-2"></i>Espace membres
+          <i class="fas fa-user-lock fa-lg me-2"></i>Me connecter
         </h4>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
