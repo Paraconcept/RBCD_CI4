@@ -108,9 +108,6 @@
           <?= esc($m->last_name) ?><br>
           <span style="font-weight:400"><?= esc($m->first_name) ?></span>
         </div>
-        <?php if ($m->ranking): ?>
-          <div class="member-ranking">Cl. <?= (int) $m->ranking ?></div>
-        <?php endif; ?>
         <div class="member-badges">
           <?php if ($m->is_federated): ?><span class="badge-frbb">FRBB</span><?php endif; ?>
           <?php if ($m->is_junior): ?><span class="badge-junior">Junior</span><?php endif; ?>
