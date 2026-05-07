@@ -34,10 +34,10 @@
     color: #555;
 }
 .membre-badges { gap: 6px; }
-.badge-frbb    { background: #003082; color: #fff; font-size: .75rem; font-weight: 700; border-radius: 4px; padding: 3px 10px; }
-.badge-junior  { background: #198754; color: #fff; font-size: .75rem; font-weight: 600; border-radius: 4px; padding: 3px 10px; }
+.badge-frbb     { background: #003082; color: #fff; font-size: .75rem; font-weight: 700; border-radius: 4px; padding: 3px 10px; }
+.badge-junior   { background: #198754; color: #fff; font-size: .75rem; font-weight: 600; border-radius: 4px; padding: 3px 10px; }
 .badge-supporter{ background: #6c757d; color: #fff; font-size: .75rem; font-weight: 600; border-radius: 4px; padding: 3px 10px; }
-.badge-school  { background: #fd7e14; color: #fff; font-size: .75rem; font-weight: 600; border-radius: 4px; padding: 3px 10px; }
+.badge-school   { background: #fd7e14; color: #fff; font-size: .75rem; font-weight: 600; border-radius: 4px; padding: 3px 10px; }
 .info-row {
     display: flex;
     align-items: flex-start;
@@ -57,7 +57,7 @@
 .info-row .info-label {
     font-weight: 600;
     color: #555;
-    min-width: 110px;
+    min-width: 100px;
     flex-shrink: 0;
 }
 .info-row .info-value { color: #222; }
@@ -69,14 +69,27 @@
     margin-bottom: 24px;
 }
 .section-title {
-    font-size: 1rem;
+    font-size: .9rem;
     font-weight: 700;
     color: #84252B;
     text-transform: uppercase;
     letter-spacing: .5px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     padding-bottom: 8px;
     border-bottom: 2px solid #84252B;
+}
+/* Colonne coordonnées : séparation verticale sur desktop, horizontale sur mobile */
+@media (min-width: 768px) {
+    .membre-coords-col {
+        border-left: 1px solid #e8e8e8;
+        padding-left: 28px;
+    }
+}
+@media (max-width: 767px) {
+    .membre-coords-col {
+        border-top: 1px solid #e8e8e8;
+        padding-top: 20px;
+    }
 }
 </style>
 <?= $this->endSection() ?>
@@ -94,9 +107,8 @@ $hasCoords = ($m->show_phone   && $m->phone)
 
 <div class="container pt-40 pb-60">
 
-  <!-- Carte principale -->
   <div class="section-card">
-    <div class="row align-items-center g-4">
+    <div class="row align-items-start g-4">
 
       <!-- Photo -->
       <div class="col-auto text-center">
@@ -144,52 +156,58 @@ $hasCoords = ($m->show_phone   && $m->phone)
         <?php endif; ?>
       </div>
 
+      <!-- Coordonnées : col-12 sur mobile (→ ligne propre), col-md-5 sur desktop (→ à droite) -->
+      <?php if ($hasCoords): ?>
+      <div class="col-12 col-md-5 membre-coords-col">
+        <div class="section-title"><i class="fas fa-address-book me-2"></i>Coordonnées</div>
+
+        <?php if ($m->show_phone && $m->phone): ?>
+        <div class="info-row">
+          <span class="info-icon"><i class="fas fa-phone"></i></span>
+          <span class="info-label">Téléphone</span>
+          <span class="info-value">
+            <a href="tel:<?= esc(preg_replace('/\s+/', '', $m->phone)) ?>"><?= esc($m->phone) ?></a>
+          </span>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($m->show_mobile && $m->mobile): ?>
+        <div class="info-row">
+          <span class="info-icon"><i class="fas fa-mobile-alt"></i></span>
+          <span class="info-label">GSM</span>
+          <span class="info-value">
+            <a href="tel:<?= esc(preg_replace('/\s+/', '', $m->mobile)) ?>"><?= esc($m->mobile) ?></a>
+          </span>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($m->show_email && $m->email): ?>
+        <div class="info-row">
+          <span class="info-icon"><i class="fas fa-envelope"></i></span>
+          <span class="info-label">E-mail</span>
+          <span class="info-value">
+            <a href="mailto:<?= esc($m->email) ?>"><?= esc($m->email) ?></a>
+          </span>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($m->show_address && ($m->address || $m->city)): ?>
+        <div class="info-row">
+          <span class="info-icon"><i class="fas fa-map-marker-alt"></i></span>
+          <span class="info-label">Adresse</span>
+          <span class="info-value">
+            <?= esc($m->address) ?>
+            <?php if ($m->address && ($m->postal_code || $m->city)): ?><br><?php endif; ?>
+            <?= esc(trim($m->postal_code . ' ' . $m->city)) ?>
+          </span>
+        </div>
+        <?php endif; ?>
+
+      </div>
+      <?php endif; ?>
+
     </div>
   </div>
-
-  <!-- Coordonnées -->
-  <?php if ($hasCoords): ?>
-  <div class="section-card">
-    <div class="section-title"><i class="fas fa-address-book me-2"></i>Coordonnées</div>
-
-    <?php if ($m->show_phone && $m->phone): ?>
-    <div class="info-row">
-      <span class="info-icon"><i class="fas fa-phone"></i></span>
-      <span class="info-label">Téléphone</span>
-      <span class="info-value"><a href="tel:<?= esc(preg_replace('/\s+/', '', $m->phone)) ?>"><?= esc($m->phone) ?></a></span>
-    </div>
-    <?php endif; ?>
-
-    <?php if ($m->show_mobile && $m->mobile): ?>
-    <div class="info-row">
-      <span class="info-icon"><i class="fas fa-mobile-alt"></i></span>
-      <span class="info-label">GSM</span>
-      <span class="info-value"><a href="tel:<?= esc(preg_replace('/\s+/', '', $m->mobile)) ?>"><?= esc($m->mobile) ?></a></span>
-    </div>
-    <?php endif; ?>
-
-    <?php if ($m->show_email && $m->email): ?>
-    <div class="info-row">
-      <span class="info-icon"><i class="fas fa-envelope"></i></span>
-      <span class="info-label">E-mail</span>
-      <span class="info-value"><a href="mailto:<?= esc($m->email) ?>"><?= esc($m->email) ?></a></span>
-    </div>
-    <?php endif; ?>
-
-    <?php if ($m->show_address && ($m->address || $m->city)): ?>
-    <div class="info-row">
-      <span class="info-icon"><i class="fas fa-map-marker-alt"></i></span>
-      <span class="info-label">Adresse</span>
-      <span class="info-value">
-        <?= esc($m->address) ?>
-        <?php if ($m->address && ($m->postal_code || $m->city)): ?><br><?php endif; ?>
-        <?= esc(trim($m->postal_code . ' ' . $m->city)) ?>
-      </span>
-    </div>
-    <?php endif; ?>
-
-  </div>
-  <?php endif; ?>
 
   <!-- Retour -->
   <a href="<?= base_url('club/membres') ?>" class="btn btn-outline-secondary">
