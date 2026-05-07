@@ -54,8 +54,8 @@
                     <ul class="dropdown">
                       <li><a href="<?= base_url('club/histoire') ?>">Histoire &amp; présentation</a></li>
                       <li><a href="<?= base_url('club/comite') ?>">Le Comité</a></li>
-                      <li><a href="<?= base_url('club/membres') ?>">Les Membres</a></li>
-                      <li><a href="<?= base_url('club/cotisations') ?>">Cotisations</a></li>
+                      <li><a href="<?= base_url('club/membres') ?>">Nos Membres</a></li>
+                      <li><a href="<?= base_url('club/ecole-de-billard') ?>">Notre école de billard</a></li>
                       <li><a href="<?= base_url('contact') ?>">Contact</a></li>
                     </ul>
                   </li>
