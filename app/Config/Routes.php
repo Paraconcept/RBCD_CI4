@@ -7,9 +7,10 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 // Site public — Auth membres
-$routes->get('connexion',  'Public\AuthController::login');
-$routes->post('connexion', 'Public\AuthController::loginPost');
-$routes->get('deconnexion','Public\AuthController::logout');
+$routes->get('connexion',   'Public\AuthController::login');
+$routes->post('connexion',  'Public\AuthController::loginPost');
+$routes->get('deconnexion', 'Public\AuthController::logout');
+$routes->post('deconnexion','Public\AuthController::logout');
 
 // Site public — Tableau hebdomadaire (lecture libre)
 $routes->get('tableau',               'Public\ScheduleController::week');

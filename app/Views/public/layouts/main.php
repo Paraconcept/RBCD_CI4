@@ -50,15 +50,15 @@
         <ul>
           <li class="contact-phone">
             <div class="icon"><i class="flaticon-contact-042-phone-1"></i></div>
-            <div class="text"><a href="tel:+32497000000">+32 497 00 00 00</a></div>
+            <div class="text"><a href="tel:+32497000000">0494 797 353</a></div>
           </li>
           <li class="contact-email">
             <div class="icon"><i class="flaticon-contact-043-email-1"></i></div>
-            <div class="text"><a href="mailto:info@rbcd.be">info@rbcd.be</a></div>
+            <div class="text"><a href="mailto:contact@rbcd.be">contact@rbcd.be</a></div>
           </li>
           <li class="contact-address">
             <div class="icon"><i class="flaticon-contact-047-location"></i></div>
-            <div class="text">Dison, Belgique</div>
+            <div class="text">B-4820 Dison</div>
           </li>
         </ul>
       </div>
@@ -75,9 +75,9 @@
         <div class="row">
           <div class="col-xl-auto header-top-left align-self-center text-center text-xl-left">
             <ul class="element contact-info">
-              <li class="contact-phone"><i class="fa fa-phone font-icon sm-display-block"></i> +32 87 77 55 28</li>
-              <li class="contact-email"><i class="fa fa-envelope font-icon sm-display-block"></i> info@rbcd.be</li>
-              <li class="contact-address"><i class="fa fa-map font-icon sm-display-block"></i> Dison, Belgique</li>
+              <li class="contact-phone"><i class="fa fa-phone font-icon sm-display-block"></i> 0494 797 353</li>
+              <li class="contact-email"><i class="fa fa-envelope font-icon sm-display-block"></i> contact@rbcd.be</li>
+              <li class="contact-address"><i class="fa fa-map font-icon sm-display-block"></i> B-4820 Dison</li>
             </ul>
           </div>
           <div class="col-xl-auto ms-xl-auto header-top-right align-self-center text-center text-xl-right">
@@ -87,14 +87,15 @@
               </ul>
             </div>
             <div class="element pt-0 pt-lg-10 pb-0">
-              <?php if (session()->get('public_logged_in')): ?>
-                <a href="<?= base_url('deconnexion') ?>" class="btn btn-theme-colored2 btn-sm">
+              <?php if (session()->get('admin_logged_in')): ?>
+                <button type="button" class="btn btn-theme-colored2 btn-sm btn-logout-ajax">
                   <i class="fa fa-sign-out-alt me-1"></i>Déconnexion
-                </a>
+                </button>
               <?php else: ?>
-                <a href="<?= base_url('connexion') ?>" class="btn btn-theme-colored2 btn-sm">
-                  <i class="fa fa-sign-in-alt me-1"></i>Espace membres
-                </a>
+                <button type="button" class="btn btn-theme-colored2 btn-sm"
+                        data-bs-toggle="modal" data-bs-target="#loginModal">
+                  <i class="fa fa-sign-in-alt me-1"></i>Me connecter
+                </button>
               <?php endif; ?>
             </div>
           </div>
@@ -325,11 +326,131 @@
 </div>
 <!-- fin wrapper -->
 
+<!-- Modal de connexion -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:420px">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header text-white border-0" style="background:#84252B">
+        <h5 class="modal-title" id="loginModalLabel">
+          <i class="fa fa-user-circle me-2"></i>Espace membres
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div id="login-error" class="alert alert-danger d-none mb-3"></div>
+        <form id="login-form" novalidate>
+          <div class="mb-3">
+            <label for="login-email" class="form-label fw-600">Adresse e-mail</label>
+            <input type="email" id="login-email" name="email" class="form-control"
+                   placeholder="votre@email.com" required autocomplete="email">
+          </div>
+          <div class="mb-4">
+            <label for="login-password" class="form-label fw-600">Mot de passe</label>
+            <input type="password" id="login-password" name="password" class="form-control"
+                   placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <div class="d-grid">
+            <button type="submit" id="login-submit" class="btn btn-lg text-white fw-600"
+                    style="background:#84252B;border-color:#84252B">
+              <i class="fa fa-sign-in-alt me-2"></i>Se connecter
+            </button>
+          </div>
+        </form>
+      </div>
+      <?php if (session()->get('admin_logged_in')): ?>
+      <div class="modal-footer justify-content-center border-0 pt-0 pb-3 text-muted" style="font-size:.85rem">
+        Connecté en tant que <strong><?= esc(session()->get('admin_name')) ?></strong>
+      </div>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>
+
 <!-- Scripts de bas de page -->
 <script src="<?= base_url('studypress/js/custom.js') ?>"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 <?= $this->renderSection('scripts') ?>
+
+<script>
+(function () {
+  const csrfFieldName = '<?= csrf_token() ?>';
+  const metaCsrf      = document.querySelector('meta[name="csrf-token"]');
+
+  function getCsrf() {
+    return metaCsrf ? metaCsrf.getAttribute('content') : '';
+  }
+
+  // ── Modal : remettre à zéro à l'ouverture ──
+  const loginModal = document.getElementById('loginModal');
+  if (loginModal) {
+    loginModal.addEventListener('show.bs.modal', function () {
+      document.getElementById('login-error').classList.add('d-none');
+      document.getElementById('login-form').reset();
+      setTimeout(() => document.getElementById('login-email').focus(), 300);
+    });
+  }
+
+  // ── Soumission du formulaire de connexion ──
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const btn      = document.getElementById('login-submit');
+      const errorDiv = document.getElementById('login-error');
+
+      btn.disabled    = true;
+      btn.innerHTML   = '<span class="spinner-border spinner-border-sm me-2"></span>Connexion…';
+      errorDiv.classList.add('d-none');
+
+      const body = new URLSearchParams({
+        email   : document.getElementById('login-email').value,
+        password: document.getElementById('login-password').value,
+        [csrfFieldName]: getCsrf(),
+      });
+
+      fetch('<?= base_url('connexion') ?>', {
+        method : 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest',
+                   'Content-Type': 'application/x-www-form-urlencoded' },
+        body   : body.toString(),
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.csrf) metaCsrf?.setAttribute('content', data.csrf);
+        if (data.success) {
+          window.location.reload();
+        } else {
+          errorDiv.textContent = data.message;
+          errorDiv.classList.remove('d-none');
+          btn.disabled  = false;
+          btn.innerHTML = '<i class="fa fa-sign-in-alt me-2"></i>Se connecter';
+        }
+      })
+      .catch(() => {
+        errorDiv.textContent = 'Erreur réseau, veuillez réessayer.';
+        errorDiv.classList.remove('d-none');
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="fa fa-sign-in-alt me-2"></i>Se connecter';
+      });
+    });
+  }
+
+  // ── Déconnexion AJAX ──
+  document.querySelectorAll('.btn-logout-ajax').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const body = new URLSearchParams({ [csrfFieldName]: getCsrf() });
+      fetch('<?= base_url('deconnexion') ?>', {
+        method : 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest',
+                   'Content-Type': 'application/x-www-form-urlencoded' },
+        body   : body.toString(),
+      })
+      .finally(() => window.location.reload());
+    });
+  });
+})();
+</script>
 
 </body>
 </html>

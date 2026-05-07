@@ -19,10 +19,19 @@ class AuthController extends BaseController
 
     public function loginPost()
     {
+        $isAjax = $this->request->isAJAX();
+
         if (!$this->validate([
             'email'    => 'required|valid_email',
             'password' => 'required',
         ])) {
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => implode(' ', $this->validator->getErrors()),
+                    'csrf'    => csrf_hash(),
+                ]);
+            }
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -33,11 +42,25 @@ class AuthController extends BaseController
         );
 
         if (!$user) {
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Email ou mot de passe incorrect, ou compte verrouillé.',
+                    'csrf'    => csrf_hash(),
+                ]);
+            }
             return redirect()->back()->withInput()
                              ->with('error', 'Email ou mot de passe incorrect, ou compte verrouillé.');
         }
 
         if (!$user->is_active) {
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Ce compte est désactivé.',
+                    'csrf'    => csrf_hash(),
+                ]);
+            }
             return redirect()->back()->withInput()->with('error', 'Ce compte est désactivé.');
         }
 
@@ -60,6 +83,10 @@ class AuthController extends BaseController
             'admin_photo'     => $memberPhoto,
         ]);
 
+        if ($isAjax) {
+            return $this->response->setJSON(['success' => true]);
+        }
+
         $redirect = session()->get('redirect_after_login') ?? base_url('tableau');
         session()->remove('redirect_after_login');
 
@@ -69,6 +96,11 @@ class AuthController extends BaseController
     public function logout()
     {
         session()->destroy();
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => true]);
+        }
+
         return redirect()->to(base_url('tableau'))->with('success', 'Vous avez été déconnecté.');
     }
 }
