@@ -5,7 +5,7 @@
     <div class="col-md-5 col-lg-4">
         <div class="card card-outline card-primary mt-4">
             <div class="card-header text-center">
-                <h4 class="mb-0"><i class="fas fa-lock mr-2"></i>Espace membres</h4>
+                <h4 class="mb-0"><i class="fas fa-user-lock me-2"></i>Espace réservé aux membres</h4>
             </div>
             <div class="card-body">
 
@@ -35,8 +35,8 @@
                         <input type="password" name="password" class="form-control" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fas fa-sign-in-alt mr-1"></i>Se connecter
+                    <button type="submit" class="btn btn-theme-colored2 text-white btn-block">
+                        <i class="fas fa-sign-in-alt me-2"></i>Se connecter
                     </button>
                 </form>
             </div>
