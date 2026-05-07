@@ -3,6 +3,11 @@
 <?= $this->section('extra_css') ?>
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/css/rs6.css') ?>">
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/extra-rev-slider1.css') ?>">
+<style>
+@media (max-width:767px) {
+  #slider-10-slide-47-layer-img { visibility: hidden !important; }
+}
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('extra_head_js') ?>
@@ -48,7 +53,7 @@
                   data-text="w:normal;s:20,18,18,16;l:25,24,28,24;fw:300;a:left,left,left,center;"
                   data-frame_1="st:900;sp:1000;"
                   data-frame_999="o:0;st:w;sR:8700;"
-                  style="z-index:9;">Passion du billard depuis toujours — Dison, Belgique.
+                  style="z-index:9;">Club fondé en 1951.
                 </rs-layer>
                 <rs-layer id="slider-10-slide-47-layer-4" data-type="text" data-rsp_ch="on"
                   data-xy="x:l,l,l,c;xo:55px,50px,55px,0;yo:539px,481px,448px,390px;"
@@ -57,6 +62,15 @@
                   data-frame_1="st:1200;sp:1000;sR:1500;"
                   data-frame_999="o:0;st:w;sR:6500;"
                   style="z-index:8;"><a href="<?= base_url('club/histoire') ?>" class="btn btn-flat btn-theme-colored2 text-white">Découvrir le club</a>
+                </rs-layer>
+                <!-- Écusson du club — droite, responsive, caché sur mobile -->
+                <rs-layer id="slider-10-slide-47-layer-img" data-type="image" data-rsp_ch="on"
+                  data-xy="x:r,r,r,r;xo:80px,60px,40px,15px;yo:120px,110px,90px,60px;"
+                  data-wh="w:280,220,160,100;"
+                  data-frame_1="st:500;sp:1500;sR:500;"
+                  data-frame_999="o:0;st:w;sR:7000;"
+                  style="z-index:13;">
+                  <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="Ecusson RBC Disonais" data-no-retina>
                 </rs-layer>
               </rs-slide>
 
