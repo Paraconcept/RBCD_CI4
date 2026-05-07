@@ -5,7 +5,7 @@
     <div class="col-md-5 col-lg-4">
         <div class="card card-outline card-primary mt-4">
             <div class="card-header text-center">
-                <h4 class="mb-0"><i class="fas fa-user-lock me-2"></i>Espace réservé aux membres</h4>
+                <h4 class="mb-0"><i class="fas fa-user-lock me-2"></i>Contenu réservé aux membres</h4>
             </div>
             <div class="card-body">
 
@@ -15,10 +15,6 @@
                             <div><?= esc($e) ?></div>
                         <?php endforeach; ?>
                     </div>
-                <?php endif; ?>
-
-                <?php if ($error = session()->getFlashdata('error')): ?>
-                    <div class="alert alert-danger"><?= esc($error) ?></div>
                 <?php endif; ?>
 
                 <form method="POST" action="<?= base_url('connexion') ?>">
@@ -35,7 +31,7 @@
                         <input type="password" name="password" class="form-control" required>
                     </div>
 
-                    <button type="submit" class="btn btn-theme-colored2 text-white btn-block">
+                    <button type="submit" class="btn btn-theme-colored2 text-white btn-block mt-2">
                         <i class="fas fa-sign-in-alt me-2"></i>Se connecter
                     </button>
                 </form>

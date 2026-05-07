@@ -88,7 +88,7 @@
         <i class="fas fa-id-card me-2"></i><?= $totalFederated ?> fédérés FRBB
       </span>
     </div>
-    <small class="text-muted fst-italic">Cliquez sur un nom pour la fiche détaillée</small>
+    <small class="text-muted fst-italic">Cliquez sur un nom pour voir sa fiche détaillée</small>
   </div>
 
   <?php if (empty($members)): ?>

@@ -5,8 +5,8 @@
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/extra-rev-slider1.css') ?>">
 <style>
 /* Écusson slide 1 — taille forcée car RS6 ignore data-wh sur layer manuel */
-#slider-10-slide-47-layer-img img { width: 200px !important; height: auto !important; }
-@media (max-width:1199px) { #slider-10-slide-47-layer-img img { width: 150px !important; } }
+                            #slider-10-slide-47-layer-img img { width: 240px !important; height: auto !important; }
+@media (max-width:1199px) { #slider-10-slide-47-layer-img img { width: 180px !important; } }
 @media (max-width:991px)  { #slider-10-slide-47-layer-img img { width: 110px !important; } }
 @media (max-width:767px)  { #slider-10-slide-47-layer-img { visibility: hidden !important; } }
 </style>
@@ -32,8 +32,8 @@
             <rs-slides>
 
               <!-- Slide 1 : Le Club -->
-              <rs-slide data-key="rs-47" data-title="Slide 1" data-thumb="<?= base_url('studypress/images/bg/bg3.jpg') ?>" data-anim="ei:d;eo:d;s:d;r:0;t:slotslide-horizontal;sl:d;">
-                <img src="<?= base_url('studypress/images/bg/bg3.jpg') ?>" title="bg3" width="1920" height="1280" data-parallax="off" class="rev-slidebg" data-no-retina>
+              <rs-slide data-key="rs-47" data-title="Slide 1" data-thumb="<?= base_url('assets/images/bg-slider/bg-rbcd-GF.jpg') ?>" data-anim="ei:d;eo:d;s:d;r:0;t:slotslide-horizontal;sl:d;">
+                <img src="<?= base_url('assets/images/bg-slider/bg-rbcd-GF.jpg') ?>" title="bg3" width="1920" height="1280" data-parallax="off" class="rev-slidebg" data-no-retina>
                 <rs-layer id="slider-10-slide-47-layer-2" data-type="text" data-rsp_ch="on"
                   data-xy="x:l,l,l,c;xo:48px,45px,50px,0;yo:226px,212px,179px,153px;"
                   data-text="w:normal;s:115,100,95,78;l:115,89,90,71;ls:1px,0px,0px,0px;fw:700;a:left,left,left,center;"
@@ -67,7 +67,7 @@
                 </rs-layer>
                 <!-- Écusson du club — droite, responsive, caché sur mobile -->
                 <rs-layer id="slider-10-slide-47-layer-img" data-type="image" data-rsp_ch="on"
-                  data-xy="x:r,r,r,r;xo:80px,60px,40px,15px;yo:120px,110px,90px,60px;"
+                  data-xy="x:r,r,r,r;xo:100px,60px,40px,15px;yo:160px,160px,160px,160px;"
                   data-frame_1="st:500;sp:1500;sR:500;"
                   data-frame_999="o:0;st:w;sR:7000;"
                   style="z-index:13;">
