@@ -3,7 +3,7 @@
   <div class="header-top">
     <div class="container">
       <div class="row">
-        <div class="col-xl-auto header-top-left align-self-center text-center text-xl-left">
+        <div class="col-xl-auto header-top-left align-self-center text-center text-xl-left d-none d-md-block">
           <ul class="element contact-info">
             <li class="contact-phone"><i class="fa fa-phone font-icon sm-display-block"></i> 0494 797 353</li>
             <li class="contact-email"><i class="fa fa-envelope font-icon sm-display-block"></i> contact@rbcd.be</li>
