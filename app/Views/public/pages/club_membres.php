@@ -79,14 +79,16 @@
 <div class="container pt-40 pb-60">
 
   <!-- Compteurs -->
-  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-    <span class="badge fs-6 fw-normal" style="background:#666666">
-      <i class="fas fa-users me-2"></i><?= count($members) ?> membres actifs
-    </span>
-    <span class="badge fs-6 fw-normal" style="background:#DA8508">
-      <i class="fas fa-id-card me-2"></i><?= $totalFederated ?> fédérés FRBB
-    </span>
-    <small class="text-muted ms-auto fst-italic">Cliquez sur un nom pour la fiche détaillée</small>
+  <div class="text-center mb-4">
+    <div class="d-flex justify-content-center gap-3 flex-wrap mb-2">
+      <span class="badge fs-6 fw-normal" style="background:#666666">
+        <i class="fas fa-users me-2"></i><?= count($members) ?> membres actifs
+      </span>
+      <span class="badge fs-6 fw-normal" style="background:#DA8508">
+        <i class="fas fa-id-card me-2"></i><?= $totalFederated ?> fédérés FRBB
+      </span>
+    </div>
+    <small class="text-muted fst-italic">Cliquez sur un nom pour la fiche détaillée</small>
   </div>
 
   <?php if (empty($members)): ?>
