@@ -3,6 +3,10 @@
 /writable/
 .env
 
+# Assets volumineux (template + uploads)
+/public/studypress/
+/public/uploads/
+
 # macOS
 .DS_Store
 Icon?
