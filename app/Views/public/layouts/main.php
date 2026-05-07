@@ -331,9 +331,9 @@
   <div class="modal-dialog modal-dialog-centered" style="max-width:420px">
     <div class="modal-content border-0 shadow">
       <div class="modal-header text-white border-0" style="background:#84252B">
-        <h5 class="modal-title" id="loginModalLabel">
-          <i class="fa fa-user-circle me-2"></i>Espace membres
-        </h5>
+        <h4 class="modal-title text-white fw-semibold" id="loginModalLabel">
+          <i class="fas fa-user-lock me-2"></i>Espace membres
+        </h4>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
