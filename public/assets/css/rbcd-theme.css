@@ -18,8 +18,11 @@
 .icon-theme-colored1.icon-circled li a     { border-color: #84252B !important; }
 .icon-theme-colored1.icon-circled a:hover  { background-color: #84252B !important; color: #fff !important; }
 .contact-icon-theme-colored1 .icon i       { color: #84252B !important; }
-.menuzord.theme-color1 .menuzord-menu > li.active > a,
-.menuzord.theme-color1 .menuzord-menu > li:hover > a { color: #84252B !important; }
+.menuzord.theme-color1 .menuzord-menu > li:hover > a,
+.menuzord.theme-color1 .menuzord-menu > li.active > a {
+    background-color: #84252B !important;
+    color: #fff !important;
+}
 .menuzord.theme-color1 .menuzord-menu > li.active > a::after { background-color: #84252B !important; }
 a:hover, a:focus                           { color: #84252B; }
 .widget-title-line-bottom::after           { background-color: #84252B !important; }
