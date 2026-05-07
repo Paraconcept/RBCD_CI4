@@ -134,7 +134,7 @@
           <div class="col-md-6 col-lg-6 col-xl-3 mb-md-40">
             <div class="tm-widget-contact-info contact-info-style1 contact-icon-theme-colored1">
               <div class="thumb mb-20">
-                <img alt="RBC Disonais" src="<?= base_url('assets/images/logo-rbcd-white.png') ?>" onerror="this.src='<?= base_url('studypress/images/logo-wide-white.png') ?>'" style="max-height:60px;">
+                <img alt="RBC Disonais" src="<?= base_url('assets/images/logo_rbcd.png') ?>" style="max-height:60px;">
               </div>
               <div class="description text-gray">Club de billard carambole fondé à Dison, Belgique.</div>
             </div>
