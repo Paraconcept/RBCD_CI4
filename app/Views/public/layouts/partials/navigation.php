@@ -70,7 +70,7 @@
 
                   <li class="menu-item">
                     <a href="#">Archives</a>
-                    <ul class="dropdown dropdown-icons-right">
+                    <ul class="dropdown">
                       <li><a href="<?= base_url('tableau') ?>">Journal "Partie Libre"<i class="fas fa-lock"></i></a></li>
                       <li><a href="<?= base_url('saison/resultats') ?>">Résultats sportifs</a></li>
                       <li><a href="<?= base_url('galerie') ?>">Galeries photos<i class="fas fa-images"></i></a></li>
@@ -80,10 +80,14 @@
                   <li class="menu-item">
                     <a href="#">Documents utiles</a>
                     <ul class="dropdown">
-                      <li><a href="<?= base_url('archives') ?>">Résultats passés</a></li>
-                      <li><a href="<?= base_url('archives/galeries') ?>">Galeries passées</a></li>
-                      <li><a href="<?= base_url('documents') ?>">Documents utiles</a></li>
+                      <li><a href="<?= base_url('---') ?>">Documents utiles</a></li>
+                      <li><a href="<?= base_url('---') ?>">Statuts du club<i class="far fa-file-pdf"></i></a></li>
+                      <li><a href="<?= base_url('---') ?>">Règlement d'ordre intérieur<i class="far fa-file-pdf"></i></a></li>
                     </ul>
+                  </li>
+
+                  <li class="menu-item">
+                    <a href="<?= base_url('tableau') ?>">Au Tableau</a>
                   </li>
 
                 </ul>
