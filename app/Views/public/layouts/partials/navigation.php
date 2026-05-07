@@ -71,18 +71,18 @@
                   <li class="menu-item">
                     <a href="#">Archives</a>
                     <ul class="dropdown">
-                      <li><a href="<?= base_url('tableau') ?>">Journal "Partie Libre"<i class="fas fa-lock"></i></a></li>
-                      <li><a href="<?= base_url('saison/resultats') ?>">Résultats sportifs</a></li>
+                      <li><a href="<?= base_url('archives/journal') ?>">Journal "Partie Libre"<i class="fas fa-lock"></i></a></li>
+                      <li><a href="<?= base_url('archives/resultats') ?>">Résultats sportifs</a></li>
                       <li><a href="<?= base_url('galerie') ?>">Galeries photos<i class="fas fa-images"></i></a></li>
                     </ul>
                   </li>
 
                   <li class="menu-item">
-                    <a href="#">Documents utiles</a>
+                    <a href="<?= base_url('documents') ?>">Documents utiles</a>
                     <ul class="dropdown">
-                      <li><a href="<?= base_url('---') ?>">Documents utiles</a></li>
-                      <li><a href="<?= base_url('---') ?>">Statuts du club<i class="far fa-file-pdf"></i></a></li>
-                      <li><a href="<?= base_url('---') ?>">Règlement d'ordre intérieur<i class="far fa-file-pdf"></i></a></li>
+                      <li><a href="<?= base_url('documents/statuts') ?>">Statuts du club<i class="far fa-file-pdf"></i></a></li>
+                      <li><a href="<?= base_url('documents/roi') ?>">Règlement d'ordre intérieur<i class="far fa-file-pdf"></i></a></li>
+                      <li><a href="<?= base_url('documents/rgpd') ?>">R.G.P.D.<i class="far fa-file-pdf"></i></a></li>
                     </ul>
                   </li>
 

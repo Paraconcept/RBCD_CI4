@@ -28,6 +28,31 @@ $routes->group('tableau', ['filter' => 'publicAuth'], static function ($routes) 
 // Site public
 $routes->get('/', 'Public\HomeController::index');
 
+// Le Club
+$routes->get('club/histoire',         'Public\PagesController::clubHistoire');
+$routes->get('club/comite',           'Public\PagesController::clubComite');
+$routes->get('club/membres',          'Public\PagesController::clubMembres');
+$routes->get('club/ecole-de-billard', 'Public\PagesController::ecoleBillard');
+$routes->get('contact',               'Public\PagesController::contact');
+
+// Saison
+$routes->get('saison/resultats',      'Public\PagesController::saisonResultats');
+
+// Archives (publiques)
+$routes->get('archives/resultats',    'Public\PagesController::archivesResultats');
+$routes->get('galerie',               'Public\PagesController::galerie');
+
+// Archives Journal (membres connectés)
+$routes->group('archives', ['filter' => 'publicAuth'], static function ($routes) {
+    $routes->get('journal', 'Public\PagesController::archivesJournal');
+});
+
+// Documents utiles
+$routes->get('documents',             'Public\PagesController::documents');
+$routes->get('documents/statuts',     'Public\PagesController::documentsStatuts');
+$routes->get('documents/roi',         'Public\PagesController::documentsRoi');
+$routes->get('documents/rgpd',        'Public\PagesController::documentsRgpd');
+
 // ----------------------------------------------------------------
 // Administration
 // ----------------------------------------------------------------
