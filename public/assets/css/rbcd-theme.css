@@ -69,3 +69,17 @@ a:hover, a:focus                           { color: #84252B; }
 /* Section titres */
 h2.title.text-theme-colored2,
 h2.text-theme-colored2                     { color: #84252B !important; }
+
+/* Icônes alignées à droite dans les sous-menus */
+.menuzord-menu .dropdown.dropdown-icons-right li a {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 10px !important;
+}
+.menuzord-menu .dropdown.dropdown-icons-right li a i {
+    margin-left: 12px;
+    flex-shrink: 0;
+    color: #aaa;
+    font-size: .8rem;
+}
