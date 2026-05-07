@@ -74,8 +74,9 @@
   <div class="main-content-area">
 
     <?php if (!empty($page_title)): ?>
-    <section class="page-title layer-overlay overlay-dark-9 section-typo-light bg-img-center"
-             data-tm-bg-img="<?= base_url('studypress/images/bg/bg1.jpg') ?>">
+    <section class="page-title layer-overlay overlay-dark-7 section-typo-light parallax"
+             data-tm-bg-img="<?= base_url('assets/images/bg-banner.jpg') ?>"
+             data-parallax-ratio="0.4">
       <div class="container pt-50 pb-50">
         <div class="section-content">
           <div class="row">
