@@ -14,7 +14,14 @@ class AuthController extends BaseController
             return redirect()->to(base_url('tableau'));
         }
 
-        return view('public/auth/login', ['title' => 'Connexion membres']);
+        return view('public/auth/login', [
+            'title'       => 'Connexion membres — RBC Disonais',
+            'page_title'  => 'Espace membres',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Connexion'],
+            ],
+        ]);
     }
 
     public function loginPost()
