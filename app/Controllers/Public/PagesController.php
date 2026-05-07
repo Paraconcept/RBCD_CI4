@@ -20,7 +20,25 @@ class PagesController extends BaseController
 
     public function clubMembres(): string
     {
-        return $this->placeholder('Nos Membres', 'Le Club');
+        $model   = new \App\Models\MemberModel();
+        $members = $model->where('is_active', 1)
+                         ->orderBy('last_name', 'ASC')
+                         ->orderBy('first_name', 'ASC')
+                         ->findAll();
+
+        $totalFederated = count(array_filter($members, fn($m) => (bool) $m->is_federated));
+
+        return view('public/pages/club_membres', [
+            'title'          => 'Nos Membres — RBC Disonais',
+            'page_title'     => 'Nos Membres',
+            'breadcrumbs'    => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Le Club', 'url' => '#'],
+                ['label' => 'Nos Membres'],
+            ],
+            'members'        => $members,
+            'totalFederated' => $totalFederated,
+        ]);
     }
 
     public function ecoleBillard(): string
