@@ -64,9 +64,11 @@ $routes->group('admin', static function ($routes) {
 
         // Trésorerie — paiements
         $routes->get('treasury', 'Admin\TreasuryController::index');
+        $routes->get('treasury/export', 'Admin\TreasuryController::export');
 
         // Trésorerie — enveloppes de caisse
         $routes->get ('treasury/envelopes',                'Admin\TreasuryEnvelopesController::index');
+        $routes->get ('treasury/envelopes/export',         'Admin\TreasuryEnvelopesController::export');
         $routes->get ('treasury/envelopes/create',         'Admin\TreasuryEnvelopesController::create');
         $routes->post('treasury/envelopes',                'Admin\TreasuryEnvelopesController::store');
         $routes->get ('treasury/envelopes/(:num)/edit',    'Admin\TreasuryEnvelopesController::edit/$1');

@@ -18,6 +18,9 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
             <?php endforeach; ?>
         </select>
     </form>
+    <a href="<?= base_url('admin/treasury/export?year=' . $year) ?>" class="btn btn-success btn-sm mr-3">
+        <i class="fas fa-download mr-1"></i> Exporter Excel
+    </a>
     <span class="text-muted small"><?= $stats['total'] ?> membres actifs</span>
 </div>
 

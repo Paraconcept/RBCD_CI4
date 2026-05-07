@@ -5,6 +5,8 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\TreasuryEnvelopeModel;
 use App\Models\MemberKeyModel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TreasuryEnvelopesController extends BaseController
 {
@@ -196,6 +198,50 @@ class TreasuryEnvelopesController extends BaseController
 
         $this->model->delete($id);
         return redirect()->to(base_url('admin/treasury/envelopes'))->with('success', 'Enveloppe supprimée.');
+    }
+
+    public function export()
+    {
+        $year  = (int) ($this->request->getGet('year')  ?? date('Y'));
+        $month = (int) ($this->request->getGet('month') ?? date('n'));
+
+        $rows = $this->model->getWithCloser($year, $month);
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // En-têtes
+        $sheet->setCellValue('A1', 'Nom');
+        $sheet->setCellValue('B1', 'Date');
+        $sheet->setCellValue('C1', 'Catégorie');
+        $sheet->setCellValue('D1', 'Montant calculé');
+        $sheet->setCellValue('E1', 'Montant trouvé');
+        $sheet->setCellValue('F1', 'Fermé par');
+        $sheet->setCellValue('G1', 'Encodé par');
+        $sheet->setCellValue('H1', 'Notes');
+
+        $row = 2;
+        foreach ($rows as $r) {
+            $sheet->setCellValue('A' . $row, $r->name);
+            $sheet->setCellValue('B' . $row, $r->date);
+            $sheet->setCellValue('C' . $row, $r->category);
+            $sheet->setCellValue('D' . $row, $r->amount_calculated);
+            $sheet->setCellValue('E' . $row, $r->amount_found);
+            $sheet->setCellValue('F' . $row, $r->closer_name ?? '');
+            $sheet->setCellValue('G' . $row, $r->encoder_name ?? '');
+            $sheet->setCellValue('H' . $row, $r->notes ?? '');
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = "enveloppes_{$year}_{$month}.xlsx";
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
     }
 
     // ----------------------------------------------------------------

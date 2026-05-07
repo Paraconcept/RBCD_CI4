@@ -17,6 +17,9 @@
             <?php endfor; ?>
         </select>
     </form>
+    <a href="<?= base_url('admin/treasury/envelopes/export?year=' . $year . '&month=' . $month) ?>" class="btn btn-success btn-sm mr-2">
+        <i class="fas fa-download mr-1"></i> Exporter Excel
+    </a>
     <a href="<?= base_url('admin/treasury/envelopes/create') ?>" class="btn btn-primary btn-sm">
         <i class="fas fa-plus mr-1"></i> Nouvelle enveloppe
     </a>
@@ -81,7 +84,7 @@
                         <td class="text-center">
                             <a href="<?= base_url('admin/treasury/envelopes/' . $r->id . '/edit') ?>"
                                class="btn btn-xs btn-info tt-rbcd"
-                               data-toggle="tooltip" data-placement="top"
+                               data-toggle="tooltip" data-placement="left"
                                title="Modifier l'enveloppe <?= esc($r->name ?: '—') ?>">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -89,7 +92,7 @@
                                     data-id="<?= $r->id ?>"
                                     data-encoder-id="<?= (int)$r->encoded_by_member_id ?>"
                                     data-date="<?= date('d/m/Y', strtotime($r->date)) ?>"
-                                    data-toggle="tooltip" data-placement="top"
+                                    data-toggle="tooltip" data-placement="left"
                                     title="Supprimer l'enveloppe <?= esc($r->name ?: '—') ?>">
                                 <i class="fas fa-trash"></i>
                             </button>
