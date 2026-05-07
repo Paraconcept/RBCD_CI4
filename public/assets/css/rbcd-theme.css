@@ -1,0 +1,68 @@
+/* ============================================================
+   RBC Disonais — Surcharge de couleurs du thème Studypress
+   Couleur principale : #84252B (rouge bordeaux RBCD)
+   Remplace : #202C45 (bleu éducation)
+   ============================================================ */
+
+/* Couleurs primaires theme-colored1 → #84252B */
+.text-theme-colored1                       { color: #84252B !important; }
+.bg-theme-colored1                         { background-color: #84252B !important; }
+.border-theme-colored1                     { border-color: #84252B !important; }
+.btn-theme-colored1                        { background-color: #84252B !important; border-color: #84252B !important; color: #fff !important; }
+.btn-theme-colored1:hover                  { background-color: #6a1e22 !important; border-color: #6a1e22 !important; }
+.btn-dark.btn-theme-colored1               { background-color: #84252B !important; border-color: #84252B !important; }
+.line-bottom-theme-colored1::after         { background-color: #84252B !important; }
+.icon-theme-colored1 a,
+.icon-theme-colored1 i                     { color: #84252B !important; }
+.icon-theme-colored1.icon-circled a,
+.icon-theme-colored1.icon-circled li a     { border-color: #84252B !important; }
+.icon-theme-colored1.icon-circled a:hover  { background-color: #84252B !important; color: #fff !important; }
+.contact-icon-theme-colored1 .icon i       { color: #84252B !important; }
+.menuzord.theme-color1 .menuzord-menu > li.active > a,
+.menuzord.theme-color1 .menuzord-menu > li:hover > a { color: #84252B !important; }
+.menuzord.theme-color1 .menuzord-menu > li.active > a::after { background-color: #84252B !important; }
+a:hover, a:focus                           { color: #84252B; }
+.widget-title-line-bottom::after           { background-color: #84252B !important; }
+.fa.text-theme-colored1,
+.fas.text-theme-colored1,
+.far.text-theme-colored1,
+.fab.text-theme-colored1                   { color: #84252B !important; }
+
+/* Couleurs secondaires theme-colored2 → légèrement plus sombre */
+.text-theme-colored2                       { color: #6a1e22 !important; }
+.bg-theme-colored2                         { background-color: #6a1e22 !important; }
+.btn-theme-colored2                        { background-color: #84252B !important; border-color: #84252B !important; color: #fff !important; }
+.btn-theme-colored2:hover                  { background-color: #6a1e22 !important; border-color: #6a1e22 !important; }
+.btn-flat.btn-theme-colored2               { background-color: #84252B !important; border-color: #84252B !important; color: #fff !important; }
+
+/* Remplacement direct des références #202c45 */
+[style*="background-color:#202c45"],
+[style*="background-color: #202c45"]       { background-color: #84252B !important; }
+
+/* Navigation active */
+#header .header-nav-wrapper                { border-bottom: 2px solid #84252B; }
+
+/* Footer */
+#footer .footer-widget-area                { background-color: #333333; }
+#footer .footer                            { background-color: #333333; }
+#footer .footer-bottom                     { background-color: #84252B !important; }
+#footer .footer-paragraph                  { color: #fff; }
+#footer .footer-paragraph a                { color: rgba(255,255,255,.7); }
+#footer .footer-paragraph a:hover          { color: #fff; }
+#footer .widget-title                      { color: #fff; }
+#footer .widget-title-line-bottom::after   { background-color: #84252B !important; }
+#footer a                                  { color: rgba(255,255,255,.8); }
+#footer a:hover                            { color: #fff; }
+#footer .description,
+#footer .text                              { color: rgba(255,255,255,.7); }
+#footer .opening-hours ul li span          { color: rgba(255,255,255,.7); }
+#footer .opening-hours ul li .value        { color: rgba(255,255,255,.9); }
+#footer .opening-hours.border-dark         { border-color: rgba(255,255,255,.2) !important; }
+#footer .opening-hours.border-dark li      { border-color: rgba(255,255,255,.15) !important; }
+
+/* Bouton scrollToTop */
+.scrollToTop:hover                         { background-color: #84252B !important; }
+
+/* Section titres */
+h2.title.text-theme-colored2,
+h2.text-theme-colored2                     { color: #84252B !important; }

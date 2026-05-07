@@ -25,7 +25,7 @@ $routes->group('tableau', ['filter' => 'publicAuth'], static function ($routes) 
 });
 
 // Site public
-$routes->get('/', 'Home::index');
+$routes->get('/', 'Public\HomeController::index');
 
 // ----------------------------------------------------------------
 // Administration
