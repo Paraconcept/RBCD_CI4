@@ -134,24 +134,6 @@
 
 <?= $this->section('content') ?>
 
-<!-- Titre de page Studypress -->
-<section class="page-title layer-overlay overlay-dark-8 section-typo-light bg-img-center" data-tm-bg-img="<?= base_url('studypress/images/bg/bg1.jpg') ?>">
-  <div class="container pt-40 pb-40">
-    <div class="row">
-      <div class="col-md-12 text-center">
-        <h2 class="title mb-5">Au Tableau</h2>
-        <nav aria-label="Breadcrumbs">
-          <div class="breadcrumbs">
-            <span><a href="<?= base_url('/') ?>">Accueil</a></span>
-            <span><i class="fa fa-angle-right mx-2"></i></span>
-            <span class="active">Au Tableau</span>
-          </div>
-        </nav>
-      </div>
-    </div>
-  </div>
-</section>
-
 <div class="container pt-30 pb-40">
 
 <?php

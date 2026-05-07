@@ -185,6 +185,35 @@
   <!-- Contenu principal -->
   <div class="main-content-area">
 
+    <?php if (!empty($page_title)): ?>
+    <section class="page-title layer-overlay overlay-dark-9 section-typo-light bg-img-center"
+             data-tm-bg-img="<?= base_url('studypress/images/bg/bg1.jpg') ?>">
+      <div class="container pt-50 pb-50">
+        <div class="section-content">
+          <div class="row">
+            <div class="col-md-12 text-center">
+              <h2 class="title"><?= esc($page_title) ?></h2>
+              <?php if (!empty($breadcrumbs)): ?>
+              <nav class="breadcrumbs" role="navigation" aria-label="Fil d'Ariane">
+                <div class="breadcrumbs">
+                  <?php foreach ($breadcrumbs as $i => $crumb): ?>
+                    <?php if ($i > 0): ?><span><i class="fa fa-angle-right"></i></span><?php endif; ?>
+                    <?php if (!empty($crumb['url'])): ?>
+                      <span><a href="<?= esc($crumb['url']) ?>"><?= esc($crumb['label']) ?></a></span>
+                    <?php else: ?>
+                      <span class="active"><?= esc($crumb['label']) ?></span>
+                    <?php endif; ?>
+                  <?php endforeach; ?>
+                </div>
+              </nav>
+              <?php endif; ?>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <?php endif; ?>
+
     <?php if ($flash = session()->getFlashdata('success')): ?>
       <div class="container mt-20">
         <div class="alert alert-success alert-dismissible fade show">

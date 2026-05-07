@@ -73,6 +73,11 @@ class ScheduleController extends BaseController
 
         return view('public/schedule/week', [
             'title'       => "Tableau — Semaine {$week}",
+            'page_title'  => 'Au Tableau',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Au Tableau'],
+            ],
             'week'        => $week,
             'year'        => $year,
             'weekDates'   => $weekDates,
