@@ -80,11 +80,11 @@
 
   <!-- Compteurs -->
   <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-    <span class="badge bg-secondary fs-6 fw-normal">
-      <i class="fas fa-users me-1"></i><?= count($members) ?> membres actifs
+    <span class="badge fs-6 fw-normal" style="background:#666666">
+      <i class="fas fa-users me-2"></i><?= count($members) ?> membres actifs
     </span>
-    <span class="badge fs-6 fw-normal" style="background:#003082">
-      <i class="fas fa-id-card me-1"></i><?= $totalFederated ?> fédérés FRBB
+    <span class="badge fs-6 fw-normal" style="background:#DA8508">
+      <i class="fas fa-id-card me-2"></i><?= $totalFederated ?> fédérés FRBB
     </span>
     <small class="text-muted ms-auto fst-italic">Cliquez sur un nom pour la fiche détaillée</small>
   </div>
@@ -109,7 +109,7 @@
           <span style="font-weight:400"><?= esc($m->first_name) ?></span>
         </div>
         <div class="member-badges">
-          <?php if ($m->is_federated): ?><span class="badge-frbb">FRBB</span><?php endif; ?>
+          <?php if ($m->is_federated): ?><span class="badge-frbb"><img src="<?= base_url('assets/images/frbb_kbbb_logo_100.png') ?>" alt="FRBB" style="width: 18px; height: 25px;"></span><?php endif; ?>
           <?php if ($m->is_junior): ?><span class="badge-junior">Junior</span><?php endif; ?>
           <?php if ($m->is_school): ?><span class="badge-school">École</span><?php endif; ?>
           <?php if ($m->is_supporter): ?><span class="badge-supporter">Supporter</span><?php endif; ?>
