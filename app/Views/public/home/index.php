@@ -68,7 +68,6 @@
                 <!-- Écusson du club — droite, responsive, caché sur mobile -->
                 <rs-layer id="slider-10-slide-47-layer-img" data-type="image" data-rsp_ch="on"
                   data-xy="x:r,r,r,r;xo:80px,60px,40px,15px;yo:120px,110px,90px,60px;"
-                  data-wh="w:220,160,100,60;"
                   data-frame_1="st:500;sp:1500;sR:500;"
                   data-frame_999="o:0;st:w;sR:7000;"
                   style="z-index:13;">
