@@ -11,16 +11,22 @@
 }
 .member-card {
     break-inside: avoid;
-    text-align: center;
-    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background .2s;
 }
+.member-card:hover { background: #f8f8f8; }
 .member-photo-wrap {
-    width: 120px;
-    height: 120px;
+    flex-shrink: 0;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    border: 3px solid #dee2e6;
+    border: 2px solid #dee2e6;
     transition: border-color .25s;
-    margin: 0 auto 12px;
     overflow: hidden;
     background: #f0f0f0;
     display: flex;
@@ -35,22 +41,22 @@
     display: block;
 }
 .member-photo-wrap .member-no-photo {
-    font-size: 3rem;
+    font-size: 1.8rem;
     color: #bbb;
     line-height: 1;
 }
+.member-info { min-width: 0; }
 .member-card .member-name {
     font-weight: 700;
-    font-size: .95rem;
+    font-size: .9rem;
     color: #333;
     line-height: 1.3;
 }
 .member-card .member-badges {
-    margin-top: 5px;
+    margin-top: 4px;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px;
+    gap: 3px;
 }
 .badge-frbb {
     background: #003082;
@@ -97,18 +103,20 @@
           <i class="fas fa-user member-no-photo"></i>
         <?php endif; ?>
       </div>
-      <div class="member-name">
-        <?= esc($m->last_name) ?><br>
-        <span style="font-weight:400"><?= esc($m->first_name) ?></span>
-      </div>
-      <?php if ($m->ranking): ?>
-        <div class="member-ranking">Cl. <?= (int) $m->ranking ?></div>
-      <?php endif; ?>
-      <div class="member-badges">
-        <?php if ($m->is_federated): ?><span class="badge-frbb">FRBB</span><?php endif; ?>
-        <?php if ($m->is_junior): ?><span class="badge-junior">Junior</span><?php endif; ?>
-        <?php if ($m->is_school): ?><span class="badge-school">École</span><?php endif; ?>
-        <?php if ($m->is_supporter): ?><span class="badge-supporter">Supporter</span><?php endif; ?>
+      <div class="member-info">
+        <div class="member-name">
+          <?= esc($m->last_name) ?><br>
+          <span style="font-weight:400"><?= esc($m->first_name) ?></span>
+        </div>
+        <?php if ($m->ranking): ?>
+          <div class="member-ranking">Cl. <?= (int) $m->ranking ?></div>
+        <?php endif; ?>
+        <div class="member-badges">
+          <?php if ($m->is_federated): ?><span class="badge-frbb">FRBB</span><?php endif; ?>
+          <?php if ($m->is_junior): ?><span class="badge-junior">Junior</span><?php endif; ?>
+          <?php if ($m->is_school): ?><span class="badge-school">École</span><?php endif; ?>
+          <?php if ($m->is_supporter): ?><span class="badge-supporter">Supporter</span><?php endif; ?>
+        </div>
       </div>
     </div>
     <?php endforeach; ?>
