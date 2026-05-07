@@ -4,9 +4,11 @@
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/css/rs6.css') ?>">
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/extra-rev-slider1.css') ?>">
 <style>
-@media (max-width:767px) {
-  #slider-10-slide-47-layer-img { visibility: hidden !important; }
-}
+/* Écusson slide 1 — taille forcée car RS6 ignore data-wh sur layer manuel */
+#slider-10-slide-47-layer-img img { width: 200px !important; height: auto !important; }
+@media (max-width:1199px) { #slider-10-slide-47-layer-img img { width: 150px !important; } }
+@media (max-width:991px)  { #slider-10-slide-47-layer-img img { width: 110px !important; } }
+@media (max-width:767px)  { #slider-10-slide-47-layer-img { visibility: hidden !important; } }
 </style>
 <?= $this->endSection() ?>
 
@@ -66,7 +68,7 @@
                 <!-- Écusson du club — droite, responsive, caché sur mobile -->
                 <rs-layer id="slider-10-slide-47-layer-img" data-type="image" data-rsp_ch="on"
                   data-xy="x:r,r,r,r;xo:80px,60px,40px,15px;yo:120px,110px,90px,60px;"
-                  data-wh="w:280,220,160,100;"
+                  data-wh="w:220,160,100,60;"
                   data-frame_1="st:500;sp:1500;sR:500;"
                   data-frame_999="o:0;st:w;sR:7000;"
                   style="z-index:13;">
