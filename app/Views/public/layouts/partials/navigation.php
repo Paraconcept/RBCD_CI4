@@ -46,7 +46,7 @@
                 <ul id="main-nav" class="menuzord-menu">
 
                   <li class="<?= (current_url() === base_url('/') ? 'active' : '') ?> menu-item">
-                    <a href="<?= base_url('/') ?>">Accueil</a>
+                    <a href="<?= base_url('/') ?>"><i class="fas fa-home"></i></a>
                   </li>
 
                   <li class="menu-item">
@@ -61,7 +61,7 @@
                   </li>
 
                   <li class="menu-item">
-                    <a href="#">Saison</a>
+                    <a href="#">Saison <?= ANNEE_1 ?>-<?= ANNEE_2 ?></a>
                     <ul class="dropdown">
                       <li><a href="<?= base_url('tableau') ?>">Au Tableau</a></li>
                       <li><a href="<?= base_url('saison/classements') ?>">Classements</a></li>
