@@ -109,16 +109,16 @@
 /* Surlignage du membre connecté */
 .me-highlight { background:#fff59d; border-radius:3px; padding:0 3px; font-weight:700; }
 
-/* Tooltips couleur RBCD */
+/* Tooltips couleur RBCD — Bootstrap 5 */
 .tooltip-rbcd .tooltip-inner {
     background-color: #84252B;
     color: #fff;
     box-shadow: 0 3px 8px rgba(0,0,0,.35);
 }
-.tooltip-rbcd.bs-tooltip-top    .arrow::before { border-top-color:    #84252B; }
-.tooltip-rbcd.bs-tooltip-bottom .arrow::before { border-bottom-color: #84252B; }
-.tooltip-rbcd.bs-tooltip-left   .arrow::before { border-left-color:   #84252B; }
-.tooltip-rbcd.bs-tooltip-right  .arrow::before { border-right-color:  #84252B; }
+.tooltip-rbcd[data-popper-placement^="top"]    .tooltip-arrow::before { border-top-color:    #84252B; }
+.tooltip-rbcd[data-popper-placement^="bottom"] .tooltip-arrow::before { border-bottom-color: #84252B; }
+.tooltip-rbcd[data-popper-placement^="left"]   .tooltip-arrow::before { border-left-color:   #84252B; }
+.tooltip-rbcd[data-popper-placement^="right"]  .tooltip-arrow::before { border-right-color:  #84252B; }
 
 @media (max-width:767px) {
     .enc-block { grid-template-columns: 1fr; }
@@ -133,6 +133,26 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+
+<!-- Titre de page Studypress -->
+<section class="page-title layer-overlay overlay-dark-8 section-typo-light bg-img-center" data-tm-bg-img="<?= base_url('studypress/images/bg/bg1.jpg') ?>">
+  <div class="container pt-40 pb-40">
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <h2 class="title mb-5">Au Tableau</h2>
+        <nav aria-label="Breadcrumbs">
+          <div class="breadcrumbs">
+            <span><a href="<?= base_url('/') ?>">Accueil</a></span>
+            <span><i class="fa fa-angle-right mx-2"></i></span>
+            <span class="active">Au Tableau</span>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container pt-30 pb-40">
 
 <?php
 $frDays   = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
@@ -189,16 +209,16 @@ while ($swDt <= $swEnd) {
 <!-- Navigation semaine -->
 <div class="d-flex align-items-center justify-content-between mb-4 week-nav flex-wrap" style="gap:.5rem">
     <a href="<?= base_url("tableau/{$prev['week']}/{$prev['year']}") ?>" class="btn btn-outline-secondary">
-        <i class="fas fa-chevron-left mr-1"></i>Semaine précédente
+        <i class="fas fa-chevron-left me-1"></i>Semaine précédente
     </a>
     <a href="<?= base_url("tableau/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary week-nav-next">
-        Semaine suivante <i class="fas fa-chevron-right ml-1"></i>
+        Semaine suivante <i class="fas fa-chevron-right ms-1"></i>
     </a>
     <div class="text-center week-nav-center">
         <?php if (!$isCurrentWeek): ?>
             <div class="mb-1">
                 <a href="<?= base_url('tableau') ?>" class="btn btn-outline-secondary">
-                    <i class="fas fa-chevron-down mr-1"></i>Semaine en cours
+                    <i class="fas fa-chevron-down me-1"></i>Semaine en cours
                 </a>
             </div>
         <?php endif; ?>
@@ -220,7 +240,7 @@ while ($swDt <= $swEnd) {
 
 <?php if (!$isLogged): ?>
     <div class="alert alert-info">
-        <i class="fas fa-info-circle mr-2"></i>
+        <i class="fas fa-info-circle me-2"></i>
         <a href="<?= base_url('connexion') ?>">Connectez-vous</a> pour vous inscrire à l'arbitrage ou au service bar.
     </div>
 <?php endif; ?>
@@ -245,16 +265,24 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 <?php $isMyBar = $isLogged && $barAm->admin_user_id == $currentUser; ?>
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
             <?php elseif ($isLogged): ?>
-                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="am" data-toggle="tooltip" data-html="true" title="S'inscrire au bar<br><?= $isSunday ? 'le matin' : "l'après-midi" ?>"><i class="fas fa-user-plus"></i></button>
+                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="am"
+                        data-bs-toggle="tooltip" data-bs-html="true"
+                        title="S'inscrire au bar<br><?= $isSunday ? 'le matin' : "l'après-midi" ?>">
+                    <i class="fas fa-user-plus"></i>
+                </button>
             <?php else: ?>
                 <span class="bar-slot-free">libre</span>
             <?php endif; ?>
-            <span class="text-muted ml-4">Bar soirée :</span>
+            <span class="text-muted ms-4">Bar soirée :</span>
             <?php if ($barSoir): ?>
                 <?php $isMyBar = $isLogged && $barSoir->admin_user_id == $currentUser; ?>
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
             <?php elseif ($isLogged): ?>
-                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="soir" data-toggle="tooltip" data-html="true" title="S'inscrire au bar<br>en soirée"><i class="fas fa-user-plus"></i></button>
+                <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="soir"
+                        data-bs-toggle="tooltip" data-bs-html="true"
+                        title="S'inscrire au bar<br>en soirée">
+                    <i class="fas fa-user-plus"></i>
+                </button>
             <?php else: ?>
                 <span class="bar-slot-free">libre</span>
             <?php endif; ?>
@@ -276,7 +304,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 <?php if ($enc->is_home): ?>
                     <i class="fas fa-home loc-home" title="À domicile"></i>
                 <?php else: ?>
-                    <i class="fas fa-car-side loc-away mr-3" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
+                    <i class="fas fa-car-side loc-away me-3" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
                     <?php if ($enc->venue): ?>
                         <span style="font-size:.72rem;color:var(--clr-away);line-height:1.3"><?= esc($enc->venue) ?></span>
                     <?php endif; ?>
@@ -295,7 +323,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 ?>
                     <div class="match-line">
                         <span class="player-home <?= (!$isFinale && $enc->is_home)  ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $pName : $oppName ?></span>
-                        <span class="vs-sep"><i class="fas fa-arrows-alt-h mr-2 ml-2"></i></span>
+                        <span class="vs-sep"><i class="fas fa-arrows-alt-h me-2 ms-2"></i></span>
                         <span class="player-away <?= (!$isFinale && !$enc->is_home) ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $oppName : $pName ?></span>
                     </div>
                 <?php endforeach; ?>
@@ -329,17 +357,19 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                             <div class="arb-row" data-arb-id="<?= $arb->id ?>">
                                 <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
                                 <?php if ($arb->round): ?>
-                                    <i class="far fa-clock arb-rounds" data-toggle="tooltip" data-html="true" title="Disponible :<br><?= esc($roundTip) ?>"></i>
+                                    <i class="far fa-clock arb-rounds"
+                                       data-bs-toggle="tooltip" data-bs-html="true"
+                                       title="Disponible :<br><?= esc($roundTip) ?>"></i>
                                 <?php endif; ?>
                                 <?php if ($isMe && $isConv && !$arb->confirmed): ?>
                                     <span class="badge-conv">Convoqué</span>
                                     <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
-                                        <i class="fas fa-check mr-1"></i>Confirmer
+                                        <i class="fas fa-check me-1"></i>Confirmer
                                     </button>
                                 <?php elseif ($arb->confirmed): ?>
-                                    <span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
+                                    <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
                                 <?php elseif (!$arb->confirmed && $isConv): ?>
-                                    <span class="badge-pending" data-toggle="tooltip" data-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
+                                    <span class="badge-pending" data-bs-toggle="tooltip" data-bs-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
                                 <?php endif; ?>
                             </div>
                             <?php endforeach; ?>
@@ -352,7 +382,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                     data-encounter="<?= $enc->id ?>"
                                     data-type="finale"
                                     data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
-                                <i class="fas fa-hand-paper mr-1"></i>Arbitrer
+                                <i class="fas fa-hand-paper me-1"></i>Arbitrer
                             </button>
                             <?php elseif (empty($enc->arbitrageRows)): ?>
                                 <span class="text-muted" style="font-size:.82rem">libre</span>
@@ -377,19 +407,19 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                 <?php if ($isMe && $isConv && !$arb->confirmed): ?>
                                     <span class="badge-conv">Convoqué</span>
                                     <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
-                                        <i class="fas fa-check mr-1"></i>Confirmer
+                                        <i class="fas fa-check me-1"></i>Confirmer
                                     </button>
                                 <?php elseif ($arb->confirmed): ?>
-                                    <span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
+                                    <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
                                 <?php else: ?>
-                                    <span class="badge-pending" data-toggle="tooltip" data-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
+                                    <span class="badge-pending" data-bs-toggle="tooltip" data-bs-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
                                 <?php endif; ?>
                             <?php elseif ($isLogged): ?>
                                 <button class="btn btn-info btn-sm btn-arb-signup"
                                         data-encounter="<?= $enc->id ?>"
                                         data-type="normal"
                                         data-date-label="<?= esc(frDay($enc->match_date, $frDays, $frMonths)) ?>">
-                                    <i class="fas fa-hand-paper mr-1"></i>Arbitrer
+                                    <i class="fas fa-hand-paper me-1"></i>Arbitrer
                                 </button>
                             <?php else: ?>
                                 <span class="text-muted" style="font-size:.82rem">libre</span>
@@ -409,6 +439,8 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
 
 <?php endforeach; ?>
 
+</div><!-- /container -->
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
@@ -416,10 +448,19 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
 const csrfName  = '<?= csrf_token() ?>';
 let   csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-const rbcdTooltipTemplate = '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>';
+// Template tooltip Bootstrap 5 (tooltip-arrow au lieu de arrow)
+const rbcdTooltipTemplate = '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>';
 
-// Initialiser les tooltips Bootstrap
-$(function() { $('[data-toggle="tooltip"]').tooltip({ template: rbcdTooltipTemplate }); });
+// Initialise les tooltips Bootstrap 5 dans un conteneur parent (ou sur le document entier)
+function initTooltips(parent) {
+    (parent || document).querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        if (!bootstrap.Tooltip.getInstance(el)) {
+            new bootstrap.Tooltip(el, { template: rbcdTooltipTemplate });
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => initTooltips());
 
 function postJson(url, body) {
     return fetch(url, {
@@ -441,7 +482,6 @@ function bindArbSignup(btn) {
 
         if (type === 'finale') {
             const rounds = parseInt(this.dataset.rounds || 3);
-            // Générer les cases à cocher selon le nombre de tours de la compétition
             let chkHtml = '';
             for (let i = 0; i < rounds; i++) {
                 const val = 1 << i;
@@ -450,13 +490,13 @@ function bindArbSignup(btn) {
                     `</label></div>`;
             }
             Swal.fire({
-                title: '<i class="fas fa-trophy mr-2" style="color:#ffc107"></i>Inscription — Finale',
+                title: '<i class="fas fa-trophy me-2" style="color:#ffc107"></i>Inscription — Finale',
                 html: `<p class="mb-3">Quels tours souhaitez-vous arbitrer ?</p>
-                    <div class="text-left pl-4">${chkHtml}</div>`,
+                    <div class="text-start ps-4">${chkHtml}</div>`,
                 showCancelButton: true,
-                confirmButtonText: '<i class="fas fa-hand-paper mr-1"></i>S\'inscrire',
+                confirmButtonText: '<i class="fas fa-hand-paper me-1"></i>S\'inscrire',
                 cancelButtonText: 'Annuler',
-                customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-secondary ml-2' },
+                customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-secondary ms-2' },
                 buttonsStyling: false,
                 preConfirm: () => {
                     let mask = 0;
@@ -471,18 +511,17 @@ function bindArbSignup(btn) {
                 }
             }).then(result => {
                 if (!result.isConfirmed) return;
-                const round = result.value;
-                doSignup(encId, round, self);
+                doSignup(encId, result.value, self);
             });
         } else {
             const dateLabel = self.dataset.dateLabel || '';
             Swal.fire({
-                title: '<i class="fas fa-hand-paper mr-2" style="color:#0dcaf0"></i>Arbitrage',
+                title: '<i class="fas fa-hand-paper me-2" style="color:#0dcaf0"></i>Arbitrage',
                 html: `Je me mets à l'arbitrage pour ce<br><strong>${dateLabel}</strong>`,
                 showCancelButton: true,
                 confirmButtonText: 'Je confirme',
                 cancelButtonText: 'Annuler',
-                customClass: { confirmButton: 'btn btn-info', cancelButton: 'btn btn-secondary ml-2' },
+                customClass: { confirmButton: 'btn btn-info', cancelButton: 'btn btn-secondary ms-2' },
                 buttonsStyling: false,
             }).then(result => {
                 if (!result.isConfirmed) return;
@@ -492,7 +531,7 @@ function bindArbSignup(btn) {
     });
 }
 
-// Bitmask → "Tour 1 · Tour N" (générique, jusqu'à 8 tours)
+// Bitmask → "Tour 1 · Tour N"
 function decodeTours(mask) {
     const t = [];
     for (let i = 0; i < 8; i++) {
@@ -507,28 +546,27 @@ function doSignup(encId, round, btn) {
         if (!data.success) return Swal.fire('Erreur', data.message, 'error');
 
         if (btn.dataset.type === 'finale') {
-            const roundTip = round > 0 ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${decodeTours(round)}"></i>` : '';
+            const roundTip = round > 0 ? `<i class="far fa-clock arb-rounds" data-bs-toggle="tooltip" title="${decodeTours(round)}"></i>` : '';
             const newRow = `
                 <div class="arb-row" data-arb-id="${data.arb_id}">
                     <span class="arb-name me-highlight">${data.name}</span>
                     ${roundTip}
-                    <span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
+                    <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
                 </div>`;
             const list = document.getElementById(`arb-list-${encId}`);
             list.insertAdjacentHTML('beforeend', newRow);
-            $(list.lastElementChild).find('[data-toggle="tooltip"]').tooltip({ template: rbcdTooltipTemplate });
+            initTooltips(list.lastElementChild);
             btn.classList.add('d-none');
         } else {
             const div = document.getElementById(`arb-normal-${encId}`);
             div.innerHTML = `
                 <span class="arb-label">Arbitrage :</span>
                 <span class="arb-name me-highlight">${data.name}</span>
-                <span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>`;
-            $(div).find('[data-toggle="tooltip"]').tooltip({ template: rbcdTooltipTemplate });
+                <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>`;
+            initTooltips(div);
         }
     });
 }
-
 
 // ── Arbitrage : confirmer convocation ──
 document.querySelectorAll('.btn-arb-confirm').forEach(btn => {
@@ -537,13 +575,12 @@ document.querySelectorAll('.btn-arb-confirm').forEach(btn => {
         postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/confirm`, {})
         .then(data => {
             if (!data.success) return Swal.fire('Erreur', data.message, 'error');
-            // Remplacer Convoqué + Confirmer par ✓
             const row = this.closest('.arb-row') || document.getElementById(`arb-normal-${encId}`);
             const convBadge = row.querySelector('.badge-conv');
             const confirmBtn = row.querySelector('.btn-arb-confirm');
             if (convBadge) {
-                convBadge.outerHTML = '<span class="badge-confirmed" data-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>';
-                $(row).find('.badge-confirmed[data-toggle="tooltip"]').tooltip({ template: rbcdTooltipTemplate });
+                convBadge.outerHTML = '<span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>';
+                initTooltips(row);
             }
             if (confirmBtn) confirmBtn.remove();
         });
@@ -568,6 +605,5 @@ function bindBarSignup(btn) {
         });
     });
 }
-
 </script>
 <?= $this->endSection() ?>

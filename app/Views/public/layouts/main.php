@@ -19,8 +19,10 @@
 <link href="<?= base_url('studypress/css/responsive.css') ?>" rel="stylesheet">
 <link href="<?= base_url('studypress/css/colors/theme-skin-color-set1.css') ?>" rel="stylesheet">
 <link href="<?= base_url('assets/css/rbcd-theme.css') ?>" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
 <?= $this->renderSection('extra_css') ?>
+<?= $this->renderSection('styles') ?>
 
 <!-- Studypress JS (head) -->
 <script src="<?= base_url('studypress/js/jquery.js') ?>"></script>
@@ -296,6 +298,7 @@
 
 <!-- Scripts de bas de page -->
 <script src="<?= base_url('studypress/js/custom.js') ?>"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 <?= $this->renderSection('scripts') ?>
 
