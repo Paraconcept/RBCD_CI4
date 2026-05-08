@@ -27,6 +27,7 @@
     margin-top: 0;
     padding: 0;
     border: none;
+    border-top: 2px solid #333;
     border-radius: 0;
     box-shadow: none;
     min-width: 200px;
@@ -34,18 +35,18 @@
 }
 .nav-user-dropdown .dropdown-menu .dropdown-item {
     padding: 10px 25px 10px 22px;
-    color: #888;
+    color: #878787;
     font-size: 12px;
     font-weight: 400;
-    transition: padding .2s linear;
     border-radius: 0;
+    border-left: 2px solid transparent;
+    transition: background .15s, border-color .15s, color .15s;
 }
 .nav-user-dropdown .dropdown-menu .dropdown-item:hover,
 .nav-user-dropdown .dropdown-menu .dropdown-item:focus {
-    padding-left: 28px;
-    padding-right: 19px;
-    color: #202C45;
-    background: none;
+    background: #EEEEEE;
+    color: #333;
+    border-left-color: #333;
 }
 .nav-user-dropdown .dropdown-menu .dropdown-divider {
     margin: 0;
