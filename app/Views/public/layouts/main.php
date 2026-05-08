@@ -23,6 +23,34 @@
 @media (hover: hover) {
   .nav-user-dropdown:hover > .dropdown-menu { display: block; }
 }
+.nav-user-dropdown .dropdown-menu {
+    margin-top: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    min-width: 200px;
+    background: #fff;
+}
+.nav-user-dropdown .dropdown-menu .dropdown-item {
+    padding: 10px 25px 10px 22px;
+    color: #888;
+    font-size: 12px;
+    font-weight: 400;
+    transition: padding .2s linear;
+    border-radius: 0;
+}
+.nav-user-dropdown .dropdown-menu .dropdown-item:hover,
+.nav-user-dropdown .dropdown-menu .dropdown-item:focus {
+    padding-left: 28px;
+    padding-right: 19px;
+    color: #202C45;
+    background: none;
+}
+.nav-user-dropdown .dropdown-menu .dropdown-divider {
+    margin: 0;
+    border-top: 1px solid #f0f0f0;
+}
 </style>
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
