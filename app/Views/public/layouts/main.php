@@ -19,6 +19,11 @@
 <link href="<?= base_url('studypress/css/responsive.css') ?>" rel="stylesheet">
 <link href="<?= base_url('studypress/css/colors/theme-skin-color-set1.css') ?>" rel="stylesheet">
 <link href="<?= base_url('assets/css/rbcd-theme.css') ?>" rel="stylesheet">
+<style>
+@media (hover: hover) {
+  .nav-user-dropdown:hover > .dropdown-menu { display: block; }
+}
+</style>
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
 <?= $this->renderSection('extra_css') ?>
@@ -134,9 +139,9 @@
           <div class="col-md-6 col-lg-6 col-xl-3 mb-md-40">
             <div class="tm-widget-contact-info contact-info-style1 contact-icon-theme-colored1">
               <div class="thumb mb-20">
-                <img alt="RBC Disonais" src="<?= base_url('assets/images/logo_rbcd.png') ?>" style="max-height:60px;">
+                <img alt="RBC Disonais" src="<?= base_url('assets/images/logo_footer_rbcd.png') ?>" style="max-height:60px;">
               </div>
-              <div class="description text-gray">Club de billard carambole fondé à Dison, Belgique.</div>
+              <div class="description text-gray">Club de billard carambole fondé en 1951 à Dison, Belgique.</div>
             </div>
             <ul class="styled-icons icon-dark icon-theme-colored1 icon-rounded clearfix mt-20">
               <li><a class="social-link" href="https://www.facebook.com/rbcdisonais" target="_blank"><i class="fab fa-facebook"></i></a></li>

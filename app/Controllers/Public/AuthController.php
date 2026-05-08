@@ -88,6 +88,7 @@ class AuthController extends BaseController
             'admin_email'     => $user->email,
             'admin_roles'     => $roles,
             'admin_photo'     => $memberPhoto,
+            'admin_member_id' => $user->member_id,
         ]);
 
         if ($isAjax) {

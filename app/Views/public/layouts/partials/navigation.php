@@ -13,9 +13,30 @@
         <div class="col-xl-auto ms-xl-auto header-top-right align-self-center text-center text-xl-right">
           <div>
             <?php if (session()->get('admin_logged_in')): ?>
-              <button type="button" class="btn btn-theme-colored2 btn-sm btn-logout-ajax">
-                <i class="fa fa-sign-out-alt me-1"></i>Déconnexion
-              </button>
+              <?php
+                $memberUrl = session()->get('admin_member_id')
+                    ? base_url('club/membres/' . session()->get('admin_member_id'))
+                    : '#';
+              ?>
+              <div class="dropdown nav-user-dropdown">
+                <button class="btn btn-theme-colored2 btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-user-circle me-1"></i><?= esc(session()->get('admin_name')) ?>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-1">
+                  <li>
+                    <a class="dropdown-item" href="<?= $memberUrl ?>">
+                      <i class="fas fa-id-card me-2 text-muted"></i>Mon compte
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <button type="button" class="dropdown-item text-danger btn-logout-ajax">
+                      <i class="fa fa-sign-out-alt me-2"></i>Déconnexion
+                    </button>
+                  </li>
+                </ul>
+              </div>
             <?php else: ?>
               <button type="button" class="btn btn-theme-colored2 btn-sm"
                       data-bs-toggle="modal" data-bs-target="#loginModal">
