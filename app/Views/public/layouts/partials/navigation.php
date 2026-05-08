@@ -23,7 +23,7 @@
                         data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="fas fa-user-circle me-1"></i><?= esc(session()->get('admin_name')) ?>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-1">
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="margin-top:0;padding-top:6px">
                   <li>
                     <a class="dropdown-item" href="<?= $memberUrl ?>">
                       <i class="fas fa-id-card me-2 text-muted"></i>Mon compte
