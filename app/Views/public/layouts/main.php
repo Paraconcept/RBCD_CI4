@@ -29,14 +29,14 @@
     border: none;
     border-top: 2px solid #333;
     border-radius: 0;
-    box-shadow: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
     min-width: 200px;
     background: #fff;
 }
 .nav-user-dropdown .dropdown-menu .dropdown-item {
     padding: 10px 25px 10px 22px;
     color: #878787;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 400;
     border-radius: 0;
     border-left: 2px solid transparent;
