@@ -7,7 +7,7 @@
 }
 .home-pager .page-item.active .page-link {
     background: transparent;
-    border-color: #dee2e6;
+    border-color: #202C45;
     color: #202C45;
     font-weight: 700;
     cursor: default;
