@@ -1,11 +1,20 @@
 <?php
 $pager->setSurroundCount(2);
 $links = $pager->links();
-$cur   = $pager->getCurrentPage();
-$total = $pager->getPageCount();
+
+// Page courante : lien actif dans la fenêtre surround
+$cur = 1;
+foreach ($links as $link) {
+    if ($link['active']) { $cur = (int) $link['title']; break; }
+}
+
+// Page totale : extraite de l'URL getLast()
+preg_match('/page=(\d+)/', $pager->getLast(), $m);
+$total = isset($m[1]) ? (int) $m[1] : 1;
+
 $first = $pager->getFirst();
 $last  = $pager->getLast();
-$prev  = $cur > 1     ? preg_replace('/page=\d+/', 'page=' . ($cur - 1), $first) : null;
+$prev  = $cur > 1      ? preg_replace('/page=\d+/', 'page=' . ($cur - 1), $first) : null;
 $next  = $cur < $total ? preg_replace('/page=\d+/', 'page=' . ($cur + 1), $first) : null;
 ?>
 
