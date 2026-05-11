@@ -110,7 +110,18 @@
     font-size: 5rem;
     color: #ccc;
 }
+/* Égaliser la hauteur des cartes dans chaque ligne */
+.comite-wrapper .col-sm-6,
+.comite-wrapper .col-md-4 {
+    display: flex;
+}
+.team-members {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
 .team-bottom-part {
+    flex: 1;
     border-top: 3px solid #84252B;
     background: #fafafa;
     padding: 18px 16px 20px;
