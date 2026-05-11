@@ -4,6 +4,8 @@
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/css/rs6.css') ?>">
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/extra-rev-slider1.css') ?>">
 <style>
+article.post { transition: background .2s; }
+article.post:hover { background: #f7f7f7; }
 /* Écusson slide 1 — taille forcée car RS6 ignore data-wh sur layer manuel */
                             #slider-10-slide-47-layer-img img { width: 240px !important; height: auto !important; }
 @media (max-width:1199px) { #slider-10-slide-47-layer-img img { width: 180px !important; } }
@@ -218,12 +220,12 @@
                     $_ex = $n->excerpt ?: (mb_strlen($_t) > 100 ? mb_substr($_t, 0, 100) . '…' : $_t);
                   ?>
                   <?php if ($_ex): ?>
-                  <p class="mt-5 mb-10"><?= esc($_ex) ?></p>
+                  <p class="mt-4 mb-10"><?= esc($_ex) ?></p>
                   <?php endif; ?>
                   <?php if ($n->published_at): ?>
                   <div class="entry-meta mb-10">
-                    <span class="text-gray-darkgray font-size-13">
-                      <i class="far fa-calendar-alt me-5 text-theme-colored1"></i>
+                    <span class=" font-size-13">
+                      <i class="far fa-calendar-alt me-2 text-theme-colored1"></i>
                       <?= date('d/m/Y', strtotime($n->published_at)) ?>
                     </span>
                   </div>
