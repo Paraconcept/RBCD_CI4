@@ -312,7 +312,10 @@ window.addEventListener('load', function () {
     if (window.location.hash === '#actualites') {
         setTimeout(function () {
             var el = document.getElementById('actualites');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            if (el) {
+                var top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+                window.scrollTo({ top: top, behavior: 'smooth' });
+            }
         }, 400);
     }
 });
