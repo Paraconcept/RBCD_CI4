@@ -236,13 +236,8 @@
           </article>
           <?php endforeach; ?>
 
-          <nav>
-            <ul class="pagination">
-              <li class="page-item">
-                <a class="page-link" href="<?= base_url('actualites') ?>">Toutes les actualités »</a>
-              </li>
-            </ul>
-          </nav>
+          <?= $pager->links('default', 'home_pager') ?>
+          
         </div>
       </div>
 
