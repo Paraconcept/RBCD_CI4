@@ -32,7 +32,6 @@ class IntmController extends BaseController
         return view('admin/intm/form', [
             'team'    => null,
             'members' => $this->federatedMembers(),
-            'modes'   => IntmTeamModel::GAME_MODES,
             'seasons' => $this->seasons(),
         ]);
     }
@@ -46,7 +45,6 @@ class IntmController extends BaseController
         $data = [
             'name'       => $this->request->getPost('name'),
             'season'     => $this->request->getPost('season'),
-            'game_mode'  => $this->request->getPost('game_mode'),
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
@@ -74,7 +72,6 @@ class IntmController extends BaseController
         return view('admin/intm/form', [
             'team'    => $team,
             'members' => $this->federatedMembers(),
-            'modes'   => IntmTeamModel::GAME_MODES,
             'seasons' => $this->seasons(),
         ]);
     }
@@ -94,7 +91,6 @@ class IntmController extends BaseController
         $data = [
             'name'       => $this->request->getPost('name'),
             'season'     => $this->request->getPost('season'),
-            'game_mode'  => $this->request->getPost('game_mode'),
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
@@ -153,7 +149,6 @@ class IntmController extends BaseController
         return [
             'name'       => 'required|max_length[100]',
             'season'     => 'required|max_length[9]',
-            'game_mode'  => 'required|in_list[Libre PF,Libre GF,3 Bandes PF,3 Bandes GF]',
             'player1_id' => 'required|is_natural_no_zero',
             'player2_id' => 'required|is_natural_no_zero',
             'player3_id' => 'required|is_natural_no_zero',

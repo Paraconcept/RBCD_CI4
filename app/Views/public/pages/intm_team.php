@@ -12,7 +12,7 @@
           <h3 class="heading-title text-center"><?= esc($team->name) ?></h3>
           <div class="heading-border-line"></div>
           <p class="heading-description text-center mt-10">
-            <span class="cup-badge-mode"><?= esc($team->game_mode) ?></span>
+            <span class="cup-badge-mode">3 Bandes GF</span>
             <span class="cup-badge-season">Saison <?= esc($team->season) ?></span>
           </p>
         </div>

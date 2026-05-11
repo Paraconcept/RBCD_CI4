@@ -52,19 +52,6 @@
             </select>
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="form-group">
-            <label for="game_mode">Mode de jeu <span class="text-danger">*</span></label>
-            <select name="game_mode" id="game_mode" class="form-control" required>
-              <?php foreach ($modes as $mode): ?>
-              <option value="<?= esc($mode) ?>"
-                <?= (old('game_mode', $team->game_mode ?? '') === $mode) ? 'selected' : '' ?>>
-                <?= esc($mode) ?>
-              </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-        </div>
       </div>
 
       <div class="row">

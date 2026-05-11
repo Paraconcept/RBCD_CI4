@@ -21,7 +21,6 @@
         <tr>
           <th>Équipe</th>
           <th style="width:100px">Saison</th>
-          <th style="width:130px">Mode de jeu</th>
           <th>Joueur 1</th>
           <th>Joueur 2</th>
           <th>Joueur 3</th>
@@ -34,7 +33,6 @@
         <tr>
           <td><strong><?= esc($team->name) ?></strong></td>
           <td><?= esc($team->season) ?></td>
-          <td><span class="badge badge-secondary"><?= esc($team->game_mode) ?></span></td>
           <td><?= esc($team->player1_name) ?></td>
           <td><?= esc($team->player2_name) ?></td>
           <td><?= esc($team->player3_name) ?></td>

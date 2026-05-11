@@ -11,14 +11,12 @@ class IntmTeamModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'name', 'season', 'photo', 'game_mode', 'player1_id', 'player2_id', 'player3_id', 'player4_id',
+        'name', 'season', 'photo', 'player1_id', 'player2_id', 'player3_id', 'player4_id',
     ];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
-
-    public const GAME_MODES = ['Libre PF', 'Libre GF', '3 Bandes PF', '3 Bandes GF'];
 
     public function getAllWithPlayers(): array
     {
