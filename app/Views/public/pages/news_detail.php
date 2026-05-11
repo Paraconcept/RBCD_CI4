@@ -16,8 +16,12 @@
           </p>
           <?php endif; ?>
           <h2 class="news-detail-title"><?= esc($news->title) ?></h2>
-          <?php if ($news->excerpt): ?>
-          <p class="news-detail-excerpt"><?= esc($news->excerpt) ?></p>
+          <?php
+            $_text   = strip_tags($news->content ?? '');
+            $excerpt = $news->excerpt ?: (mb_strlen($_text) > 100 ? mb_substr($_text, 0, 100) . '…' : $_text);
+          ?>
+          <?php if ($excerpt): ?>
+          <p class="news-detail-excerpt"><?= esc($excerpt) ?></p>
           <?php endif; ?>
         </div>
 
@@ -36,8 +40,8 @@
 
         <!-- Retour -->
         <div class="mt-40 pt-20" style="border-top:1px solid #eee">
-          <a href="<?= base_url('/') ?>" class="btn-news-back">
-            <i class="fas fa-arrow-left me-1"></i> Retour à l'accueil
+          <a href="<?= base_url('/') ?>#actualites" class="btn-news-back">
+            <i class="fas fa-arrow-left me-1"></i> Retour aux actualités
           </a>
         </div>
 
