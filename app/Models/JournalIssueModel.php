@@ -22,7 +22,7 @@ class JournalIssueModel extends Model
     public function getPublishedGroupedByYear(): array
     {
         $rows = $this->where('is_published', 1)
-                     ->orderBy('published_date', 'DESC')
+                     ->orderBy('published_date', 'ASC')
                      ->findAll();
 
         $grouped = [];
@@ -30,6 +30,8 @@ class JournalIssueModel extends Model
             $year = $row->published_date ? date('Y', strtotime($row->published_date)) : '—';
             $grouped[$year][] = $row;
         }
+
+        krsort($grouped); // années les plus récentes en premier
 
         return $grouped;
     }
