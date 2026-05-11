@@ -33,6 +33,8 @@ class PagesController extends BaseController
 
         $allRoles = $db->table('admin_user_roles')
                        ->select('admin_user_id, role')
+                       ->orderBy('admin_user_id', 'ASC')
+                       ->orderBy('sort_order', 'ASC')
                        ->get()->getResultObject();
 
         $rolesMap = [];

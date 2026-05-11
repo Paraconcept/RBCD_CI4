@@ -103,34 +103,48 @@ $selectedRoles = old('roles', $userRoles ?? []);
                             <div class="alert alert-warning py-2 mb-2">
                                 <i class="fas fa-exclamation-triangle mr-1"></i>
                                 Un compte externe ne peut être que <strong>Webmaster</strong>.<br>
-                                <small>Les autres rôles exigent d'être membre du club en ordre de cotisation
-                                (et fédéré FRBB pour certains postes).</small>
+                                <small>Les autres rôles exigent d'être membre du club en ordre de cotisation.</small>
                             </div>
                             <input type="hidden" name="roles[]" value="Webmaster">
                             <div class="border rounded p-2 bg-light">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input"
-                                           id="role_webmaster" checked disabled>
-                                    <label class="custom-control-label" for="role_webmaster">
-                                        Webmaster
-                                    </label>
-                                </div>
+                                <span class="badge badge-secondary px-3 py-2">Webmaster</span>
                             </div>
                         <?php else: ?>
-                            <div class="border rounded p-2 <?= isset($errors['roles']) ? 'border-danger' : '' ?>">
-                                <?php foreach ($roles as $role): ?>
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox"
-                                           class="custom-control-input"
-                                           id="role_<?= md5($role) ?>"
-                                           name="roles[]"
-                                           value="<?= esc($role) ?>"
-                                           <?= in_array($role, (array)$selectedRoles) ? 'checked' : '' ?>>
-                                    <label class="custom-control-label" for="role_<?= md5($role) ?>">
-                                        <?= esc($role) ?>
-                                    </label>
-                                </div>
+                            <?php
+                            $assignedRoles   = array_values($selectedRoles);
+                            $availableRoles  = array_values(array_diff($roles, $assignedRoles));
+                            ?>
+
+                            <!-- Zone 1 : rôles assignés (drag & drop) -->
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Glisser pour réordonner — cliquer <strong>×</strong> pour retirer
+                            </p>
+                            <ul id="rolesSortable"
+                                class="roles-sortable <?= isset($errors['roles']) ? 'border border-danger rounded' : '' ?>"
+                                data-placeholder="Aucun rôle assigné — ajoutez-en un ci-dessous">
+                                <?php foreach ($assignedRoles as $role): ?>
+                                <li class="role-item" data-role="<?= esc($role) ?>">
+                                    <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+                                    <span class="role-name"><?= esc($role) ?></span>
+                                    <input type="hidden" name="roles[]" value="<?= esc($role) ?>">
+                                    <button type="button" class="btn-remove-role" title="Retirer ce rôle">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </li>
                                 <?php endforeach; ?>
+                            </ul>
+
+                            <!-- Zone 2 : rôles disponibles à ajouter -->
+                            <div id="rolesAvailable" class="roles-available mt-2">
+                                <?php foreach ($availableRoles as $role): ?>
+                                <span class="role-badge-add" data-role="<?= esc($role) ?>">
+                                    <i class="fas fa-plus-circle mr-1"></i><?= esc($role) ?>
+                                </span>
+                                <?php endforeach; ?>
+                                <?php if (empty($availableRoles)): ?>
+                                <span class="text-muted small">Tous les rôles sont assignés.</span>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -198,4 +212,174 @@ $selectedRoles = old('roles', $userRoles ?? []);
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('styles') ?>
+<style>
+/* Liste sortable */
+.roles-sortable {
+    list-style: none;
+    padding: 6px;
+    margin: 0;
+    min-height: 48px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #fff;
+}
+.roles-sortable:empty::before {
+    content: attr(data-placeholder);
+    display: block;
+    padding: 8px 6px;
+    color: #aaa;
+    font-size: .88rem;
+    font-style: italic;
+}
+.role-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    margin-bottom: 4px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: default;
+    transition: background .15s, box-shadow .15s;
+}
+.role-item:last-child { margin-bottom: 0; }
+.role-item.sortable-ghost {
+    background: #e3f2fd;
+    border-color: #90caf9;
+    opacity: .6;
+}
+.drag-handle {
+    cursor: grab;
+    color: #aaa;
+    font-size: .9rem;
+    flex-shrink: 0;
+    padding: 0 2px;
+}
+.drag-handle:active { cursor: grabbing; }
+.role-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: .9rem;
+    color: #333;
+}
+.btn-remove-role {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 0 4px;
+    font-size: .85rem;
+    flex-shrink: 0;
+    opacity: .7;
+    transition: opacity .15s;
+}
+.btn-remove-role:hover { opacity: 1; }
+/* Badges des rôles disponibles */
+.roles-available { display: flex; flex-wrap: wrap; gap: 6px; }
+.role-badge-add {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    font-size: .83rem;
+    color: #555;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    user-select: none;
+}
+.role-badge-add:hover {
+    background: #84252B;
+    border-color: #84252B;
+    color: #fff;
+}
+</style>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+(function () {
+    const list      = document.getElementById('rolesSortable');
+    const available = document.getElementById('rolesAvailable');
+    if (!list) return;
+
+    // Init SortableJS
+    Sortable.create(list, {
+        animation: 150,
+        handle: '.drag-handle',
+        ghostClass: 'sortable-ghost',
+    });
+
+    // Retirer un rôle (délégation)
+    list.addEventListener('click', function (e) {
+        const btn = e.target.closest('.btn-remove-role');
+        if (!btn) return;
+        const li   = btn.closest('.role-item');
+        const role = li.dataset.role;
+        li.remove();
+        addBadge(role);
+        checkEmpty();
+    });
+
+    // Ajouter un rôle depuis les badges
+    if (available) {
+        available.addEventListener('click', function (e) {
+            const badge = e.target.closest('.role-badge-add');
+            if (!badge) return;
+            const role = badge.dataset.role;
+            badge.remove();
+            addRoleItem(role);
+            checkEmpty();
+        });
+    }
+
+    function addRoleItem(role) {
+        const li = document.createElement('li');
+        li.className   = 'role-item';
+        li.dataset.role = role;
+        li.innerHTML = `
+            <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+            <span class="role-name">${escHtml(role)}</span>
+            <input type="hidden" name="roles[]" value="${escHtml(role)}">
+            <button type="button" class="btn-remove-role" title="Retirer ce rôle">
+                <i class="fas fa-times"></i>
+            </button>`;
+        list.appendChild(li);
+    }
+
+    function addBadge(role) {
+        if (!available) return;
+        const badge = document.createElement('span');
+        badge.className    = 'role-badge-add';
+        badge.dataset.role = role;
+        badge.innerHTML    = `<i class="fas fa-plus-circle mr-1"></i>${escHtml(role)}`;
+        available.appendChild(badge);
+        // Nettoyer le message "tous assignés" s'il existe
+        available.querySelectorAll('.text-muted').forEach(el => el.remove());
+    }
+
+    function checkEmpty() {
+        if (list.querySelectorAll('.role-item').length === 0 && !list.querySelector('.roles-empty-msg')) {
+            // Le pseudo-element CSS ::before gère le message vide
+        }
+        if (available && available.querySelectorAll('.role-badge-add').length === 0
+            && !available.querySelector('.text-muted')) {
+            const msg = document.createElement('span');
+            msg.className   = 'text-muted small';
+            msg.textContent = 'Tous les rôles sont assignés.';
+            available.appendChild(msg);
+        }
+    }
+
+    function escHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+})();
+</script>
 <?= $this->endSection() ?>

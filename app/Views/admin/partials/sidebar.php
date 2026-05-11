@@ -49,6 +49,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/journal') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/journal') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-newspaper"></i>
+                        <p>Journal "Partie Libre"</p>
+                    </a>
+                </li>
+
                 <li class="nav-header mt-4">GESTION DU CLUB</li>
 
                 <li class="nav-item">
@@ -102,16 +109,7 @@
                     </ul>
                 </li>
 
-                <li class="nav-header">PUBLICATIONS</li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/journal') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/journal') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-newspaper"></i>
-                        <p>Journal "Partie Libre"</p>
-                    </a>
-                </li>
-
-                <li class="nav-header">DIRECTION SPORTIVE</li>
+                <li class="nav-header mt-4">DIRECTION SPORTIVE</li>
 
                 <li class="nav-item">
                     <a href="<?= base_url('admin/schedule') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule') === 0) ? 'active' : '' ?>">
@@ -119,6 +117,8 @@
                         <p>Tableau des rencontres</p>
                     </a>
                 </li>
+
+                <li>&nbsp;</li>
 
             </ul>
         </nav>
