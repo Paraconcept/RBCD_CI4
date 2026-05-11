@@ -28,11 +28,6 @@
         </tr>
       </thead>
       <tbody>
-        <?php if (empty($teams)): ?>
-        <tr>
-          <td colspan="6" class="text-center text-muted py-4">Aucune équipe encore créée.</td>
-        </tr>
-        <?php else: ?>
         <?php foreach ($teams as $team): ?>
         <tr>
           <td><strong><?= esc($team->name) ?></strong></td>
@@ -55,7 +50,6 @@
           </td>
         </tr>
         <?php endforeach; ?>
-        <?php endif; ?>
       </tbody>
     </table>
   </div>
