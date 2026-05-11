@@ -55,7 +55,7 @@
       </div>
 
       <!-- Heures d'ouverture -->
-      <div class="col-lg-6 mb-40">
+      <div class="col-lg-6 mb-10">
         <div class="tm-sc-heading text-left mb-30">
           <h3 class="heading-title">Heures d'ouverture</h3>
           <div class="heading-border-line left-center-line"></div>
@@ -113,6 +113,15 @@
     </div>
     <!-- fin row coordonnées + horaires -->
 
+    <div class="row">
+      <div class="separator">
+        <img  src="<?= base_url('assets/images/billiard-chalk.png') ?>" 
+              alt="Séparateur Craie de billard" 
+              style="width:20px;opacity:0.7;margin: 0 10px;">
+      </div>
+    </div>
+
+    
     <!-- Carte Google Maps -->
     <div class="row mt-10">
       <div class="col-12">

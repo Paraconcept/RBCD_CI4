@@ -10,7 +10,15 @@ class PagesController extends BaseController
 
     public function clubHistoire(): string
     {
-        return $this->placeholder('Histoire & présentation', 'Le Club');
+        return view('public/pages/club_histoire', [
+            'title'       => 'Histoire & présentation — RBC Disonais',
+            'page_title'  => 'Histoire & présentation',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Le Club', 'url' => '#'],
+                ['label' => 'Histoire & présentation'],
+            ],
+        ]);
     }
 
     public function clubComite(): string

@@ -50,18 +50,19 @@ a:hover, a:focus                           { color: #84252B; }
 #footer .footer                            { background-color: #333333; }
 #footer .footer-bottom                     { background-color: #84252B !important; }
 #footer .footer-paragraph                  { color: #fff; }
-#footer .footer-paragraph a                { color: rgba(255,255,255,.7); }
+#footer .footer-paragraph a                { color: rgba(255,255,255,0.95); }
 #footer .footer-paragraph a:hover          { color: #fff; }
 #footer .widget-title                      { color: #fff; }
 #footer .widget-title-line-bottom::after   { background-color: #84252B !important; }
 #footer a                                  { color: rgba(255,255,255,.8); }
 #footer a:hover                            { color: #fff; }
 #footer .description,
-#footer .text                              { color: rgba(255,255,255,.7); }
-#footer .opening-hours ul li span          { color: rgba(255,255,255,.7); }
-#footer .opening-hours ul li .value        { color: rgba(255,255,255,.9); }
-#footer .opening-hours.border-dark         { border-color: rgba(255,255,255,.2) !important; }
+#footer .text                              { color: rgba(255, 255, 255, 0.95); }
+#footer .opening-hours ul li span          { color: rgba(255,255,255,0.95); }
+#footer .opening-hours ul li .value        { color: rgba(255,255,255,0.95); }
+#footer .opening-hours.border-dark         { border-color: rgba(255,255,255,.0.95) !important; }
 #footer .opening-hours.border-dark li      { border-color: rgba(255,255,255,.15) !important; }
+#footer .contact-icon-theme-colored1 .icon i { color: #f08187 !important; }
 
 /* Bouton scrollToTop */
 .scrollToTop:hover                         { background-color: #84252B !important; }
