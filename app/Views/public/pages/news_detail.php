@@ -16,12 +16,8 @@
           </p>
           <?php endif; ?>
           <h2 class="news-detail-title"><?= esc($news->title) ?></h2>
-          <?php
-            $_text   = strip_tags($news->content ?? '');
-            $excerpt = $news->excerpt ?: (mb_strlen($_text) > 100 ? mb_substr($_text, 0, 100) . '…' : $_text);
-          ?>
-          <?php if ($excerpt): ?>
-          <p class="news-detail-excerpt"><?= esc($excerpt) ?></p>
+          <?php if ($news->excerpt): ?>
+          <p class="news-detail-excerpt"><?= esc($news->excerpt) ?></p>
           <?php endif; ?>
         </div>
 

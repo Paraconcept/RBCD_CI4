@@ -221,8 +221,12 @@
                     </span>
                   </div>
                   <?php endif; ?>
-                  <?php if ($n->excerpt): ?>
-                  <p class="mt-5 mb-10"><?= esc(mb_strimwidth($n->excerpt, 0, 200, '…')) ?></p>
+                  <?php
+                    $_t  = strip_tags($n->content ?? '');
+                    $_ex = $n->excerpt ?: (mb_strlen($_t) > 100 ? mb_substr($_t, 0, 100) . '…' : $_t);
+                  ?>
+                  <?php if ($_ex): ?>
+                  <p class="mt-5 mb-10"><?= esc($_ex) ?></p>
                   <?php endif; ?>
                   <a href="<?= base_url('actualites/' . $n->slug) ?>"
                      class="btn btn-plain-text-with-arrow">Lire la suite</a>
