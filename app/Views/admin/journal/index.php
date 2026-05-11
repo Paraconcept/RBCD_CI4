@@ -5,7 +5,7 @@
   <div class="card-header d-flex justify-content-between align-items-center">
     <h3 class="card-title"><i class="fas fa-newspaper mr-2"></i>Journal "Partie Libre"</h3>
     <a href="<?= base_url('admin/journal/create') ?>" class="btn btn-primary btn-sm">
-      <i class="fas fa-plus mr-1"></i> Nouveau numéro
+      <i class="fas fa-plus mr-1"></i> Ajouter un nouveau numéro
     </a>
   </div>
   <div class="card-body p-0">

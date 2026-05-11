@@ -152,8 +152,8 @@
     margin-bottom: 20px;
 }
 .journal-login-icon {
-    font-size: 2.4rem;
-    color: #ccc;
+    font-size: 3.8rem;
+    color: #edb818;
     margin-bottom: 16px;
     display: block;
 }
