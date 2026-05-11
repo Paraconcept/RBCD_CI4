@@ -221,7 +221,9 @@ a.journal-editor-member:hover .member-photo-wrap {
     gap: 16px;
     padding: 12px 20px;
     border-bottom: 1px solid #f0f0f0;
+    transition: background .18s;
 }
+.journal-item:hover { background: #f8f8f8; }
 .journal-item:last-child { border-bottom: none; }
 .journal-item-info {
     display: flex;
