@@ -114,7 +114,15 @@ class PagesController extends BaseController
 
     public function ecoleBillard(): string
     {
-        return $this->placeholder('Notre école de billard', 'Le Club');
+        return view('public/pages/ecole_billard', [
+            'title'       => 'École de Billard — RBC Disonais',
+            'page_title'  => 'École de Billard',
+            'breadcrumbs' => [
+                ['label' => 'Accueil',    'url' => base_url('/')],
+                ['label' => 'Le Club',    'url' => '#'],
+                ['label' => 'École de Billard'],
+            ],
+        ]);
     }
 
     public function contact(): string
