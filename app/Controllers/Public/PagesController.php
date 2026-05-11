@@ -26,7 +26,7 @@ class PagesController extends BaseController
         $db = \Config\Database::connect();
 
         $users = $db->table('admin_users au')
-                    ->select('au.id, au.first_name, au.last_name, au.member_id, m.photo')
+                    ->select('au.id, au.first_name, au.last_name, au.member_id, m.photo, m.gender')
                     ->join('members m', 'm.id = au.member_id', 'left')
                     ->where('au.is_active', 1)
                     ->get()->getResultObject();
