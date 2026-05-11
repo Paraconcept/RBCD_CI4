@@ -73,7 +73,7 @@
     </div>
     <div class="card-footer">
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Enregistrer
+        <i class="fas fa-save mr-3"></i>Enregistrer
       </button>
     </div>
   </form>

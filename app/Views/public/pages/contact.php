@@ -113,6 +113,7 @@
     </div>
     <!-- fin row coordonnées + horaires -->
 
+    <!-- Séparateur Craie de billard -->
     <div class="row">
       <div class="separator">
         <img  src="<?= base_url('assets/images/billiard-chalk.png') ?>" 

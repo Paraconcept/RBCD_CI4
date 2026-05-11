@@ -224,7 +224,7 @@
     text-align: center;
 }
 .ecole-illustration img {
-    max-width: 480px;
+    max-width: 100%;
     border-radius: 6px;
     opacity: .92;
 }

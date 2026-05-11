@@ -10,7 +10,7 @@
 
 <div class="card card-outline card-primary">
   <div class="card-header">
-    <h3 class="card-title"><i class="fas fa-coins me-2"></i>Paramètres financiers</h3>
+    <h3 class="card-title"><i class="fas fa-coins mr-2"></i>Paramètres financiers</h3>
   </div>
   <form method="post" action="<?= base_url('admin/treasury/settings/save') ?>">
     <?= csrf_field() ?>
@@ -50,7 +50,7 @@
     </div>
     <div class="card-footer">
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>Enregistrer
+        <i class="fas fa-save mr-2"></i>Enregistrer
       </button>
     </div>
   </form>

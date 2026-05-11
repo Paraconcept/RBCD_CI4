@@ -33,7 +33,7 @@
                     </a>
                 </li>
 
-                <li class="nav-header">ADMINISTRATION</li>
+                <li class="nav-header mt-4">ADMINISTRATION DU SITE</li>
 
                 <li class="nav-item">
                     <a href="<?= base_url('admin/users') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/users') === 0) ? 'active' : '' ?>">
@@ -49,7 +49,7 @@
                     </a>
                 </li>
 
-                <li class="nav-header">GESTION</li>
+                <li class="nav-header mt-4">GESTION DU CLUB</li>
 
                 <li class="nav-item">
                     <a href="<?= base_url('admin/opening-hours') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/opening-hours') === 0) ? 'active' : '' ?>">
@@ -60,7 +60,7 @@
 
                 <li class="nav-item">
                     <a href="<?= base_url('admin/school') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/school') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-chalkboard-teacher"></i>
+                        <i class="nav-icon fas fa-graduation-cap"></i>
                         <p>École de billard</p>
                     </a>
                 </li>

@@ -53,9 +53,11 @@
                 <rs-layer id="slider-10-slide-47-layer-1" data-type="text" data-rsp_ch="on"
                   data-xy="x:l,l,l,c;xo:55px,50px,55px,0;yo:447px,399px,364px,312px;"
                   data-text="w:normal;s:20,18,18,16;l:25,24,28,24;fw:300;a:left,left,left,center;"
+                  data-padding="t:10,10,9,7;r:16,16,15,15;b:10,10,9,7;l:20,20,15,15;"
+                  data-border="bos:solid;boc:#84252B;bow:0,0px,0,6px;"
                   data-frame_1="st:900;sp:1000;"
                   data-frame_999="o:0;st:w;sR:8700;"
-                  style="z-index:9;">Club fondé en 1951.
+                  style="z-index:9;background-color:#84252B;">Fondé en 1951.
                 </rs-layer>
                 <rs-layer id="slider-10-slide-47-layer-4" data-type="text" data-rsp_ch="on"
                   data-xy="x:l,l,l,c;xo:55px,50px,55px,0;yo:539px,481px,448px,390px;"
@@ -74,7 +76,7 @@
                   <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="Ecusson RBC Disonais" data-no-retina>
                 </rs-layer>
               </rs-slide>
-
+<?php /* ?>
               <!-- Slide 2 : Compétitions -->
               <rs-slide data-key="rs-48" data-title="Slide 2" data-thumb="<?= base_url('studypress/images/bg/bg2.jpg') ?>" data-anim="ei:d;eo:d;s:d;r:0;t:slotslide-horizontal;sl:d;">
                 <img src="<?= base_url('studypress/images/bg/bg2.jpg') ?>" title="bg2" width="1920" height="1280" data-parallax="off" class="rev-slidebg" data-no-retina>
@@ -146,7 +148,7 @@
                   style="z-index:8;"><a href="<?= base_url('tableau') ?>" class="btn btn-flat btn-theme-colored2 text-white">Voir le tableau</a>
                 </rs-layer>
               </rs-slide>
-
+<?php */ ?>
             </rs-slides>
             <rs-static-layers></rs-static-layers>
             <rs-progress class="rs-bottom" style="height: 5px; background: rgba(199,199,199,0.5);"></rs-progress>
