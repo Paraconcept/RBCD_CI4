@@ -173,6 +173,7 @@
     font-size: .92rem;
     font-weight: 700;
     color: #333;
+    margin-bottom: 4px !important;
 }
 /* Icône blanche dans le rond bleu (icon-dark) */
 .iconbox-theme-colored1 .icon-theme-colored1 i {
