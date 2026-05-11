@@ -30,7 +30,7 @@
     <div class="card-body">
 
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-5">
           <div class="form-group">
             <label for="name">Nom de l'équipe <span class="text-danger">*</span></label>
             <input type="text" name="name" id="name" class="form-control"
@@ -38,7 +38,21 @@
                    placeholder="Ex : Les Aigles, Équipe A …" required>
           </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="season">Saison <span class="text-danger">*</span></label>
+            <select name="season" id="season" class="form-control" required>
+              <option value="">— Choisir —</option>
+              <?php foreach ($seasons as $s): ?>
+              <option value="<?= esc($s) ?>"
+                <?= (old('season', $team->season ?? SAISON_EN_COURS) === $s) ? 'selected' : '' ?>>
+                <?= esc($s) ?>
+              </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
           <div class="form-group">
             <label for="game_mode">Mode de jeu <span class="text-danger">*</span></label>
             <select name="game_mode" id="game_mode" class="form-control" required>
@@ -84,9 +98,9 @@
         </div>
         <div class="col-md-4">
           <div class="form-group">
-            <label for="player3_id">Joueur 3 <small class="text-muted">(optionnel)</small></label>
-            <select name="player3_id" id="player3_id" class="form-control">
-              <option value="">— Aucun —</option>
+            <label for="player3_id">Joueur 3 <span class="text-danger">*</span></label>
+            <select name="player3_id" id="player3_id" class="form-control" required>
+              <option value="">— Choisir —</option>
               <?php foreach ($members as $m): ?>
               <option value="<?= $m->id ?>"
                 <?= ((int) old('player3_id', $team->player3_id ?? 0) === (int) $m->id) ? 'selected' : '' ?>>

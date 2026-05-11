@@ -11,7 +11,7 @@ class CupTeamModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'name', 'game_mode', 'player1_id', 'player2_id', 'player3_id',
+        'name', 'season', 'game_mode', 'player1_id', 'player2_id', 'player3_id',
     ];
 
     protected $useTimestamps = true;

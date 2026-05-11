@@ -31,6 +31,7 @@ class CupRegionsController extends BaseController
             'team'    => null,
             'members' => $this->federatedMembers(),
             'modes'   => CupTeamModel::GAME_MODES,
+            'seasons' => $this->seasons(),
         ]);
     }
 
@@ -42,10 +43,11 @@ class CupRegionsController extends BaseController
 
         (new CupTeamModel())->insert([
             'name'       => $this->request->getPost('name'),
+            'season'     => $this->request->getPost('season'),
             'game_mode'  => $this->request->getPost('game_mode'),
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
-            'player3_id' => $this->request->getPost('player3_id') ?: null,
+            'player3_id' => $this->request->getPost('player3_id'),
         ]);
 
         return redirect()->to(base_url('admin/cup-regions'))
@@ -63,6 +65,7 @@ class CupRegionsController extends BaseController
             'team'    => $team,
             'members' => $this->federatedMembers(),
             'modes'   => CupTeamModel::GAME_MODES,
+            'seasons' => $this->seasons(),
         ]);
     }
 
@@ -79,10 +82,11 @@ class CupRegionsController extends BaseController
 
         $model->update($id, [
             'name'       => $this->request->getPost('name'),
+            'season'     => $this->request->getPost('season'),
             'game_mode'  => $this->request->getPost('game_mode'),
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
-            'player3_id' => $this->request->getPost('player3_id') ?: null,
+            'player3_id' => $this->request->getPost('player3_id'),
         ]);
 
         return redirect()->to(base_url('admin/cup-regions'))
@@ -101,9 +105,16 @@ class CupRegionsController extends BaseController
     {
         return [
             'name'       => 'required|max_length[100]',
+            'season'     => 'required|max_length[9]',
             'game_mode'  => 'required|in_list[Libre,3 Bandes PF,3 Bandes GF]',
             'player1_id' => 'required|is_natural_no_zero',
             'player2_id' => 'required|is_natural_no_zero',
+            'player3_id' => 'required|is_natural_no_zero',
         ];
+    }
+
+    private function seasons(): array
+    {
+        return [SAISON_PASSEE, SAISON_EN_COURS, SAISON_PROCHAINE];
     }
 }
