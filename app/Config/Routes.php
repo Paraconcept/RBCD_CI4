@@ -129,6 +129,14 @@ $routes->group('admin', static function ($routes) {
         $routes->post('journal/(:num)/update',     'Admin\JournalController::update/$1');
         $routes->post('journal/(:num)/delete',     'Admin\JournalController::delete/$1');
 
+        // Coupe des Régions
+        $routes->get ('cup-regions',                   'Admin\CupRegionsController::index');
+        $routes->get ('cup-regions/create',            'Admin\CupRegionsController::create');
+        $routes->post('cup-regions',                   'Admin\CupRegionsController::store');
+        $routes->get ('cup-regions/(:num)/edit',       'Admin\CupRegionsController::edit/$1');
+        $routes->post('cup-regions/(:num)/update',     'Admin\CupRegionsController::update/$1');
+        $routes->post('cup-regions/(:num)/delete',     'Admin\CupRegionsController::delete/$1');
+
         // Tableau des rencontres
         $routes->get ('schedule',                        'Admin\ScheduleController::index');
         $routes->get ('schedule/(:num)/(:num)',          'Admin\ScheduleController::index/$1/$2');
