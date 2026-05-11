@@ -60,7 +60,7 @@
                 <?= esc($m->first_name . ' ' . $m->last_name) ?>
               <?php endif; ?>
             </h4>
-            <p class="member-roles"><?= esc(implode(' · ', $roles)) ?></p>
+            <p class="member-roles"><?= esc(implode(' | ', $roles)) ?></p>
           </div>
         </div>
       </div>
