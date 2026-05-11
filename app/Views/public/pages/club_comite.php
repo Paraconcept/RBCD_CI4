@@ -113,7 +113,7 @@
 /* Conteneur limité à 3/5 de la largeur → chaque carte col-4 = 20 % du container */
 @media (min-width: 992px) {
     .comite-wrapper {
-        max-width: 60%;
+        max-width: 80%;
         margin: 0 auto;
     }
 }

@@ -10,9 +10,9 @@
   <div class="container">
 
     <div class="row">
-      <div class="col-md-10 col-lg-8 mx-auto text-center mb-50">
+      <div class="col-md-10 col-lg-8 mx-auto text-center mb-10">
         <div class="tm-sc-heading">
-          <h3 class="heading-title">Notre histoire</h3>
+          <h3 class="heading-title">Un peu d'histoire</h3>
           <div class="heading-border-line"></div>
           <p class="heading-description mt-20">
             Depuis 1951, le RBC Disonais cultive la passion du billard carambole à Dison.<br>
