@@ -143,7 +143,7 @@ $hasCoords = ($m->show_phone   && $m->phone)
         <div class="info-row" style="border:none;padding:0">
           <span class="info-icon"><i class="fas fa-id-card"></i></span>
           <span class="info-label">Licence FRBB</span>
-          <span class="info-value"><?= esc($m->frbb_license) ?></span>
+          <span class="info-value">: <?= esc($m->frbb_license) ?></span>
         </div>
         <?php endif; ?>
 
@@ -151,7 +151,7 @@ $hasCoords = ($m->show_phone   && $m->phone)
         <div class="info-row" style="border:none;padding:4px 0 0">
           <span class="info-icon"><i class="fas fa-birthday-cake"></i></span>
           <span class="info-label">Né<?= $m->gender === 'F' ? 'e' : '' ?> le</span>
-          <span class="info-value"><?= date('d/m/Y', strtotime($m->birth_date)) ?></span>
+          <span class="info-value">: <?= date('d / m / Y', strtotime($m->birth_date)) ?></span>
         </div>
         <?php endif; ?>
       </div>
@@ -166,7 +166,7 @@ $hasCoords = ($m->show_phone   && $m->phone)
           <span class="info-icon"><i class="fas fa-phone"></i></span>
           <span class="info-label">Téléphone</span>
           <span class="info-value">
-            <a href="tel:<?= esc(preg_replace('/\s+/', '', $m->phone)) ?>"><?= esc($m->phone) ?></a>
+            <a href="tel:<?= esc(preg_replace('/\s+/', '', $m->phone)) ?>">: <?= esc($m->phone) ?></a>
           </span>
         </div>
         <?php endif; ?>
@@ -176,7 +176,7 @@ $hasCoords = ($m->show_phone   && $m->phone)
           <span class="info-icon"><i class="fas fa-mobile-alt"></i></span>
           <span class="info-label">GSM</span>
           <span class="info-value">
-            <a href="tel:<?= esc(preg_replace('/\s+/', '', $m->mobile)) ?>"><?= esc($m->mobile) ?></a>
+            <a href="tel:<?= esc(preg_replace('/\s+/', '', $m->mobile)) ?>">: <?= esc($m->mobile) ?></a>
           </span>
         </div>
         <?php endif; ?>
@@ -186,7 +186,7 @@ $hasCoords = ($m->show_phone   && $m->phone)
           <span class="info-icon"><i class="fas fa-envelope"></i></span>
           <span class="info-label">E-mail</span>
           <span class="info-value">
-            <a href="mailto:<?= esc($m->email) ?>"><?= esc($m->email) ?></a>
+            <a href="mailto:<?= esc($m->email) ?>">: <?= esc($m->email) ?></a>
           </span>
         </div>
         <?php endif; ?>
@@ -196,7 +196,7 @@ $hasCoords = ($m->show_phone   && $m->phone)
           <span class="info-icon"><i class="fas fa-map-marker-alt"></i></span>
           <span class="info-label">Adresse</span>
           <span class="info-value">
-            <?= esc($m->address) ?>
+            : <?= esc($m->address) ?>
             <?php if ($m->address && ($m->postal_code || $m->city)): ?><br><?php endif; ?>
             <?= esc(trim($m->postal_code . ' ' . $m->city)) ?>
           </span>

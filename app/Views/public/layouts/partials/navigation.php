@@ -21,7 +21,7 @@
               <div class="dropdown nav-user-dropdown">
                 <button class="btn btn-theme-colored2 btn-sm dropdown-toggle" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-user-circle me-1"></i><?= esc(session()->get('admin_name')) ?>
+                  <i class="fas fa-user-circle me-2"></i><?= esc(session()->get('admin_name')) ?>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li>
