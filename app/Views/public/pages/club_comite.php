@@ -17,7 +17,8 @@
       </div>
     </div>
 
-    <div class="row justify-content-center">
+    <div class="comite-wrapper">
+      <div class="row justify-content-center">
 
       <?php foreach ($members as $m):
         $roles = array_values(array_filter($rolesMap[$m->id] ?? [], fn($r) => $r !== 'Webmaster'));
@@ -28,7 +29,7 @@
             ? base_url('uploads/members/' . esc($m->photo))
             : null;
       ?>
-      <div class="col-sm-6 col-md-4 col-comite-5 text-center mb-30">
+      <div class="col-sm-6 col-md-4 text-center mb-30">
         <div class="team-members">
           <div class="team-thumb">
             <?php if ($photoUrl): ?>
@@ -46,7 +47,8 @@
       </div>
       <?php endforeach; ?>
 
-    </div>
+      </div><!-- /.row -->
+    </div><!-- /.comite-wrapper -->
 
   </div>
 </section>
@@ -108,11 +110,11 @@
     color: #84252B;
     margin: 0;
 }
-/* 5 colonnes sur grand écran → 3 cartes centrées (60 % de largeur) */
+/* Conteneur limité à 3/5 de la largeur → chaque carte col-4 = 20 % du container */
 @media (min-width: 992px) {
-    .col-comite-5 {
-        flex: 0 0 20%;
-        max-width: 20%;
+    .comite-wrapper {
+        max-width: 60%;
+        margin: 0 auto;
     }
 }
 </style>
