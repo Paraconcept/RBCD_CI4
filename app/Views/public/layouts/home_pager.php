@@ -1,4 +1,13 @@
-<?php $pager->setSurroundCount(2) ?>
+<?php
+$pager->setSurroundCount(2);
+$links = $pager->links();
+$cur   = $pager->getCurrentPage();
+$total = $pager->getPageCount();
+$first = $pager->getFirst();
+$last  = $pager->getLast();
+$prev  = $cur > 1     ? preg_replace('/page=\d+/', 'page=' . ($cur - 1), $first) : null;
+$next  = $cur < $total ? preg_replace('/page=\d+/', 'page=' . ($cur + 1), $first) : null;
+?>
 
 <?php if (true): ?>
 <style>
@@ -22,19 +31,14 @@
 <nav aria-label="Navigation des actualités" class="mt-20">
   <ul class="pagination home-pager">
 
-    <?php if ($pager->hasPrevious()): ?>
-    <li class="page-item">
-      <a class="page-link" href="<?= $pager->getFirst() ?>#actualites">&laquo;</a>
+    <li class="page-item <?= $prev === null ? 'disabled' : '' ?>">
+      <?= $prev ? '<a class="page-link" href="' . $first . '#actualites">&laquo;</a>' : '<span class="page-link">&laquo;</span>' ?>
     </li>
-    <li class="page-item">
-      <a class="page-link" href="<?= $pager->getPrevious() ?>#actualites">&lsaquo;</a>
+    <li class="page-item <?= $prev === null ? 'disabled' : '' ?>">
+      <?= $prev ? '<a class="page-link" href="' . $prev . '#actualites">&lsaquo;</a>' : '<span class="page-link">&lsaquo;</span>' ?>
     </li>
-    <?php else: ?>
-    <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-    <li class="page-item disabled"><span class="page-link">&lsaquo;</span></li>
-    <?php endif ?>
 
-    <?php foreach ($pager->links() as $link): ?>
+    <?php foreach ($links as $link): ?>
     <li class="page-item <?= $link['active'] ? 'active' : '' ?>">
       <?php if ($link['active']): ?>
       <span class="page-link"><?= $link['title'] ?></span>
@@ -44,17 +48,12 @@
     </li>
     <?php endforeach ?>
 
-    <?php if ($pager->hasNext()): ?>
-    <li class="page-item">
-      <a class="page-link" href="<?= $pager->getNext() ?>#actualites">&rsaquo;</a>
+    <li class="page-item <?= $next === null ? 'disabled' : '' ?>">
+      <?= $next ? '<a class="page-link" href="' . $next . '#actualites">&rsaquo;</a>' : '<span class="page-link">&rsaquo;</span>' ?>
     </li>
-    <li class="page-item">
-      <a class="page-link" href="<?= $pager->getLast() ?>#actualites">&raquo;</a>
+    <li class="page-item <?= $next === null ? 'disabled' : '' ?>">
+      <?= $next ? '<a class="page-link" href="' . $last . '#actualites">&raquo;</a>' : '<span class="page-link">&raquo;</span>' ?>
     </li>
-    <?php else: ?>
-    <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
-    <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-    <?php endif ?>
 
   </ul>
 </nav>
