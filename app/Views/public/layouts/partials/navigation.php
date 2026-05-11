@@ -86,11 +86,28 @@
                     </ul>
                   </li>
 
+                  <?php
+                    $cupTeams = \Config\Database::connect()
+                        ->table('cup_teams')
+                        ->where('season', SAISON_EN_COURS)
+                        ->orderBy('name', 'ASC')
+                        ->get()->getResultObject();
+                  ?>
                   <li class="menu-item">
                     <a href="#">Saison <?= ANNEE_1 ?>-<?= ANNEE_2 ?></a>
                     <ul class="dropdown">
                       <li><a href="<?= base_url('tableau') ?>">Au Tableau</a></li>
                       <li><a href="<?= base_url('saison/resultats') ?>">Résultats sportifs</a></li>
+                      <?php if ($cupTeams): ?>
+                      <li class="has-sub">
+                        <a href="#">Coupe des Régions</a>
+                        <ul class="dropdown">
+                          <?php foreach ($cupTeams as $ct): ?>
+                          <li><a href="<?= base_url('saison/coupe-des-regions/' . $ct->id) ?>"><?= esc($ct->name) ?></a></li>
+                          <?php endforeach; ?>
+                        </ul>
+                      </li>
+                      <?php endif; ?>
                     </ul>
                   </li>
 

@@ -8,6 +8,8 @@ use App\Models\MemberModel;
 
 class CupRegionsController extends BaseController
 {
+    private const UPLOAD_PATH = 'uploads/cup_teams/';
+
     private function federatedMembers(): array
     {
         return (new MemberModel())
@@ -41,14 +43,21 @@ class CupRegionsController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        (new CupTeamModel())->insert([
+        $data = [
             'name'       => $this->request->getPost('name'),
             'season'     => $this->request->getPost('season'),
             'game_mode'  => $this->request->getPost('game_mode'),
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
-        ]);
+        ];
+
+        $photo = $this->request->getFile('photo');
+        if ($photo && $photo->isValid() && !$photo->hasMoved()) {
+            $data['photo'] = $this->uploadPhoto($photo);
+        }
+
+        (new CupTeamModel())->insert($data);
 
         return redirect()->to(base_url('admin/cup-regions'))
                          ->with('success', 'Équipe créée avec succès.');
@@ -72,7 +81,8 @@ class CupRegionsController extends BaseController
     public function update(int $id)
     {
         $model = new CupTeamModel();
-        if (!$model->find($id)) {
+        $team  = $model->find($id);
+        if (!$team) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
@@ -80,14 +90,27 @@ class CupRegionsController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $model->update($id, [
+        $data = [
             'name'       => $this->request->getPost('name'),
             'season'     => $this->request->getPost('season'),
             'game_mode'  => $this->request->getPost('game_mode'),
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
-        ]);
+        ];
+
+        $photo = $this->request->getFile('photo');
+        if ($photo && $photo->isValid() && !$photo->hasMoved()) {
+            $this->deletePhotoFile($team->photo);
+            $data['photo'] = $this->uploadPhoto($photo);
+        }
+
+        if ($this->request->getPost('remove_photo') && $team->photo) {
+            $this->deletePhotoFile($team->photo);
+            $data['photo'] = null;
+        }
+
+        $model->update($id, $data);
 
         return redirect()->to(base_url('admin/cup-regions'))
                          ->with('success', 'Équipe mise à jour.');
@@ -95,10 +118,32 @@ class CupRegionsController extends BaseController
 
     public function delete(int $id)
     {
-        (new CupTeamModel())->delete($id);
+        $model = new CupTeamModel();
+        $team  = $model->find($id);
+        if ($team) {
+            $this->deletePhotoFile($team->photo);
+            $model->delete($id);
+        }
 
         return redirect()->to(base_url('admin/cup-regions'))
                          ->with('success', 'Équipe supprimée.');
+    }
+
+    private function uploadPhoto($file): string
+    {
+        $name = $file->getRandomName();
+        $file->move(FCPATH . self::UPLOAD_PATH, $name);
+        return $name;
+    }
+
+    private function deletePhotoFile(?string $filename): void
+    {
+        if ($filename) {
+            $path = FCPATH . self::UPLOAD_PATH . $filename;
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
     }
 
     private function rules(): array
@@ -110,6 +155,7 @@ class CupRegionsController extends BaseController
             'player1_id' => 'required|is_natural_no_zero',
             'player2_id' => 'required|is_natural_no_zero',
             'player3_id' => 'required|is_natural_no_zero',
+            'photo'      => 'permit_empty|is_image[photo]|max_size[photo,3072]|mime_in[photo,image/jpeg,image/png,image/webp]',
         ];
     }
 

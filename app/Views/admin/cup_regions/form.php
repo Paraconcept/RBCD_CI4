@@ -24,7 +24,7 @@
 
   <form method="post" action="<?= $isEdit
     ? base_url('admin/cup-regions/' . $team->id . '/update')
-    : base_url('admin/cup-regions') ?>">
+    : base_url('admin/cup-regions') ?>" enctype="multipart/form-data">
     <?= csrf_field() ?>
 
     <div class="card-body">
@@ -34,8 +34,8 @@
           <div class="form-group">
             <label for="name">Nom de l'équipe <span class="text-danger">*</span></label>
             <input type="text" name="name" id="name" class="form-control"
-                   value="<?= esc(old('name', $team->name ?? '')) ?>"
-                   placeholder="Ex : Les Aigles, Équipe A …" required>
+                   value="<?= esc(old('name', $team->name ?? 'R.B.C. Disonais ')) ?>"
+                   placeholder="Ex : R.B.C. Disonais 3" required>
           </div>
         </div>
         <div class="col-md-4">
@@ -108,6 +108,35 @@
               </option>
               <?php endforeach; ?>
             </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photo de l'équipe -->
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Photo de l'équipe</label>
+            <?php if ($isEdit && $team->photo): ?>
+            <div class="mb-2">
+              <img src="<?= base_url('uploads/cup_teams/' . $team->photo) ?>"
+                   alt="Photo équipe" style="max-height:120px;border-radius:4px;border:1px solid #dee2e6;">
+            </div>
+            <div class="custom-control custom-checkbox mb-2">
+              <input type="checkbox" name="remove_photo" id="remove_photo" value="1" class="custom-control-input">
+              <label class="custom-control-label text-danger" for="remove_photo">Supprimer la photo</label>
+            </div>
+            <?php endif; ?>
+            <div class="input-group">
+              <div class="custom-file">
+                <input type="file" name="photo" id="photo" class="custom-file-input"
+                       accept="image/jpeg,image/png,image/webp">
+                <label class="custom-file-label" for="photo">
+                  <?= ($isEdit && $team->photo) ? 'Remplacer la photo…' : 'Choisir une photo…' ?>
+                </label>
+              </div>
+            </div>
+            <small class="form-text text-muted">JPG, PNG ou WebP · max 3 Mo</small>
           </div>
         </div>
       </div>

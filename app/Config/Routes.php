@@ -37,7 +37,8 @@ $routes->get('club/ecole-de-billard', 'Public\PagesController::ecoleBillard');
 $routes->get('contact',               'Public\PagesController::contact');
 
 // Saison
-$routes->get('saison/resultats',      'Public\PagesController::saisonResultats');
+$routes->get('saison/resultats',             'Public\PagesController::saisonResultats');
+$routes->get('saison/coupe-des-regions/(:num)', 'Public\PagesController::cupTeam/$1');
 
 // Archives (publiques)
 $routes->get('archives/resultats',    'Public\PagesController::archivesResultats');

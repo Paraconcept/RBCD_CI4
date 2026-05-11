@@ -165,6 +165,41 @@ class PagesController extends BaseController
         return $this->placeholder('Résultats sportifs', 'Saison ' . ANNEE_1 . '-' . ANNEE_2);
     }
 
+    // ── Saison ── Coupe des Régions ───────────────────────────────────────
+
+    public function cupTeam(int $id): string
+    {
+        $db   = \Config\Database::connect();
+        $team = $db->table('cup_teams t')
+            ->select([
+                't.*',
+                'm1.id AS p1_id', 'm1.last_name AS p1_last', 'm1.first_name AS p1_first', 'm1.photo AS p1_photo',
+                'm2.id AS p2_id', 'm2.last_name AS p2_last', 'm2.first_name AS p2_first', 'm2.photo AS p2_photo',
+                'm3.id AS p3_id', 'm3.last_name AS p3_last', 'm3.first_name AS p3_first', 'm3.photo AS p3_photo',
+            ])
+            ->join('members m1', 'm1.id = t.player1_id')
+            ->join('members m2', 'm2.id = t.player2_id')
+            ->join('members m3', 'm3.id = t.player3_id', 'left')
+            ->where('t.id', $id)
+            ->get()->getRowObject();
+
+        if (!$team) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        return view('public/pages/cup_team', [
+            'title'       => esc($team->name) . ' — Coupe des Régions — RBC Disonais',
+            'page_title'  => esc($team->name),
+            'breadcrumbs' => [
+                ['label' => 'Accueil',             'url' => base_url('/')],
+                ['label' => 'Saison ' . ANNEE_1 . '-' . ANNEE_2, 'url' => '#'],
+                ['label' => 'Coupe des Régions',   'url' => '#'],
+                ['label' => esc($team->name)],
+            ],
+            'team' => $team,
+        ]);
+    }
+
     // ── Archives ─────────────────────────────────────────────────────────
 
     public function archivesJournal(): string
