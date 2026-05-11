@@ -30,37 +30,44 @@
       </div>
       <?php endif; ?>
 
-      <!-- Joueurs -->
-      <?php
-        $players = [
-            ['id' => $team->p1_id, 'last' => $team->p1_last, 'first' => $team->p1_first, 'photo' => $team->p1_photo],
-            ['id' => $team->p2_id, 'last' => $team->p2_last, 'first' => $team->p2_first, 'photo' => $team->p2_photo],
-            ['id' => $team->p3_id, 'last' => $team->p3_last, 'first' => $team->p3_first, 'photo' => $team->p3_photo],
-        ];
-      ?>
+    </div><!-- /heading row -->
+
+    <!-- Joueurs -->
+    <?php
+      $players = [
+          ['id' => $team->p1_id, 'last' => $team->p1_last, 'first' => $team->p1_first, 'photo' => $team->p1_photo],
+          ['id' => $team->p2_id, 'last' => $team->p2_last, 'first' => $team->p2_first, 'photo' => $team->p2_photo],
+          ['id' => $team->p3_id, 'last' => $team->p3_last, 'first' => $team->p3_first, 'photo' => $team->p3_photo],
+      ];
+    ?>
+    <div class="cup-players-wrapper">
+      <div class="row justify-content-center">
 
       <?php foreach ($players as $i => $p): if (!$p['id']) continue; ?>
       <div class="col-sm-6 col-md-4 mb-30">
-        <a href="<?= base_url('club/membres/' . $p['id']) ?>" class="cup-player-card">
-          <div class="cup-player-thumb">
+        <div class="team-members">
+          <div class="team-thumb">
             <?php if ($p['photo']): ?>
-              <img src="<?= base_url('uploads/members/' . $p['photo']) ?>"
+              <img class="img-fullwidth"
+                   src="<?= base_url('uploads/members/' . $p['photo']) ?>"
                    alt="<?= esc($p['last'] . ' ' . $p['first']) ?>">
             <?php else: ?>
-              <div class="cup-player-no-photo"><i class="fas fa-user"></i></div>
+              <div class="team-thumb-placeholder"><i class="fas fa-user"></i></div>
             <?php endif; ?>
           </div>
-          <div class="cup-player-info">
-            <div class="cup-player-num">Joueur <?= $i + 1 ?></div>
-            <div class="cup-player-name">
-              <?= esc($p['last']) ?><br>
-              <span><?= esc($p['first']) ?></span>
-            </div>
+          <div class="team-bottom-part text-center">
+            <h4>
+              <a href="<?= base_url('club/membres/' . $p['id']) ?>">
+                <?= esc($p['first'] . ' ' . $p['last']) ?>
+              </a>
+            </h4>
+            <p class="member-roles">Joueur <?= $i + 1 ?></p>
           </div>
-        </a>
+        </div>
       </div>
       <?php endforeach; ?>
 
+      </div>
     </div>
 
   </div>
@@ -70,6 +77,7 @@
 
 <?= $this->section('styles') ?>
 <style>
+/* Badges heading */
 .cup-badge-mode,
 .cup-badge-season {
     display: inline-block;
@@ -82,6 +90,7 @@
 .cup-badge-mode   { background: #84252B; color: #fff; }
 .cup-badge-season { background: #f0f0f0; color: #555; }
 
+/* Photo d'équipe */
 .cup-team-photo {
     max-width: 680px;
     width: 100%;
@@ -89,60 +98,78 @@
     box-shadow: 0 4px 18px rgba(0,0,0,.12);
 }
 
-.cup-player-card {
-    display: block;
+/* Cartes joueurs — style identique au comité */
+.team-members {
     border: 1px solid #e8e8e8;
     border-radius: 4px;
     overflow: hidden;
-    text-decoration: none;
-    color: inherit;
     box-shadow: 0 2px 8px rgba(0,0,0,.06);
     transition: box-shadow .25s;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
-.cup-player-card:hover {
+.team-members:hover {
     box-shadow: 0 6px 20px rgba(0,0,0,.12);
-    color: inherit;
 }
-.cup-player-thumb {
+.team-thumb {
     aspect-ratio: 1;
     overflow: hidden;
     background: #f0f0f0;
 }
-.cup-player-thumb img {
+.team-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
     transition: transform .35s;
 }
-.cup-player-card:hover .cup-player-thumb img { transform: scale(1.04); }
-.cup-player-no-photo {
+.team-members:hover .team-thumb img {
+    transform: scale(1.04);
+}
+.team-thumb-placeholder {
     width: 100%;
     aspect-ratio: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 4rem;
+    font-size: 5rem;
     color: #ccc;
 }
-.cup-player-info {
-    padding: 14px 16px;
-    text-align: center;
+.cup-players-wrapper .col-sm-6,
+.cup-players-wrapper .col-md-4 {
+    display: flex;
 }
-.cup-player-num {
-    font-size: .72rem;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: #84252B;
-    font-weight: 700;
-    margin-bottom: 4px;
+.team-bottom-part {
+    flex: 1;
+    border-top: 3px solid #84252B;
+    background: #fafafa;
+    padding: 18px 16px 20px;
 }
-.cup-player-name {
-    font-weight: 700;
+.team-bottom-part h4 {
     font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
     color: #333;
-    line-height: 1.35;
+    margin: 0 0 6px;
 }
-.cup-player-name span { font-weight: 400; }
+.team-bottom-part h4 a {
+    color: #333;
+    text-decoration: none;
+}
+.team-bottom-part h4 a:hover { color: #84252B; }
+.team-bottom-part .member-roles {
+    font-size: .9rem;
+    font-weight: 600;
+    color: #84252B;
+    margin: 0;
+}
+@media (min-width: 992px) {
+    .cup-players-wrapper {
+        max-width: 80%;
+        margin: 0 auto;
+    }
+}
 </style>
 <?= $this->endSection() ?>
