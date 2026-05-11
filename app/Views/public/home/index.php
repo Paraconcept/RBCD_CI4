@@ -277,9 +277,9 @@ article.post:hover { background: #F9F9F9E5; }
               <li class="d-flex align-items-center gap-2 mb-10">
                 <?php if ($b['photo']): ?>
                 <img src="<?= base_url('uploads/members/' . $b['photo']) ?>" alt=""
-                     style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #dee2e6;flex-shrink:0;">
+                     style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #84252B;flex-shrink:0;">
                 <?php else: ?>
-                <div style="width:34px;height:34px;border-radius:50%;background:#f0f0f0;border:2px solid #dee2e6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#f0f0f0;border:2px solid #84252B;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <i class="fas fa-user" style="font-size:.75rem;color:#bbb;"></i>
                 </div>
                 <?php endif; ?>
