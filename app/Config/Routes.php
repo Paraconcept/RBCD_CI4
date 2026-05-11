@@ -43,10 +43,8 @@ $routes->get('saison/resultats',      'Public\PagesController::saisonResultats')
 $routes->get('archives/resultats',    'Public\PagesController::archivesResultats');
 $routes->get('galerie',               'Public\PagesController::galerie');
 
-// Archives Journal (membres connectés)
-$routes->group('archives', ['filter' => 'publicAuth'], static function ($routes) {
-    $routes->get('journal', 'Public\PagesController::archivesJournal');
-});
+// Archives Journal (accessible sans connexion — accordion masqué si non connecté)
+$routes->get('archives/journal', 'Public\PagesController::archivesJournal');
 
 // Documents utiles
 $routes->get('documents',             'Public\PagesController::documents');

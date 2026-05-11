@@ -169,7 +169,10 @@ class PagesController extends BaseController
 
     public function archivesJournal(): string
     {
-        $byYear = (new \App\Models\JournalIssueModel())->getPublishedGroupedByYear();
+        $isLoggedIn = (bool) session()->get('admin_logged_in');
+        $byYear     = $isLoggedIn
+            ? (new \App\Models\JournalIssueModel())->getPublishedGroupedByYear()
+            : [];
 
         $db     = \Config\Database::connect();
         $editor = $db->table('admin_users au')
@@ -189,8 +192,9 @@ class PagesController extends BaseController
                 ['label' => 'Archives', 'url' => '#'],
                 ['label' => 'Journal "Partie Libre"'],
             ],
-            'byYear' => $byYear,
-            'editor' => $editor,
+            'byYear'      => $byYear,
+            'editor'      => $editor,
+            'isLoggedIn'  => $isLoggedIn,
         ]);
     }
 

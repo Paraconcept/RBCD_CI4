@@ -14,6 +14,11 @@ class AuthController extends BaseController
             return redirect()->to(base_url('tableau'));
         }
 
+        $redirect = $this->request->getGet('redirect');
+        if ($redirect) {
+            session()->set('redirect_after_login', $redirect);
+        }
+
         return view('public/auth/login', [
             'title'       => 'Connexion membres — RBC Disonais',
             'page_title'  => 'Espace réservé aux membres',

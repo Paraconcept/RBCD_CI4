@@ -11,7 +11,7 @@
         <div class="tm-sc-heading">
           <h3 class="heading-title text-center">Partie Libre</h3>
           <div class="heading-border-line"></div>
-          <p class="heading-description mt-20">
+          <p class="heading-description text-center mt-20">
             Dans un souci de communication et de transparence vis-à-vis de nos membres, nous rédigeons un compte rendu de nos réunions de comité.
           </p>
 
@@ -50,7 +50,25 @@
       </div>
     </div>
 
-    <?php if (empty($byYear)): ?>
+    <?php if (!$isLoggedIn): ?>
+    <!-- Invitation à se connecter -->
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="journal-login-box">
+          <i class="fas fa-lock journal-login-icon"></i>
+          <h5 class="journal-login-title">Accès réservé aux membres</h5>
+          <p class="journal-login-text">
+            Connectez-vous avec votre compte membre pour accéder aux numéros disponibles au téléchargement.
+          </p>
+          <a href="<?= base_url('connexion') ?>?redirect=<?= urlencode(current_url()) ?>"
+             class="btn-journal-login">
+            <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <?php elseif (empty($byYear)): ?>
     <div class="row">
       <div class="col-md-8 offset-md-2 text-center text-muted py-40">
         <i class="fas fa-newspaper fa-3x mb-20" style="color:#ccc"></i>
@@ -124,6 +142,44 @@
 
 <?= $this->section('styles') ?>
 <style>
+/* Bloc login invitation */
+.journal-login-box {
+    text-align: center;
+    padding: 48px 32px;
+    border: 1px dashed #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+    margin-bottom: 20px;
+}
+.journal-login-icon {
+    font-size: 2.4rem;
+    color: #ccc;
+    margin-bottom: 16px;
+    display: block;
+}
+.journal-login-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+.journal-login-text {
+    font-size: .92rem;
+    color: #666;
+    margin-bottom: 24px;
+}
+.btn-journal-login {
+    display: inline-block;
+    background: #84252B;
+    color: #fff;
+    border-radius: 4px;
+    padding: 10px 28px;
+    font-weight: 600;
+    font-size: .9rem;
+    text-decoration: none;
+    transition: background .2s;
+}
+.btn-journal-login:hover { background: #6a1c21; color: #fff; }
 /* Carte éditrice */
 .journal-editor-card {
     display: flex;
