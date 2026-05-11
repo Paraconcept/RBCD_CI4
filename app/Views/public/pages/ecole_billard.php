@@ -40,6 +40,12 @@
           la <strong>libre</strong>, le <strong>cadre</strong> ou le <strong>3 bandes</strong>.
         </p>
 
+        <div class="ecole-illustration mb-30">
+          <img src="<?= base_url('assets/images/DessinEcoleBillard.png') ?>"
+               alt="Cours de billard — illustration"
+               class="img-fluid">
+        </div>
+
         <div class="row">
 
           <div class="col-sm-6 mb-30">
@@ -106,7 +112,7 @@
             <div class="tm-sc-icon-box icon-box icon-left tm-iconbox-icontype-font-icon text-left iconbox-centered-in-responsive iconbox-theme-colored1 icon-position-icon-left">
               <div class="icon-box-wrapper">
                 <a class="icon icon-type-font-icon icon-circled icon-sm icon-dark icon-theme-colored1 mt-10">
-                  <i class="fas fa-chalkboard-teacher"></i>
+                  <i class="fas fa-user-tie"></i>
                 </a>
                 <div class="icon-text">
                   <h5 class="icon-box-title text-uppercase mb-5"><?= $teacherName ?></h5>
@@ -214,6 +220,14 @@
 
 <?= $this->section('styles') ?>
 <style>
+.ecole-illustration {
+    text-align: center;
+}
+.ecole-illustration img {
+    max-width: 480px;
+    border-radius: 6px;
+    opacity: .92;
+}
 .icon-box-title {
     font-size: .92rem;
     font-weight: 700;
