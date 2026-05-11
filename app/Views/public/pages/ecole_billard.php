@@ -160,6 +160,34 @@
         </div>
       </div>
 
+    </div><!-- /.row align-items-start -->
+
+    <!-- Séparateur -->
+    <div class="row mt-20 mb-10">
+      <div class="separator">
+        <img src="<?= base_url('assets/images/billiard-chalk.png') ?>"
+             alt="Séparateur Craie de billard"
+             style="width:20px;opacity:0.7;margin: 0 10px;">
+      </div>
+    </div>
+
+    <!-- Mutuelles -->
+    <div class="row">
+      <div class="col-12 text-center">
+        <p class="mb-5"><strong>Votre mutuelle vous rembourse pour l'affiliation à un club sportif :</strong></p>
+        <p class="mb-25 text-muted">Cliquez sur le logo de votre mutuelle pour télécharger le document à remplir :</p>
+        <div class="mutuelles-logos">
+          <a href="#" title="Mutuelle Chrétienne" class="mutuelle-link">
+            <img src="<?= base_url('assets/images/mutuelles/Mut_Chretienne.jpg') ?>" alt="Mutuelle Chrétienne">
+          </a>
+          <a href="#" title="Solidaris — Mutuelle Socialiste" class="mutuelle-link">
+            <img src="<?= base_url('assets/images/mutuelles/Mut_Socialiste.jpg') ?>" alt="Solidaris">
+          </a>
+          <a href="#" title="Mutuelle Neutre" class="mutuelle-link">
+            <img src="<?= base_url('assets/images/mutuelles/Mut_Neutre.jpg') ?>" alt="Mutuelle Neutre">
+          </a>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -173,7 +201,7 @@
     font-size: .92rem;
     font-weight: 700;
     color: #333;
-    margin-bottom: 4px !important;
+    margin-bottom: 10px !important;
 }
 /* Icône blanche dans le rond bleu (icon-dark) */
 .iconbox-theme-colored1 .icon-theme-colored1 i {
@@ -217,6 +245,27 @@
     padding: 10px 14px;
     font-size: .88rem;
     color: rgba(255,255,255,.85);
+}
+/* Logos mutuelles */
+.mutuelles-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+.mutuelle-link img {
+    max-height: 80px;
+    max-width: 180px;
+    object-fit: contain;
+    filter: grayscale(20%);
+    opacity: .85;
+    transition: opacity .2s, filter .2s, transform .2s;
+}
+.mutuelle-link:hover img {
+    opacity: 1;
+    filter: grayscale(0%);
+    transform: scale(1.05);
 }
 </style>
 <?= $this->endSection() ?>
