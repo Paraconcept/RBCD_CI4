@@ -1,8 +1,26 @@
 <?php $pager->setSurroundCount(2) ?>
 
 <?php if (true): ?>
+<style>
+.home-pager .page-link {
+    color: #0d6efd;
+}
+.home-pager .page-item.active .page-link {
+    background: transparent;
+    border-color: #dee2e6;
+    color: #0d6efd;
+    font-weight: 700;
+    cursor: default;
+    pointer-events: none;
+}
+.home-pager .page-item:not(.active):not(.disabled) .page-link:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+</style>
 <nav aria-label="Navigation des actualités" class="mt-20">
-  <ul class="pagination justify-content-center">
+  <ul class="pagination home-pager">
 
     <?php if ($pager->hasPrevious()): ?>
     <li class="page-item">
