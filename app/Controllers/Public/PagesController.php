@@ -16,14 +16,53 @@ class PagesController extends BaseController
             'breadcrumbs' => [
                 ['label' => 'Accueil', 'url' => base_url('/')],
                 ['label' => 'Le Club', 'url' => '#'],
-                ['label' => 'Histoire & présentation'],
+                ['label' => 'Historique'],
             ],
         ]);
     }
 
     public function clubComite(): string
     {
-        return $this->placeholder('Le Comité', 'Le Club');
+        $db = \Config\Database::connect();
+
+        $users = $db->table('admin_users au')
+                    ->select('au.id, au.first_name, au.last_name, m.photo')
+                    ->join('members m', 'm.id = au.member_id', 'left')
+                    ->where('au.is_active', 1)
+                    ->get()->getResultObject();
+
+        $allRoles = $db->table('admin_user_roles')
+                       ->select('admin_user_id, role')
+                       ->get()->getResultObject();
+
+        $rolesMap = [];
+        foreach ($allRoles as $r) {
+            $rolesMap[$r->admin_user_id][] = $r->role;
+        }
+
+        $publicOrder = array_flip([
+            'Président', 'Vice-Président', 'Secrétaire', 'Secrétaire Adjoint',
+            'Directeur Sportif', 'Directeur Sportif Adjoint',
+            'Trésorier', 'Trésorier Adjoint', 'Commissaire', 'Webmaster',
+        ]);
+
+        usort($users, function ($a, $b) use ($rolesMap, $publicOrder) {
+            $minA = min(array_map(fn($r) => $publicOrder[$r] ?? 99, $rolesMap[$a->id] ?? []));
+            $minB = min(array_map(fn($r) => $publicOrder[$r] ?? 99, $rolesMap[$b->id] ?? []));
+            return $minA - $minB;
+        });
+
+        return view('public/pages/club_comite', [
+            'title'       => 'Notre Comité — RBC Disonais',
+            'page_title'  => 'Notre Comité',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Le Club', 'url' => '#'],
+                ['label' => 'Notre Comité'],
+            ],
+            'members'  => $users,
+            'rolesMap' => $rolesMap,
+        ]);
     }
 
     public function clubMembres(): string
