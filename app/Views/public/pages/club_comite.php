@@ -34,10 +34,7 @@
 
       <?php foreach ($members as $m):
         $isFemale = ($m->gender ?? '') === 'F';
-        $roles = array_values(array_filter($rolesMap[$m->id] ?? [], fn($r) => $r !== 'Webmaster'));
-        if (empty($roles)) {
-            $roles = $rolesMap[$m->id] ?? [];
-        }
+        $roles = $rolesMap[$m->id] ?? [];
         if ($isFemale) {
             $roles = array_map(fn($r) => $feminineRoles[$r] ?? $r, $roles);
         }
