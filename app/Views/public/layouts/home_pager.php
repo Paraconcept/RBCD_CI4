@@ -1,6 +1,6 @@
 <?php $pager->setSurroundCount(2) ?>
 
-<?php if ($pager->getPageCount() > 1): ?>
+<?php if (true): ?>
 <nav aria-label="Navigation des actualités" class="mt-20">
   <ul class="pagination justify-content-center">
 

@@ -14,7 +14,7 @@ class HomeController extends BaseController
                        ->where('published_at <=', date('Y-m-d'))
                        ->orderBy('published_at', 'DESC')
                        ->orderBy('id', 'DESC')
-                       ->paginate(3);
+                       ->paginate(5);
 
         return view('public/home/index', [
             'title'            => 'RBC Disonais — Club de Billard Carambole à Dison',
