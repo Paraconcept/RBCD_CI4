@@ -3,19 +3,19 @@
 <?php if (true): ?>
 <style>
 .home-pager .page-link {
-    color: #0d6efd;
+    color: #202C45;
 }
 .home-pager .page-item.active .page-link {
     background: transparent;
     border-color: #dee2e6;
-    color: #0d6efd;
+    color: #202C45;
     font-weight: 700;
     cursor: default;
     pointer-events: none;
 }
 .home-pager .page-item:not(.active):not(.disabled) .page-link:hover {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+    background-color: #202C45;
+    border-color: #202C45;
     color: #fff;
 }
 </style>
