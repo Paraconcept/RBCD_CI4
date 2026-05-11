@@ -106,6 +106,10 @@ $routes->group('admin', static function ($routes) {
         $routes->post('members/(:num)/keys',               'Admin\MembersController::storeKey/$1');
         $routes->post('members/(:num)/keys/(:num)/return', 'Admin\MembersController::returnKey/$1/$2');
 
+        // Heures d'ouverture
+        $routes->get ('opening-hours',               'Admin\OpeningHoursController::index');
+        $routes->post('opening-hours/save',          'Admin\OpeningHoursController::save');
+
         // Clés du club (page centrale)
         $routes->get ('club-keys',                   'Admin\ClubKeysController::index');
         $routes->post('club-keys',                   'Admin\ClubKeysController::store');

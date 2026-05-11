@@ -15,15 +15,10 @@
         </div>
         <div class="col-md-6 col-lg-6 col-xl-3 mb-md-40">
           <div class="widget">
-            <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">Liens rapides</h4>
+            <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">Liens utiles</h4>
             <div class="widget widget_nav_menu split-nav-menu clearfix">
               <ul>
-                <li><a href="<?= base_url('/') ?>">Accueil</a></li>
-                <li><a href="<?= base_url('club/histoire') ?>">Le Club</a></li>
-                <li><a href="<?= base_url('tableau') ?>">Au Tableau</a></li>
-                <li><a href="<?= base_url('actualites') ?>">Actualités</a></li>
-                <li><a href="<?= base_url('galerie') ?>">Galerie</a></li>
-                <li><a href="<?= base_url('contact') ?>">Contact</a></li>
+                <li><?= anchor('https://www.kbbb-frbb.eu/', 'FRBB /KBBB', array('target' => '_blank')); ?></li>
               </ul>
             </div>
           </div>

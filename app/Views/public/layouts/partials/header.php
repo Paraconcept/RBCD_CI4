@@ -84,7 +84,7 @@
         <ul>
           <li class="contact-phone">
             <div class="icon"><i class="flaticon-contact-042-phone-1"></i></div>
-            <div class="text"><a href="tel:+32497000000">0494 797 353</a></div>
+            <div class="text"><a href="tel:+32494797353">0494 / 797 353</a></div>
           </li>
           <li class="contact-email">
             <div class="icon"><i class="flaticon-contact-043-email-1"></i></div>

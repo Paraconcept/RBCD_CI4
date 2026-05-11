@@ -72,7 +72,17 @@ class PagesController extends BaseController
 
     public function contact(): string
     {
-        return $this->placeholder('Contact');
+        $hours = (new \App\Models\OpeningHourModel())->getAllOrdered();
+
+        return view('public/pages/contact', [
+            'title'       => 'Contact — RBC Disonais',
+            'page_title'  => 'Contact',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Contact'],
+            ],
+            'hours' => $hours,
+        ]);
     }
 
     // ── Saison ───────────────────────────────────────────────────────────
