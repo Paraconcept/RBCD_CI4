@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class CupTeamModel extends Model
+class CdrTeamModel extends Model
 {
-    protected $table      = 'cup_teams';
+    protected $table      = 'cdr_teams';
     protected $primaryKey = 'id';
     protected $returnType = 'object';
 
@@ -22,7 +22,7 @@ class CupTeamModel extends Model
 
     public function getAllWithPlayers(): array
     {
-        return $this->db->table('cup_teams t')
+        return $this->db->table('cdr_teams t')
             ->select([
                 't.*',
                 'CONCAT(m1.last_name, " ", m1.first_name) AS player1_name',

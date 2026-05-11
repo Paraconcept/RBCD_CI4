@@ -38,7 +38,7 @@ $routes->get('contact',               'Public\PagesController::contact');
 
 // Saison
 $routes->get('saison/resultats',             'Public\PagesController::saisonResultats');
-$routes->get('saison/coupe-des-regions/(:num)', 'Public\PagesController::cupTeam/$1');
+$routes->get('saison/coupe-des-regions/(:num)', 'Public\PagesController::cdrTeam/$1');
 $routes->get('saison/intm/(:num)',             'Public\PagesController::intmTeam/$1');
 
 // Archives (publiques)
@@ -131,13 +131,13 @@ $routes->group('admin', static function ($routes) {
         $routes->post('journal/(:num)/update',     'Admin\JournalController::update/$1');
         $routes->post('journal/(:num)/delete',     'Admin\JournalController::delete/$1');
 
-        // Coupe des Régions
-        $routes->get ('cup-regions',                   'Admin\CupRegionsController::index');
-        $routes->get ('cup-regions/create',            'Admin\CupRegionsController::create');
-        $routes->post('cup-regions',                   'Admin\CupRegionsController::store');
-        $routes->get ('cup-regions/(:num)/edit',       'Admin\CupRegionsController::edit/$1');
-        $routes->post('cup-regions/(:num)/update',     'Admin\CupRegionsController::update/$1');
-        $routes->post('cup-regions/(:num)/delete',     'Admin\CupRegionsController::delete/$1');
+        // Coupe des Régions (CDR)
+        $routes->get ('cdr',                   'Admin\CdrController::index');
+        $routes->get ('cdr/create',            'Admin\CdrController::create');
+        $routes->post('cdr',                   'Admin\CdrController::store');
+        $routes->get ('cdr/(:num)/edit',       'Admin\CdrController::edit/$1');
+        $routes->post('cdr/(:num)/update',     'Admin\CdrController::update/$1');
+        $routes->post('cdr/(:num)/delete',     'Admin\CdrController::delete/$1');
 
         // I.N.T.M.
         $routes->get ('intm',                   'Admin\IntmController::index');

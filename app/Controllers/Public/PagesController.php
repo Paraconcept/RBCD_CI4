@@ -167,10 +167,10 @@ class PagesController extends BaseController
 
     // ── Saison ── Coupe des Régions ───────────────────────────────────────
 
-    public function cupTeam(int $id): string
+    public function cdrTeam(int $id): string
     {
         $db   = \Config\Database::connect();
-        $team = $db->table('cup_teams t')
+        $team = $db->table('cdr_teams t')
             ->select([
                 't.*',
                 'm1.id AS p1_id', 'm1.last_name AS p1_last', 'm1.first_name AS p1_first', 'm1.photo AS p1_photo', 'm1.gender AS p1_gender',
@@ -187,7 +187,7 @@ class PagesController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        return view('public/pages/cup_team', [
+        return view('public/pages/cdr_team', [
             'title'       => esc($team->name) . ' — Coupe des Régions — RBC Disonais',
             'page_title'  => esc($team->name),
             'breadcrumbs' => [

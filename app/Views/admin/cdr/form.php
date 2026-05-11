@@ -23,8 +23,8 @@
   </div>
 
   <form method="post" action="<?= $isEdit
-    ? base_url('admin/cup-regions/' . $team->id . '/update')
-    : base_url('admin/cup-regions') ?>">
+    ? base_url('admin/cdr/' . $team->id . '/update')
+    : base_url('admin/cdr') ?>">
     <?= csrf_field() ?>
 
     <div class="card-body">
@@ -115,7 +115,7 @@
     </div>
 
     <div class="card-footer d-flex justify-content-between">
-      <a href="<?= base_url('admin/cup-regions') ?>" class="btn btn-default">
+      <a href="<?= base_url('admin/cdr') ?>" class="btn btn-default">
         <i class="fas fa-arrow-left mr-1"></i> Retour
       </a>
       <button type="submit" class="btn btn-primary">

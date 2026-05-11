@@ -118,15 +118,15 @@
                     </a>
                 </li>
 
-                <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/cup-regions') === 0) ? 'menu-open' : '' ?>">
-                    <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/cup-regions') === 0) ? 'active' : '' ?>">
+                <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/cdr') === 0) ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/cdr') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-trophy"></i>
                         <p>Coupe des Régions <i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="<?= base_url('admin/cup-regions') ?>"
-                               class="nav-link <?= strpos(uri_string(), 'admin/cup-regions') === 0 ? 'active' : '' ?>">
+                            <a href="<?= base_url('admin/cdr') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/cdr') === 0 ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Équipes</p>
                             </a>

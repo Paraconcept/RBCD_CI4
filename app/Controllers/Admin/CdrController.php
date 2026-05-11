@@ -3,10 +3,10 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\CupTeamModel;
+use App\Models\CdrTeamModel;
 use App\Models\MemberModel;
 
-class CupRegionsController extends BaseController
+class CdrController extends BaseController
 {
     private function federatedMembers(): array
     {
@@ -20,17 +20,17 @@ class CupRegionsController extends BaseController
 
     public function index(): string
     {
-        return view('admin/cup_regions/index', [
-            'teams' => (new CupTeamModel())->getAllWithPlayers(),
+        return view('admin/cdr/index', [
+            'teams' => (new CdrTeamModel())->getAllWithPlayers(),
         ]);
     }
 
     public function create(): string
     {
-        return view('admin/cup_regions/form', [
+        return view('admin/cdr/form', [
             'team'    => null,
             'members' => $this->federatedMembers(),
-            'modes'   => CupTeamModel::GAME_MODES,
+            'modes'   => CdrTeamModel::GAME_MODES,
             'seasons' => $this->seasons(),
         ]);
     }
@@ -41,7 +41,7 @@ class CupRegionsController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        (new CupTeamModel())->insert([
+        (new CdrTeamModel())->insert([
             'name'       => $this->request->getPost('name'),
             'season'     => $this->request->getPost('season'),
             'game_mode'  => $this->request->getPost('game_mode'),
@@ -50,28 +50,28 @@ class CupRegionsController extends BaseController
             'player3_id' => $this->request->getPost('player3_id'),
         ]);
 
-        return redirect()->to(base_url('admin/cup-regions'))
+        return redirect()->to(base_url('admin/cdr'))
                          ->with('success', 'Équipe créée avec succès.');
     }
 
     public function edit(int $id): string
     {
-        $team = (new CupTeamModel())->find($id);
+        $team = (new CdrTeamModel())->find($id);
         if (!$team) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        return view('admin/cup_regions/form', [
+        return view('admin/cdr/form', [
             'team'    => $team,
             'members' => $this->federatedMembers(),
-            'modes'   => CupTeamModel::GAME_MODES,
+            'modes'   => CdrTeamModel::GAME_MODES,
             'seasons' => $this->seasons(),
         ]);
     }
 
     public function update(int $id)
     {
-        $model = new CupTeamModel();
+        $model = new CdrTeamModel();
         if (!$model->find($id)) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
@@ -89,15 +89,15 @@ class CupRegionsController extends BaseController
             'player3_id' => $this->request->getPost('player3_id'),
         ]);
 
-        return redirect()->to(base_url('admin/cup-regions'))
+        return redirect()->to(base_url('admin/cdr'))
                          ->with('success', 'Équipe mise à jour.');
     }
 
     public function delete(int $id)
     {
-        (new CupTeamModel())->delete($id);
+        (new CdrTeamModel())->delete($id);
 
-        return redirect()->to(base_url('admin/cup-regions'))
+        return redirect()->to(base_url('admin/cdr'))
                          ->with('success', 'Équipe supprimée.');
     }
 

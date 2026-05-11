@@ -11,7 +11,7 @@
 <div class="card card-outline card-primary">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h3 class="card-title"><i class="fas fa-trophy mr-2"></i>Coupe des Régions — Équipes</h3>
-    <a href="<?= base_url('admin/cup-regions/create') ?>" class="btn btn-primary btn-sm">
+    <a href="<?= base_url('admin/cdr/create') ?>" class="btn btn-primary btn-sm">
       <i class="fas fa-plus mr-1"></i> Nouvelle équipe
     </a>
   </div>
@@ -38,11 +38,11 @@
           <td><?= esc($team->player2_name) ?></td>
           <td><?= $team->player3_name ? esc($team->player3_name) : '<span class="text-muted">—</span>' ?></td>
           <td class="text-right">
-            <a href="<?= base_url('admin/cup-regions/' . $team->id . '/edit') ?>"
+            <a href="<?= base_url('admin/cdr/' . $team->id . '/edit') ?>"
                class="btn btn-xs btn-default" title="Modifier">
               <i class="fas fa-pencil-alt"></i>
             </a>
-            <form method="post" action="<?= base_url('admin/cup-regions/' . $team->id . '/delete') ?>"
+            <form method="post" action="<?= base_url('admin/cdr/' . $team->id . '/delete') ?>"
                   class="d-inline" onsubmit="return confirm('Supprimer cette équipe ?');">
               <?= csrf_field() ?>
               <button type="submit" class="btn btn-xs btn-danger" title="Supprimer">
