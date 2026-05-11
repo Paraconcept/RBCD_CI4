@@ -50,6 +50,7 @@ class IntmController extends BaseController
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
+            'player4_id' => $this->request->getPost('player4_id'),
         ];
 
         $photo = $this->request->getFile('photo');
@@ -97,6 +98,7 @@ class IntmController extends BaseController
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
+            'player4_id' => $this->request->getPost('player4_id'),
         ];
 
         $photo = $this->request->getFile('photo');
@@ -155,6 +157,7 @@ class IntmController extends BaseController
             'player1_id' => 'required|is_natural_no_zero',
             'player2_id' => 'required|is_natural_no_zero',
             'player3_id' => 'required|is_natural_no_zero',
+            'player4_id' => 'required|is_natural_no_zero',
             'photo'      => 'permit_empty|is_image[photo]|max_size[photo,3072]|mime_in[photo,image/jpeg,image/png,image/webp]',
         ];
     }

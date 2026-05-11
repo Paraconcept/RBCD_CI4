@@ -68,7 +68,7 @@
       </div>
 
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="form-group">
             <label for="player1_id">Joueur 1 <span class="text-danger">*</span></label>
             <select name="player1_id" id="player1_id" class="form-control" required>
@@ -82,7 +82,7 @@
             </select>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="form-group">
             <label for="player2_id">Joueur 2 <span class="text-danger">*</span></label>
             <select name="player2_id" id="player2_id" class="form-control" required>
@@ -96,7 +96,7 @@
             </select>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="form-group">
             <label for="player3_id">Joueur 3 <span class="text-danger">*</span></label>
             <select name="player3_id" id="player3_id" class="form-control" required>
@@ -104,6 +104,20 @@
               <?php foreach ($members as $m): ?>
               <option value="<?= $m->id ?>"
                 <?= ((int) old('player3_id', $team->player3_id ?? 0) === (int) $m->id) ? 'selected' : '' ?>>
+                <?= esc($m->last_name . ' ' . $m->first_name) ?>
+              </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="player4_id">Joueur 4 <span class="text-danger">*</span></label>
+            <select name="player4_id" id="player4_id" class="form-control" required>
+              <option value="">— Choisir —</option>
+              <?php foreach ($members as $m): ?>
+              <option value="<?= $m->id ?>"
+                <?= ((int) old('player4_id', $team->player4_id ?? 0) === (int) $m->id) ? 'selected' : '' ?>>
                 <?= esc($m->last_name . ' ' . $m->first_name) ?>
               </option>
               <?php endforeach; ?>

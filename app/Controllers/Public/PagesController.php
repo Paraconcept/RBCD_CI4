@@ -209,10 +209,12 @@ class PagesController extends BaseController
                 'm1.id AS p1_id', 'm1.last_name AS p1_last', 'm1.first_name AS p1_first', 'm1.photo AS p1_photo', 'm1.gender AS p1_gender',
                 'm2.id AS p2_id', 'm2.last_name AS p2_last', 'm2.first_name AS p2_first', 'm2.photo AS p2_photo', 'm2.gender AS p2_gender',
                 'm3.id AS p3_id', 'm3.last_name AS p3_last', 'm3.first_name AS p3_first', 'm3.photo AS p3_photo', 'm3.gender AS p3_gender',
+                'm4.id AS p4_id', 'm4.last_name AS p4_last', 'm4.first_name AS p4_first', 'm4.photo AS p4_photo', 'm4.gender AS p4_gender',
             ])
             ->join('members m1', 'm1.id = t.player1_id')
             ->join('members m2', 'm2.id = t.player2_id')
-            ->join('members m3', 'm3.id = t.player3_id', 'left')
+            ->join('members m3', 'm3.id = t.player3_id')
+            ->join('members m4', 'm4.id = t.player4_id')
             ->where('t.id', $id)
             ->get()->getRowObject();
 

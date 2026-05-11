@@ -25,6 +25,7 @@
           <th>Joueur 1</th>
           <th>Joueur 2</th>
           <th>Joueur 3</th>
+          <th>Joueur 4</th>
           <th style="width:90px"></th>
         </tr>
       </thead>
@@ -36,7 +37,8 @@
           <td><span class="badge badge-secondary"><?= esc($team->game_mode) ?></span></td>
           <td><?= esc($team->player1_name) ?></td>
           <td><?= esc($team->player2_name) ?></td>
-          <td><?= $team->player3_name ? esc($team->player3_name) : '<span class="text-muted">—</span>' ?></td>
+          <td><?= esc($team->player3_name) ?></td>
+          <td><?= esc($team->player4_name) ?></td>
           <td class="text-right">
             <a href="<?= base_url('admin/intm/' . $team->id . '/edit') ?>"
                class="btn btn-xs btn-default" title="Modifier">

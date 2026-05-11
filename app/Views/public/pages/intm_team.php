@@ -38,13 +38,14 @@
           ['id' => $team->p1_id, 'last' => $team->p1_last, 'first' => $team->p1_first, 'photo' => $team->p1_photo, 'gender' => $team->p1_gender],
           ['id' => $team->p2_id, 'last' => $team->p2_last, 'first' => $team->p2_first, 'photo' => $team->p2_photo, 'gender' => $team->p2_gender],
           ['id' => $team->p3_id, 'last' => $team->p3_last, 'first' => $team->p3_first, 'photo' => $team->p3_photo, 'gender' => $team->p3_gender],
+          ['id' => $team->p4_id, 'last' => $team->p4_last, 'first' => $team->p4_first, 'photo' => $team->p4_photo, 'gender' => $team->p4_gender],
       ];
     ?>
     <div class="cup-players-wrapper">
       <div class="row justify-content-center">
 
       <?php foreach ($players as $i => $p): if (!$p['id']) continue; ?>
-      <div class="col-sm-6 col-md-4 mb-30">
+      <div class="col-sm-6 col-md-3 mb-30">
         <div class="team-members">
           <div class="team-thumb">
             <?php if ($p['photo']): ?>
@@ -128,7 +129,7 @@
     color: #ccc;
 }
 .cup-players-wrapper .col-sm-6,
-.cup-players-wrapper .col-md-4 { display: flex; }
+.cup-players-wrapper .col-md-3 { display: flex; }
 .team-bottom-part {
     flex: 1;
     border-top: 3px solid #84252B;
