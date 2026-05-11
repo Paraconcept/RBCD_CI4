@@ -25,9 +25,17 @@
       <!-- Gauche : présentation + icon boxes -->
       <div class="col-lg-8">
 
+        <?php
+          $teacherName = $teacher
+              ? esc($teacher->first_name . ' ' . $teacher->last_name)
+              : 'notre instructeur';
+          $freq        = $school->frequency_per_month ?? 4;
+          $schedule    = $school->schedule ?? 'Samedi, 10h00 — 12h00';
+          $price       = $treasury ? number_format((float)$treasury->annual_cotisation, 0, ',', '') : '50';
+        ?>
         <h4 class="font-weight-700 mt-0 mb-10">Un apprentissage adapté à chacun</h4>
         <p class="mb-30">
-          Notre instructeur, <strong>Max Aussems</strong>, dispense des cours entièrement personnalisés,
+          Notre instructeur, <strong><?= $teacherName ?></strong>, dispense des cours entièrement personnalisés,
           adaptés au niveau et au mode de jeu préféré de chaque élève — que vous souhaitiez pratiquer
           la <strong>libre</strong>, le <strong>cadre</strong> ou le <strong>3 bandes</strong>.
         </p>
@@ -41,7 +49,7 @@
                   <i class="fas fa-calendar-alt"></i>
                 </a>
                 <div class="icon-text">
-                  <h5 class="icon-box-title text-uppercase mb-5">4 séances par mois</h5>
+                  <h5 class="icon-box-title text-uppercase mb-5"><?= $freq ?> séance<?= $freq > 1 ? 's' : '' ?> par mois</h5>
                   <p class="mb-0">Des cours réguliers tout au long de l'année pour progresser à votre rythme.</p>
                 </div>
                 <div class="clearfix"></div>
@@ -56,7 +64,7 @@
                   <i class="fas fa-clock"></i>
                 </a>
                 <div class="icon-text">
-                  <h5 class="icon-box-title text-uppercase mb-5">Samedi, 10h — 12h</h5>
+                  <h5 class="icon-box-title text-uppercase mb-5"><?= esc($schedule) ?></h5>
                   <p class="mb-0">Un créneau fixe le samedi matin, idéal pour bien démarrer le week-end.</p>
                 </div>
                 <div class="clearfix"></div>
@@ -71,7 +79,7 @@
                   <i class="fas fa-coins"></i>
                 </a>
                 <div class="icon-text">
-                  <h5 class="icon-box-title text-uppercase mb-5">50 € par an</h5>
+                  <h5 class="icon-box-title text-uppercase mb-5"><?= $price ?> € par an</h5>
                   <p class="mb-0">Cotisation annuelle tout compris : cours du samedi <em>et</em> accès libre au club.</p>
                 </div>
                 <div class="clearfix"></div>
@@ -101,7 +109,7 @@
                   <i class="fas fa-chalkboard-teacher"></i>
                 </a>
                 <div class="icon-text">
-                  <h5 class="icon-box-title text-uppercase mb-5">Max Aussems</h5>
+                  <h5 class="icon-box-title text-uppercase mb-5"><?= $teacherName ?></h5>
                   <p class="mb-0">Instructeur expérimenté, il adapte chaque cours au niveau et au style de jeu de l'élève.</p>
                 </div>
                 <div class="clearfix"></div>
@@ -137,17 +145,26 @@
             Pour rejoindre l'école de billard, contactez directement notre responsable des inscriptions :
           </p>
 
+          <?php
+            $contactName   = $contact ? esc($contact->first_name . ' ' . $contact->last_name) : '';
+            $contactMobile = $contact->mobile ?? '';
+            $contactHref   = $contactMobile
+                ? 'tel:+32' . ltrim(preg_replace('/\D/', '', $contactMobile), '0')
+                : '#';
+          ?>
           <div class="ecole-contact-line mb-15">
             <i class="fas fa-user"></i>
             <div>
-              <strong>Nathalie Cavelier</strong><br>
+              <strong><?= $contactName ?></strong><br>
               <small>Responsable inscriptions</small>
             </div>
           </div>
+          <?php if ($contactMobile): ?>
           <div class="ecole-contact-line mb-15">
             <i class="fas fa-phone"></i>
-            <div><a href="tel:+32494360306">0494 / 36 03 06</a></div>
+            <div><a href="<?= $contactHref ?>"><?= esc($contactMobile) ?></a></div>
           </div>
+          <?php endif; ?>
           <div class="ecole-contact-line mb-20">
             <i class="fas fa-envelope"></i>
             <div><a href="mailto:contact@rbcd.be">contact@rbcd.be</a></div>
@@ -174,16 +191,16 @@
     <!-- Mutuelles -->
     <div class="row">
       <div class="col-12 text-center">
-        <p class="mb-5"><strong>Votre mutuelle vous rembourse pour l'affiliation à un club sportif :</strong></p>
+        <h4 class="font-weight-700 mt-0 mb-10">Votre mutuelle vous rembourse pour l'affiliation à un club sportif :</h4>
         <p class="mb-25 text-muted">Cliquez sur le logo de votre mutuelle pour télécharger le document à remplir :</p>
         <div class="mutuelles-logos">
-          <a href="#" title="Mutuelle Chrétienne" class="mutuelle-link">
+          <a href="<?= base_url('uploads/mutuelles/MC-ClubSportif.pdf') ?>" title="Mutuelle Chrétienne" class="mutuelle-link" target="_blank">
             <img src="<?= base_url('assets/images/mutuelles/Mut_Chretienne.jpg') ?>" alt="Mutuelle Chrétienne">
           </a>
-          <a href="#" title="Solidaris — Mutuelle Socialiste" class="mutuelle-link">
+          <a href="<?= base_url('uploads/mutuelles/SOLIDARIS-ClubSportif.pdf') ?>" title="Solidaris — Mutuelle Socialiste" class="mutuelle-link">
             <img src="<?= base_url('assets/images/mutuelles/Mut_Socialiste.jpg') ?>" alt="Solidaris">
           </a>
-          <a href="#" title="Mutuelle Neutre" class="mutuelle-link">
+          <a href="<?= base_url('uploads/mutuelles/MUTUALIA-ClubSportif.pdf') ?>" title="Mutuelle Neutre" class="mutuelle-link" target="_blank">
             <img src="<?= base_url('assets/images/mutuelles/Mut_Neutre.jpg') ?>" alt="Mutuelle Neutre">
           </a>
         </div>

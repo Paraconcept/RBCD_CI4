@@ -114,14 +114,30 @@ class PagesController extends BaseController
 
     public function ecoleBillard(): string
     {
+        $school   = (new \App\Models\SchoolSettingModel())->first();
+        $treasury = (new \App\Models\TreasurySettingModel())->first();
+        $memberModel = new \App\Models\MemberModel();
+
+        $teacher = ($school && $school->teacher_member_id)
+            ? $memberModel->find($school->teacher_member_id)
+            : null;
+
+        $contact = ($school && $school->contact_member_id)
+            ? $memberModel->find($school->contact_member_id)
+            : null;
+
         return view('public/pages/ecole_billard', [
             'title'       => 'École de Billard — RBC Disonais',
             'page_title'  => 'École de Billard',
             'breadcrumbs' => [
-                ['label' => 'Accueil',    'url' => base_url('/')],
-                ['label' => 'Le Club',    'url' => '#'],
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Le Club', 'url' => '#'],
                 ['label' => 'École de Billard'],
             ],
+            'school'   => $school,
+            'treasury' => $treasury,
+            'teacher'  => $teacher,
+            'contact'  => $contact,
         ]);
     }
 
