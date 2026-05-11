@@ -288,6 +288,8 @@ article.post:hover { background: #F9F9F9E5; }
               </li>
               <?php endforeach; ?>
             </ul>
+            <img src="<?= base_url('assets/images/JoyeuxAnniversaire.png') ?>"
+                 alt="Joyeux Anniversaire" class="img-responsive" style="width:100%;margin-top:10px;">
           </div>
           <?php endif; ?>
 
