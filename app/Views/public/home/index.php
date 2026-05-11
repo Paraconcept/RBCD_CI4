@@ -5,7 +5,7 @@
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/extra-rev-slider1.css') ?>">
 <style>
 article.post { transition: background .2s; }
-article.post:hover { background: #f7f7f7; }
+article.post:hover { background: #F9F9F9E5; }
 /* Écusson slide 1 — taille forcée car RS6 ignore data-wh sur layer manuel */
                             #slider-10-slide-47-layer-img img { width: 240px !important; height: auto !important; }
 @media (max-width:1199px) { #slider-10-slide-47-layer-img img { width: 180px !important; } }
@@ -304,4 +304,17 @@ article.post:hover { background: #f7f7f7; }
   </div>
 </section>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+window.addEventListener('load', function () {
+    if (window.location.hash === '#actualites') {
+        setTimeout(function () {
+            var el = document.getElementById('actualites');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 400);
+    }
+});
+</script>
 <?= $this->endSection() ?>
