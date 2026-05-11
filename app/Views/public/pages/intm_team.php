@@ -50,7 +50,7 @@
             <span class="cup-badge-mode">3 Bandes GF</span>
             <span class="cup-badge-season">Saison <?= esc($team->season) ?></span>
             <?php if ($team->division): ?>
-            <span class="cup-badge-division">Division <?= esc($team->division) ?></span>
+            <span class="cup-badge-season">Division <?= esc($team->division) ?></span>
             <?php endif; ?>
           </p>
         </div>
@@ -177,9 +177,6 @@
     font-weight: 600;
     color: #84252B;
     margin: 0;
-}
-@media (min-width: 992px) {
-    .cup-players-wrapper { max-width: 80%; margin: 0 auto; }
 }
 </style>
 <?= $this->endSection() ?>
