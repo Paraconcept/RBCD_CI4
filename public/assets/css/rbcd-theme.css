@@ -84,3 +84,32 @@ h2.text-theme-colored2                     { color: #84252B !important; }
     color: #aaa;
     font-size: .8rem;
 }
+
+/* Footer — logo Paraconcept avec swap au survol */
+.paraconcept-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    color: inherit;
+}
+.paraconcept-logos {
+    position: relative;
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+.paraconcept-logos img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    transition: opacity .25s;
+}
+.paraconcept-logos .logo-on  { opacity: 0; }
+.paraconcept-logos .logo-off { opacity: 1; }
+.paraconcept-link:hover .logo-off { opacity: 0; }
+.paraconcept-link:hover .logo-on  { opacity: 1; }

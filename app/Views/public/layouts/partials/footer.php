@@ -92,7 +92,13 @@
           </div>
           <div class="col-sm-6 text-end">
             <div class="footer-paragraph">
-              <a href="https://www.paraconcept.be/" target="_blank" rel="noopener">Réalisation Paraconcept</a>
+              <a href="https://www.paraconcept.be/" target="_blank" rel="noopener" class="paraconcept-link">
+                <span class="paraconcept-logos">
+                  <img src="<?= base_url('assets/images/logoP.png') ?>" class="logo-off" alt="Paraconcept">
+                  <img src="<?= base_url('assets/images/logoPon.png') ?>" class="logo-on" alt="Paraconcept">
+                </span>
+                Réalisation Paraconcept
+              </a>
             </div>
           </div>
         </div>
