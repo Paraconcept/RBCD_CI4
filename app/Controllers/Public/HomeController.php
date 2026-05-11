@@ -16,14 +16,29 @@ class HomeController extends BaseController
                        ->orderBy('id', 'DESC')
                        ->paginate(5);
 
-        $db        = \Config\Database::connect();
-        $birthdays = $db->table('members')
-                        ->select("first_name, last_name, DATE_FORMAT(birth_date, '%d/%m') AS birthday_day_month")
-                        ->where('is_active', 1)
-                        ->where('birth_date IS NOT NULL', null, false)
-                        ->where('MONTH(birth_date)', (int) date('n'))
-                        ->orderBy('DAY(birth_date)', 'ASC')
-                        ->get()->getResultArray();
+        $db      = \Config\Database::connect();
+        $members = $db->table('members')
+                      ->select('first_name, last_name, birth_date, photo, gender')
+                      ->where('is_active', 1)
+                      ->where('birth_date IS NOT NULL', null, false)
+                      ->get()->getResultArray();
+
+        $today  = new \DateTime();
+        $dow    = (int) $today->format('N');
+        $monday = (clone $today)->modify('-' . ($dow - 1) . ' days');
+        $sunday = (clone $monday)->modify('+6 days');
+        $year   = (int) $today->format('Y');
+
+        $birthdays = [];
+        foreach ($members as $m) {
+            [$y, $mo, $d] = explode('-', $m['birth_date']);
+            try { $bday = new \DateTime("$year-$mo-$d"); } catch (\Exception $e) { continue; }
+            if ($bday >= $monday && $bday <= $sunday) {
+                $m['birthday_day_month'] = $bday->format('d/m');
+                $birthdays[] = $m;
+            }
+        }
+        usort($birthdays, fn($a, $b) => $a['birthday_day_month'] <=> $b['birthday_day_month']);
 
         return view('public/home/index', [
             'title'            => 'RBC Disonais — Club de Billard Carambole à Dison',

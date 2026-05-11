@@ -228,13 +228,16 @@ article.post:hover { background: #F9F9F9E5; }
                   <?php if ($n->published_at): ?>
                   <div class="entry-meta mb-10">
                     <span class=" font-size-13">
-                      <i class="far fa-calendar-alt me-2 text-theme-colored1"></i>
+                      <i class="fas fa-edit me-2 text-theme-colored1"></i>
                       <?= date('d/m/Y', strtotime($n->published_at)) ?>
                     </span>
                   </div>
                   <?php endif; ?>
-                  <a href="<?= base_url('actualites/' . $n->slug) ?>"
-                     class="btn btn-plain-text-with-arrow">Lire la suite</a>
+                  <div class="text-right">
+                    <a href="<?= base_url('actualites/' . $n->slug) ?>"
+                      class="btn btn-plain-text-with-arrow">Lire la suite
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -251,27 +254,19 @@ article.post:hover { background: #F9F9F9E5; }
         <div class="sidebar sidebar-right mt-sm-30">
 
           <!-- Widget : Prochains matchs -->
-          <div class="widget">
+          <div class="widget text-center">
             <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">Prochains matchs</h4>
-            <ul class="list-unstyled">
-              <?php foreach ($upcoming_matches as $match): ?>
-              <li class="mb-10 pb-10 border-bottom">
-                <small class="text-theme-colored1 d-block">
-                  <i class="far fa-calendar-alt me-5"></i><?= esc($match['date']) ?>
-                </small>
-                <strong><?= esc($match['home']) ?></strong> vs <strong><?= esc($match['away']) ?></strong>
-              </li>
-              <?php endforeach; ?>
-              <?php if (empty($upcoming_matches)): ?>
-              <li class="text-gray-darkgray font-size-13">Aucun match planifié.</li>
-              <?php endif; ?>
-            </ul>
+            <a href="<?= base_url('tableau') ?>">
+              <img src="<?= base_url('assets/images/Chalkboard.png') ?>"
+                    alt="tableau"
+                    class="img-responsive img-fullwidth" style="max-height:219px;object-fit:contain;">
+            </a>
             <a href="<?= base_url('tableau') ?>" class="btn btn-theme-colored2 btn-sm btn-block mt-10">
               Voir le tableau complet
             </a>
           </div>
 
-          <!-- Widget : Anniversaires du mois -->
+          <!-- Widget : Anniversaires de la semaine -->
           <?php if (!empty($birthdays)): ?>
           <div class="widget">
             <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">
@@ -279,10 +274,17 @@ article.post:hover { background: #F9F9F9E5; }
             </h4>
             <ul class="list-unstyled">
               <?php foreach ($birthdays as $b): ?>
-              <li class="mb-5 font-size-13">
-                <i class="fa fa-user me-5 text-theme-colored2"></i>
-                <?= esc($b['first_name'] . ' ' . $b['last_name']) ?>
-                <span class="text-gray-darkgray float-end"><?= esc($b['birthday_day_month']) ?></span>
+              <li class="d-flex align-items-center gap-2 mb-10">
+                <?php if ($b['photo']): ?>
+                <img src="<?= base_url('uploads/members/' . $b['photo']) ?>" alt=""
+                     style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #dee2e6;flex-shrink:0;">
+                <?php else: ?>
+                <div style="width:34px;height:34px;border-radius:50%;background:#f0f0f0;border:2px solid #dee2e6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <i class="fas fa-user" style="font-size:.75rem;color:#bbb;"></i>
+                </div>
+                <?php endif; ?>
+                <span class="font-size-13 flex-grow-1"><?= esc($b['first_name'] . ' ' . $b['last_name']) ?></span>
+                <span class="text-gray-darkgray font-size-13"><?= esc($b['birthday_day_month']) ?></span>
               </li>
               <?php endforeach; ?>
             </ul>
