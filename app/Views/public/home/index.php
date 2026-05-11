@@ -209,10 +209,17 @@
                 </div>
               </div>
               <div class="col-md-8">
-                <div class="entry-content p-15">
-                  <h4 class="entry-title mb-5">
+                <div class="entry-content" style="padding:0 15px">
+                  <h4 class="entry-title">
                     <a href="<?= base_url('actualites/' . $n->slug) ?>"><?= esc($n->title) ?></a>
                   </h4>
+                  <?php
+                    $_t  = strip_tags($n->content ?? '');
+                    $_ex = $n->excerpt ?: (mb_strlen($_t) > 100 ? mb_substr($_t, 0, 100) . '…' : $_t);
+                  ?>
+                  <?php if ($_ex): ?>
+                  <p class="mt-5 mb-10"><?= esc($_ex) ?></p>
+                  <?php endif; ?>
                   <?php if ($n->published_at): ?>
                   <div class="entry-meta mb-10">
                     <span class="text-gray-darkgray font-size-13">
@@ -220,13 +227,6 @@
                       <?= date('d/m/Y', strtotime($n->published_at)) ?>
                     </span>
                   </div>
-                  <?php endif; ?>
-                  <?php
-                    $_t  = strip_tags($n->content ?? '');
-                    $_ex = $n->excerpt ?: (mb_strlen($_t) > 100 ? mb_substr($_t, 0, 100) . '…' : $_t);
-                  ?>
-                  <?php if ($_ex): ?>
-                  <p class="mt-5 mb-10"><?= esc($_ex) ?></p>
                   <?php endif; ?>
                   <a href="<?= base_url('actualites/' . $n->slug) ?>"
                      class="btn btn-plain-text-with-arrow">Lire la suite</a>
