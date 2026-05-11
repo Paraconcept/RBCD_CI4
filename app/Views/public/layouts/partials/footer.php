@@ -90,11 +90,6 @@
               &copy; <?= date('Y') ?> RBC Disonais. Tous droits réservés.
             </div>
           </div>
-          <div class="col-sm-6 text-end">
-            <div class="footer-paragraph">
-              <a href="<?= base_url('admin') ?>" class="text-gray">Administration</a>
-            </div>
-          </div>
         </div>
       </div>
     </div>

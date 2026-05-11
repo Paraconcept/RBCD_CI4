@@ -29,6 +29,11 @@
                       <i class="fas fa-id-card me-2 text-muted"></i>Mon compte
                     </a>
                   </li>
+                  <li>
+                    <a class="dropdown-item" href="<?= base_url('admin') ?>">
+                      <i class="fas fa-cog me-2 text-muted"></i>Administration
+                    </a>
+                  </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <button type="button" class="dropdown-item text-danger btn-logout-ajax">
