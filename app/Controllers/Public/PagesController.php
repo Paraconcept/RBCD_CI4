@@ -43,7 +43,7 @@ class PagesController extends BaseController
         $publicOrder = array_flip([
             'Président', 'Vice-Président', 'Secrétaire', 'Secrétaire Adjoint',
             'Directeur Sportif', 'Directeur Sportif Adjoint',
-            'Trésorier', 'Trésorier Adjoint', 'Commissaire', 'Webmaster',
+            'Trésorier', 'Trésorier Adjoint', 'Commissaire', 'PR & Communication', 'Webmaster',
         ]);
 
         usort($users, function ($a, $b) use ($rolesMap, $publicOrder) {
@@ -167,7 +167,18 @@ class PagesController extends BaseController
 
     public function archivesJournal(): string
     {
-        return $this->placeholder('Journal "Partie Libre"', 'Archives');
+        $byYear = (new \App\Models\JournalIssueModel())->getPublishedGroupedByYear();
+
+        return view('public/pages/archives_journal', [
+            'title'       => 'Journal "Partie Libre" — RBC Disonais',
+            'page_title'  => 'Partie Libre',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Archives', 'url' => '#'],
+                ['label' => 'Journal "Partie Libre"'],
+            ],
+            'byYear' => $byYear,
+        ]);
     }
 
     public function archivesResultats(): string

@@ -102,6 +102,15 @@
                     </ul>
                 </li>
 
+                <li class="nav-header">PUBLICATIONS</li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/journal') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/journal') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-newspaper"></i>
+                        <p>Journal "Partie Libre"</p>
+                    </a>
+                </li>
+
                 <li class="nav-header">DIRECTION SPORTIVE</li>
 
                 <li class="nav-item">

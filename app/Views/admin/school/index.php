@@ -10,7 +10,7 @@
 
 <div class="card card-outline card-primary">
   <div class="card-header">
-    <h3 class="card-title"><i class="fas fa-chalkboard-teacher me-2"></i>Paramètres de l'École de Billard</h3>
+    <h3 class="card-title"><i class="fas fa-users-cog mr-2"></i>Paramètres de l'École de Billard</h3>
   </div>
   <form method="post" action="<?= base_url('admin/school/save') ?>">
     <?= csrf_field() ?>

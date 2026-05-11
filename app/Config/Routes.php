@@ -123,6 +123,14 @@ $routes->group('admin', static function ($routes) {
         $routes->post('club-keys/(:num)/return',     'Admin\ClubKeysController::returnKey/$1');
         $routes->post('club-keys/(:num)/delete',     'Admin\ClubKeysController::delete/$1');
 
+        // Journal "Partie Libre"
+        $routes->get ('journal',                   'Admin\JournalController::index');
+        $routes->get ('journal/create',            'Admin\JournalController::create');
+        $routes->post('journal',                   'Admin\JournalController::store');
+        $routes->get ('journal/(:num)/edit',       'Admin\JournalController::edit/$1');
+        $routes->post('journal/(:num)/update',     'Admin\JournalController::update/$1');
+        $routes->post('journal/(:num)/delete',     'Admin\JournalController::delete/$1');
+
         // Tableau des rencontres
         $routes->get ('schedule',                        'Admin\ScheduleController::index');
         $routes->get ('schedule/(:num)/(:num)',          'Admin\ScheduleController::index/$1/$2');

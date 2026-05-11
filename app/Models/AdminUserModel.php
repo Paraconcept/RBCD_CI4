@@ -21,6 +21,7 @@ class AdminUserModel extends Model
         'Trésorier',
         'Trésorier Adjoint',
         'Commissaire',
+        'PR & Communication',
     ];
 
     protected $allowedFields = [
