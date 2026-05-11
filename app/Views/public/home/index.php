@@ -200,7 +200,7 @@
                   <?php if ($n->image): ?>
                   <img src="<?= base_url('uploads/news/' . $n->image) ?>"
                        alt="<?= esc($n->title) ?>"
-                       class="img-responsive img-fullwidth" style="height:200px;object-fit:cover;">
+                       class="img-responsive img-fullwidth" style="height:200px;object-fit:contain;background:#f4f4f4;">
                   <?php else: ?>
                   <div style="height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
                     <i class="fas fa-newspaper fa-3x text-muted"></i>
