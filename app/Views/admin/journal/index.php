@@ -28,7 +28,9 @@
         <?php foreach ($issues as $issue): ?>
         <tr>
           <td><?= esc($issue->title) ?></td>
-          <td><?= $issue->published_date ? date('m/Y', strtotime($issue->published_date)) : '—' ?></td>
+          <td data-order="<?= $issue->published_date ?? '0000-00' ?>">
+            <?= $issue->published_date ? date('m/Y', strtotime($issue->published_date)) : '—' ?>
+          </td>
           <td class="text-center">
             <?php if ($issue->file_path): ?>
               <a href="<?= base_url('uploads/PDF/PartieLibre/' . $issue->file_path) ?>" target="_blank" title="Voir le PDF">
