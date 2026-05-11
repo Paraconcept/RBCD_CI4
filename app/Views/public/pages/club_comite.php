@@ -40,7 +40,13 @@
             <?php endif; ?>
           </div>
           <div class="team-bottom-part text-center">
-            <h4><?= esc($m->first_name . ' ' . $m->last_name) ?></h4>
+            <h4>
+              <?php if ($m->member_id): ?>
+                <a href="<?= base_url('club/membres/' . $m->member_id) ?>"><?= esc($m->first_name . ' ' . $m->last_name) ?></a>
+              <?php else: ?>
+                <?= esc($m->first_name . ' ' . $m->last_name) ?>
+              <?php endif; ?>
+            </h4>
             <p class="member-roles"><?= esc(implode(' · ', $roles)) ?></p>
           </div>
         </div>
@@ -103,6 +109,13 @@
     letter-spacing: .5px;
     color: #333;
     margin: 0 0 6px;
+}
+.team-bottom-part h4 a {
+    color: #333;
+    text-decoration: none;
+}
+.team-bottom-part h4 a:hover {
+    color: #84252B;
 }
 .team-bottom-part .member-roles {
     font-size: .9rem;
