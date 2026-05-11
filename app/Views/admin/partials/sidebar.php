@@ -151,8 +151,20 @@
                 </li>
 
                 <li>&nbsp;</li>
+                <li>&nbsp;</li>
+                <li>&nbsp;</li>
 
             </ul>
         </nav>
     </div>
 </aside>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var sidebar = document.querySelector('.main-sidebar .sidebar');
+    var active  = sidebar && sidebar.querySelector('.nav-link.active');
+    if (sidebar && active) {
+        var top = active.getBoundingClientRect().top - sidebar.getBoundingClientRect().top;
+        sidebar.scrollTop = sidebar.scrollTop + top - sidebar.clientHeight / 2;
+    }
+});
+</script>
