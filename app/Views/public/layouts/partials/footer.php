@@ -90,6 +90,11 @@
               &copy; <?= date('Y') ?> RBC Disonais. Tous droits réservés.
             </div>
           </div>
+          <div class="col-sm-6 text-end">
+            <div class="footer-paragraph">
+              <a href="https://www.paraconcept.be/" target="_blank" rel="noopener">Réalisation Paraconcept</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
