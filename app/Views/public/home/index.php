@@ -251,7 +251,7 @@ article.post:hover { background: #F9F9F9E5; }
 
       <!-- Sidebar droite -->
       <div class="col-md-3">
-        <div class="sidebar sidebar-right mt-sm-30">
+        <div class="sidebar sidebar-right mt-sm-30 mb-4">
 
           <!-- Widget : Prochains matchs -->
           <div class="widget text-center">
@@ -272,7 +272,7 @@ article.post:hover { background: #F9F9F9E5; }
               <i class="fas fa-birthday-cake me-5 text-theme-colored1"></i>Anniversaires
             </h4>
             <?php if (empty($birthdays)): ?>
-            <p class="font-size-13 text-gray-darkgray">Pas d'anniversaires cette semaine !</p>
+            <p class="font-size-16 text-dark text-center">Pas d'anniversaires cette semaine !</p>
             <?php else: ?>
             <ul class="list-unstyled">
               <?php foreach ($birthdays as $b): ?>
@@ -290,9 +290,9 @@ article.post:hover { background: #F9F9F9E5; }
               </li>
               <?php endforeach; ?>
             </ul>
+            <?php endif; ?>
             <img src="<?= base_url('assets/images/JoyeuxAnniversaire.png') ?>"
                  alt="Joyeux Anniversaire" class="img-responsive mb-2" style="width:80%;display:block;margin:10px auto 0;">
-            <?php endif; ?>
           </div>
 
           <!-- Widget : Liens utiles -->

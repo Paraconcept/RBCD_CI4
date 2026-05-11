@@ -36,7 +36,7 @@
 
         <!-- Retour -->
         <div class="mt-40 pt-20" style="border-top:1px solid #eee">
-          <a href="<?= base_url() ?>#actualites" class="btn-news-back">
+          <a href="<?= base_url() ?>#actualites" class="btn btn-theme-colored1 btn-sm btn-round">
             <i class="fas fa-arrow-left me-1"></i> Retour aux actualités
           </a>
         </div>

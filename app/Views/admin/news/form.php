@@ -154,12 +154,18 @@ $(function () {
   $('#content').summernote({
     height: 320,
     toolbar: [
-      ['style',  ['style']],
-      ['font',   ['bold', 'italic', 'underline', 'clear']],
-      ['para',   ['ul', 'ol', 'paragraph']],
-      ['insert', ['link', 'picture', 'hr']],
-      ['view',   ['fullscreen', 'codeview']],
+        ['style', ['style']],
+        ['font', ['bold', 'italic', 'underline', 'clear']],
+        ['fontname', ['fontname']],
+        ['fontsize', ['fontsize']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['height', ['height']],
+        ['table', ['table']],
+        ['insert', ['link', 'picture', 'hr']],
+        ['view', ['fullscreen', 'codeview', 'help']]
     ],
+    styleTags: ['p', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
     lang: 'fr-FR',
   });
 
