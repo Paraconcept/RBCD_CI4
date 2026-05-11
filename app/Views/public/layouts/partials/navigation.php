@@ -87,8 +87,12 @@
                   </li>
 
                   <?php
-                    $cupTeams = \Config\Database::connect()
-                        ->table('cup_teams')
+                    $db = \Config\Database::connect();
+                    $cupTeams = $db->table('cup_teams')
+                        ->where('season', SAISON_EN_COURS)
+                        ->orderBy('name', 'ASC')
+                        ->get()->getResultObject();
+                    $intmTeams = $db->table('intm_teams')
                         ->where('season', SAISON_EN_COURS)
                         ->orderBy('name', 'ASC')
                         ->get()->getResultObject();
@@ -103,6 +107,16 @@
                         <ul class="dropdown">
                           <?php foreach ($cupTeams as $ct): ?>
                           <li><a href="<?= base_url('saison/coupe-des-regions/' . $ct->id) ?>"><?= esc($ct->name) ?></a></li>
+                          <?php endforeach; ?>
+                        </ul>
+                      </li>
+                      <?php endif; ?>
+                      <?php if ($intmTeams): ?>
+                      <li class="has-sub">
+                        <a href="#">I.N.T.M.</a>
+                        <ul class="dropdown">
+                          <?php foreach ($intmTeams as $it): ?>
+                          <li><a href="<?= base_url('saison/intm/' . $it->id) ?>"><?= esc($it->name) ?></a></li>
                           <?php endforeach; ?>
                         </ul>
                       </li>

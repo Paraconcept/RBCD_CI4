@@ -39,6 +39,7 @@ $routes->get('contact',               'Public\PagesController::contact');
 // Saison
 $routes->get('saison/resultats',             'Public\PagesController::saisonResultats');
 $routes->get('saison/coupe-des-regions/(:num)', 'Public\PagesController::cupTeam/$1');
+$routes->get('saison/intm/(:num)',             'Public\PagesController::intmTeam/$1');
 
 // Archives (publiques)
 $routes->get('archives/resultats',    'Public\PagesController::archivesResultats');
@@ -137,6 +138,14 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('cup-regions/(:num)/edit',       'Admin\CupRegionsController::edit/$1');
         $routes->post('cup-regions/(:num)/update',     'Admin\CupRegionsController::update/$1');
         $routes->post('cup-regions/(:num)/delete',     'Admin\CupRegionsController::delete/$1');
+
+        // I.N.T.M.
+        $routes->get ('intm',                   'Admin\IntmController::index');
+        $routes->get ('intm/create',            'Admin\IntmController::create');
+        $routes->post('intm',                   'Admin\IntmController::store');
+        $routes->get ('intm/(:num)/edit',       'Admin\IntmController::edit/$1');
+        $routes->post('intm/(:num)/update',     'Admin\IntmController::update/$1');
+        $routes->post('intm/(:num)/delete',     'Admin\IntmController::delete/$1');
 
         // Tableau des rencontres
         $routes->get ('schedule',                        'Admin\ScheduleController::index');
