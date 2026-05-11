@@ -50,19 +50,6 @@
       </div>
     </div>
 
-    <div class="row justify-content-center">
-
-      <!-- Photo d'équipe -->
-      <?php if ($team->photo): ?>
-      <div class="col-12 text-center mb-40">
-        <img src="<?= base_url('uploads/cup_teams/' . $team->photo) ?>"
-             alt="<?= esc($team->name) ?>"
-             class="cup-team-photo">
-      </div>
-      <?php endif; ?>
-
-    </div><!-- /heading row -->
-
     <!-- Joueurs -->
     <?php
       $players = [
@@ -125,14 +112,6 @@
 }
 .cup-badge-mode   { background: #84252B; color: #fff; }
 .cup-badge-season { background: #f0f0f0; color: #555; }
-
-/* Photo d'équipe */
-.cup-team-photo {
-    max-width: 680px;
-    width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 4px 18px rgba(0,0,0,.12);
-}
 
 /* Cartes joueurs — style identique au comité */
 .team-members {

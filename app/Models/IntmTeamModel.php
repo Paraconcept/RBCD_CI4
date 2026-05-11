@@ -11,7 +11,7 @@ class IntmTeamModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'name', 'season', 'photo', 'player1_id', 'player2_id', 'player3_id', 'player4_id',
+        'name', 'season', 'player1_id', 'player2_id', 'player3_id', 'player4_id',
     ];
 
     protected $useTimestamps = true;

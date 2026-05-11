@@ -8,8 +8,6 @@ use App\Models\MemberModel;
 
 class IntmController extends BaseController
 {
-    private const UPLOAD_PATH = 'uploads/intm_teams/';
-
     private function federatedMembers(): array
     {
         return (new MemberModel())
@@ -42,21 +40,14 @@ class IntmController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $data = [
+        (new IntmTeamModel())->insert([
             'name'       => $this->request->getPost('name'),
             'season'     => $this->request->getPost('season'),
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
             'player4_id' => $this->request->getPost('player4_id'),
-        ];
-
-        $photo = $this->request->getFile('photo');
-        if ($photo && $photo->isValid() && !$photo->hasMoved()) {
-            $data['photo'] = $this->uploadPhoto($photo);
-        }
-
-        (new IntmTeamModel())->insert($data);
+        ]);
 
         return redirect()->to(base_url('admin/intm'))
                          ->with('success', 'Équipe créée avec succès.');
@@ -79,8 +70,7 @@ class IntmController extends BaseController
     public function update(int $id)
     {
         $model = new IntmTeamModel();
-        $team  = $model->find($id);
-        if (!$team) {
+        if (!$model->find($id)) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
@@ -88,27 +78,14 @@ class IntmController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $data = [
+        $model->update($id, [
             'name'       => $this->request->getPost('name'),
             'season'     => $this->request->getPost('season'),
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
             'player4_id' => $this->request->getPost('player4_id'),
-        ];
-
-        $photo = $this->request->getFile('photo');
-        if ($photo && $photo->isValid() && !$photo->hasMoved()) {
-            $this->deletePhotoFile($team->photo);
-            $data['photo'] = $this->uploadPhoto($photo);
-        }
-
-        if ($this->request->getPost('remove_photo') && $team->photo) {
-            $this->deletePhotoFile($team->photo);
-            $data['photo'] = null;
-        }
-
-        $model->update($id, $data);
+        ]);
 
         return redirect()->to(base_url('admin/intm'))
                          ->with('success', 'Équipe mise à jour.');
@@ -116,32 +93,10 @@ class IntmController extends BaseController
 
     public function delete(int $id)
     {
-        $model = new IntmTeamModel();
-        $team  = $model->find($id);
-        if ($team) {
-            $this->deletePhotoFile($team->photo);
-            $model->delete($id);
-        }
+        (new IntmTeamModel())->delete($id);
 
         return redirect()->to(base_url('admin/intm'))
                          ->with('success', 'Équipe supprimée.');
-    }
-
-    private function uploadPhoto($file): string
-    {
-        $name = $file->getRandomName();
-        $file->move(FCPATH . self::UPLOAD_PATH, $name);
-        return $name;
-    }
-
-    private function deletePhotoFile(?string $filename): void
-    {
-        if ($filename) {
-            $path = FCPATH . self::UPLOAD_PATH . $filename;
-            if (file_exists($path)) {
-                unlink($path);
-            }
-        }
     }
 
     private function rules(): array
@@ -153,7 +108,6 @@ class IntmController extends BaseController
             'player2_id' => 'required|is_natural_no_zero',
             'player3_id' => 'required|is_natural_no_zero',
             'player4_id' => 'required|is_natural_no_zero',
-            'photo'      => 'permit_empty|is_image[photo]|max_size[photo,3072]|mime_in[photo,image/jpeg,image/png,image/webp]',
         ];
     }
 

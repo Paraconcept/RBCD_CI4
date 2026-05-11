@@ -136,7 +136,7 @@
 
                 <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/intm') === 0) ? 'menu-open' : '' ?>">
                     <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/intm') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-users"></i>
+                        <i class="nav-icon fas fa-trophy"></i>
                         <p>I.N.T.M. <i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
