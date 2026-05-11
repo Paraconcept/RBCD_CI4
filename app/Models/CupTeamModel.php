@@ -18,7 +18,7 @@ class CupTeamModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    public const GAME_MODES = ['Libre', '3 Bandes PF', '3 Bandes GF'];
+    public const GAME_MODES = ['Libre PF', 'Libre GF', '3 Bandes PF', '3 Bandes GF'];
 
     public function getAllWithPlayers(): array
     {

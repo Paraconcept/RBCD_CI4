@@ -151,7 +151,7 @@ class CupRegionsController extends BaseController
         return [
             'name'       => 'required|max_length[100]',
             'season'     => 'required|max_length[9]',
-            'game_mode'  => 'required|in_list[Libre,3 Bandes PF,3 Bandes GF]',
+            'game_mode'  => 'required|in_list[Libre PF,Libre GF,3 Bandes PF,3 Bandes GF]',
             'player1_id' => 'required|is_natural_no_zero',
             'player2_id' => 'required|is_natural_no_zero',
             'player3_id' => 'required|is_natural_no_zero',

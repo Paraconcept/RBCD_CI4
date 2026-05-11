@@ -42,12 +42,12 @@
       <?php foreach ($players as $i => $p): if (!$p['id']) continue; ?>
       <div class="col-sm-6 col-md-4 mb-30">
         <a href="<?= base_url('club/membres/' . $p['id']) ?>" class="cup-player-card">
-          <div class="cup-player-photo-wrap">
+          <div class="cup-player-thumb">
             <?php if ($p['photo']): ?>
               <img src="<?= base_url('uploads/members/' . $p['photo']) ?>"
                    alt="<?= esc($p['last'] . ' ' . $p['first']) ?>">
             <?php else: ?>
-              <i class="fas fa-user cup-player-no-photo"></i>
+              <div class="cup-player-no-photo"><i class="fas fa-user"></i></div>
             <?php endif; ?>
           </div>
           <div class="cup-player-info">
@@ -90,47 +90,47 @@
 }
 
 .cup-player-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 24px 16px;
-    border: 1px solid #eee;
-    border-radius: 8px;
+    display: block;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    overflow: hidden;
     text-decoration: none;
     color: inherit;
-    transition: box-shadow .2s, border-color .2s;
-    height: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    transition: box-shadow .25s;
 }
 .cup-player-card:hover {
-    box-shadow: 0 4px 18px rgba(0,0,0,.1);
-    border-color: #84252B;
+    box-shadow: 0 6px 20px rgba(0,0,0,.12);
     color: inherit;
 }
-.cup-player-photo-wrap {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    border: 3px solid #dee2e6;
+.cup-player-thumb {
+    aspect-ratio: 1;
     overflow: hidden;
     background: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-    transition: border-color .25s;
-    flex-shrink: 0;
 }
-.cup-player-card:hover .cup-player-photo-wrap { border-color: #84252B; }
-.cup-player-photo-wrap img {
+.cup-player-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform .35s;
 }
-.cup-player-no-photo { font-size: 3rem; color: #bbb; }
+.cup-player-card:hover .cup-player-thumb img { transform: scale(1.04); }
+.cup-player-no-photo {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: #ccc;
+}
+.cup-player-info {
+    padding: 14px 16px;
+    text-align: center;
+}
 .cup-player-num {
-    font-size: .75rem;
+    font-size: .72rem;
     text-transform: uppercase;
     letter-spacing: .08em;
     color: #84252B;
