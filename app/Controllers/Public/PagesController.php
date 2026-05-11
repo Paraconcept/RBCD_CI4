@@ -158,6 +158,43 @@ class PagesController extends BaseController
         ]);
     }
 
+    // ── Actualités ───────────────────────────────────────────────────────
+
+    public function newsIndex(): string
+    {
+        $news = (new \App\Models\NewsModel())->getPublished();
+
+        return view('public/pages/news_index', [
+            'title'       => 'Actualités — RBC Disonais',
+            'page_title'  => 'Actualités',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Actualités'],
+            ],
+            'news' => $news,
+        ]);
+    }
+
+    public function newsDetail(string $slug): string
+    {
+        $news = (new \App\Models\NewsModel())->getBySlug($slug);
+
+        if (!$news) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        return view('public/pages/news_detail', [
+            'title'       => esc($news->title) . ' — RBC Disonais',
+            'page_title'  => esc($news->title),
+            'breadcrumbs' => [
+                ['label' => 'Accueil',     'url' => base_url('/')],
+                ['label' => 'Actualités',  'url' => base_url('actualites')],
+                ['label' => esc($news->title)],
+            ],
+            'news' => $news,
+        ]);
+    }
+
     // ── Saison ───────────────────────────────────────────────────────────
 
     public function saisonResultats(): string

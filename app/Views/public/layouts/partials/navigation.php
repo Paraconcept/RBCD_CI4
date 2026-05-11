@@ -86,6 +86,10 @@
                     </ul>
                   </li>
 
+                  <li class="menu-item">
+                    <a href="<?= base_url('actualites') ?>">Actualités</a>
+                  </li>
+
                   <?php
                     $db = \Config\Database::connect();
                     $cdrTeams = $db->table('cdr_teams')
