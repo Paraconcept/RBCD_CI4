@@ -171,6 +171,16 @@ class PagesController extends BaseController
     {
         $byYear = (new \App\Models\JournalIssueModel())->getPublishedGroupedByYear();
 
+        $db     = \Config\Database::connect();
+        $editor = $db->table('admin_users au')
+                     ->select('au.first_name, au.last_name, m.id as member_id, m.photo, m.gender')
+                     ->join('admin_user_roles aur', 'aur.admin_user_id = au.id')
+                     ->join('members m', 'm.id = au.member_id', 'left')
+                     ->where('aur.role', 'PR & Communication')
+                     ->where('au.is_active', 1)
+                     ->limit(1)
+                     ->get()->getRowObject();
+
         return view('public/pages/archives_journal', [
             'title'       => 'Journal "Partie Libre" — RBC Disonais',
             'page_title'  => 'Partie Libre',
@@ -180,6 +190,7 @@ class PagesController extends BaseController
                 ['label' => 'Journal "Partie Libre"'],
             ],
             'byYear' => $byYear,
+            'editor' => $editor,
         ]);
     }
 

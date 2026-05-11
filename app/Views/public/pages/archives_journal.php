@@ -7,12 +7,44 @@
 
     <!-- Heading -->
     <div class="row">
-      <div class="col-md-10 col-lg-8 mx-auto text-center mb-40">
+      <div class="col-md-10 col-lg-8 mx-auto mb-40">
         <div class="tm-sc-heading">
-          <h3 class="heading-title">Partie Libre</h3>
+          <h3 class="heading-title text-center">Partie Libre</h3>
           <div class="heading-border-line"></div>
           <p class="heading-description mt-20">
-            Le journal interne du RBC Disonais — retrouvez ici tous les numéros disponibles au téléchargement.
+            Dans un souci de communication et de transparence vis-à-vis de nos membres, nous rédigeons un compte rendu de nos réunions de comité.
+          </p>
+
+          <?php if ($editor): ?>
+          <?php
+            $editorName  = esc($editor->first_name . ' ' . $editor->last_name);
+            $editorPhoto = $editor->photo ? base_url('uploads/members/' . $editor->photo) : null;
+            $editorUrl   = $editor->member_id ? base_url('club/membres/' . $editor->member_id) : null;
+          ?>
+          <div class="journal-editor-card mt-20">
+            <span class="journal-editor-label">À la rédaction :</span>
+            <?php $tag = $editorUrl ? 'a' : 'span'; ?>
+            <<?= $tag ?> <?= $editorUrl ? 'href="' . $editorUrl . '"' : '' ?> class="journal-editor-member">
+              <div class="member-photo-wrap">
+                <?php if ($editorPhoto): ?>
+                  <img src="<?= $editorPhoto ?>" alt="<?= $editorName ?>">
+                <?php else: ?>
+                  <i class="fas fa-user member-no-photo"></i>
+                <?php endif; ?>
+              </div>
+              <div class="member-info">
+                <div class="member-name">
+                  <?= esc($editor->last_name) ?><br>
+                  <span style="font-weight:400"><?= esc($editor->first_name) ?></span>
+                </div>
+                <div class="member-ranking">PR &amp; Communication</div>
+              </div>
+            </<?= $tag ?>>
+          </div>
+          <?php endif; ?>
+
+          <p class="heading-description text-center mt-20">
+            Retrouvez ici tous les numéros disponibles au téléchargement.
           </p>
         </div>
       </div>
@@ -92,6 +124,68 @@
 
 <?= $this->section('styles') ?>
 <style>
+/* Carte éditrice */
+.journal-editor-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.journal-editor-label {
+    font-size: .92rem;
+    color: #555;
+    white-space: nowrap;
+}
+.journal-editor-member {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: background .2s;
+}
+a.journal-editor-member:hover {
+    background: #f8f8f8;
+}
+a.journal-editor-member:hover .member-photo-wrap {
+    border-color: #84252B;
+}
+/* Réutilisation exacte du style club_membres */
+.member-photo-wrap {
+    flex-shrink: 0;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid #dee2e6;
+    transition: border-color .25s;
+    overflow: hidden;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.member-photo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.member-photo-wrap .member-no-photo {
+    font-size: 1.8rem;
+    color: #bbb;
+    line-height: 1;
+}
+.member-info { min-width: 0; }
+.member-name {
+    font-weight: 700;
+    font-size: .9rem;
+    color: #333;
+    line-height: 1.3;
+}
+.member-ranking { font-size: .8rem; color: #84252B; font-weight: 600; }
 /* Accordéon journal — couleur RBCD */
 .accordion-theme-colored1 .accordion-button:not(.collapsed) {
     background-color: #84252B;
