@@ -35,9 +35,9 @@
     <!-- Joueurs -->
     <?php
       $players = [
-          ['id' => $team->p1_id, 'last' => $team->p1_last, 'first' => $team->p1_first, 'photo' => $team->p1_photo],
-          ['id' => $team->p2_id, 'last' => $team->p2_last, 'first' => $team->p2_first, 'photo' => $team->p2_photo],
-          ['id' => $team->p3_id, 'last' => $team->p3_last, 'first' => $team->p3_first, 'photo' => $team->p3_photo],
+          ['id' => $team->p1_id, 'last' => $team->p1_last, 'first' => $team->p1_first, 'photo' => $team->p1_photo, 'gender' => $team->p1_gender],
+          ['id' => $team->p2_id, 'last' => $team->p2_last, 'first' => $team->p2_first, 'photo' => $team->p2_photo, 'gender' => $team->p2_gender],
+          ['id' => $team->p3_id, 'last' => $team->p3_last, 'first' => $team->p3_first, 'photo' => $team->p3_photo, 'gender' => $team->p3_gender],
       ];
     ?>
     <div class="cup-players-wrapper">
@@ -61,7 +61,7 @@
                 <?= esc($p['first'] . ' ' . $p['last']) ?>
               </a>
             </h4>
-            <p class="member-roles">Joueur <?= $i + 1 ?></p>
+            <p class="member-roles"><?= $p['gender'] === 'F' ? 'Joueuse' : 'Joueur' ?> <?= $i + 1 ?></p>
           </div>
         </div>
       </div>

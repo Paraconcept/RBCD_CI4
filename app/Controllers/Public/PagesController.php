@@ -173,9 +173,9 @@ class PagesController extends BaseController
         $team = $db->table('cup_teams t')
             ->select([
                 't.*',
-                'm1.id AS p1_id', 'm1.last_name AS p1_last', 'm1.first_name AS p1_first', 'm1.photo AS p1_photo',
-                'm2.id AS p2_id', 'm2.last_name AS p2_last', 'm2.first_name AS p2_first', 'm2.photo AS p2_photo',
-                'm3.id AS p3_id', 'm3.last_name AS p3_last', 'm3.first_name AS p3_first', 'm3.photo AS p3_photo',
+                'm1.id AS p1_id', 'm1.last_name AS p1_last', 'm1.first_name AS p1_first', 'm1.photo AS p1_photo', 'm1.gender AS p1_gender',
+                'm2.id AS p2_id', 'm2.last_name AS p2_last', 'm2.first_name AS p2_first', 'm2.photo AS p2_photo', 'm2.gender AS p2_gender',
+                'm3.id AS p3_id', 'm3.last_name AS p3_last', 'm3.first_name AS p3_first', 'm3.photo AS p3_photo', 'm3.gender AS p3_gender',
             ])
             ->join('members m1', 'm1.id = t.player1_id')
             ->join('members m2', 'm2.id = t.player2_id')
