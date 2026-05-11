@@ -267,11 +267,13 @@ article.post:hover { background: #F9F9F9E5; }
           </div>
 
           <!-- Widget : Anniversaires de la semaine -->
-          <?php if (!empty($birthdays)): ?>
-          <div class="widget">
+          <div class="widget" style="border-bottom:2px solid #84252B;">
             <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">
               <i class="fas fa-birthday-cake me-5 text-theme-colored1"></i>Anniversaires
             </h4>
+            <?php if (empty($birthdays)): ?>
+            <p class="font-size-13 text-gray-darkgray">Pas d'anniversaires cette semaine !</p>
+            <?php else: ?>
             <ul class="list-unstyled">
               <?php foreach ($birthdays as $b): ?>
               <li class="d-flex align-items-center gap-2 mb-10">
@@ -280,18 +282,18 @@ article.post:hover { background: #F9F9F9E5; }
                      style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #84252B;flex-shrink:0;">
                 <?php else: ?>
                 <div style="width:34px;height:34px;border-radius:50%;background:#f0f0f0;border:2px solid #84252B;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                  <i class="fas fa-user" style="font-size:.75rem;color:#bbb;"></i>
+                  <i class="fas fa-user" style="font-size:.75rem;color:#333333;"></i>
                 </div>
                 <?php endif; ?>
-                <span class="font-size-13 flex-grow-1"><?= esc($b['first_name'] . ' ' . $b['last_name']) ?></span>
-                <span class="text-gray-darkgray font-size-13"><?= esc($b['birthday_day_month']) ?></span>
+                <span class="font-size-13 flex-grow-1 text-dark"><?= esc($b['first_name'] . ' ' . $b['last_name']) ?></span>
+                <span class="text-dark font-size-13"><?= esc($b['birthday_day_month']) ?></span>
               </li>
               <?php endforeach; ?>
             </ul>
             <img src="<?= base_url('assets/images/JoyeuxAnniversaire.png') ?>"
-                 alt="Joyeux Anniversaire" class="img-responsive" style="width:80%;display:block;margin:10px auto 0;">
+                 alt="Joyeux Anniversaire" class="img-responsive mb-2" style="width:80%;display:block;margin:10px auto 0;">
+            <?php endif; ?>
           </div>
-          <?php endif; ?>
 
           <!-- Widget : Liens utiles -->
           <div class="widget">
