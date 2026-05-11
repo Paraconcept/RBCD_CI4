@@ -52,6 +52,20 @@
             </select>
           </div>
         </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="division">Division</label>
+            <select name="division" id="division" class="form-control">
+              <option value="">— Choisir —</option>
+              <?php foreach ($divisions as $d): ?>
+              <option value="<?= esc($d) ?>"
+                <?= (old('division', $team->division ?? '') === $d) ? 'selected' : '' ?>>
+                Division <?= esc($d) ?>
+              </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div class="row">

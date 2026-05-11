@@ -21,6 +21,7 @@
         <tr>
           <th>Équipe</th>
           <th style="width:100px">Saison</th>
+          <th style="width:90px">Division</th>
           <th>Joueur 1</th>
           <th>Joueur 2</th>
           <th>Joueur 3</th>
@@ -33,6 +34,7 @@
         <tr>
           <td><strong><?= esc($team->name) ?></strong></td>
           <td><?= esc($team->season) ?></td>
+          <td><?= $team->division ? esc($team->division) : '<span class="text-muted">—</span>' ?></td>
           <td><?= esc($team->player1_name) ?></td>
           <td><?= esc($team->player2_name) ?></td>
           <td><?= esc($team->player3_name) ?></td>

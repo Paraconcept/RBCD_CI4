@@ -28,9 +28,10 @@ class IntmController extends BaseController
     public function create(): string
     {
         return view('admin/intm/form', [
-            'team'    => null,
-            'members' => $this->federatedMembers(),
-            'seasons' => $this->seasons(),
+            'team'      => null,
+            'members'   => $this->federatedMembers(),
+            'seasons'   => $this->seasons(),
+            'divisions' => IntmTeamModel::DIVISIONS,
         ]);
     }
 
@@ -43,6 +44,7 @@ class IntmController extends BaseController
         (new IntmTeamModel())->insert([
             'name'       => $this->request->getPost('name'),
             'season'     => $this->request->getPost('season'),
+            'division'   => $this->request->getPost('division') ?: null,
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
@@ -61,9 +63,10 @@ class IntmController extends BaseController
         }
 
         return view('admin/intm/form', [
-            'team'    => $team,
-            'members' => $this->federatedMembers(),
-            'seasons' => $this->seasons(),
+            'team'      => $team,
+            'members'   => $this->federatedMembers(),
+            'seasons'   => $this->seasons(),
+            'divisions' => IntmTeamModel::DIVISIONS,
         ]);
     }
 
@@ -81,6 +84,7 @@ class IntmController extends BaseController
         $model->update($id, [
             'name'       => $this->request->getPost('name'),
             'season'     => $this->request->getPost('season'),
+            'division'   => $this->request->getPost('division') ?: null,
             'player1_id' => $this->request->getPost('player1_id'),
             'player2_id' => $this->request->getPost('player2_id'),
             'player3_id' => $this->request->getPost('player3_id'),
@@ -104,6 +108,7 @@ class IntmController extends BaseController
         return [
             'name'       => 'required|max_length[100]',
             'season'     => 'required|max_length[9]',
+            'division'   => 'permit_empty|in_list[1,2A,2B,3A,3B,3C,4A,4B,4C]',
             'player1_id' => 'required|is_natural_no_zero',
             'player2_id' => 'required|is_natural_no_zero',
             'player3_id' => 'required|is_natural_no_zero',
