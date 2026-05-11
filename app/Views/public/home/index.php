@@ -200,13 +200,16 @@ article.post:hover { background: #F9F9F9E5; }
               <div class="col-md-4">
                 <div class="post-thumb thumb">
                   <?php if ($n->image): ?>
-                  <img src="<?= base_url('uploads/news/' . $n->image) ?>"
-                       alt="<?= esc($n->title) ?>"
-                       class="img-responsive img-fullwidth" style="height:200px;object-fit:contain;">
+                  <a href="<?= base_url('actualites/' . $n->slug) ?>">
+                    <img src="<?= base_url('uploads/news/' . $n->image) ?>"
+                         alt="<?= esc($n->title) ?>"
+                         class="img-responsive img-fullwidth" style="height:200px;object-fit:contain;">
+                  </a>
                   <?php else: ?>
-                  <div style="height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
+                  <a href="<?= base_url('actualites/' . $n->slug) ?>"
+                     style="height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;text-decoration:none;">
                     <i class="fas fa-newspaper fa-3x text-muted"></i>
-                  </div>
+                  </a>
                   <?php endif; ?>
                 </div>
               </div>
