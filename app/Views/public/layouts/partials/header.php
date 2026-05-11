@@ -7,7 +7,14 @@
 <meta name="csrf-token" content="<?= csrf_hash() ?>">
 <title><?= esc($title ?? 'RBC Disonais') ?></title>
 
-<link href="<?= base_url('studypress/images/favicon.png') ?>" rel="shortcut icon" type="image/png">
+<link rel="shortcut icon" href="<?= base_url('assets/images/favicons/favicon.ico') ?>">
+<link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/images/favicons/favicon-32x32.png') ?>">
+<link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/images/favicons/favicon-16x16.png') ?>">
+<link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/images/favicons/apple-touch-icon.png') ?>">
+<link rel="mask-icon" href="<?= base_url('assets/images/favicons/safari-pinned-tab.svg') ?>" color="#84252b">
+<link rel="manifest" href="<?= base_url('assets/images/favicons/manifest.json') ?>">
+<meta name="msapplication-config" content="<?= base_url('assets/images/favicons/browserconfig.xml') ?>">
+<meta name="theme-color" content="#84252b">
 
 <!-- Studypress CSS -->
 <link href="<?= base_url('studypress/css/bootstrap.min.css') ?>" rel="stylesheet">

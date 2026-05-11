@@ -1,12 +1,14 @@
 {
-	"name": "RBCD",
-	"icons": [
-		{
-			"src": "\/android-chrome-192x192.png",
-			"sizes": "192x192",
-			"type": "image\/png"
-		}
-	],
-	"theme_color": "#d55252",
-	"display": "standalone"
+    "name": "RBC Disonais",
+    "short_name": "RBCD",
+    "icons": [
+        {
+            "src": "android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#84252b",
+    "background_color": "#ffffff",
+    "display": "standalone"
 }
