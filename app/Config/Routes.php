@@ -92,6 +92,8 @@ $routes->group('admin', static function ($routes) {
         // Trésorerie — paiements
         $routes->get('treasury', 'Admin\TreasuryController::index');
         $routes->get('treasury/export', 'Admin\TreasuryController::export');
+        $routes->get ('treasury/settings',      'Admin\TreasuryController::settings');
+        $routes->post('treasury/settings/save', 'Admin\TreasuryController::saveSettings');
 
         // Trésorerie — enveloppes de caisse
         $routes->get ('treasury/envelopes',                'Admin\TreasuryEnvelopesController::index');
@@ -109,6 +111,10 @@ $routes->group('admin', static function ($routes) {
         // Heures d'ouverture
         $routes->get ('opening-hours',               'Admin\OpeningHoursController::index');
         $routes->post('opening-hours/save',          'Admin\OpeningHoursController::save');
+
+        // École de billard
+        $routes->get ('school',      'Admin\SchoolController::index');
+        $routes->post('school/save', 'Admin\SchoolController::save');
 
         // Clés du club (page centrale)
         $routes->get ('club-keys',                   'Admin\ClubKeysController::index');

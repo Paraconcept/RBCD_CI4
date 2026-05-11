@@ -59,6 +59,13 @@
                 </li>
 
                 <li class="nav-item">
+                    <a href="<?= base_url('admin/school') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/school') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-chalkboard-teacher"></i>
+                        <p>École de billard</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="<?= base_url('admin/club-keys') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/club-keys') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-key"></i>
                         <p>Clés du club</p>
@@ -83,6 +90,13 @@
                                class="nav-link <?= (strpos(uri_string(), 'admin/treasury/envelopes') === 0) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Enveloppes de caisse</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/settings') ?>"
+                               class="nav-link <?= (strpos(uri_string(), 'admin/treasury/settings') === 0) ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Paramètres financiers</p>
                             </a>
                         </li>
                     </ul>

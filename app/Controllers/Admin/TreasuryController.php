@@ -152,4 +152,38 @@ class TreasuryController extends BaseController
         $writer->save('php://output');
         exit;
     }
+
+    public function settings(): string
+    {
+        $settings = (new \App\Models\TreasurySettingModel())->first();
+
+        return view('admin/treasury/settings', [
+            'title'       => 'Paramètres financiers',
+            'breadcrumbs' => [
+                ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')],
+                ['title' => 'Paramètres financiers'],
+            ],
+            'settings' => $settings,
+        ]);
+    }
+
+    public function saveSettings()
+    {
+        $model    = new \App\Models\TreasurySettingModel();
+        $settings = $model->first();
+
+        $data = [
+            'annual_cotisation' => (float) str_replace(',', '.', $this->request->getPost('annual_cotisation')),
+            'forfait_price'     => (float) str_replace(',', '.', $this->request->getPost('forfait_price')),
+        ];
+
+        if ($settings) {
+            $model->update($settings->id, $data);
+        } else {
+            $model->insert($data);
+        }
+
+        return redirect()->to(base_url('admin/treasury/settings'))
+                         ->with('success', 'Paramètres financiers mis à jour.');
+    }
 }
