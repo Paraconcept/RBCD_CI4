@@ -5,6 +5,37 @@
 <section class="section-padding">
   <div class="container">
 
+    <!-- CDR, c'est quoi ? -->
+    <div class="row">
+      <div class="col-md-10 col-lg-8 mx-auto mb-10">
+        <div class="tm-sc-heading">
+          <h3 class="heading-title text-left">La CDR, c'est quoi ?</h3>
+          <div class="heading-border-line"></div>
+          <p class="heading-description text-left mt-20">
+            Littéralement : <strong><span class="cdr-format-label">C</span>oupe <span class="cdr-format-label">D</span>es <span class="cdr-format-label">R</span>égions</strong>. 
+            Il s'agit d'un tournoi interclub régional qui se joue par équipe de 3 joueurs.
+          <br>
+            Les différents modes de jeu proposés sont :<br>
+            &bull; <strong><u>Petit format</u></strong> : libre, cadre 38/2, 3 bandes <br>
+            &bull; <strong><u>Grand format</u></strong> : 3 bandes
+          </p>
+          <p class="heading-description text-left mt-10">
+            Toutes les équipes se rencontrent en matchs aller et retour, totalisant des points tout au long de la saison sportive. 
+            En fin de saison, l'équipe gagnante disputera la <strong>finale nationale de la Coupe des Régions</strong> avec les vainqueurs des autres régions participantes.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Séparateur -->
+    <div class="row mb-10">
+      <div class="separator">
+        <img src="<?= base_url('assets/images/billiard-chalk.png') ?>"
+             alt="Séparateur Craie de billard"
+             style="width:20px;opacity:0.7;margin: 0 10px;">
+      </div>
+    </div>
+
     <!-- Heading -->
     <div class="row">
       <div class="col-md-10 col-lg-8 mx-auto mb-40">
@@ -13,28 +44,7 @@
           <div class="heading-border-line"></div>
           <p class="heading-description text-center mt-10">
             <span class="cup-badge-mode"><?= esc($team->game_mode) ?></span>
-            <span class="cup-badge-season"><?= esc($team->season) ?></span>
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- CDR, c'est quoi ? -->
-    <div class="row">
-      <div class="col-md-10 col-lg-8 mx-auto mb-40">
-        <div class="tm-sc-heading">
-          <h5 class="heading-title text-center" style="font-size:1.15rem">CDR, c'est quoi ?</h5>
-          <div class="heading-border-line"></div>
-          <p class="heading-description text-center mt-20">
-            Littéralement : <strong>Coupe Des Régions</strong>. Il s'agit d'un tournoi interclub régional qui se joue par équipe de 3 joueurs.
-          </p>
-          <p class="heading-description text-center mt-10">
-            Les différents modes de jeu proposés sont :<br>
-            <span class="cdr-format-label">Petit format</span> libre, cadre 38/2, par la bande, 3 bandes &nbsp;·&nbsp;
-            <span class="cdr-format-label">Grand format</span> 3 bandes
-          </p>
-          <p class="heading-description text-center mt-10">
-            Toutes les équipes se rencontrent en matchs aller et retour, totalisant des points tout au long de la saison sportive. En fin d'année, l'équipe gagnante disputera la <strong>finale nationale de la Coupe des Régions</strong> avec les vainqueurs des autres régions participantes.
+            <span class="cup-badge-season">Saison <?= esc($team->season) ?></span>
           </p>
         </div>
       </div>

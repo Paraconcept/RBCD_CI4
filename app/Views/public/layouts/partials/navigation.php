@@ -96,7 +96,6 @@
                   <li class="menu-item">
                     <a href="#">Saison <?= ANNEE_1 ?>-<?= ANNEE_2 ?></a>
                     <ul class="dropdown">
-                      <li><a href="<?= base_url('tableau') ?>">Au Tableau</a></li>
                       <li><a href="<?= base_url('saison/resultats') ?>">Résultats sportifs</a></li>
                       <?php if ($cupTeams): ?>
                       <li class="has-sub">
