@@ -188,39 +188,43 @@
 
         <div class="blog-posts">
 
-          <?php foreach ($news as $item): ?>
+          <?php if (empty($news)): ?>
+          <div class="alert alert-info">Aucune actualité pour le moment.</div>
+          <?php endif; ?>
+
+          <?php foreach ($news as $n): ?>
           <article class="post clearfix mb-30 border-1px">
             <div class="row g-0">
               <div class="col-md-4">
-                <div class="entry-header">
-                  <div class="post-thumb thumb">
-                    <img src="<?= esc($item['image'] ?? base_url('studypress/images/shop/portfolio-big1.jpg')) ?>"
-                         alt="<?= esc($item['title']) ?>"
-                         class="img-responsive img-fullwidth" style="height:200px;object-fit:cover;">
+                <div class="post-thumb thumb">
+                  <?php if ($n->image): ?>
+                  <img src="<?= base_url('uploads/news/' . $n->image) ?>"
+                       alt="<?= esc($n->title) ?>"
+                       class="img-responsive img-fullwidth" style="height:200px;object-fit:cover;">
+                  <?php else: ?>
+                  <div style="height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-newspaper fa-3x text-muted"></i>
                   </div>
+                  <?php endif; ?>
                 </div>
               </div>
               <div class="col-md-8">
                 <div class="entry-content p-15">
                   <h4 class="entry-title mb-5">
-                    <a href="<?= base_url('actualites/' . ($item['slug'] ?? $item['id'])) ?>">
-                      <?= esc($item['title']) ?>
-                    </a>
+                    <a href="<?= base_url('actualites/' . $n->slug) ?>"><?= esc($n->title) ?></a>
                   </h4>
+                  <?php if ($n->published_at): ?>
                   <div class="entry-meta mb-10">
-                    <span class="text-gray-darkgray me-10 font-size-13">
-                      <i class="far fa-calendar-alt me-5 text-theme-colored1"></i>
-                      <?= date('d/m/Y', strtotime($item['created_at'])) ?>
-                    </span>
-                    <?php if (!empty($item['category'])): ?>
                     <span class="text-gray-darkgray font-size-13">
-                      <i class="fa fa-tag me-5 text-theme-colored1"></i>
-                      <?= esc($item['category']) ?>
+                      <i class="far fa-calendar-alt me-5 text-theme-colored1"></i>
+                      <?= date('d/m/Y', strtotime($n->published_at)) ?>
                     </span>
-                    <?php endif; ?>
                   </div>
-                  <p class="mt-5 mb-10"><?= esc(mb_substr(strip_tags($item['excerpt'] ?? $item['content'] ?? ''), 0, 200)) ?>…</p>
-                  <a href="<?= base_url('actualites/' . ($item['slug'] ?? $item['id'])) ?>"
+                  <?php endif; ?>
+                  <?php if ($n->excerpt): ?>
+                  <p class="mt-5 mb-10"><?= esc(mb_strimwidth($n->excerpt, 0, 200, '…')) ?></p>
+                  <?php endif; ?>
+                  <a href="<?= base_url('actualites/' . $n->slug) ?>"
                      class="btn btn-plain-text-with-arrow">Lire la suite</a>
                 </div>
               </div>
@@ -228,13 +232,11 @@
           </article>
           <?php endforeach; ?>
 
-          <?php if (empty($news)): ?>
-          <div class="alert alert-info">Aucune actualité pour le moment.</div>
-          <?php endif; ?>
-
           <nav>
             <ul class="pagination">
-              <li class="page-item"><a class="page-link" href="<?= base_url('actualites') ?>">Toutes les actualités »</a></li>
+              <li class="page-item">
+                <a class="page-link" href="<?= base_url('actualites') ?>">Toutes les actualités »</a>
+              </li>
             </ul>
           </nav>
         </div>

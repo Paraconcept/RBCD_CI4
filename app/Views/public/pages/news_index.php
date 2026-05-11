@@ -60,6 +60,14 @@
     </div>
     <?php endif; ?>
 
+    <?php if (isset($pager) && $pager->getPageCount() > 1): ?>
+    <div class="row mt-20">
+      <div class="col-12 d-flex justify-content-center">
+        <?= $pager->links('default', 'news_pager') ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
   </div>
 </section>
 

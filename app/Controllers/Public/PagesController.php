@@ -162,7 +162,12 @@ class PagesController extends BaseController
 
     public function newsIndex(): string
     {
-        $news = (new \App\Models\NewsModel())->getPublished();
+        $model = new \App\Models\NewsModel();
+        $news  = $model->where('is_published', 1)
+                       ->where('published_at <=', date('Y-m-d'))
+                       ->orderBy('published_at', 'DESC')
+                       ->orderBy('id', 'DESC')
+                       ->paginate(9);
 
         return view('public/pages/news_index', [
             'title'       => 'Actualités — RBC Disonais',
@@ -171,7 +176,8 @@ class PagesController extends BaseController
                 ['label' => 'Accueil', 'url' => base_url('/')],
                 ['label' => 'Actualités'],
             ],
-            'news' => $news,
+            'news'  => $news,
+            'pager' => $model->pager,
         ]);
     }
 
