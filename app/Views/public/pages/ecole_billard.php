@@ -174,11 +174,7 @@
     font-weight: 700;
     color: #333;
 }
-/* Rond rouge RBCD + icône blanche */
-.iconbox-theme-colored1 .icon-theme-colored1 {
-    background-color: #84252B !important;
-    border-color:     #84252B !important;
-}
+/* Icône blanche dans le rond bleu (icon-dark) */
 .iconbox-theme-colored1 .icon-theme-colored1 i {
     color: #fff !important;
 }
