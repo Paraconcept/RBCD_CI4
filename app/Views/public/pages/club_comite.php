@@ -28,7 +28,7 @@
             ? base_url('uploads/members/' . esc($m->photo))
             : null;
       ?>
-      <div class="col-sm-6 col-lg-4 text-center mb-30">
+      <div class="col-sm-6 col-md-4 col-comite-5 text-center mb-30">
         <div class="team-members">
           <div class="team-thumb">
             <?php if ($photoUrl): ?>
@@ -107,6 +107,13 @@
     font-weight: 600;
     color: #84252B;
     margin: 0;
+}
+/* 5 colonnes sur grand écran → 3 cartes centrées (60 % de largeur) */
+@media (min-width: 992px) {
+    .col-comite-5 {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
 }
 </style>
 <?= $this->endSection() ?>
