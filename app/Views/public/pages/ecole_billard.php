@@ -29,7 +29,7 @@
         <p class="mb-30">
           Notre instructeur, <strong>Max Aussems</strong>, dispense des cours entièrement personnalisés,
           adaptés au niveau et au mode de jeu préféré de chaque élève — que vous souhaitiez pratiquer
-          la <em>libre</em>, la <em>1 bande</em> ou la <em>3 bandes</em>.
+          la <strong>libre</strong>, le <strong>cadre</strong> ou le <strong>3 bandes</strong>.
         </p>
 
         <div class="row">
@@ -174,12 +174,13 @@
     font-weight: 700;
     color: #333;
 }
-/* Icônes de l'icon-box en couleur RBCD */
+/* Rond rouge RBCD + icône blanche */
 .iconbox-theme-colored1 .icon-theme-colored1 {
-    border-color: #84252B !important;
+    background-color: #84252B !important;
+    border-color:     #84252B !important;
 }
 .iconbox-theme-colored1 .icon-theme-colored1 i {
-    color: #84252B !important;
+    color: #fff !important;
 }
 /* Carte inscription (droite) */
 .ecole-card {
