@@ -121,6 +121,13 @@ a:hover { color: var(--rbcd-primary-dark); }
 /* ----------------------------------------------------------------
    PAGINATION & DATATABLES
    ---------------------------------------------------------------- */
+.dataTables_length,
+.dataTables_info {
+    padding-left: 1rem !important;
+}
+.dataTables_filter {
+    padding-right: 1rem !important;
+}
 .page-item.active .page-link {
     background-color: var(--rbcd-primary) !important;
     border-color:     var(--rbcd-primary) !important;
