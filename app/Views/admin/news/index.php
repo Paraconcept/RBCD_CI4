@@ -42,7 +42,9 @@
             <small class="text-muted">/actualites/<?= esc($n->slug) ?></small>
           </td>
           <td><small><?= esc(mb_strimwidth($n->excerpt ?? '', 0, 90, '…')) ?></small></td>
-          <td><?= $n->published_at ? esc(date('d/m/Y', strtotime($n->published_at))) : '<span class="text-muted">—</span>' ?></td>
+          <td data-order="<?= $n->published_at ? strtotime($n->published_at) : 0 ?>">
+            <?= $n->published_at ? esc(date('d/m/Y', strtotime($n->published_at))) : '<span class="text-muted">—</span>' ?>
+          </td>
           <td>
             <form method="post" action="<?= base_url('admin/news/' . $n->id . '/toggle') ?>">
               <?= csrf_field() ?>
