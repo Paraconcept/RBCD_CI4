@@ -63,7 +63,14 @@
                     </a>
                 </li>
 
-                
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/galleries') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/galleries') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-images"></i>
+                        <p>Galeries photos</p>
+                    </a>
+                </li>
+
+
                 <li class="nav-header mt-4">GESTION DU CLUB</li>
 
                 <li class="nav-item">
@@ -118,6 +125,13 @@
                 </li>
 
                 <li class="nav-header mt-4">DIRECTION SPORTIVE</li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/sport-results') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/sport-results') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-medal"></i>
+                        <p>Résultats sportifs</p>
+                    </a>
+                </li>
 
                 <li class="nav-item">
                     <a href="<?= base_url('admin/schedule') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule') === 0) ? 'active' : '' ?>">

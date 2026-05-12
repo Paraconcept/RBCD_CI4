@@ -58,7 +58,8 @@ $routes->get('saison/intm/(:num)',             'Public\PagesController::intmTeam
 
 // Archives (publiques)
 $routes->get('archives/resultats',    'Public\PagesController::archivesResultats');
-$routes->get('galerie',               'Public\PagesController::galerie');
+$routes->get('galeries',              'Public\GalleriesController::index');
+$routes->get('galeries/(:segment)',   'Public\GalleriesController::show/$1');
 
 // Archives Journal (accessible sans connexion — accordion masqué si non connecté)
 $routes->get('archives/journal', 'Public\PagesController::archivesJournal');
@@ -145,6 +146,26 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('journal/(:num)/edit',       'Admin\JournalController::edit/$1');
         $routes->post('journal/(:num)/update',     'Admin\JournalController::update/$1');
         $routes->post('journal/(:num)/delete',     'Admin\JournalController::delete/$1');
+
+        // Galeries photos
+        $routes->get ('galleries',                              'Admin\GalleriesController::index');
+        $routes->get ('galleries/create',                       'Admin\GalleriesController::create');
+        $routes->post('galleries',                              'Admin\GalleriesController::store');
+        $routes->get ('galleries/(:num)/edit',                  'Admin\GalleriesController::edit/$1');
+        $routes->post('galleries/(:num)/update',                'Admin\GalleriesController::update/$1');
+        $routes->post('galleries/(:num)/delete',                'Admin\GalleriesController::delete/$1');
+        $routes->get ('galleries/(:num)/photos',                'Admin\GalleriesController::show/$1');
+        $routes->post('galleries/(:num)/photos/upload',         'Admin\GalleriesController::uploadPhotos/$1');
+        $routes->post('galleries/(:num)/photos/(:num)/delete',  'Admin\GalleriesController::deletePhoto/$1/$2');
+        $routes->post('galleries/(:num)/photos/(:num)/cover',   'Admin\GalleriesController::setCover/$1/$2');
+
+        // Résultats sportifs individuels
+        $routes->get ('sport-results',                   'Admin\SportResultsController::index');
+        $routes->get ('sport-results/create',            'Admin\SportResultsController::create');
+        $routes->post('sport-results',                   'Admin\SportResultsController::store');
+        $routes->get ('sport-results/(:num)/edit',       'Admin\SportResultsController::edit/$1');
+        $routes->post('sport-results/(:num)/update',     'Admin\SportResultsController::update/$1');
+        $routes->post('sport-results/(:num)/delete',     'Admin\SportResultsController::delete/$1');
 
         // Actualités
         $routes->get ('news',                   'Admin\NewsController::index');

@@ -124,7 +124,7 @@
                     <ul class="dropdown">
                       <li><a href="<?= base_url('archives/journal') ?>">Journal "Partie Libre"<i class="fas fa-lock"></i></a></li>
                       <li><a href="<?= base_url('archives/resultats') ?>">Résultats sportifs</a></li>
-                      <li><a href="<?= base_url('galerie') ?>">Galeries photos<i class="fas fa-images"></i></a></li>
+                      <li><a href="<?= base_url('galeries') ?>">Galeries photos<i class="fas fa-images"></i></a></li>
                     </ul>
                   </li>
 

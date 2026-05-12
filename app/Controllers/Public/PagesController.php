@@ -203,7 +203,20 @@ class PagesController extends BaseController
 
     public function saisonResultats(): string
     {
-        return $this->placeholder('Résultats sportifs', 'Saison ' . ANNEE_1 . '-' . ANNEE_2);
+        $season  = ANNEE_1 . '-' . ANNEE_2;
+        $results = (new \App\Models\SportResultModel())->getBySeasonWithWinner($season);
+
+        return view('public/pages/saison_resultats', [
+            'title'       => 'Résultats sportifs ' . $season . ' — RBC Disonais',
+            'page_title'  => 'Résultats sportifs',
+            'breadcrumbs' => [
+                ['label' => 'Accueil',                              'url' => base_url('/')],
+                ['label' => 'Saison ' . ANNEE_1 . '-' . ANNEE_2,  'url' => '#'],
+                ['label' => 'Résultats sportifs'],
+            ],
+            'season'  => $season,
+            'results' => $results,
+        ]);
     }
 
     // ── Saison ── Coupe des Régions ───────────────────────────────────────
@@ -311,7 +324,18 @@ class PagesController extends BaseController
 
     public function archivesResultats(): string
     {
-        return $this->placeholder('Résultats sportifs', 'Archives');
+        $bySeasonData = (new \App\Models\SportResultModel())->getGroupedBySeasonWithWinner();
+
+        return view('public/pages/archives_resultats', [
+            'title'       => 'Résultats sportifs — Archives — RBC Disonais',
+            'page_title'  => 'Résultats sportifs',
+            'breadcrumbs' => [
+                ['label' => 'Accueil',  'url' => base_url('/')],
+                ['label' => 'Archives', 'url' => '#'],
+                ['label' => 'Résultats sportifs'],
+            ],
+            'bySeasonData' => $bySeasonData,
+        ]);
     }
 
     public function galerie(): string
