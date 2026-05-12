@@ -8,7 +8,7 @@ use App\Models\AdminUserRoleModel;
 
 class AuthController extends BaseController
 {
-    public function login(): string
+    public function login(): mixed
     {
         if (session()->get('admin_logged_in')) {
             return redirect()->to(base_url('tableau'));

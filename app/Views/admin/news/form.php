@@ -150,35 +150,106 @@
 <script>
 $(function () {
 
-  // Summernote
+  // ── Summernote ────────────────────────────────────────────────────
+  var specialChars = [
+    '©','®','™','°','±','×','÷',
+    '€','£','¥','¢','§','¶',
+    '…','«','»','–','—',
+    '≤','≥','≠','≈','∞','√',
+    'α','β','γ','δ','μ','π','Ω',
+    'æ','œ','ç','ñ','ü',
+  ];
+
+  // Panel caractères spéciaux attaché au body
+  var $scPanel = $('<div id="sn-special-chars">').css({
+    position: 'absolute', background: '#fff',
+    border: '1px solid #ced4da', borderRadius: '4px',
+    padding: '6px', zIndex: 10000, width: '222px',
+    boxShadow: '0 2px 8px rgba(0,0,0,.15)',
+  }).hide().appendTo('body');
+
+  specialChars.forEach(function (ch) {
+    $('<button type="button">').css({
+      width: '30px', height: '30px', fontSize: '14px',
+      margin: '1px', cursor: 'pointer',
+      border: '1px solid #dee2e6', background: '#fff', borderRadius: '3px',
+    })
+    .text(ch).attr('title', ch)
+    .on('mousedown', function (e) {
+      e.preventDefault();
+      $('#content').summernote('insertText', ch);
+      $scPanel.hide();
+    })
+    .appendTo($scPanel);
+  });
+
+  $(document).on('mousedown', function (e) {
+    if (!$(e.target).closest('#sn-special-chars, #btn-special-chars').length) {
+      $scPanel.hide();
+    }
+  });
+
   $('#content').summernote({
     height: 320,
     toolbar: [
-        ['style', ['style']],
-        ['font', ['bold', 'italic', 'underline', 'clear']],
-        ['fontname', ['fontname']],
-        ['fontsize', ['fontsize']],
-        ['color', ['color']],
-        ['para', ['ul', 'ol', 'paragraph']],
-        ['height', ['height']],
-        ['table', ['table']],
-        ['insert', ['link', 'picture', 'hr']],
-        ['view', ['fullscreen', 'codeview', 'help']]
+        ['style',   ['style']],
+        ['font',    ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+        ['color',   ['color']],
+        ['para',    ['ul', 'ol', 'paragraph']],
+        ['table',   ['table']],
+        ['insert',  ['link', 'picture', 'hr']],
+        ['view',    ['fullscreen', 'codeview', 'help']],
     ],
     styleTags: ['p', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
     lang: 'fr-FR',
+    callbacks: {
+      onInit: function () {
+        var $toolbar = $('#content').next('.note-editor').find('.note-toolbar');
+
+        // Boutons Indenter / Désindenter
+        var $indentGrp = $('<div class="note-btn-group btn-group">');
+        $('<button type="button" class="note-btn btn btn-default btn-sm" title="Indenter">')
+          .html('<i class="fas fa-indent fa-fw"></i>')
+          .on('mousedown', function (e) { e.preventDefault(); $('#content').summernote('indent'); })
+          .appendTo($indentGrp);
+        $('<button type="button" class="note-btn btn btn-default btn-sm" title="Désindenter">')
+          .html('<i class="fas fa-outdent fa-fw"></i>')
+          .on('mousedown', function (e) { e.preventDefault(); $('#content').summernote('outdent'); })
+          .appendTo($indentGrp);
+
+        // Bouton Caractères spéciaux
+        var $scGrp = $('<div class="note-btn-group btn-group">');
+        $('<button id="btn-special-chars" type="button" class="note-btn btn btn-default btn-sm" title="Caractères spéciaux">')
+          .html('<b style="font-family:serif;font-size:14px;">Ω</b>')
+          .on('click', function (e) {
+            var $btn = $(this);
+            var off  = $btn.offset();
+            $scPanel.css({ top: off.top + $btn.outerHeight() + 2, left: off.left });
+            $scPanel.toggle();
+          })
+          .appendTo($scGrp);
+
+        // Insertion dans la toolbar après le groupe 'para'
+        var $paraGrp = $toolbar.find('.note-btn-group').eq(3); // para group (index 3)
+        $indentGrp.insertAfter($paraGrp);
+        $scGrp.appendTo($toolbar);
+      }
+    }
   });
 
-  // Auto-slug depuis le titre (création uniquement)
+  // Auto-slug
+  function titleToSlug(val) {
+    return val.toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
   <?php if (!$isEdit): ?>
   var slugLocked = false;
   $('#title').on('input', function () {
     if (slugLocked) return;
-    var slug = $(this).val()
-      .toLowerCase()
-      .normalize('NFD').replace(/[̀-ͯ]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+    var slug = titleToSlug($(this).val());
     $('#slug').val(slug);
     $('#slug-preview').text(slug);
   });
@@ -187,7 +258,14 @@ $(function () {
     $('#slug-preview').text($(this).val());
   });
   <?php else: ?>
+  var slugLocked = false;
+  $('#title').on('blur', function () {
+    if (slugLocked) return;
+    var slug = titleToSlug($(this).val());
+    if (slug) { $('#slug').val(slug); $('#slug-preview').text(slug); }
+  });
   $('#slug').on('input', function () {
+    slugLocked = true;
     $('#slug-preview').text($(this).val());
   });
   <?php endif; ?>

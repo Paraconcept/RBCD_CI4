@@ -98,7 +98,7 @@
 
 <?php
 $m         = $member;
-$photo     = $m->photo ? base_url('uploads/members/' . $m->photo) : null;
+$photo     = ($m->photo && ($m->show_photo ?? 1)) ? base_url('uploads/members/' . $m->photo) : null;
 $hasCoords = ($m->show_phone   && $m->phone)
            || ($m->show_mobile  && $m->mobile)
            || ($m->show_email   && $m->email)

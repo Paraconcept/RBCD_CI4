@@ -16,7 +16,7 @@ class MemberModel extends Model
         'photo', 'is_federated', 'frbb_license',
         'is_junior', 'is_supporter', 'is_school',
         'ranking', 'is_active',
-        'show_birth_date', 'show_address', 'show_phone', 'show_mobile', 'show_email',
+        'show_birth_date', 'show_address', 'show_phone', 'show_mobile', 'show_email', 'show_photo',
     ];
 
     protected $useTimestamps = true;

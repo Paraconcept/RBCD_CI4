@@ -16,6 +16,17 @@ $routes->post('deconnexion','Public\AuthController::logout');
 $routes->get('tableau',               'Public\ScheduleController::week');
 $routes->get('tableau/(:num)/(:num)', 'Public\ScheduleController::week/$1/$2');
 
+// Site public — Mon compte (membres connectés)
+$routes->group('mon-compte', ['filter' => 'publicAuth'], static function ($routes) {
+    $routes->get ('/',                'Public\AccountController::index');
+    $routes->post('coordonnees',      'Public\AccountController::saveCoordonnees');
+    $routes->post('mot-de-passe',     'Public\AccountController::savePassword');
+    $routes->post('confidentialite',  'Public\AccountController::saveConfidentialite');
+    $routes->post('toggle-privacy',   'Public\AccountController::togglePrivacy');
+    $routes->post('upload-photo',     'Public\AccountController::uploadPhoto');
+    $routes->post('delete-photo',     'Public\AccountController::deletePhoto');
+});
+
 // Site public — Actions protégées (membres connectés)
 $routes->group('tableau', ['filter' => 'publicAuth'], static function ($routes) {
     $routes->post('arbitrage/(:num)/signup',  'Public\ScheduleController::signupArbitrage/$1');

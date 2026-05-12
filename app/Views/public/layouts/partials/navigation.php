@@ -13,11 +13,6 @@
         <div class="col-xl-auto ms-xl-auto header-top-right align-self-center text-center text-xl-right">
           <div>
             <?php if (session()->get('admin_logged_in')): ?>
-              <?php
-                $memberUrl = session()->get('admin_member_id')
-                    ? base_url('club/membres/' . session()->get('admin_member_id'))
-                    : '#';
-              ?>
               <div class="dropdown nav-user-dropdown">
                 <button class="btn btn-theme-colored2 btn-sm dropdown-toggle" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
@@ -25,7 +20,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li>
-                    <a class="dropdown-item" href="<?= $memberUrl ?>">
+                    <a class="dropdown-item" href="<?= base_url('mon-compte') ?>">
                       <i class="fas fa-id-card me-2 text-muted"></i>Mon compte
                     </a>
                   </li>
