@@ -69,16 +69,16 @@
 }
 
 /* Calendar cells */
-.cell-home    { background: #28a745; }
-.cell-arb     { background: #dc3545; }
-.cell-bar     { background: #007bff; }
-.cell-home-arb { background: linear-gradient(135deg, #28a745 50%, #dc3545 50%); }
-.cell-home-bar { background: linear-gradient(135deg, #28a745 50%, #007bff 50%); }
+.cell-home    { background: #93C37D; }
+.cell-arb     { background: #D9534F; }
+.cell-bar     { background: #117DC4; }
+.cell-home-arb { background: linear-gradient(135deg, #93C37D 50%, #D9534F 50%); }
+.cell-home-bar { background: linear-gradient(135deg, #93C37D 50%, #117DC4 50%); }
 .cell-empty   { background: #fff; }
 
 /* Member name status */
-.name-deficit { background: #dc3545 !important; color: #fff !important; }
-.name-ok      { background: #28a745 !important; color: #fff !important; }
+.name-deficit { background: #f0b0b7 !important; color: #212529 !important; }
+.name-ok      { background: #bbecb1 !important; color: #212529 !important; }
 .name-none    { background: #fff; color: #212529; }
 
 /* Legend */
@@ -115,17 +115,19 @@
     <div class="card-body p-2">
 
         <!-- Légende -->
-        <div class="mb-3 d-flex flex-wrap gap-3" style="gap:.8rem; font-size:.82rem;">
-            <span><span class="legend-box" style="background:#28a745"></span> Joue à domicile</span>
-            <span><span class="legend-box" style="background:#dc3545"></span> Arbitre</span>
-            <span><span class="legend-box" style="background:#007bff"></span> Bar</span>
-            <span class="ml-3">
-                <span class="legend-box" style="background:#dc3545; border:2px solid #dc3545"></span>
-                <strong style="color:#dc3545">NOM</strong> = redevable
+        <div class="mb-2 d-flex flex-wrap" style="gap:.8rem; font-size:.82rem;">
+            <span><span class="legend-box" style="background: #93C37D"></span> Joue à domicile</span>
+            <span><span class="legend-box" style="background: #D9534F"></span> Arbitre</span>
+            <span><span class="legend-box" style="background: #117DC4"></span> Bar</span>
+        </div>
+        <div class="mb-3 d-flex flex-wrap" style="gap:.8rem; font-size:.82rem;">
+            <span>
+                <span class="legend-box" style="background: #f0b0b7"></span>
+                <strong>NOM</strong> = redevable
             </span>
             <span>
-                <span class="legend-box" style="background:#28a745; border:2px solid #28a745"></span>
-                <strong style="color:#28a745">NOM</strong> = en ordre
+                <span class="legend-box" style="background: #bbecb1"></span>
+                <strong>NOM</strong> = en ordre
             </span>
         </div>
 
