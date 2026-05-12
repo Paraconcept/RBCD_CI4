@@ -210,8 +210,8 @@ $hasCoords = ($m->show_phone   && $m->phone)
   </div>
 
   <!-- Retour -->
-  <a href="<?= base_url('club/membres') ?>" class="btn btn-outline-secondary">
-    <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+  <a href="<?= esc($backUrl) ?>" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-2"></i><?= esc($backLabel) ?>
   </a>
 
 </div>

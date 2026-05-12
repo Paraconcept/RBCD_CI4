@@ -101,6 +101,19 @@ class PagesController extends BaseController
 
         $name = esc($member->last_name . ' ' . $member->first_name);
 
+        $referer   = $this->request->getServer('HTTP_REFERER') ?? '';
+        $siteBase  = base_url();
+        $backUrl   = base_url('club/membres');
+        $backLabel = 'Retour à la liste';
+
+        if (str_starts_with($referer, $siteBase)) {
+            $path = substr($referer, strlen($siteBase));
+            if (str_contains($path, 'saison/intm/') || str_contains($path, 'saison/coupe-des-regions/')) {
+                $backUrl   = $referer;
+                $backLabel = 'Retour à l\'équipe';
+            }
+        }
+
         return view('public/pages/club_membre', [
             'title'       => $name . ' — RBC Disonais',
             'page_title'  => $name,
@@ -110,7 +123,9 @@ class PagesController extends BaseController
                 ['label' => 'Nos Membres',  'url' => base_url('club/membres')],
                 ['label' => $name],
             ],
-            'member' => $member,
+            'member'    => $member,
+            'backUrl'   => $backUrl,
+            'backLabel' => $backLabel,
         ]);
     }
 
