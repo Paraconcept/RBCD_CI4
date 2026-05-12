@@ -317,6 +317,24 @@
 .ms-cell-home-arb { background: linear-gradient(135deg, #93C37D 50%, #D9534F 50%); }
 .ms-cell-home-bar { background: linear-gradient(135deg, #93C37D 50%, #117DC4 50%); }
 .ms-cell-empty    { background: #fafafa; }
+/* Cellules sommaire (col. de droite) */
+.ms-cal-sum {
+    width: 44px; min-width: 44px; max-width: 44px;
+    height: 28px; min-height: 28px;
+    box-sizing: border-box;
+    border: 1px solid #adb5bd;
+    margin: -1px 0 0 -1px;
+    flex-shrink: 0;
+    background: #f8f9fa;
+    font-size: .72rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+}
+.ms-cal-sum-head {
+    background: #84252B; color: #fff;
+    height: 60px; min-height: 60px;
+    font-size: .68rem; font-weight: 700; text-align: center; line-height: 1.2;
+}
+.ms-cal-sum-sep { border-left: 2px solid #adb5bd !important; }
 .ms-legend-dot { display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:middle; margin-right:3px; }
 </style>
 <?= $this->endSection() ?>
@@ -661,6 +679,13 @@
                   <?= date('y', strtotime($d)) ?>
                 </div>
               <?php endforeach; ?>
+              <!-- Entêtes sommaire -->
+              <div class="ms-cal-sum ms-cal-sum-head ms-cal-sum-sep" title="Jours joués à domicile">Joué</div>
+              <div class="ms-cal-sum ms-cal-sum-head" title="Services requis (règle 2/3)">Requis</div>
+              <div class="ms-cal-sum ms-cal-sum-head" title="Arbitrages">Arb.</div>
+              <div class="ms-cal-sum ms-cal-sum-head" title="Services bar">Bar</div>
+              <div class="ms-cal-sum ms-cal-sum-head" title="Total services accomplis">Fait</div>
+              <div class="ms-cal-sum ms-cal-sum-head" title="Solde (négatif = redevable)">Solde</div>
             </div>
             <!-- Ligne cellules colorées -->
             <div class="ms-cal-row">
@@ -678,6 +703,22 @@
               ?>
                 <div class="ms-cal-cell <?= $c ?>" <?= $t ? "title=\"{$t}\"" : '' ?>></div>
               <?php endforeach; ?>
+              <!-- Valeurs sommaire -->
+              <?php
+                $solde    = $ms['solde'];
+                $soldeFmt = ($solde == 0) ? '0'
+                    : ($solde > 0 ? '+' : '') . ($solde == floor($solde) ? (int)$solde : number_format($solde, 1, '.', ''));
+                $soldeColor = $solde < 0 ? '#c62828' : ($solde > 0 ? '#2e7d32' : '');
+                $reqFmt = $ms['required'] == floor($ms['required'])
+                    ? (int)$ms['required']
+                    : number_format($ms['required'], 1, '.', '');
+              ?>
+              <div class="ms-cal-sum ms-cal-sum-sep"><?= $ms['home_count'] ?></div>
+              <div class="ms-cal-sum"><?= $reqFmt ?></div>
+              <div class="ms-cal-sum"><?= $ms['arb_count'] ?></div>
+              <div class="ms-cal-sum"><?= $ms['bar_count'] ?></div>
+              <div class="ms-cal-sum"><?= $ms['done'] ?></div>
+              <div class="ms-cal-sum" style="<?= $soldeColor ? "color:{$soldeColor};font-weight:700;" : '' ?>"><?= $soldeFmt ?></div>
             </div>
           </div><!-- /ms-cal -->
         </div><!-- /ms-scroll-wrap -->
