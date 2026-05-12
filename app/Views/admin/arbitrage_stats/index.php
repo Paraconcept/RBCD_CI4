@@ -32,7 +32,7 @@
     border-right: 2px solid #adb5bd !important;
 }
 .stats-table thead .col-name {
-    background: #343a40;
+    background: #721C24;
     color: #fff;
     z-index: 3;
 }
@@ -46,14 +46,14 @@
     border-left: 2px solid #adb5bd !important;
 }
 .stats-table thead .col-summary {
-    background: #343a40;
+    background: #721C24;
     color: #fff;
     z-index: 3;
 }
 
 /* Date header — vertical text */
 .stats-table thead th.col-date {
-    background: #343a40;
+    background: #721C24;
     color: #fff;
     padding: 4px 2px;
     min-width: 28px;
@@ -61,11 +61,8 @@
     width: 28px;
 }
 .th-date-inner {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-size: .7rem;
-    line-height: 1;
-    letter-spacing: .02em;
+    font-size: .8rem;
+    line-height: 1.3;
 }
 
 /* Calendar cells */
@@ -132,9 +129,9 @@
         </div>
 
         <!-- Règle -->
-        <p class="text-muted mb-3" style="font-size:.8rem;">
-            <i class="fas fa-info-circle mr-1"></i>
-            Règle : 2 jours de jeu à domicile = 3 services requis (arbitrage ou bar).
+        <p class="text-muted mb-3" style="font-size:1rem;">
+            <i class="fas fa-info-circle fa-lg mr-2"></i>
+            Règle de 2 pour 3 <i class="fas fa-arrow-right"></i> 2 jours de jeu à domicile = 3 services requis (arbitrage ou bar).
         </p>
 
         <?php if (empty($members)): ?>
@@ -152,12 +149,16 @@
                     <th class="col-name">Joueur</th>
                     <?php foreach ($dates as $d): ?>
                         <th class="col-date">
-                            <div class="th-date-inner"><?= date('d/m', strtotime($d)) ?></div>
+                            <div class="th-date-inner">
+                                <?= date('d', strtotime($d)) ?><br>
+                                <?= date('m', strtotime($d)) ?><br>
+                                <?= date('y', strtotime($d)) ?>
+                            </div>
                         </th>
                     <?php endforeach; ?>
                     <!-- Summary columns (sticky right) -->
                     <th class="col-summary" title="Jours joués à domicile">Dom.</th>
-                    <th class="col-summary" title="Services requis (règle 2/3)">Req.</th>
+                    <th class="col-summary" title="Services requis (règle 2/3)">Requis</th>
                     <th class="col-summary" title="Arbitrages">Arb.</th>
                     <th class="col-summary" title="Services bar">Bar</th>
                     <th class="col-summary" title="Total services accomplis">Fait</th>
