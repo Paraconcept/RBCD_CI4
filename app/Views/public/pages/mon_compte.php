@@ -292,8 +292,8 @@
 .ms-stat-solde-ok      { color: #2e7d32; }
 .ms-stat-solde-deficit { color: #c62828; }
 /* Grille calendrier perso */
-.ms-scroll-wrap { overflow-x: auto; }
-.ms-table { border-collapse: collapse; white-space: nowrap; font-size: .78rem; }
+.ms-scroll-wrap { overflow-x: auto; width: fit-content; max-width: 100%; }
+.ms-table { border-collapse: collapse; white-space: nowrap; font-size: .78rem; width: auto; }
 .ms-table th, .ms-table td { border: 1px solid #e0e0e0; padding: 0; vertical-align: middle; text-align: center; }
 .ms-table thead th.ms-col-date {
     background: #84252B; color: #fff;
