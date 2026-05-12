@@ -65,7 +65,7 @@
               <?php
                 $currentYear = (int) ANNEE_1;
                 $selected    = old('season', $gallery->season ?? '');
-                for ($y = $currentYear; $y >= 2018; $y--):
+                for ($y = $currentYear; $y >= 2006; $y--):
                   $s = $y . '-' . ($y + 1);
               ?>
               <option value="<?= $s ?>" <?= $selected === $s ? 'selected' : '' ?>><?= $s ?></option>

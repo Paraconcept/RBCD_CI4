@@ -117,6 +117,14 @@ class GalleriesController extends BaseController
         $gallery = $this->model->find($id);
         if (!$gallery) throw PageNotFoundException::forPageNotFound();
 
+        // If PHP dropped the entire body (post_max_size exceeded), $_FILES is empty
+        if (empty($_FILES)) {
+            $limit = ini_get('post_max_size');
+            return redirect()->back()->with('error',
+                "PHP n'a reçu aucun fichier. La taille totale dépasse probablement post_max_size ({$limit}). "
+                . "Réduisez le nombre de photos ou augmentez post_max_size dans php.ini.");
+        }
+
         $files = $this->request->getFileMultiple('photos');
         if (!$files) {
             return redirect()->back()->with('error', 'Aucun fichier sélectionné.');

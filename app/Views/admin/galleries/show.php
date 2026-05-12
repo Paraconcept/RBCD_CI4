@@ -24,7 +24,7 @@
   <div class="card-header">
     <h3 class="card-title"><i class="fas fa-upload mr-2"></i>Ajouter des photos</h3>
   </div>
-  <form method="post" enctype="multipart/form-data"
+  <form id="upload-form" method="post" enctype="multipart/form-data"
         action="<?= base_url('admin/galleries/' . $gallery->id . '/photos/upload') ?>">
     <?= csrf_field() ?>
     <div class="card-body">
@@ -139,6 +139,13 @@ $('#photos').on('change', function () {
     var n = this.files.length;
     $(this).closest('.custom-file').find('.custom-file-label')
            .text(n > 1 ? n + ' fichiers sélectionnés' : (this.files[0] ? this.files[0].name : 'Choisir des photos…'));
+});
+
+$('#upload-form').on('submit', function (e) {
+    if ($('#photos').get(0).files.length === 0) {
+        e.preventDefault();
+        alert('Veuillez sélectionner au moins une photo avant de cliquer sur Uploader.');
+    }
 });
 </script>
 <?= $this->endSection() ?>

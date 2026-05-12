@@ -66,19 +66,22 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/css/glightbox.min.css">
 <style>
 .gal-masonry {
-    columns: 4;
-    column-gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
 }
-@media (max-width: 991px) { .gal-masonry { columns: 3; } }
-@media (max-width: 575px)  { .gal-masonry { columns: 2; } }
+@media (max-width: 991px) { .gal-masonry { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 575px)  { .gal-masonry { grid-template-columns: repeat(2, 1fr); } }
 
 .gal-masonry-item {
-    break-inside: avoid;
-    margin-bottom: 10px;
+    overflow: hidden;
+    border-radius: 4px;
+    aspect-ratio: 4/3;
 }
-.gal-masonry-item a { display: block; overflow: hidden; border-radius: 4px; }
+.gal-masonry-item a { display: block; height: 100%; }
 .gal-masonry-item img {
-    width: 100%; display: block;
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
     transition: transform .3s, filter .3s;
 }
 .gal-masonry-item a:hover img {
