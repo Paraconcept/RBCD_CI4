@@ -204,6 +204,10 @@ $routes->group('admin', static function ($routes) {
         $routes->post('schedule/(:num)/referee/remove',  'Admin\ScheduleController::removeReferee/$1');
         $routes->post('schedule/bar/assign',             'Admin\ScheduleController::assignBar');
 
+        // Statistiques d'arbitrage
+        $routes->get('arbitrage-stats',          'Admin\ArbitrageStatsController::index');
+        $routes->get('arbitrage-stats/(:num)',   'Admin\ArbitrageStatsController::index/$1');
+
         // Utilisateurs admin
         $routes->get('users',                            'Admin\AdminUsersController::index');
         $routes->get('users/pick-member',                'Admin\AdminUsersController::pickMember');

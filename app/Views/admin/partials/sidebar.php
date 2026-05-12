@@ -140,6 +140,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/arbitrage-stats') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/arbitrage-stats') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-chart-bar"></i>
+                        <p>Stats d'arbitrage</p>
+                    </a>
+                </li>
+
                 <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/cdr') === 0) ? 'menu-open' : '' ?>">
                     <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/cdr') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-trophy"></i>
