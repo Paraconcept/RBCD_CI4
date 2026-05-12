@@ -297,15 +297,15 @@
 .ms-table th, .ms-table td { border: 1px solid #e0e0e0; padding: 0; vertical-align: middle; text-align: center; }
 .ms-table thead th.ms-col-date {
     background: #84252B; color: #fff;
-    padding: 4px 2px; min-width: 26px; max-width: 26px; width: 26px;
+    padding: 4px 2px; width: 50px; min-width: 50px; max-width: 50px;
 }
 .ms-date-inner { font-size: .65rem; line-height: 1.3; }
-.ms-cell-home  { background: #93C37D; width: 26px; height: 24px; }
-.ms-cell-arb   { background: #D9534F; width: 26px; height: 24px; }
-.ms-cell-bar   { background: #117DC4; width: 26px; height: 24px; }
-.ms-cell-home-arb { background: linear-gradient(135deg, #93C37D 50%, #D9534F 50%); width: 26px; height: 24px; }
-.ms-cell-home-bar { background: linear-gradient(135deg, #93C37D 50%, #117DC4 50%); width: 26px; height: 24px; }
-.ms-cell-empty { background: #fafafa; width: 26px; height: 24px; }
+.ms-cell-home  { background: #93C37D; width: 50px; min-width: 50px; max-width: 50px; height: 28px; }
+.ms-cell-arb   { background: #D9534F; width: 50px; min-width: 50px; max-width: 50px; height: 28px; }
+.ms-cell-bar   { background: #117DC4; width: 50px; min-width: 50px; max-width: 50px; height: 28px; }
+.ms-cell-home-arb { background: linear-gradient(135deg, #93C37D 50%, #D9534F 50%); width: 50px; min-width: 50px; max-width: 50px; height: 28px; }
+.ms-cell-home-bar { background: linear-gradient(135deg, #93C37D 50%, #117DC4 50%); width: 50px; min-width: 50px; max-width: 50px; height: 28px; }
+.ms-cell-empty { background: #fafafa; width: 50px; min-width: 50px; max-width: 50px; height: 28px; }
 .ms-legend-dot { display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:middle; margin-right:3px; }
 </style>
 <?= $this->endSection() ?>
@@ -567,7 +567,7 @@
       <!-- Saison -->
       <p class="text-muted mb-3" style="font-size:.85rem;">
         Saison <?= $ms['seasonYear'] ?>/<?= $ms['seasonYear'] + 1 ?> &nbsp;·&nbsp;
-        Règle de 2 pour 3 : 2 jours à domicile = 3 services requis (arbitrage ou bar).
+        Règle de 2 pour 3 : 2 jours de jeu à domicile = 3 services requis (arbitrage ou bar).
       </p>
 
       <!-- Chiffres clés -->
@@ -625,7 +625,7 @@
       <?php elseif ($ms['status'] === 'ok'): ?>
         <div class="mc-alert mc-alert-success mb-4">
           <i class="fas fa-check-circle me-2"></i>
-          Vous êtes en ordre pour cette saison.
+          Vous êtes en ordre pour cette saison — mais rien ne vous empêche de vous inscrire à l'arbitrage ou au bar et prendre de l'avance !
         </div>
       <?php endif; ?>
 
