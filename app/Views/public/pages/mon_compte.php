@@ -279,6 +279,34 @@
     .mc-tab-pane { padding: 22px 18px; }
     .mc-tabs-nav .nav-link { padding: 14px 18px; }
 }
+/* ── Onglet Mes statistiques ── */
+.ms-stat-card {
+    text-align: center;
+    background: #f8f9fa;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 14px 10px 10px;
+}
+.ms-stat-card .ms-val { font-size: 1.7rem; font-weight: 700; line-height: 1; }
+.ms-stat-card .ms-lbl { font-size: .72rem; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+.ms-stat-solde-ok      { color: #2e7d32; }
+.ms-stat-solde-deficit { color: #c62828; }
+/* Grille calendrier perso */
+.ms-scroll-wrap { overflow-x: auto; }
+.ms-table { border-collapse: collapse; white-space: nowrap; font-size: .78rem; }
+.ms-table th, .ms-table td { border: 1px solid #e0e0e0; padding: 0; vertical-align: middle; text-align: center; }
+.ms-table thead th.ms-col-date {
+    background: #84252B; color: #fff;
+    padding: 4px 2px; min-width: 26px; max-width: 26px; width: 26px;
+}
+.ms-date-inner { font-size: .65rem; line-height: 1.3; }
+.ms-cell-home  { background: #93C37D; width: 26px; height: 24px; }
+.ms-cell-arb   { background: #D9534F; width: 26px; height: 24px; }
+.ms-cell-bar   { background: #117DC4; width: 26px; height: 24px; }
+.ms-cell-home-arb { background: linear-gradient(135deg, #93C37D 50%, #D9534F 50%); width: 26px; height: 24px; }
+.ms-cell-home-bar { background: linear-gradient(135deg, #93C37D 50%, #117DC4 50%); width: 26px; height: 24px; }
+.ms-cell-empty { background: #fafafa; width: 26px; height: 24px; }
+.ms-legend-dot { display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:middle; margin-right:3px; }
 </style>
 <?= $this->endSection() ?>
 
@@ -303,6 +331,10 @@
     <a href="?tab=confidentialite" role="tab"
        class="nav-link <?= $activeTab === 'confidentialite' ? 'active' : '' ?>">
       <i class="fas fa-eye-slash"></i>Confidentialité
+    </a>
+    <a href="?tab=statistiques" role="tab"
+       class="nav-link <?= $activeTab === 'statistiques' ? 'active' : '' ?>">
+      <i class="fas fa-chart-bar"></i>Mes statistiques
     </a>
   </div>
 
@@ -508,6 +540,142 @@
         </button>
       </div>
     </form>
+    <?php endif; ?>
+  </div>
+
+  <!-- ── Tab 4 : Mes statistiques ── -->
+  <div class="mc-tab-pane <?= $activeTab === 'statistiques' ? 'active' : '' ?>" id="tab-statistiques">
+    <div class="mc-section-title"><i class="fas fa-chart-bar me-2"></i>Mes statistiques d'arbitrage</div>
+
+    <?php if (!$member): ?>
+      <div class="mc-no-member">
+        <i class="fas fa-user-slash"></i>
+        Votre compte n'est lié à aucun profil membre.<br>
+        Contactez un administrateur pour associer votre compte à votre fiche membre.
+      </div>
+
+    <?php elseif (!$member->is_federated): ?>
+      <div class="mc-no-member">
+        <i class="fas fa-info-circle"></i>
+        Ces statistiques concernent uniquement les joueurs fédérés.
+      </div>
+
+    <?php else:
+      $ms = $memberStats;
+    ?>
+
+      <!-- Saison -->
+      <p class="text-muted mb-3" style="font-size:.85rem;">
+        Saison <?= $ms['seasonYear'] ?>/<?= $ms['seasonYear'] + 1 ?> &nbsp;·&nbsp;
+        Règle de 2 pour 3 : 2 jours à domicile = 3 services requis (arbitrage ou bar).
+      </p>
+
+      <!-- Chiffres clés -->
+      <div class="row g-2 mb-4">
+        <div class="col-4 col-md-2">
+          <div class="ms-stat-card">
+            <div class="ms-val"><?= $ms['home_count'] ?></div>
+            <div class="ms-lbl">Domicile</div>
+          </div>
+        </div>
+        <div class="col-4 col-md-2">
+          <div class="ms-stat-card">
+            <div class="ms-val"><?= $ms['required'] == floor($ms['required']) ? (int)$ms['required'] : number_format($ms['required'], 1, '.', '') ?></div>
+            <div class="ms-lbl">Requis</div>
+          </div>
+        </div>
+        <div class="col-4 col-md-2">
+          <div class="ms-stat-card">
+            <div class="ms-val"><?= $ms['arb_count'] ?></div>
+            <div class="ms-lbl">Arbitrages</div>
+          </div>
+        </div>
+        <div class="col-4 col-md-2">
+          <div class="ms-stat-card">
+            <div class="ms-val"><?= $ms['bar_count'] ?></div>
+            <div class="ms-lbl">Bar</div>
+          </div>
+        </div>
+        <div class="col-4 col-md-2">
+          <div class="ms-stat-card">
+            <div class="ms-val"><?= $ms['done'] ?></div>
+            <div class="ms-lbl">Fait</div>
+          </div>
+        </div>
+        <div class="col-4 col-md-2">
+          <?php
+            $solde = $ms['solde'];
+            $soldeFmt = ($solde == 0) ? '0'
+                : ($solde > 0 ? '+' : '') . ($solde == floor($solde) ? (int)$solde : number_format($solde, 1, '.', ''));
+            $soldeClass = $solde < 0 ? 'ms-stat-solde-deficit' : ($solde > 0 ? 'ms-stat-solde-ok' : '');
+          ?>
+          <div class="ms-stat-card">
+            <div class="ms-val <?= $soldeClass ?>"><?= $soldeFmt ?></div>
+            <div class="ms-lbl">Solde</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statut global -->
+      <?php if ($ms['status'] === 'deficit'): ?>
+        <div class="mc-alert mc-alert-error mb-4">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Vous êtes redevable de <strong><?= abs($soldeFmt) ?></strong> service(s) — pensez à vous inscrire à l'arbitrage ou au bar !
+        </div>
+      <?php elseif ($ms['status'] === 'ok'): ?>
+        <div class="mc-alert mc-alert-success mb-4">
+          <i class="fas fa-check-circle me-2"></i>
+          Vous êtes en ordre pour cette saison.
+        </div>
+      <?php endif; ?>
+
+      <!-- Grille calendrier -->
+      <?php if (empty($ms['dates'])): ?>
+        <p class="text-muted" style="font-size:.88rem;">Aucune activité enregistrée cette saison.</p>
+      <?php else: ?>
+        <!-- Légende -->
+        <div class="mb-2 d-flex flex-wrap" style="gap:.7rem; font-size:.8rem;">
+          <span><span class="ms-legend-dot" style="background:#93C37D"></span>Domicile</span>
+          <span><span class="ms-legend-dot" style="background:#D9534F"></span>Arbitrage</span>
+          <span><span class="ms-legend-dot" style="background:#117DC4"></span>Bar</span>
+        </div>
+        <div class="ms-scroll-wrap">
+          <table class="ms-table">
+            <thead>
+              <tr>
+                <?php foreach ($ms['dates'] as $d): ?>
+                  <th class="ms-col-date">
+                    <div class="ms-date-inner">
+                      <?= date('d', strtotime($d)) ?><br>
+                      <?= date('m', strtotime($d)) ?><br>
+                      <?= date('y', strtotime($d)) ?>
+                    </div>
+                  </th>
+                <?php endforeach; ?>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <?php foreach ($ms['dates'] as $d):
+                  $isHome = isset($ms['home_dates'][$d]);
+                  $hasArb = isset($ms['arb_dates'][$d]);
+                  $hasBar = isset($ms['bar_dates'][$d]);
+
+                  if ($isHome && $hasArb)     { $c = 'ms-cell-home-arb'; $t = 'Domicile + Arbitrage'; }
+                  elseif ($isHome && $hasBar) { $c = 'ms-cell-home-bar'; $t = 'Domicile + Bar'; }
+                  elseif ($isHome)            { $c = 'ms-cell-home';     $t = 'Joue à domicile'; }
+                  elseif ($hasArb)            { $c = 'ms-cell-arb';      $t = 'Arbitrage'; }
+                  elseif ($hasBar)            { $c = 'ms-cell-bar';      $t = 'Bar'; }
+                  else                        { $c = 'ms-cell-empty';    $t = ''; }
+                ?>
+                  <td class="<?= $c ?>" <?= $t ? "title=\"{$t}\"" : '' ?>></td>
+                <?php endforeach; ?>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      <?php endif; ?>
+
     <?php endif; ?>
   </div>
 

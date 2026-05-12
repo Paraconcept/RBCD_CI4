@@ -19,8 +19,14 @@ class AccountController extends BaseController
 
     public function index(): string
     {
-        $member = $this->getMember();
-        $tab    = $this->request->getGet('tab') ?? 'coordonnees';
+        $member   = $this->getMember();
+        $tab      = $this->request->getGet('tab') ?? 'coordonnees';
+        $memberId = (int) session()->get('admin_member_id');
+        $adminId  = (int) session()->get('admin_id');
+
+        $memberStats = ($member && $member->is_federated && $memberId)
+            ? $this->getMemberStats($memberId, $adminId)
+            : null;
 
         return view('public/pages/mon_compte', [
             'title'       => 'Mon compte — RBC Disonais',
@@ -29,11 +35,98 @@ class AccountController extends BaseController
                 ['label' => 'Accueil', 'url' => base_url('/')],
                 ['label' => 'Mon compte'],
             ],
-            'member'    => $member,
-            'activeTab' => $tab,
-            'success'   => session()->getFlashdata('success'),
-            'error'     => session()->getFlashdata('error'),
+            'member'      => $member,
+            'activeTab'   => $tab,
+            'memberStats' => $memberStats,
+            'success'     => session()->getFlashdata('success'),
+            'error'       => session()->getFlashdata('error'),
         ]);
+    }
+
+    private function getMemberStats(int $memberId, int $adminUserId): array
+    {
+        $now        = new \DateTime();
+        $y          = (int) $now->format('Y');
+        $seasonYear  = ($now >= new \DateTime("{$y}-08-15")) ? $y : $y - 1;
+        $seasonStart = "{$seasonYear}-08-15";
+        $seasonEnd   = ($seasonYear + 1) . "-06-30";
+
+        $db = \Config\Database::connect();
+
+        $homeRows = $db->table('schedule_encounter_players sep')
+            ->select('se.match_date')
+            ->join('schedule_encounters se', 'se.id = sep.encounter_id')
+            ->where('sep.member_id', $memberId)
+            ->where('se.is_home', 1)
+            ->where('se.match_date >=', $seasonStart)
+            ->where('se.match_date <=', $seasonEnd)
+            ->get()->getResultObject();
+
+        $arbRows = $db->query("
+            SELECT se.match_date
+            FROM schedule_arbitrage sa
+            JOIN schedule_encounters se ON se.id = sa.encounter_id
+            WHERE (sa.member_id = ? OR sa.admin_user_id = ?)
+              AND se.match_date >= ? AND se.match_date <= ?
+        ", [$memberId, $adminUserId, $seasonStart, $seasonEnd])->getResultObject();
+
+        $barRows = $db->query("
+            SELECT bd.duty_date
+            FROM schedule_bar_duties bd
+            WHERE (bd.member_id = ? OR bd.admin_user_id = ?)
+              AND bd.duty_date >= ? AND bd.duty_date <= ?
+        ", [$memberId, $adminUserId, $seasonStart, $seasonEnd])->getResultObject();
+
+        $homeDates = [];
+        $allDates  = [];
+        foreach ($homeRows as $r) {
+            $homeDates[$r->match_date] = true;
+            $allDates[$r->match_date]  = true;
+        }
+
+        $arbDates = [];
+        foreach ($arbRows as $r) {
+            $arbDates[] = $r->match_date;
+            $allDates[$r->match_date] = true;
+        }
+
+        $barDates = [];
+        foreach ($barRows as $r) {
+            $barDates[] = $r->duty_date;
+            $allDates[$r->duty_date] = true;
+        }
+
+        ksort($allDates);
+
+        $homeCount = count($homeDates);
+        $arbCount  = count($arbDates);
+        $barCount  = count($barDates);
+        $required  = $homeCount * 3 / 2;
+        $done      = $arbCount + $barCount;
+        $solde     = $done - $required;
+
+        if ($homeCount === 0 && $done === 0) {
+            $status = 'none';
+        } elseif ($done < $required) {
+            $status = 'deficit';
+        } else {
+            $status = 'ok';
+        }
+
+        return [
+            'seasonYear'  => $seasonYear,
+            'dates'       => array_keys($allDates),
+            'home_dates'  => $homeDates,
+            'arb_dates'   => array_count_values($arbDates),
+            'bar_dates'   => array_count_values($barDates),
+            'home_count'  => $homeCount,
+            'arb_count'   => $arbCount,
+            'bar_count'   => $barCount,
+            'required'    => $required,
+            'done'        => $done,
+            'solde'       => $solde,
+            'status'      => $status,
+        ];
     }
 
     public function saveCoordonnees()
