@@ -294,20 +294,22 @@
 /* Grille calendrier perso */
 .ms-scroll-wrap { overflow-x: auto; max-width: 100%; }
 .ms-table-outer { display: inline-block; }
-.ms-table { border-collapse: collapse; white-space: nowrap; font-size: .78rem; }
-.ms-table th, .ms-table td { border: 1px solid #e0e0e0; padding: 0; vertical-align: middle; text-align: center; }
+.ms-table { border-collapse: collapse; white-space: nowrap; font-size: .78rem; table-layout: fixed; }
+.ms-table th, .ms-table td { border: 1px solid #e0e0e0; padding: 0; vertical-align: middle; text-align: center; overflow: hidden; }
 .ms-table thead th.ms-col-date {
     background: #84252B; color: #fff;
-    padding: 4px 2px;
+    padding: 3px 0;
     width: 28px; min-width: 28px; max-width: 28px;
 }
-.ms-date-inner { font-size: .65rem; line-height: 1.3; }
-.ms-cell-home  { background: #93C37D; width: 28px; min-width: 28px; max-width: 28px; height: 28px; }
-.ms-cell-arb   { background: #D9534F; width: 28px; min-width: 28px; max-width: 28px; height: 28px; }
-.ms-cell-bar   { background: #117DC4; width: 28px; min-width: 28px; max-width: 28px; height: 28px; }
-.ms-cell-home-arb { background: linear-gradient(135deg, #93C37D 50%, #D9534F 50%); width: 28px; min-width: 28px; max-width: 28px; height: 28px; }
-.ms-cell-home-bar { background: linear-gradient(135deg, #93C37D 50%, #117DC4 50%); width: 28px; min-width: 28px; max-width: 28px; height: 28px; }
-.ms-cell-empty { background: #fafafa; width: 28px; min-width: 28px; max-width: 28px; height: 28px; }
+.ms-date-inner { font-size: .6rem; line-height: 1.25; }
+/* Cellules de données : carré 28×28 via un div interne */
+.ms-table td { width: 28px; height: 28px; }
+.ms-cell-home     { background: #93C37D; }
+.ms-cell-arb      { background: #D9534F; }
+.ms-cell-bar      { background: #117DC4; }
+.ms-cell-home-arb { background: linear-gradient(135deg, #93C37D 50%, #D9534F 50%); }
+.ms-cell-home-bar { background: linear-gradient(135deg, #93C37D 50%, #117DC4 50%); }
+.ms-cell-empty    { background: #fafafa; }
 .ms-legend-dot { display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:middle; margin-right:3px; }
 </style>
 <?= $this->endSection() ?>
