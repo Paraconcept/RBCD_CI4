@@ -100,7 +100,8 @@
             </h2>
             <div id="<?= $yearId ?>"
                  class="accordion-collapse collapse <?= $isFirst ? 'show' : '' ?>"
-                 aria-labelledby="heading-<?= $yearId ?>">
+                 aria-labelledby="heading-<?= $yearId ?>"
+                 data-bs-parent="#journalAccordion">
               <div class="accordion-body py-0 px-0">
                 <ul class="journal-list">
                   <?php foreach ($issues as $issue): ?>
