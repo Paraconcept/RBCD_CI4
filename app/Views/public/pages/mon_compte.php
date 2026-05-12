@@ -293,7 +293,8 @@
 .ms-stat-solde-deficit { color: #c62828; }
 /* Grille calendrier perso */
 .ms-scroll-wrap { overflow-x: auto; max-width: 100%; }
-.ms-table { border-collapse: collapse; white-space: nowrap; font-size: .78rem; display: inline-table; }
+.ms-table-outer { display: inline-block; }
+.ms-table { border-collapse: collapse; white-space: nowrap; font-size: .78rem; }
 .ms-table th, .ms-table td { border: 1px solid #e0e0e0; padding: 0; vertical-align: middle; text-align: center; }
 .ms-table thead th.ms-col-date {
     background: #84252B; color: #fff;
@@ -641,6 +642,7 @@
           <span><span class="ms-legend-dot" style="background: #117DC4"></span>Bar</span>
         </div>
         <div class="ms-scroll-wrap">
+          <div class="ms-table-outer">
           <table class="ms-table">
             <thead>
               <tr>
@@ -674,7 +676,8 @@
               </tr>
             </tbody>
           </table>
-        </div>
+          </div><!-- /ms-table-outer -->
+        </div><!-- /ms-scroll-wrap -->
       <?php endif; ?>
 
     <?php endif; ?>
