@@ -291,19 +291,26 @@
 .ms-stat-card .ms-lbl { font-size: .72rem; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
 .ms-stat-solde-ok      { color: #2e7d32; }
 .ms-stat-solde-deficit { color: #c62828; }
-/* Grille calendrier perso */
-.ms-scroll-wrap { overflow-x: auto; max-width: 100%; }
-.ms-table-outer { display: inline-block; }
-.ms-table { border-collapse: collapse; white-space: nowrap; font-size: .78rem; table-layout: fixed; }
-.ms-table th, .ms-table td { border: 1px solid #e0e0e0; padding: 0; vertical-align: middle; text-align: center; overflow: hidden; }
-.ms-table thead th.ms-col-date {
-    background: #84252B; color: #fff;
-    padding: 3px 0;
+/* Grille calendrier perso — flexbox (pas de <table> pour éviter width:100% du thème) */
+.ms-scroll-wrap  { overflow-x: auto; max-width: 100%; }
+.ms-cal          { display: flex; flex-direction: column; width: fit-content; gap: 0; }
+.ms-cal-row      { display: flex; flex-direction: row; }
+.ms-cal-cell     {
     width: 28px; min-width: 28px; max-width: 28px;
+    height: 28px; min-height: 28px;
+    box-sizing: border-box;
+    border: 1px solid #e0e0e0;
+    margin: -1px 0 0 -1px;   /* collapse borders */
+    flex-shrink: 0;
 }
-.ms-date-inner { font-size: .6rem; line-height: 1.25; }
-/* Cellules de données : carré 28×28 via un div interne */
-.ms-table td { width: 28px; height: 28px; }
+.ms-cal-head     {
+    background: #84252B; color: #fff;
+    font-size: .7rem; line-height: 1.2;
+    font-weight: 600; text-align: center;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 0;
+    height: 60px; min-height: 60px;
+}
 .ms-cell-home     { background: #93C37D; }
 .ms-cell-arb      { background: #D9534F; }
 .ms-cell-bar      { background: #117DC4; }
@@ -644,41 +651,35 @@
           <span><span class="ms-legend-dot" style="background: #117DC4"></span>Bar</span>
         </div>
         <div class="ms-scroll-wrap">
-          <div class="ms-table-outer">
-          <table class="ms-table">
-            <thead>
-              <tr>
-                <?php foreach ($ms['dates'] as $d): ?>
-                  <th class="ms-col-date">
-                    <div class="ms-date-inner">
-                      <?= date('d', strtotime($d)) ?><br>
-                      <?= date('m', strtotime($d)) ?><br>
-                      <?= date('y', strtotime($d)) ?>
-                    </div>
-                  </th>
-                <?php endforeach; ?>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <?php foreach ($ms['dates'] as $d):
-                  $isHome = isset($ms['home_dates'][$d]);
-                  $hasArb = isset($ms['arb_dates'][$d]);
-                  $hasBar = isset($ms['bar_dates'][$d]);
+          <div class="ms-cal">
+            <!-- Ligne entêtes dates -->
+            <div class="ms-cal-row">
+              <?php foreach ($ms['dates'] as $d): ?>
+                <div class="ms-cal-cell ms-cal-head">
+                  <?= date('d', strtotime($d)) ?><br>
+                  <?= date('m', strtotime($d)) ?><br>
+                  <?= date('y', strtotime($d)) ?>
+                </div>
+              <?php endforeach; ?>
+            </div>
+            <!-- Ligne cellules colorées -->
+            <div class="ms-cal-row">
+              <?php foreach ($ms['dates'] as $d):
+                $isHome = isset($ms['home_dates'][$d]);
+                $hasArb = isset($ms['arb_dates'][$d]);
+                $hasBar = isset($ms['bar_dates'][$d]);
 
-                  if ($isHome && $hasArb)     { $c = 'ms-cell-home-arb'; $t = 'Domicile + Arbitrage'; }
-                  elseif ($isHome && $hasBar) { $c = 'ms-cell-home-bar'; $t = 'Domicile + Bar'; }
-                  elseif ($isHome)            { $c = 'ms-cell-home';     $t = 'Joue à domicile'; }
-                  elseif ($hasArb)            { $c = 'ms-cell-arb';      $t = 'Arbitrage'; }
-                  elseif ($hasBar)            { $c = 'ms-cell-bar';      $t = 'Bar'; }
-                  else                        { $c = 'ms-cell-empty';    $t = ''; }
-                ?>
-                  <td class="<?= $c ?>" <?= $t ? "title=\"{$t}\"" : '' ?>></td>
-                <?php endforeach; ?>
-              </tr>
-            </tbody>
-          </table>
-          </div><!-- /ms-table-outer -->
+                if ($isHome && $hasArb)     { $c = 'ms-cell-home-arb'; $t = 'Domicile + Arbitrage'; }
+                elseif ($isHome && $hasBar) { $c = 'ms-cell-home-bar'; $t = 'Domicile + Bar'; }
+                elseif ($isHome)            { $c = 'ms-cell-home';     $t = 'Joue à domicile'; }
+                elseif ($hasArb)            { $c = 'ms-cell-arb';      $t = 'Arbitrage'; }
+                elseif ($hasBar)            { $c = 'ms-cell-bar';      $t = 'Bar'; }
+                else                        { $c = 'ms-cell-empty';    $t = ''; }
+              ?>
+                <div class="ms-cal-cell <?= $c ?>" <?= $t ? "title=\"{$t}\"" : '' ?>></div>
+              <?php endforeach; ?>
+            </div>
+          </div><!-- /ms-cal -->
         </div><!-- /ms-scroll-wrap -->
       <?php endif; ?>
 
