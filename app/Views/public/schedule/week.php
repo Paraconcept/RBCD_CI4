@@ -7,13 +7,9 @@
 }
 
 .week-title { font-size:1.1rem; font-weight:700; }
-.week-nav-next   { order:2; }
-.week-nav-center { order:3; flex-basis:100%; margin-top:.5rem; }
 .week-nav-select { width:auto; display:inline-block; }
 @media (max-width:575px) {
     .week-nav-select { width:100%; display:block; }
-    .week-nav        { flex-direction: column !important; align-items: center !important; }
-    .week-nav-center { flex-basis: auto; margin-top: 0; }
 }
 
 /* Day card */
@@ -200,21 +196,25 @@ while ($swDt <= $swEnd) {
 ?>
 
 <!-- Navigation semaine -->
-<div class="d-flex align-items-center justify-content-between mb-4 week-nav flex-wrap" style="gap:.5rem">
-    <a href="<?= base_url("tableau/{$prev['week']}/{$prev['year']}") ?>" class="btn btn-outline-secondary">
-        <i class="fas fa-chevron-left me-1"></i>Semaine précédente
-    </a>
-    <a href="<?= base_url("tableau/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary week-nav-next">
-        Semaine suivante <i class="fas fa-chevron-right ms-1"></i>
-    </a>
-    <div class="text-center week-nav-center">
+<div class="mb-4 week-nav">
+    <div class="d-flex justify-content-center align-items-stretch gap-2 mb-2">
+        <a href="<?= base_url("tableau/{$prev['week']}/{$prev['year']}") ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
+            <i class="fas fa-chevron-left d-block d-sm-inline me-sm-4"></i>Semaine précédente
+        </a>
         <?php if (!$isCurrentWeek): ?>
-            <div class="mb-1">
-                <a href="<?= base_url('tableau') ?>" class="btn btn-outline-secondary">
-                    <i class="fas fa-chevron-down me-1"></i>Semaine en cours
-                </a>
-            </div>
+            <a href="<?= base_url('tableau') ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
+                <i class="fas fa-home d-block d-sm-inline me-sm-2"></i>Semaine en cours
+            </a>
+        <?php else: ?>
+            <span class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;background:#6c757d;border-color:#6c757d;color:#fff;pointer-events:none;">
+                <i class="fas fa-home d-block d-sm-inline me-sm-3"></i>Semaine en cours
+            </span>
         <?php endif; ?>
+        <a href="<?= base_url("tableau/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
+            <i class="fas fa-chevron-right d-block d-sm-none"></i>Semaine suivante<i class="fas fa-chevron-right d-none d-sm-inline ms-4"></i>
+        </a>
+    </div>
+    <div class="text-center">
         <div class="week-title">Semaine <?= $week ?></div>
         <div class="text-muted" style="font-size:.9rem"><?= esc($periodStr) ?></div>
         <div class="mt-2">
@@ -457,6 +457,38 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
 </div>
 
 <?php endforeach; ?>
+
+<!-- Navigation semaine (bas de page) -->
+<div class="mt-4 week-nav">
+    <div class="d-flex justify-content-center align-items-stretch gap-2 mb-2">
+        <a href="<?= base_url("tableau/{$prev['week']}/{$prev['year']}") ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
+            <i class="fas fa-chevron-left d-block d-sm-inline me-sm-4"></i>Semaine précédente
+        </a>
+        <?php if (!$isCurrentWeek): ?>
+            <a href="<?= base_url('tableau') ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
+                <i class="fas fa-home d-block d-sm-inline me-sm-2"></i>Semaine en cours
+            </a>
+        <?php else: ?>
+            <span class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;background:#6c757d;border-color:#6c757d;color:#fff;pointer-events:none;">
+                <i class="fas fa-home d-block d-sm-inline me-sm-3"></i>Semaine en cours
+            </span>
+        <?php endif; ?>
+        <a href="<?= base_url("tableau/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
+            <i class="fas fa-chevron-right d-block d-sm-none"></i>Semaine suivante<i class="fas fa-chevron-right d-none d-sm-inline ms-4"></i>
+        </a>
+    </div>
+</div>
+
+    <!-- Séparateur -->
+    <div class="row mt-20 mb-10">
+      <div class="separator">
+        <img src="<?= base_url('assets/images/billiard-chalk.png') ?>"
+             alt="Séparateur Craie de billard"
+             style="width:20px;opacity:0.7;margin: 0 10px;">
+      </div>
+    </div>
+
+
 
 </div><!-- /container -->
 

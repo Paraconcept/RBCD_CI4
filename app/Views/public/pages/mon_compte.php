@@ -374,7 +374,7 @@
        class="nav-link <?= $activeTab === 'statistiques' ? 'active' : '' ?>">
       <i class="fas fa-chart-bar"></i>Mes statistiques
       <?php if ($tachoColor): ?>
-        <i class="fas fa-tachometer-alt ms-1" style="color:<?= $tachoColor ?>;font-size:.95rem;"></i>
+        <i class="fas fa-tachometer-alt ms-1" style="color:<?= $tachoColor ?>;font-size:1.3rem;"></i>
       <?php endif; ?>
     </a>
   </div>
@@ -588,9 +588,6 @@
   <div class="mc-tab-pane <?= $activeTab === 'statistiques' ? 'active' : '' ?>" id="tab-statistiques">
     <div class="mc-section-title d-flex align-items-center justify-content-between">
       <span><i class="fas fa-chart-bar me-2"></i>Mes statistiques d'arbitrage</span>
-      <?php if ($tachoColor): ?>
-        <i class="fas fa-tachometer-alt fa-lg" style="color:<?= $tachoColor ?>;"></i>
-      <?php endif; ?>
     </div>
 
     <?php if (!$member): ?>

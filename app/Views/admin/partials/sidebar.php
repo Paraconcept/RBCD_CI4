@@ -64,13 +64,6 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?= base_url('admin/schedule-events') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule-events') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>Événements au tableau</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
                     <a href="<?= base_url('admin/galleries') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/galleries') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-images"></i>
                         <p>Galeries photos</p>
@@ -134,13 +127,6 @@
                 <li class="nav-header mt-4">DIRECTION SPORTIVE</li>
 
                 <li class="nav-item">
-                    <a href="<?= base_url('admin/sport-results') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/sport-results') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-medal"></i>
-                        <p>Résultats sportifs</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
                     <a href="<?= base_url('admin/schedule') ?>" class="nav-link <?= (uri_string() === 'admin/schedule' || strpos(uri_string(), 'admin/schedule/') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-calendar-week"></i>
                         <p>Tableau des rencontres</p>
@@ -148,9 +134,23 @@
                 </li>
 
                 <li class="nav-item">
+                    <a href="<?= base_url('admin/schedule-events') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule-events') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>Événements au tableau</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="<?= base_url('admin/arbitrage-stats') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/arbitrage-stats') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-chart-bar"></i>
                         <p>Stats d'arbitrage</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/sport-results') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/sport-results') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-medal"></i>
+                        <p>Résultats sportifs</p>
                     </a>
                 </li>
 
