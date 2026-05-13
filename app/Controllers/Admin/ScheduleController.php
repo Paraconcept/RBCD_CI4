@@ -8,6 +8,7 @@ use App\Models\ScheduleEncounterPlayerModel;
 use App\Models\ScheduleArbitrageModel;
 use App\Models\ScheduleBarDutyModel;
 use App\Models\MemberModel;
+use App\Models\ScheduleEventModel;
 
 class ScheduleController extends BaseController
 {
@@ -37,6 +38,7 @@ class ScheduleController extends BaseController
         $playersByEncounter   = $this->getPlayersByEncounter($encounterIds);
         $arbitrageByEncounter = $this->arbitrage->getForEncounters($encounterIds);
         $barByDate            = $this->barDuties->getForDates($weekDates);
+        $eventsByDate         = (new ScheduleEventModel())->getForDates($weekDates);
 
         $byDate = [];
         foreach ($encounters as $enc) {
@@ -61,8 +63,10 @@ class ScheduleController extends BaseController
             'barByDate'   => $barByDate,
             'prev'        => $nav['prev'],
             'next'        => $nav['next'],
-            'members'     => $members,
-            'allMembers'  => $allMembers,
+            'members'      => $members,
+            'allMembers'   => $allMembers,
+            'eventsByDate' => $eventsByDate,
+            'eventColors'  => ScheduleEventModel::$colors,
         ]);
     }
 

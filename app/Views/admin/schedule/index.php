@@ -25,6 +25,20 @@
 
 .col-actions { border-left:2px solid rgba(0,0,0,.08); border-right:2px solid rgba(0,0,0,.08); padding:0 .8rem; }
 
+/* Événements */
+.event-admin-row {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .45rem 1rem;
+    font-size: .85rem;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.event-admin-row:last-of-type { border-bottom: none; }
+.event-admin-title { font-weight: 700; flex: 1; }
+.event-admin-time  { font-size: .78rem; opacity: .75; white-space: nowrap; }
+.event-admin-desc  { font-size: .8rem; opacity: .8; }
+
 .wna-next   { order:2; }
 .wna-center { order:3; flex-basis:100%; margin-top:.3rem; }
 
@@ -139,6 +153,38 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
             <?php endif; ?>
         </div>
     </div>
+
+    <?php if (!empty($eventsByDate[$date])): ?>
+    <div class="day-card-events">
+        <?php foreach ($eventsByDate[$date] as $ev):
+            $c = $eventColors[$ev->color] ?? $eventColors['blue'];
+        ?>
+        <div class="event-admin-row" style="background:<?= $c['bg'] ?>;border-left:4px solid <?= $c['border'] ?>;color:<?= $c['text'] ?>;">
+            <i class="fas fa-calendar-day" style="color:<?= $c['border'] ?>;flex-shrink:0;"></i>
+            <div class="event-admin-title">
+                <?= esc($ev->title) ?>
+                <?php if ($ev->start_time): ?>
+                    <span class="event-admin-time ml-2"><?= substr($ev->start_time, 0, 5) ?></span>
+                <?php endif; ?>
+                <?php if ($ev->description): ?>
+                    <span class="event-admin-desc ml-2">— <?= esc($ev->description) ?></span>
+                <?php endif; ?>
+            </div>
+            <a href="<?= base_url("admin/schedule-events/{$ev->id}/edit") ?>"
+               class="btn btn-xs btn-warning ml-auto" title="Modifier">
+                <i class="fas fa-edit"></i>
+            </a>
+            <form method="post" action="<?= base_url("admin/schedule-events/{$ev->id}/delete") ?>"
+                  class="d-inline" onsubmit="return confirm('Supprimer cet événement ?')">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn-xs btn-danger" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
 
     <?php if (!empty($dayEncounters)): ?>
     <div class="card-body p-0">
