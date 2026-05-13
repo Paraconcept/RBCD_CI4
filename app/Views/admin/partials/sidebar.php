@@ -141,7 +141,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?= base_url('admin/schedule') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule') === 0) ? 'active' : '' ?>">
+                    <a href="<?= base_url('admin/schedule') ?>" class="nav-link <?= (uri_string() === 'admin/schedule' || strpos(uri_string(), 'admin/schedule/') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-calendar-week"></i>
                         <p>Tableau des rencontres</p>
                     </a>
