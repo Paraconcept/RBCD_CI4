@@ -86,12 +86,14 @@ class ScheduleController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $type        = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
-        $roundsCount = $type === 'finale' ? max(1, min(8, (int) $this->request->getPost('rounds_count') ?: 3)) : 3;
+        $type            = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
+        $roundsCount     = $type === 'finale' ? max(1, min(8, (int) $this->request->getPost('rounds_count') ?: 3)) : 3;
+        $requiresArb     = $type === 'finale' ? ($this->request->getPost('requires_arbitrage') ? 1 : 0) : 1;
 
         $encounterId = $this->encounters->insert([
-            'encounter_type' => $type,
-            'rounds_count'   => $roundsCount,
+            'encounter_type'      => $type,
+            'rounds_count'        => $roundsCount,
+            'requires_arbitrage'  => $requiresArb,
             'match_date'  => $this->request->getPost('match_date'),
             'match_time'  => $this->request->getPost('match_time'),
             'is_home'     => (int) $this->request->getPost('is_home'),
@@ -135,12 +137,14 @@ class ScheduleController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $type        = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
-        $roundsCount = $type === 'finale' ? max(1, min(8, (int) $this->request->getPost('rounds_count') ?: 3)) : 3;
+        $type            = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
+        $roundsCount     = $type === 'finale' ? max(1, min(8, (int) $this->request->getPost('rounds_count') ?: 3)) : 3;
+        $requiresArb     = $type === 'finale' ? ($this->request->getPost('requires_arbitrage') ? 1 : 0) : 1;
 
         $this->encounters->update($id, [
-            'encounter_type' => $type,
-            'rounds_count'   => $roundsCount,
+            'encounter_type'      => $type,
+            'rounds_count'        => $roundsCount,
+            'requires_arbitrage'  => $requiresArb,
             'match_date'  => $this->request->getPost('match_date'),
             'match_time'  => $this->request->getPost('match_time'),
             'is_home'     => (int) $this->request->getPost('is_home'),
@@ -218,7 +222,7 @@ class ScheduleController extends BaseController
         return $this->response->setJSON([
             'success'     => true,
             'arb_id'      => $arbId,
-            'name'        => $arb->last_name . ' ' . mb_substr($arb->first_name, 0, 1) . '.',
+            'name'        => $arb->last_name . ' ' . member_initials($arb->first_name),
             'round'       => $round,
             'type'        => 'designated',
             'confirmed'   => 0,
@@ -276,7 +280,7 @@ class ScheduleController extends BaseController
         return $this->response->setJSON([
             'success' => true,
             'id'      => $id,
-            'name'    => $member->last_name . ' ' . mb_substr($member->first_name, 0, 1) . '.',
+            'name'    => $member->last_name . ' ' . member_initials($member->first_name),
         ]);
     }
 

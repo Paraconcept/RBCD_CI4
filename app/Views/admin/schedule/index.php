@@ -123,7 +123,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
         <div class="ml-auto d-flex align-items-center" style="gap:.5rem">
             <span class="text-muted" style="font-size:.75rem">Bar AM :</span>
             <?php if ($barAm): ?>
-                <span class="badge badge-success"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
+                <span class="badge badge-success"><?= esc($barAm->last_name) ?> <?= esc(member_initials($barAm->first_name)) ?>.</span>
                 <button class="btn btn-xs btn-danger btn-bar-cancel" data-id="<?= $barAm->id ?>"><i class="fas fa-times"></i></button>
             <?php else: ?>
                 <span class="badge badge-info btn-bar-assign" style="cursor:pointer"
@@ -131,7 +131,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
             <?php endif; ?>
             <span class="text-muted ml-2" style="font-size:.75rem">Bar soir :</span>
             <?php if ($barSoir): ?>
-                <span class="badge badge-success"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
+                <span class="badge badge-success"><?= esc($barSoir->last_name) ?> <?= esc(member_initials($barSoir->first_name)) ?>.</span>
                 <button class="btn btn-xs btn-danger btn-bar-cancel" data-id="<?= $barSoir->id ?>"><i class="fas fa-times"></i></button>
             <?php else: ?>
                 <span class="badge badge-info btn-bar-assign" style="cursor:pointer"
@@ -179,7 +179,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         <?php foreach ($enc->players as $p): ?>
                         <?php
                         $pName   = $p->member_id
-                            ? esc($p->last_name . ' ' . mb_substr($p->first_name, 0, 1) . '.')
+                            ? esc($p->last_name . ' ' . member_initials($p->first_name))
                             : esc($p->player_home_name ?? '—');
                         $oppName = esc($p->opponent_name);
                         ?>
@@ -201,12 +201,12 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     <?php endif; ?>
                 </td>
                 <td class="align-middle" id="arb-cell-<?= $enc->id ?>">
-                    <?php if ($enc->is_home): ?>
+                    <?php if ($enc->is_home && ($enc->requires_arbitrage ?? 1)): ?>
                         <!-- Liste des arbitres déjà inscrits -->
                         <div class="arb-list" id="arb-list-<?= $enc->id ?>">
                             <?php foreach ($enc->arbitrageRows as $arb): ?>
                             <div class="arb-item" data-arb-id="<?= $arb->id ?>">
-                                <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(mb_substr($arb->first_name,0,1)) ?>.</span>
+                                <span class="arb-name"><?= esc($arb->last_name) ?> <?= esc(member_initials($arb->first_name)) ?>.</span>
                                 <?php if ($arb->round): ?>
                                     <i class="far fa-clock arb-rounds" data-toggle="tooltip" title="<?= esc(decodeTours($arb->round)) ?>"></i>
                                 <?php endif; ?>
@@ -228,13 +228,15 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                             </div>
                             <?php endforeach; ?>
                         </div>
-                        <!-- Bouton Désigner — toujours visible pour les domiciles -->
+                        <!-- Bouton Désigner — visible si arbitrages requis -->
                         <button class="btn btn-xs btn-info btn-designate-referee"
                                 data-encounter="<?= $enc->id ?>"
                                 data-type="<?= $enc->encounter_type ?>"
                                 data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
                             <i class="fas fa-user-plus mr-1"></i>Désigner
                         </button>
+                    <?php elseif ($enc->is_home): ?>
+                        <span class="text-muted" style="font-size:.8rem"><i class="fas fa-info-circle mr-1"></i>Arbitres fédération</span>
                     <?php endif; ?>
                 </td>
                 <td class="align-middle text-right text-nowrap col-actions">

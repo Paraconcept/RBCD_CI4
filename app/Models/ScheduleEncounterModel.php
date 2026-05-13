@@ -12,8 +12,8 @@ class ScheduleEncounterModel extends Model
     protected $returnType    = 'object';
 
     protected $allowedFields = [
-        'encounter_type', 'rounds_count', 'match_date', 'match_time', 'is_home', 'venue',
-        'competition', 'notes',
+        'encounter_type', 'rounds_count', 'requires_arbitrage', 'match_date', 'match_time',
+        'is_home', 'venue', 'competition', 'notes',
     ];
 
     public function getWeek(int $week, int $year): array

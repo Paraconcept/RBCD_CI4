@@ -138,7 +138,7 @@ class ScheduleController extends BaseController
         return $this->response->setJSON([
             'success'     => true,
             'arb_id'      => $arbId,
-            'name'        => $arb->last_name . ' ' . mb_substr($arb->first_name, 0, 1) . '.',
+            'name'        => $arb->last_name . ' ' . member_initials($arb->first_name),
             'round'       => $round,
         ]);
     }
@@ -214,7 +214,7 @@ class ScheduleController extends BaseController
         return $this->response->setJSON([
             'success' => true,
             'id'      => $id,
-            'name'    => $duty->last_name . ' ' . mb_substr($duty->first_name, 0, 1) . '.',
+            'name'    => $duty->last_name . ' ' . member_initials($duty->first_name),
         ]);
     }
 

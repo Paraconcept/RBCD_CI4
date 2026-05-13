@@ -36,7 +36,7 @@
 /* Encounter row */
 .enc-block {
     display:grid;
-    grid-template-columns: 70px 140px 1fr 240px 1fr;
+    grid-template-columns: 70px 130px 1fr 300px 0.55fr;
     align-items:start;
     padding:.65rem 1rem;
     border-bottom:1px solid #f0f0f0;
@@ -73,11 +73,11 @@
 .player-home { text-align:right; }
 .player-rbcd { font-weight:600; }
 .player-away { text-align:left; }
-.vs-sep { color:#aaa; font-size:.78rem; text-align:center; }
+.vs-sep { color:#666; font-size:.78rem; text-align:center; }
 
 /* Compétition */
 .comp-col { border-left:2px solid rgba(0,0,0,.08); border-right:2px solid rgba(0,0,0,.08); padding:0 .8rem; }
-.comp-label { font-size:.8rem; color:#555; font-style:italic; line-height:1.3; }
+.comp-label { font-size:.8rem; color:#333; font-style:italic; line-height:1.3; }
 
 /* Badge Finale */
 .badge-finale { display:inline-block; background:#ffc107; color:#000; border-radius:10px;
@@ -86,9 +86,9 @@
 /* Arbitrage col */
 .arb-col   { display:flex; flex-direction:column; gap:4px; font-size:.88rem; }
 .arb-row   { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
-.arb-label { font-size:.75rem; color:#888; font-weight:600; white-space:nowrap; }
+.arb-label { font-size:.75rem; color:#555; font-weight:600; white-space:nowrap; }
 .arb-name  { font-weight:600; }
-.arb-rounds { color:#888; cursor:help; font-size:.85rem; }
+.arb-rounds { color:#555; cursor:help; font-size:.85rem; }
 
 .badge-confirmed { background:#198754; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; cursor:help; }
 .badge-pending   { background:#ffc107; color:#000; border-radius:10px; padding:1px 7px; font-size:.73rem; cursor:help; }
@@ -97,7 +97,7 @@
 /* Bar */
 .bar-slots { display:flex; align-items:center; gap:.5rem; font-size:.83rem; }
 .bar-slot-taken  { font-weight:600; color:#198754; }
-.bar-slot-free   { color:#aaa; font-style:italic; }
+.bar-slot-free   { color:#666; font-style:italic; }
 
 /* Buttons */
 .btn-signup, .btn-cancel { font-size:.78rem; padding:2px 8px; border-radius:10px; }
@@ -110,6 +110,9 @@
 
 /* Surlignage du membre connecté */
 .me-highlight { background:#fff59d; border-radius:3px; padding:0 3px; font-weight:700; }
+
+/* Fonce les text-muted dans le header jour (labels bar) */
+.day-card-header .text-muted { color:#555 !important; }
 
 /* Tooltips couleur RBCD — Bootstrap 5 */
 .tooltip-rbcd .tooltip-inner {
@@ -247,7 +250,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             <span class="text-muted"><?= $barAmLabel ?> :</span>
             <?php if ($barAm): ?>
                 <?php $isMyBar = $isLogged && $barAm->admin_user_id == $currentUser; ?>
-                <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barAm->last_name) ?> <?= esc(mb_substr($barAm->first_name,0,1)) ?>.</span>
+                <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barAm->last_name) ?> <?= esc(member_initials($barAm->first_name)) ?>.</span>
             <?php elseif ($isLogged): ?>
                 <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="am"
                         data-bs-toggle="tooltip" data-bs-html="true"
@@ -260,7 +263,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             <span class="text-muted ms-4">Bar soirée :</span>
             <?php if ($barSoir): ?>
                 <?php $isMyBar = $isLogged && $barSoir->admin_user_id == $currentUser; ?>
-                <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barSoir->last_name) ?> <?= esc(mb_substr($barSoir->first_name,0,1)) ?>.</span>
+                <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barSoir->last_name) ?> <?= esc(member_initials($barSoir->first_name)) ?>.</span>
             <?php elseif ($isLogged): ?>
                 <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="soir"
                         data-bs-toggle="tooltip" data-bs-html="true"
@@ -300,7 +303,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 <?php
                 $isMyPlayer = $currentMemberId && $p->member_id == $currentMemberId;
                 $pName = $p->member_id
-                    ? esc($p->last_name . ' ' . mb_substr($p->first_name, 0, 1) . '.')
+                    ? esc($p->last_name . ' ' . member_initials($p->first_name))
                     : esc($p->player_home_name ?? '—');
                 $pName = $isMyPlayer ? "<span class=\"me-highlight\">{$pName}</span>" : $pName;
                 $oppName = esc($p->opponent_name);
@@ -323,7 +326,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
 
             <!-- Arbitrage -->
             <div class="arb-col" id="arb-<?= $enc->id ?>">
-                <?php if ($enc->is_home): ?>
+                <?php if ($enc->is_home && ($enc->requires_arbitrage ?? 1)): ?>
 
                     <?php if ($isFinale): ?>
                         <!-- Finale : liste libre d'arbitres inscrits -->
@@ -336,7 +339,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                             );
                             $isConv = $arb->assignment_type === 'designated';
                             $roundTip = $arb->round ? decodeTours($arb->round) : '';
-                            $arbName  = esc($arb->last_name) . ' ' . esc(mb_substr($arb->first_name,0,1)) . '.';
+                            $arbName  = esc($arb->last_name) . ' ' . esc(member_initials($arb->first_name)) . '.';
                             ?>
                             <div class="arb-row" data-arb-id="<?= $arb->id ?>">
                                 <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
@@ -385,7 +388,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                     ($arb->member_id     && $arb->member_id     == $currentMemberId)
                                 );
                                 $isConv  = $arb->assignment_type === 'designated';
-                                $arbName = esc($arb->last_name) . ' ' . esc(mb_substr($arb->first_name,0,1)) . '.';
+                                $arbName = esc($arb->last_name) . ' ' . esc(member_initials($arb->first_name)) . '.';
                                 ?>
                                 <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
                                 <?php if ($isMe && $isConv && !$arb->confirmed): ?>
@@ -438,13 +441,52 @@ const rbcdTooltipTemplate = '<div class="tooltip tooltip-rbcd" role="tooltip"><d
 // Initialise les tooltips Bootstrap 5 dans un conteneur parent (ou sur le document entier)
 function initTooltips(parent) {
     (parent || document).querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
-        if (!bootstrap.Tooltip.getInstance(el)) {
-            new bootstrap.Tooltip(el, { template: rbcdTooltipTemplate });
+        // Détruire toute instance BS5
+        bootstrap.Tooltip.getInstance(el)?.dispose();
+        // Détruire toute instance jQuery/BS4 (custom.js du thème)
+        if (typeof $ !== 'undefined') {
+            try { $(el).tooltip('dispose'); } catch(e) {}
+            try { $(el).tooltip('destroy'); } catch(e) {}
         }
+        new bootstrap.Tooltip(el, {
+            template : rbcdTooltipTemplate,
+            html     : true,
+            sanitize : false,
+            delay    : { show: 80, hide: 80 },
+        });
+        // Empêche custom.js de réinitialiser après nous
+        el.dataset.bsToggle = 'tooltip-rbcd';
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => initTooltips());
+// setTimeout : garantit qu'on tourne APRÈS tous les DOMContentLoaded de custom.js
+document.addEventListener('DOMContentLoaded', () => setTimeout(() => initTooltips(), 100));
+
+// ── Navigation semaine : bloquer les clics multiples ──
+(function () {
+    const navLinks = document.querySelectorAll('.week-nav a.btn');
+    const navSel   = document.querySelector('.week-nav-select');
+
+    function lockNav() {
+        navLinks.forEach(b => {
+            b.classList.add('disabled');
+            b.style.pointerEvents = 'none';
+            b.style.opacity = '.5';
+        });
+        if (navSel) navSel.disabled = true;
+    }
+
+    navLinks.forEach(a => a.addEventListener('click', lockNav));
+
+    // Remplace l'onchange inline pour protéger le select aussi
+    if (navSel) {
+        navSel.onchange = function () {
+            const url = this.value;
+            lockNav();
+            location.href = url;
+        };
+    }
+})();
 
 function postJson(url, body) {
     return fetch(url, {

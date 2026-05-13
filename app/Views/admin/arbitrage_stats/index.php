@@ -35,6 +35,9 @@
     background: #721C24;
     color: #fff;
     z-index: 3;
+
+    position: sticky;
+    
 }
 
 /* Sticky summary columns */
@@ -49,6 +52,9 @@
     background: #721C24;
     color: #fff;
     z-index: 3;
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
 }
 
 /* Date header — vertical text */
@@ -113,7 +119,7 @@
 
         <!-- Légende -->
         <div class="mb-2 d-flex flex-wrap" style="gap:.8rem; font-size:.82rem;">
-            <span><span class="legend-box" style="background: #93C37D"></span> Joue à domicile</span>
+            <span><span class="legend-box" style="background: #93C37D"></span> Joue à domicile (individuel)</span>
             <span><span class="legend-box" style="background: #D9534F"></span> Arbitre</span>
             <span><span class="legend-box" style="background: #117DC4"></span> Bar</span>
         </div>
@@ -157,7 +163,7 @@
                         </th>
                     <?php endforeach; ?>
                     <!-- Summary columns (sticky right) -->
-                    <th class="col-summary" title="Jours joués à domicile">Dom.</th>
+                    <th class="col-summary" title="Jours joués à domicile">Joué</th>
                     <th class="col-summary" title="Services requis (règle 2/3)">Requis</th>
                     <th class="col-summary" title="Arbitrages">Arb.</th>
                     <th class="col-summary" title="Services bar">Bar</th>
@@ -202,7 +208,7 @@
                     <td class="col-summary"><?= $s['arb_count'] ?></td>
                     <td class="col-summary"><?= $s['bar_count'] ?></td>
                     <td class="col-summary"><?= $s['done'] ?></td>
-                    <td class="col-summary <?= $solde < 0 ? 'text-danger font-weight-bold' : ($solde > 0 ? 'text-success' : '') ?>">
+                    <td class="col-summary <?= $solde < 0 ? 'text-danger font-weight-bold' : ($solde > 0 ? 'text-success font-weight-bold' : '') ?>">
                         <?= $solde == 0 ? '0' : ($solde > 0 ? '+' : '') . (
                             $solde == floor($solde)
                                 ? (int)$solde
