@@ -6,18 +6,21 @@ use App\Controllers\BaseController;
 use App\Models\ScheduleEncounterModel;
 use App\Models\ScheduleArbitrageModel;
 use App\Models\ScheduleBarDutyModel;
+use App\Models\ScheduleEventModel;
 
 class ScheduleController extends BaseController
 {
     private ScheduleEncounterModel $encounters;
     private ScheduleArbitrageModel $arbitrage;
     private ScheduleBarDutyModel   $barDuties;
+    private ScheduleEventModel     $events;
 
     public function __construct()
     {
         $this->encounters = new ScheduleEncounterModel();
         $this->arbitrage  = new ScheduleArbitrageModel();
         $this->barDuties  = new ScheduleBarDutyModel();
+        $this->events     = new ScheduleEventModel();
     }
 
     public function week(?string $week = null, ?string $year = null): string
@@ -33,6 +36,7 @@ class ScheduleController extends BaseController
         $playersByEncounter   = $this->getPlayersByEncounter($encounterIds);
         $arbitrageByEncounter = $this->arbitrage->getForEncounters($encounterIds);
         $barByDate            = $this->barDuties->getForDates($weekDates);
+        $eventsByDate         = $this->events->getForDates($weekDates);
 
         $currentUser = (int) session()->get('admin_id');
         $currentMemberId = 0;
@@ -68,6 +72,9 @@ class ScheduleController extends BaseController
         foreach ($barByDate as $date => $_) {
             $activeDates[$date] = true;
         }
+        foreach ($eventsByDate as $date => $_) {
+            $activeDates[$date] = true;
+        }
 
         $nav = $this->getPrevNextWeek($week, $year);
 
@@ -90,6 +97,8 @@ class ScheduleController extends BaseController
             'currentUser'     => $currentUser,
             'currentMemberId' => $currentMemberId,
             'isLogged'        => (bool) session()->get('admin_logged_in'),
+            'eventsByDate'    => $eventsByDate,
+            'eventColors'     => ScheduleEventModel::$colors,
         ]);
     }
 

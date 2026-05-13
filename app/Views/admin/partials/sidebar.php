@@ -147,6 +147,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/schedule-events') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule-events') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>Événements</p>
+                    </a>
+                </li>
+
                 <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/cdr') === 0) ? 'menu-open' : '' ?>">
                     <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/cdr') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-trophy"></i>

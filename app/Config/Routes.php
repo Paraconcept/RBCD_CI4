@@ -208,6 +208,14 @@ $routes->group('admin', static function ($routes) {
         $routes->get('arbitrage-stats',          'Admin\ArbitrageStatsController::index');
         $routes->get('arbitrage-stats/(:num)',   'Admin\ArbitrageStatsController::index/$1');
 
+        // Événements du tableau
+        $routes->get ('schedule-events',               'Admin\ScheduleEventsController::index');
+        $routes->get ('schedule-events/create',        'Admin\ScheduleEventsController::create');
+        $routes->post('schedule-events',               'Admin\ScheduleEventsController::store');
+        $routes->get ('schedule-events/(:num)/edit',   'Admin\ScheduleEventsController::edit/$1');
+        $routes->post('schedule-events/(:num)/update', 'Admin\ScheduleEventsController::update/$1');
+        $routes->post('schedule-events/(:num)/delete', 'Admin\ScheduleEventsController::delete/$1');
+
         // Utilisateurs admin
         $routes->get('users',                            'Admin\AdminUsersController::index');
         $routes->get('users/pick-member',                'Admin\AdminUsersController::pickMember');
