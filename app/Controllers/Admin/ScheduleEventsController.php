@@ -45,7 +45,7 @@ class ScheduleEventsController extends BaseController
 
     public function edit(int $id): string
     {
-        $event = $this->model->findOrFail($id);
+        $event = $this->model->find($id);
 
         return view('admin/schedule_events/form', [
             'title'  => 'Modifier l\'événement',
@@ -56,7 +56,7 @@ class ScheduleEventsController extends BaseController
 
     public function update(int $id)
     {
-        $this->model->findOrFail($id);
+        $this->model->find($id);
         $this->model->update($id, $this->collectPost());
 
         return redirect()->to(base_url('admin/schedule-events'))
@@ -65,7 +65,7 @@ class ScheduleEventsController extends BaseController
 
     public function delete(int $id)
     {
-        $this->model->findOrFail($id);
+        $this->model->find($id);
         $this->model->delete($id);
 
         return redirect()->to(base_url('admin/schedule-events'))
