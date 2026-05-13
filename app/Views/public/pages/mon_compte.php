@@ -288,7 +288,7 @@
     padding: 14px 10px 10px;
 }
 .ms-stat-card .ms-val { font-size: 1.7rem; font-weight: 700; line-height: 1; }
-.ms-stat-card .ms-lbl { font-size: .72rem; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+.ms-stat-card .ms-lbl { font-size: .72rem; color: #202020; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
 .ms-stat-solde-ok      { color: #2e7d32; }
 .ms-stat-solde-deficit { color: #c62828; }
 .ms-stat-card-ok      { background: #bbecb1; border-color: #93C37D; }
@@ -595,6 +595,22 @@
       $ms = $memberStats;
     ?>
 
+      <!-- Explication règle -->
+      <div class="mc-alert" style="background:#fdf5f5;border:1px solid #e8c0c2;color:#444;font-size:.88rem;line-height:1.6;margin-bottom:20px;">
+        <p class="mb-2">
+          <i class="fas fa-balance-scale me-2" style="color:#84252B;"></i>
+          <strong>La règle des 2 pour 3</strong> est appliquée par souci d'<strong>équité entre tous les membres fédérés</strong>.
+          Chaque joueur qui bénéficie de l'organisation de rencontres à domicile — salles réservées, arbitrage assuré, bar tenu —
+          est invité à contribuer en retour au bon fonctionnement du club.
+        </p>
+        <p class="mb-0">
+          Le principe est simple : <strong>pour 2 jours de jeu à domicile, 3 services sont attendus</strong>
+          (arbitrage d'une rencontre ou permanence au bar).
+          Ce n'est pas une obligation rigide, mais un engagement collectif qui permet à chacun de profiter
+          d'un club qui tourne grâce à l'implication de tous.
+        </p>
+      </div>
+
       <!-- Saison -->
       <p class="text-dark mb-3" style="font-size:.85rem;">
         Saison <?= $ms['seasonYear'] ?>/<?= $ms['seasonYear'] + 1 ?> &nbsp;·&nbsp;
@@ -606,7 +622,7 @@
         <div class="col-4 col-md-2">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['home_count'] ?></div>
-            <div class="ms-lbl">joué àDomicile</div>
+            <div class="ms-lbl">joué à domicile</div>
           </div>
         </div>
         <div class="col-4 col-md-2">
@@ -643,7 +659,7 @@
           ?>
           <div class="ms-stat-card <?= $cardSoldeClass ?>">
             <div class="ms-val <?= $soldeClass ?>"><?= $soldeFmt ?></div>
-            <div class="ms-lbl">Mon Solde</div>
+            <div class="ms-lbl"><strong>Mon Solde</strong></div>
           </div>
         </div>
       </div>
