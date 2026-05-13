@@ -345,7 +345,14 @@
 
 <div class="container pt-40 pb-60">
 
-<?php $activeTab = $activeTab ?? 'coordonnees'; ?>
+<?php
+  $activeTab  = $activeTab ?? 'coordonnees';
+  $tachoColor = null;
+  if ($member && $member->is_federated && $memberStats) {
+      $s = $memberStats['solde'];
+      $tachoColor = $s > 0 ? '#2e7d32' : ($s >= -0.5 ? '#e67e22' : '#c0392b');
+  }
+?>
 
 <div class="mc-tabs-wrap">
 
@@ -366,6 +373,9 @@
     <a href="?tab=statistiques" role="tab"
        class="nav-link <?= $activeTab === 'statistiques' ? 'active' : '' ?>">
       <i class="fas fa-chart-bar"></i>Mes statistiques
+      <?php if ($tachoColor): ?>
+        <i class="fas fa-tachometer-alt ms-1" style="color:<?= $tachoColor ?>;font-size:.95rem;"></i>
+      <?php endif; ?>
     </a>
   </div>
 
@@ -576,13 +586,6 @@
 
   <!-- ── Tab 4 : Mes statistiques ── -->
   <div class="mc-tab-pane <?= $activeTab === 'statistiques' ? 'active' : '' ?>" id="tab-statistiques">
-    <?php
-      $tachoColor = null;
-      if ($member && $member->is_federated && $memberStats) {
-          $s = $memberStats['solde'];
-          $tachoColor = $s > 0 ? '#2e7d32' : ($s >= -0.5 ? '#e67e22' : '#c0392b');
-      }
-    ?>
     <div class="mc-section-title d-flex align-items-center justify-content-between">
       <span><i class="fas fa-chart-bar me-2"></i>Mes statistiques d'arbitrage</span>
       <?php if ($tachoColor): ?>
