@@ -596,19 +596,23 @@
     ?>
 
       <!-- Explication règle -->
-      <div class="mc-alert" style="background:#fdf5f5;border:1px solid #e8c0c2;color:#444;font-size:.88rem;line-height:1.6;margin-bottom:20px;">
-        <p class="mb-2">
-          <i class="fas fa-balance-scale me-2" style="color:#84252B;"></i>
-          <strong>La règle des 2 pour 3</strong> est appliquée par souci d'<strong>équité entre tous les membres fédérés</strong>.
-          Chaque joueur qui bénéficie de l'organisation de rencontres à domicile — salles réservées, arbitrage assuré, bar tenu —
-          est invité à contribuer en retour au bon fonctionnement du club.
-        </p>
-        <p class="mb-0">
-          Le principe est simple : <strong>pour 2 jours de jeu à domicile, 3 services sont attendus</strong>
-          (arbitrage d'une rencontre ou permanence au bar).
-          Ce n'est pas une obligation rigide, mais un engagement collectif qui permet à chacun de profiter
-          d'un club qui tourne grâce à l'implication de tous.
-        </p>
+      <div class="mc-alert" style="background:#e8f4fd;border:1px solid #b6d4ea;color:#31708f;font-size:.88rem;line-height:1.6;margin-bottom:20px;">
+        <div class="d-flex gap-3 align-items-start">
+          <i class="fas fa-balance-scale fa-lg mt-1 flex-shrink-0" style="color:#2980b9;"></i>
+          <div>
+            <p class="mb-2">
+              <strong>La règle des 2 pour 3</strong> est appliquée par souci d'<strong>équité entre tous les membres fédérés</strong>.
+              Chaque joueur qui bénéficie de l'organisation de rencontres à domicile — salles réservées, arbitrage assuré, bar tenu —
+              est invité à contribuer en retour au bon fonctionnement du club.
+            </p>
+            <p class="mb-0">
+              Le principe est simple : <strong>pour 2 jours de jeu à domicile, 3 services sont attendus</strong>
+              (arbitrage d'une rencontre ou permanence au bar).
+              Ce n'est pas une obligation rigide, mais un engagement collectif qui permet à chacun de profiter
+              d'un club qui tourne grâce à l'implication de tous.
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Saison -->
