@@ -84,6 +84,12 @@
 .name-ok      { background: #bbecb1 !important; color: #212529 !important; }
 .name-none    { background: #fff; color: #212529; }
 
+/* Rollover lignes */
+.stats-table tbody tr { transition: filter .12s; }
+.stats-table tbody tr:hover td               { filter: brightness(.88); }
+.stats-table tbody tr:hover td.col-name,
+.stats-table tbody tr:hover td.col-summary   { filter: brightness(.88); }
+
 /* Legend */
 .legend-box {
     display: inline-block;
