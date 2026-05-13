@@ -114,20 +114,11 @@
 /* Fonce les text-muted dans le header jour (labels bar) */
 .day-card-header .text-muted { color:#555 !important; }
 
-/* Événements */
-.event-row {
-    display: flex;
-    align-items: flex-start;
-    gap: .7rem;
-    padding: .55rem 1rem;
-    border-bottom: 1px solid rgba(0,0,0,.06);
-    font-size: .88rem;
-}
-.event-row:last-of-type { border-bottom: none; }
-.event-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
-.event-title { font-weight: 700; }
-.event-time  { font-size: .8rem; opacity: .75; }
-.event-desc  { font-size: .82rem; opacity: .8; margin-top: 1px; }
+/* Événements — même grille que enc-block */
+.event-block { border-bottom: 1px solid rgba(0,0,0,.06); }
+.event-block:last-child { border-bottom: none; }
+.event-block-title { font-weight: 700; font-size: .88rem; }
+.event-block-desc  { font-size: .8rem; font-style: italic; }
 
 /* Tooltips couleur RBCD — Bootstrap 5 */
 .tooltip-rbcd .tooltip-inner {
@@ -296,19 +287,22 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
         <?php foreach ($eventsByDate[$date] as $ev):
             $c = $eventColors[$ev->color] ?? $eventColors['blue'];
         ?>
-        <div class="event-row" style="background:<?= $c['bg'] ?>;border-left:4px solid <?= $c['border'] ?>;color:<?= $c['text'] ?>;">
-            <i class="fas fa-calendar-day event-icon" style="color:<?= $c['border'] ?>;"></i>
+        <div class="enc-block event-block" style="background:<?= $c['bg'] ?>;border-left:4px solid <?= $c['border'] ?>;color:<?= $c['text'] ?>;">
             <div>
-                <div class="event-title">
-                    <?= esc($ev->title) ?>
-                    <?php if ($ev->start_time): ?>
-                        <span class="event-time ms-2"><?= substr($ev->start_time, 0, 5) ?></span>
-                    <?php endif; ?>
-                </div>
-                <?php if ($ev->description): ?>
-                    <div class="event-desc"><?= esc($ev->description) ?></div>
+                <?php if ($ev->start_time): ?>
+                    <span class="time-pill"><?= substr($ev->start_time, 0, 5) ?></span>
                 <?php endif; ?>
             </div>
+            <div class="loc-icon">
+                <i class="fas fa-calendar-day" style="color:<?= $c['border'] ?>;margin-top:2px;"></i>
+            </div>
+            <div class="event-block-title"><?= esc($ev->title) ?></div>
+            <div class="comp-col">
+                <?php if ($ev->description): ?>
+                    <span class="event-block-desc" style="color:<?= $c['text'] ?>;"><?= esc($ev->description) ?></span>
+                <?php endif; ?>
+            </div>
+            <div></div>
         </div>
         <?php endforeach; ?>
     </div>
