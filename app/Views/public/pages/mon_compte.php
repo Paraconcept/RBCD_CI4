@@ -576,7 +576,19 @@
 
   <!-- ── Tab 4 : Mes statistiques ── -->
   <div class="mc-tab-pane <?= $activeTab === 'statistiques' ? 'active' : '' ?>" id="tab-statistiques">
-    <div class="mc-section-title"><i class="fas fa-chart-bar me-2"></i>Mes statistiques d'arbitrage</div>
+    <?php
+      $tachoColor = null;
+      if ($member && $member->is_federated && $memberStats) {
+          $s = $memberStats['solde'];
+          $tachoColor = $s > 0 ? '#2e7d32' : ($s >= -0.5 ? '#e67e22' : '#c0392b');
+      }
+    ?>
+    <div class="mc-section-title d-flex align-items-center justify-content-between">
+      <span><i class="fas fa-chart-bar me-2"></i>Mes statistiques d'arbitrage</span>
+      <?php if ($tachoColor): ?>
+        <i class="fas fa-tachometer-alt fa-lg" style="color:<?= $tachoColor ?>;"></i>
+      <?php endif; ?>
+    </div>
 
     <?php if (!$member): ?>
       <div class="mc-no-member">
@@ -596,7 +608,7 @@
     ?>
 
       <!-- Explication règle -->
-      <div class="mc-alert" style="background:#e8f4fd;border:1px solid #b6d4ea;color:#31708f;font-size:.88rem;line-height:1.6;margin-bottom:20px;">
+      <div class="mc-alert" style="background: #e8f4fd;border:1px solid #b6d4ea;color:#31708f;font-size:1rem;line-height:1.6;margin-bottom:20px;">
         <div class="d-flex gap-3 align-items-start">
           <i class="fas fa-balance-scale fa-lg mt-1 flex-shrink-0" style="color:#2980b9;"></i>
           <div>
@@ -605,12 +617,14 @@
               Chaque joueur qui bénéficie de l'organisation de rencontres à domicile — salles réservées, arbitrage assuré, bar tenu —
               est invité à contribuer en retour au bon fonctionnement du club.
             </p>
-            <p class="mb-0">
-              Le principe est simple : <strong>pour 2 jours de jeu à domicile, 3 services sont attendus</strong>
-              (arbitrage d'une rencontre ou permanence au bar).
+            <p class="mb-4">
+              <u>Le principe est simple</u> : <strong>pour 2 jours de jeu à domicile, 3 services sont attendus</strong>
+              (arbitrage d'une rencontre ou permanence au bar).<br>
               Ce n'est pas une obligation rigide, mais un engagement collectif qui permet à chacun de profiter
               d'un club qui tourne grâce à l'implication de tous.
             </p>
+            <p class="mb-2 text-center"><strong>Plus on est nombreux à contribuer, plus la charge de chacun est légère !</strong></p>
+            <p class="mb-0 text-center"><strong>Merci de votre compréhesion et pour votre implication !</strong></p>
           </div>
         </div>
       </div>
@@ -618,7 +632,6 @@
       <!-- Saison -->
       <p class="text-dark mb-3" style="font-size:.85rem;">
         Saison <?= $ms['seasonYear'] ?>/<?= $ms['seasonYear'] + 1 ?> &nbsp;·&nbsp;
-        Règle de 2 pour 3 : 2 jours de jeu à domicile = 3 services requis (arbitrage ou bar).
       </p>
 
       <!-- Chiffres clés -->
