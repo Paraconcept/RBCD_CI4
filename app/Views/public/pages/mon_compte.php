@@ -291,6 +291,8 @@
 .ms-stat-card .ms-lbl { font-size: .72rem; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
 .ms-stat-solde-ok      { color: #2e7d32; }
 .ms-stat-solde-deficit { color: #c62828; }
+.ms-stat-card-ok      { background: #bbecb1; border-color: #93C37D; }
+.ms-stat-card-deficit { background: #f0b0b7; border-color: #D9534F; }
 /* Grille calendrier perso — flexbox (pas de <table> pour éviter width:100% du thème) */
 .ms-scroll-wrap  { overflow-x: auto; max-width: 100%; }
 .ms-cal          { display: flex; flex-direction: column; width: fit-content; gap: 0; }
@@ -594,7 +596,7 @@
     ?>
 
       <!-- Saison -->
-      <p class="text-muted mb-3" style="font-size:.85rem;">
+      <p class="text-dark mb-3" style="font-size:.85rem;">
         Saison <?= $ms['seasonYear'] ?>/<?= $ms['seasonYear'] + 1 ?> &nbsp;·&nbsp;
         Règle de 2 pour 3 : 2 jours de jeu à domicile = 3 services requis (arbitrage ou bar).
       </p>
@@ -604,7 +606,7 @@
         <div class="col-4 col-md-2">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['home_count'] ?></div>
-            <div class="ms-lbl">Domicile</div>
+            <div class="ms-lbl">joué àDomicile</div>
           </div>
         </div>
         <div class="col-4 col-md-2">
@@ -636,11 +638,12 @@
             $solde = $ms['solde'];
             $soldeFmt = ($solde == 0) ? '0'
                 : ($solde > 0 ? '+' : '') . ($solde == floor($solde) ? (int)$solde : number_format($solde, 1, '.', ''));
-            $soldeClass = $solde < 0 ? 'ms-stat-solde-deficit' : ($solde > 0 ? 'ms-stat-solde-ok' : '');
+            $soldeClass     = $solde < 0 ? 'ms-stat-solde-deficit' : ($solde > 0 ? 'ms-stat-solde-ok' : '');
+            $cardSoldeClass = $solde < 0 ? 'ms-stat-card-deficit' : ($solde > 0 ? 'ms-stat-card-ok' : '');
           ?>
-          <div class="ms-stat-card">
+          <div class="ms-stat-card <?= $cardSoldeClass ?>">
             <div class="ms-val <?= $soldeClass ?>"><?= $soldeFmt ?></div>
-            <div class="ms-lbl">Solde</div>
+            <div class="ms-lbl">Mon Solde</div>
           </div>
         </div>
       </div>
