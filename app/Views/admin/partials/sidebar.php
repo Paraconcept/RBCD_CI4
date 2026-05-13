@@ -59,7 +59,14 @@
                 <li class="nav-item">
                     <a href="<?= base_url('admin/news') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/news') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-bullhorn"></i>
-                        <p>Actualités</p>
+                        <p>Actualités <em>(News)</em></p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/schedule-events') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule-events') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>Événements au tableau</p>
                     </a>
                 </li>
 
@@ -144,13 +151,6 @@
                     <a href="<?= base_url('admin/arbitrage-stats') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/arbitrage-stats') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-chart-bar"></i>
                         <p>Stats d'arbitrage</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/schedule-events') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule-events') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>Événements</p>
                     </a>
                 </li>
 
