@@ -28,20 +28,20 @@
             <div class="form-group">
                 <label>Heure de début <small class="text-muted">(optionnel)</small></label>
                 <input type="time" name="start_time" class="form-control"
-                       value="<?= esc($event->start_time ? substr($event->start_time, 0, 5) : '') ?>">
+                       value="<?= esc($event?->start_time ? substr($event->start_time, 0, 5) : '') ?>">
             </div>
 
             <div class="form-group">
                 <label>Titre <span class="text-danger">*</span></label>
                 <input type="text" name="title" class="form-control"
-                       value="<?= esc($event->title ?? '') ?>"
+                       value="<?= esc($event?->title ?? '') ?>"
                        placeholder="Ex. Réunion de comité" maxlength="150" required>
             </div>
 
             <div class="form-group">
                 <label>Description / Note <small class="text-muted">(optionnel)</small></label>
                 <input type="text" name="description" class="form-control"
-                       value="<?= esc($event->description ?? '') ?>"
+                       value="<?= esc($event?->description ?? '') ?>"
                        placeholder="Ex. Local fermé dès 19h30">
             </div>
 
@@ -51,7 +51,7 @@
                     <?php foreach ($colors as $key => $c): ?>
                     <label class="mb-0" style="cursor:pointer;">
                         <input type="radio" name="color" value="<?= $key ?>"
-                               <?= ($event->color ?? 'blue') === $key ? 'checked' : '' ?>
+                               <?= ($event?->color ?? 'blue') === $key ? 'checked' : '' ?>
                                style="display:none;" class="color-radio">
                         <span class="color-chip d-flex align-items-center gap-1 px-3 py-2"
                               style="border-radius:6px;border:2px solid <?= $c['border'] ?>;
