@@ -930,7 +930,6 @@
 
   // ── Lien "pour tous" ↔ "si connecté" ─────────────────────────────
   function lockMembersToggle(membersLabel, lock) {
-    membersLabel.style.opacity = lock ? '.4' : '';
     membersLabel.style.pointerEvents = lock ? 'none' : '';
     membersLabel.title = lock ? 'Inclus dans "Visible pour tous"' : 'Visible si connecté';
   }
