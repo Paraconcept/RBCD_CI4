@@ -2,13 +2,12 @@
 <?= $this->section('content') ?>
 
 <?php
-$months = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-
-$soldeN   = $totalRevN - $totalExpN;
-$soldeNm1 = $totalRevNm1 - $totalExpNm1;
-$deltaRev   = $totalRevN - $totalRevNm1;
-$deltaExp   = $totalExpN - $totalExpNm1;
-$deltaSolde = $soldeN - $soldeNm1;
+$months   = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+$soldeN   = $totalRevAllN - $totalExpN;
+$soldeNm1 = $totalRevAllNm1 - $totalExpNm1;
+$deltaRev   = $totalRevAllN - $totalRevAllNm1;
+$deltaExp   = $totalExpN    - $totalExpNm1;
+$deltaSolde = $soldeN       - $soldeNm1;
 
 $fmt = fn(float $v): string => number_format($v, 2, ',', '.') . ' €';
 $delta = function(float $d) use ($fmt): string {
@@ -18,8 +17,8 @@ $delta = function(float $d) use ($fmt): string {
 };
 ?>
 
-<!-- Filtre année -->
-<div class="d-flex align-items-center mb-4">
+<!-- Filtre année + bouton export -->
+<div class="d-flex align-items-center mb-4" style="gap:.75rem">
     <form method="get" class="d-flex align-items-center">
         <label class="mr-2 mb-0 font-weight-bold">Année :</label>
         <select name="year" class="form-control form-control-sm" style="width:100px" onchange="this.form.submit()">
@@ -28,16 +27,19 @@ $delta = function(float $d) use ($fmt): string {
             <?php endforeach; ?>
         </select>
     </form>
+    <a href="<?= base_url("admin/treasury/bilan/export?year={$year}") ?>" class="btn btn-sm btn-outline-success">
+        <i class="fas fa-file-excel mr-1"></i> Export Excel
+    </a>
 </div>
 
-<!-- Cartes résumé -->
-<div class="row mb-4">
+<!-- Cartes résumé (toutes sources confondues) -->
+<div class="row mb-3">
     <div class="col-md-4">
         <div class="info-box shadow-sm border">
             <span class="info-box-icon bg-success"><i class="fas fa-arrow-up"></i></span>
             <div class="info-box-content">
-                <span class="info-box-text">Recettes <?= $year ?></span>
-                <span class="info-box-number"><?= $fmt($totalRevN) ?></span>
+                <span class="info-box-text">Recettes totales <?= $year ?></span>
+                <span class="info-box-number"><?= $fmt($totalRevAllN) ?></span>
                 <div class="progress"><div class="progress-bar bg-success" style="width:100%"></div></div>
                 <span class="progress-description"><?= $delta($deltaRev) ?> vs <?= $prevYear ?></span>
             </div>
@@ -73,6 +75,50 @@ $delta = function(float $d) use ($fmt): string {
     </div>
 </div>
 
+<!-- Sources des recettes -->
+<div class="card card-outline card-success mb-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-layer-group mr-2"></i>Sources des recettes <?= $year ?></h3>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+            <tbody>
+                <tr>
+                    <td><i class="fas fa-pencil-alt text-muted mr-2"></i>Recettes manuelles
+                        <small class="text-muted">(subsides, sponsors…)</small>
+                    </td>
+                    <td class="text-right font-weight-bold text-success" style="width:160px">
+                        <?= $fmt($totalRevManualN) ?>
+                    </td>
+                    <?php $pctM = $totalRevAllN > 0 ? round($totalRevManualN / $totalRevAllN * 100) : 0; ?>
+                    <td class="text-right text-muted" style="width:60px"><?= $pctM ?> %</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-users text-muted mr-2"></i>Cotisations
+                        <small class="text-muted">(RBCD <?= $fmt($cotisAmount) ?>/an · forfait <?= $fmt($forfaitAmount) ?>/sem.)</small>
+                    </td>
+                    <td class="text-right font-weight-bold text-success"><?= $fmt($totalCotisN) ?></td>
+                    <?php $pctC = $totalRevAllN > 0 ? round($totalCotisN / $totalRevAllN * 100) : 0; ?>
+                    <td class="text-right text-muted"><?= $pctC ?> %</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-cash-register text-muted mr-2"></i>Bar / Enveloppes de caisse</td>
+                    <td class="text-right font-weight-bold text-success"><?= $fmt($totalEnvN) ?></td>
+                    <?php $pctE = $totalRevAllN > 0 ? round($totalEnvN / $totalRevAllN * 100) : 0; ?>
+                    <td class="text-right text-muted"><?= $pctE ?> %</td>
+                </tr>
+            </tbody>
+            <tfoot class="tfoot-total">
+                <tr>
+                    <td class="font-weight-bold">TOTAL RECETTES</td>
+                    <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevAllN) ?></td>
+                    <td class="text-right text-muted">100 %</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
 <!-- Évolution mensuelle -->
 <div class="card card-outline card-primary mb-4">
     <div class="card-header">
@@ -83,29 +129,38 @@ $delta = function(float $d) use ($fmt): string {
             <thead class="thead-rbcd">
                 <tr>
                     <th>Mois</th>
-                    <th class="text-right">Recettes <?= $year ?></th>
-                    <th class="text-right">Dépenses <?= $year ?></th>
+                    <th class="text-right">Rec. man.</th>
+                    <th class="text-right">Cotisations</th>
+                    <th class="text-right">Bar</th>
+                    <th class="text-right text-success">Σ Recettes <?= $year ?></th>
+                    <th class="text-right text-danger">Dépenses <?= $year ?></th>
                     <th class="text-right">Solde <?= $year ?></th>
-                    <th class="text-right text-muted" style="border-left:2px solid #dee2e6">Recettes <?= $prevYear ?></th>
-                    <th class="text-right text-muted">Dépenses <?= $prevYear ?></th>
+                    <th class="text-right text-muted" style="border-left:2px solid #dee2e6">Σ Rec. <?= $prevYear ?></th>
+                    <th class="text-right text-muted">Dép. <?= $prevYear ?></th>
                     <th class="text-right text-muted">Solde <?= $prevYear ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php for ($m = 1; $m <= 12; $m++):
-                    $rN   = $revByMonthN[$m]   ?? 0;
-                    $eN   = $expByMonthN[$m]   ?? 0;
-                    $rNm1 = $revByMonthNm1[$m] ?? 0;
-                    $eNm1 = $expByMonthNm1[$m] ?? 0;
-                    $sN   = $rN - $eN;
-                    $sNm1 = $rNm1 - $eNm1;
-                    $emptyN   = ($rN == 0 && $eN == 0);
-                    $emptyNm1 = ($rNm1 == 0 && $eNm1 == 0);
+                    $rMan = $revManualByMonthN[$m]   ?? 0;
+                    $rCot = $cotisMonthlyN[$m]        ?? 0;
+                    $rEnv = $envMonthlyN[$m]          ?? 0;
+                    $rAll = $rMan + $rCot + $rEnv;
+                    $eN   = $expByMonthN[$m]          ?? 0;
+                    $sN   = $rAll - $eN;
+
+                    $rAllNm1 = ($revManualByMonthNm1[$m] ?? 0) + ($cotisMonthlyNm1[$m] ?? 0) + ($envMonthlyNm1[$m] ?? 0);
+                    $eNm1    = $expByMonthNm1[$m] ?? 0;
+                    $sNm1    = $rAllNm1 - $eNm1;
+                    $emptyN  = ($rAll == 0 && $eN == 0);
                 ?>
                 <tr>
                     <td class="font-weight-bold"><?= $months[$m - 1] ?></td>
-                    <td class="text-right <?= $rN > 0 ? 'text-success font-weight-bold' : 'text-muted' ?>">
-                        <?= $rN > 0 ? $fmt($rN) : '—' ?>
+                    <td class="text-right text-muted"><?= $rMan > 0 ? $fmt($rMan) : '—' ?></td>
+                    <td class="text-right text-muted"><?= $rCot > 0 ? $fmt($rCot) : '—' ?></td>
+                    <td class="text-right text-muted"><?= $rEnv > 0 ? $fmt($rEnv) : '—' ?></td>
+                    <td class="text-right <?= $rAll > 0 ? 'text-success font-weight-bold' : 'text-muted' ?>">
+                        <?= $rAll > 0 ? $fmt($rAll) : '—' ?>
                     </td>
                     <td class="text-right <?= $eN > 0 ? 'text-danger font-weight-bold' : 'text-muted' ?>">
                         <?= $eN > 0 ? $fmt($eN) : '—' ?>
@@ -114,11 +169,11 @@ $delta = function(float $d) use ($fmt): string {
                         <?= !$emptyN ? $fmt($sN) : '—' ?>
                     </td>
                     <td class="text-right text-muted" style="border-left:2px solid #dee2e6">
-                        <?= $rNm1 > 0 ? $fmt($rNm1) : '—' ?>
+                        <?= $rAllNm1 > 0 ? $fmt($rAllNm1) : '—' ?>
                     </td>
                     <td class="text-right text-muted"><?= $eNm1 > 0 ? $fmt($eNm1) : '—' ?></td>
                     <td class="text-right text-muted">
-                        <?= !$emptyNm1 ? $fmt($sNm1) : '—' ?>
+                        <?= ($rAllNm1 > 0 || $eNm1 > 0) ? $fmt($sNm1) : '—' ?>
                     </td>
                 </tr>
                 <?php endfor; ?>
@@ -126,12 +181,13 @@ $delta = function(float $d) use ($fmt): string {
             <tfoot class="tfoot-total">
                 <tr>
                     <td class="font-weight-bold">TOTAL</td>
-                    <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevN) ?></td>
+                    <td class="text-right"><?= $fmt($totalRevManualN) ?></td>
+                    <td class="text-right"><?= $fmt($totalCotisN) ?></td>
+                    <td class="text-right"><?= $fmt($totalEnvN) ?></td>
+                    <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevAllN) ?></td>
                     <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
-                    <td class="text-right font-weight-bold <?= $soldeN >= 0 ? 'text-success' : 'text-danger' ?>">
-                        <?= $fmt($soldeN) ?>
-                    </td>
-                    <td class="text-right text-muted" style="border-left:2px solid #dee2e6"><?= $fmt($totalRevNm1) ?></td>
+                    <td class="text-right font-weight-bold <?= $soldeN >= 0 ? 'text-success' : 'text-danger' ?>"><?= $fmt($soldeN) ?></td>
+                    <td class="text-right text-muted" style="border-left:2px solid #dee2e6"><?= $fmt($totalRevAllNm1) ?></td>
                     <td class="text-right text-muted"><?= $fmt($totalExpNm1) ?></td>
                     <td class="text-right text-muted"><?= $fmt($soldeNm1) ?></td>
                 </tr>
@@ -146,26 +202,22 @@ $delta = function(float $d) use ($fmt): string {
         <div class="card card-outline card-success">
             <div class="card-header">
                 <h3 class="card-title">
-                    <i class="fas fa-arrow-up mr-2 text-success"></i>Recettes par catégorie — <?= $year ?>
+                    <i class="fas fa-arrow-up mr-2 text-success"></i>Recettes manuelles par catégorie — <?= $year ?>
                 </h3>
             </div>
             <div class="card-body p-0">
                 <?php if (empty($revByCatN)): ?>
-                    <div class="p-3 text-muted">Aucune recette enregistrée.</div>
+                    <div class="p-3 text-muted">Aucune recette manuelle enregistrée.</div>
                 <?php else: ?>
                 <table class="table table-sm mb-0">
                     <thead class="thead-rbcd">
-                        <tr>
-                            <th>Catégorie</th>
-                            <th class="text-right">Montant</th>
-                            <th class="text-right" style="width:60px">%</th>
-                        </tr>
+                        <tr><th>Catégorie</th><th class="text-right">Montant</th><th class="text-right" style="width:60px">%</th></tr>
                     </thead>
                     <tbody>
                         <?php foreach ($revCategories as $key => $label):
                             $m = $revByCatN[$key] ?? 0;
                             if ($m <= 0) continue;
-                            $pct = $totalRevN > 0 ? round($m / $totalRevN * 100) : 0;
+                            $pct = $totalRevManualN > 0 ? round($m / $totalRevManualN * 100) : 0;
                         ?>
                         <tr>
                             <td><?= esc($label) ?></td>
@@ -177,7 +229,7 @@ $delta = function(float $d) use ($fmt): string {
                     <tfoot class="tfoot-total">
                         <tr>
                             <td class="font-weight-bold">TOTAL</td>
-                            <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevN) ?></td>
+                            <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevManualN) ?></td>
                             <td></td>
                         </tr>
                     </tfoot>
@@ -200,11 +252,7 @@ $delta = function(float $d) use ($fmt): string {
                 <?php else: ?>
                 <table class="table table-sm mb-0">
                     <thead class="thead-rbcd">
-                        <tr>
-                            <th>Catégorie</th>
-                            <th class="text-right">Montant</th>
-                            <th class="text-right" style="width:60px">%</th>
-                        </tr>
+                        <tr><th>Catégorie</th><th class="text-right">Montant</th><th class="text-right" style="width:60px">%</th></tr>
                     </thead>
                     <tbody>
                         <?php foreach ($expCategories as $key => $label):
