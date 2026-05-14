@@ -99,10 +99,11 @@
 <?php
 $m         = $member;
 $photo     = ($m->photo && ($m->show_photo ?? 1)) ? base_url('uploads/members/' . $m->photo) : null;
-$hasCoords = ($m->show_phone   && $m->phone)
-           || ($m->show_mobile  && $m->mobile)
-           || ($m->show_email   && $m->email)
-           || ($m->show_address && ($m->address || $m->city));
+$hasCoords = ($m->show_phone      && $m->phone)
+           || ($m->show_mobile    && $m->mobile)
+           || ($m->show_email     && $m->email)
+           || ($m->show_address   && ($m->address || $m->city))
+           || ($m->show_birth_date && $m->birth_date);
 ?>
 
 <div class="container pt-40 pb-60">
@@ -147,13 +148,6 @@ $hasCoords = ($m->show_phone   && $m->phone)
         </div>
         <?php endif; ?>
 
-        <?php if ($m->show_birth_date && $m->birth_date): ?>
-        <div class="info-row" style="border:none;padding:4px 0 0">
-          <span class="info-icon"><i class="fas fa-birthday-cake"></i></span>
-          <span class="info-label">Né<?= $m->gender === 'F' ? 'e' : '' ?> le</span>
-          <span class="info-value">: <?= date('d / m / Y', strtotime($m->birth_date)) ?></span>
-        </div>
-        <?php endif; ?>
       </div>
 
       <!-- Coordonnées : col-12 sur mobile (→ ligne propre), col-md-5 sur desktop (→ à droite) -->
@@ -200,6 +194,14 @@ $hasCoords = ($m->show_phone   && $m->phone)
             <?php if ($m->address && ($m->postal_code || $m->city)): ?><br><?php endif; ?>
             <?= esc(trim($m->postal_code . ' ' . $m->city)) ?>
           </span>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($m->show_birth_date && $m->birth_date): ?>
+        <div class="info-row">
+          <span class="info-icon"><i class="fas fa-birthday-cake"></i></span>
+          <span class="info-label">Né<?= $m->gender === 'F' ? 'e' : '' ?> le</span>
+          <span class="info-value">: <?= date('d / m / Y', strtotime($m->birth_date)) ?></span>
         </div>
         <?php endif; ?>
 
