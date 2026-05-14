@@ -104,29 +104,38 @@ a.member-card { text-decoration: none; color: inherit; }
     <div class="alert alert-info">Aucun membre actif pour le moment.</div>
   <?php else: ?>
   <?php
-    // Tri colonne par colonne — tous membres
-    $cols  = 3;
-    $total = count($members);
-    $rows  = (int) ceil($total / $cols);
-    $grid  = [];
-    for ($pos = 0; $pos < $cols * $rows; $pos++) {
-        $col     = $pos % $cols;
-        $row     = (int) floor($pos / $cols);
-        $origIdx = $col * $rows + $row;
-        if ($origIdx < $total) $grid[] = $members[$origIdx];
-    }
-    // Tri colonne par colonne — fédérés uniquement
-    $fedOnly  = array_values(array_filter($members, fn($m) => $m->is_federated));
-    $totalFed = count($fedOnly);
-    $rowsFed  = (int) ceil($totalFed / $cols);
-    $gridFed  = [];
-    for ($pos = 0; $pos < $cols * $rowsFed; $pos++) {
-        $col     = $pos % $cols;
-        $row     = (int) floor($pos / $cols);
-        $origIdx = $col * $rowsFed + $row;
-        if ($origIdx < $totalFed) $gridFed[] = $fedOnly[$origIdx];
-    }
-    $fedPos = [];
+    // Construit un tableau ordonné pour affichage colonne par colonne dans la CSS Grid.
+    // Distribue les items équitablement : les premières colonnes reçoivent un item de plus
+    // si N n'est pas divisible par $cols (ex. 46 → col1=16, col2=15, col3=15 et non 16/16/14).
+    $buildGrid = function(array $items) use (&$cols): array {
+        $n      = count($items);
+        $extra  = $n % $cols;
+        $floor  = (int) floor($n / $cols);
+        $starts = [];
+        $sizes  = [];
+        $off    = 0;
+        for ($c = 0; $c < $cols; $c++) {
+            $starts[$c] = $off;
+            $sizes[$c]  = $floor + ($c < $extra ? 1 : 0);
+            $off       += $sizes[$c];
+        }
+        $result  = [];
+        $maxRows = (int) ceil($n / $cols);
+        for ($r = 0; $r < $maxRows; $r++) {
+            for ($c = 0; $c < $cols; $c++) {
+                if ($r < $sizes[$c]) {
+                    $result[] = $items[$starts[$c] + $r];
+                }
+            }
+        }
+        return $result;
+    };
+
+    $cols    = 3;
+    $grid    = $buildGrid($members);
+    $fedOnly = array_values(array_filter($members, fn($m) => $m->is_federated));
+    $gridFed = $buildGrid($fedOnly);
+    $fedPos  = [];
     foreach ($gridFed as $i => $fm) { $fedPos[$fm->id] = $i; }
   ?>
   <div class="members-grid">
@@ -135,7 +144,8 @@ a.member-card { text-decoration: none; color: inherit; }
     <a href="<?= base_url('club/membres/' . $m->id) ?>" class="member-card"
        data-federated="<?= $m->is_federated ? '1' : '0' ?>"
        data-all-pos="<?= $allPos ?>"
-       data-fed-pos="<?= $fedPos[$m->id] ?? -1 ?>">
+       data-fed-pos="<?= $fedPos[$m->id] ?? -1 ?>"
+       style="order:<?= $allPos ?>">
       <div class="member-photo-wrap">
         <?php if ($m->photo): ?>
           <img src="<?= esc($photo) ?>" alt="<?= esc($m->last_name . ' ' . $m->first_name) ?>">
@@ -169,19 +179,24 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
 
-        const filter    = this.dataset.filter;
-        const container = document.querySelector('.members-grid');
-        const cards     = [...container.querySelectorAll('.member-card')];
+        const filter = this.dataset.filter;
+
+        const cards = document.querySelectorAll('.member-card');
 
         if (filter === 'all') {
-            cards.sort((a, b) => +a.dataset.allPos - +b.dataset.allPos);
-            cards.forEach(card => { card.style.display = ''; container.appendChild(card); });
+            cards.forEach(card => {
+                card.style.display = '';
+                card.style.order   = card.dataset.allPos;
+            });
         } else {
-            const fed    = cards.filter(c => c.dataset.federated === '1')
-                                .sort((a, b) => +a.dataset.fedPos - +b.dataset.fedPos);
-            const nonFed = cards.filter(c => c.dataset.federated !== '1');
-            fed.forEach(card    => { card.style.display = ''; container.appendChild(card); });
-            nonFed.forEach(card => { card.style.display = 'none'; container.appendChild(card); });
+            cards.forEach(card => {
+                if (card.dataset.federated === '1') {
+                    card.style.display = '';
+                    card.style.order   = card.dataset.fedPos;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
     });
 });
