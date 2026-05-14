@@ -78,9 +78,11 @@ class ScheduleController extends BaseController
                 ['title' => 'Tableau des rencontres', 'url' => base_url('admin/schedule')],
                 ['title' => 'Nouvelle rencontre'],
             ],
-            'encounter'   => null,
+            'encounter'       => null,
             'existingPlayers' => [],
-            'members'     => (new MemberModel())->where('is_active', 1)->orderBy('last_name')->orderBy('first_name')->findAll(),
+            'members'         => (new MemberModel())->where('is_active', 1)->orderBy('last_name')->orderBy('first_name')->findAll(),
+            'acOpponents'     => $this->getAutocompleteValues('opponent_name'),
+            'acHomePlayers'   => $this->getAutocompleteValues('player_home_name'),
         ]);
     }
 
@@ -127,6 +129,8 @@ class ScheduleController extends BaseController
             'encounter'       => $encounter,
             'existingPlayers' => $encounter->players,
             'members'         => (new MemberModel())->where('is_active', 1)->orderBy('last_name')->orderBy('first_name')->findAll(),
+            'acOpponents'     => $this->getAutocompleteValues('opponent_name'),
+            'acHomePlayers'   => $this->getAutocompleteValues('player_home_name'),
         ]);
     }
 
@@ -384,5 +388,19 @@ class ScheduleController extends BaseController
             ->where('is_active', 1)
             ->orderBy('last_name')->orderBy('first_name')
             ->get()->getResultObject();
+    }
+
+    private function getAutocompleteValues(string $column): array
+    {
+        $rows = \Config\Database::connect()
+            ->table('schedule_encounter_players')
+            ->select($column)
+            ->where($column . ' IS NOT NULL')
+            ->where($column . ' !=', '')
+            ->distinct()
+            ->orderBy($column, 'ASC')
+            ->get()->getResultArray();
+
+        return array_column($rows, $column);
     }
 }

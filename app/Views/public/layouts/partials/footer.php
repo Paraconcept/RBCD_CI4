@@ -57,9 +57,15 @@
                   }
               }
             ?>
+            <style>
+              #hoursInfoNote { transition: color .25s; }
+              .opening-hours:has(#hoursInfoTrigger:hover) #hoursInfoNote { color: #fff !important; font-size:1rem !important; }
+              #hoursInfoTrigger { cursor: default; }
+              #hoursInfoTrigger:hover { color: #fff !important; }
+            </style>
             <div class="opening-hours border-dark">
-              <p style="font-size:1.4rem;color:#aaa;margin-top:10px;margin-bottom:-5px;text-align:right;margin-right:30px;">
-                <i class="fa fa-info-circle me-2"></i>
+              <p style="font-size:1.4rem;color: #aaa;margin-top:10px;margin-bottom:-5px;text-align:right;margin-right:30px;transition:color .25s;">
+                <i id="hoursInfoTrigger" class="fa fa-info-circle me-2"></i>
               </p>
               <ul>
                 <?php foreach ($groups as $g):
@@ -80,8 +86,8 @@
                 </li>
                 <?php endforeach; ?>
               </ul>
-              <p style="font-size:.8rem;color:#aaa;margin-top:10px;margin-bottom:0;">
-                <i class="fa fa-info-circle me-2"></i>Les horaires de soirées s'appliquent uniquement les soirs de compétitions.
+              <p id="hoursInfoNote" style="font-size:1rem;color:#aaa;margin-top:10px;margin-bottom:0;display:flex;align-items:flex-start;gap:.4rem;">
+                <i class="fa fa-info-circle fa-lg me-2" style="flex-shrink:0;margin-top:20px;"></i><span>Les horaires de soirées s'appliquent uniquement les soirs de compétitions.</span>
               </p>
             </div>
           </div>

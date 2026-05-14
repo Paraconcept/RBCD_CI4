@@ -163,13 +163,13 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
                     <div class="player-row d-flex align-items-center" style="gap:.5rem">
                         <div style="flex:1">
                             <input type="text" name="player_home_name[]" class="form-control form-control-sm"
-                                   placeholder="Joueur domicile"
+                                   placeholder="Joueur domicile" list="dlHomePlayers"
                                    value="<?= esc($p->player_home_name ?? '') ?>">
                         </div>
                         <span class="text-muted">vs</span>
                         <div style="flex:1">
                             <input type="text" name="opponent_name[]" class="form-control form-control-sm"
-                                   placeholder="Joueur adverse"
+                                   placeholder="Joueur adverse" list="dlOpponents"
                                    value="<?= esc($p->opponent_name) ?>">
                         </div>
                         <button type="button" class="btn btn-xs btn-outline-danger btn-remove-player">
@@ -191,7 +191,7 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
                         <span class="text-muted">vs</span>
                         <div style="flex:1">
                             <input type="text" name="opponent_name[]" class="form-control form-control-sm"
-                                   placeholder="Nom de l'adversaire"
+                                   placeholder="Nom de l'adversaire" list="dlOpponents"
                                    value="<?= esc($p->opponent_name) ?>">
                         </div>
                         <button type="button" class="btn btn-xs btn-outline-danger btn-remove-player">
@@ -205,7 +205,7 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
                     <div class="player-row d-flex align-items-center" style="gap:.5rem" data-row-type="<?= $encType ?>">
                         <?php if ($isFinale): ?>
                         <div style="flex:1">
-                            <input type="text" name="player_home_name[]" class="form-control form-control-sm" placeholder="Joueur domicile">
+                            <input type="text" name="player_home_name[]" class="form-control form-control-sm" placeholder="Joueur domicile" list="dlHomePlayers">
                         </div>
                         <span class="text-muted">vs</span>
                         <div style="flex:1">
@@ -222,7 +222,7 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
                         </div>
                         <span class="text-muted">vs</span>
                         <div style="flex:1">
-                            <input type="text" name="opponent_name[]" class="form-control form-control-sm" placeholder="Nom de l'adversaire">
+                            <input type="text" name="opponent_name[]" class="form-control form-control-sm" placeholder="Nom de l'adversaire" list="dlOpponents">
                         </div>
                         <?php endif; ?>
                         <button type="button" class="btn btn-xs btn-outline-danger btn-remove-player">
@@ -246,6 +246,18 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
     </form>
 </div>
 
+<!-- Datalists autocomplétion -->
+<datalist id="dlOpponents">
+    <?php foreach ($acOpponents as $v): ?>
+    <option value="<?= esc($v) ?>">
+    <?php endforeach; ?>
+</datalist>
+<datalist id="dlHomePlayers">
+    <?php foreach ($acHomePlayers as $v): ?>
+    <option value="<?= esc($v) ?>">
+    <?php endforeach; ?>
+</datalist>
+
 <!-- Templates lignes joueurs -->
 <template id="playerRowNormal">
     <div class="player-row d-flex align-items-center" style="gap:.5rem">
@@ -259,7 +271,7 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
         </div>
         <span class="text-muted">vs</span>
         <div style="flex:1">
-            <input type="text" name="opponent_name[]" class="form-control form-control-sm" placeholder="Nom de l'adversaire">
+            <input type="text" name="opponent_name[]" class="form-control form-control-sm" placeholder="Nom de l'adversaire" list="dlOpponents">
         </div>
         <button type="button" class="btn btn-xs btn-outline-danger btn-remove-player">
             <i class="fas fa-times"></i>
@@ -270,11 +282,11 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
 <template id="playerRowFinale">
     <div class="player-row d-flex align-items-center" style="gap:.5rem">
         <div style="flex:1">
-            <input type="text" name="player_home_name[]" class="form-control form-control-sm" placeholder="Joueur domicile">
+            <input type="text" name="player_home_name[]" class="form-control form-control-sm" placeholder="Joueur domicile" list="dlHomePlayers">
         </div>
         <span class="text-muted">vs</span>
         <div style="flex:1">
-            <input type="text" name="opponent_name[]" class="form-control form-control-sm" placeholder="Joueur adverse">
+            <input type="text" name="opponent_name[]" class="form-control form-control-sm" placeholder="Joueur adverse" list="dlOpponents">
         </div>
         <button type="button" class="btn btn-xs btn-outline-danger btn-remove-player">
             <i class="fas fa-times"></i>

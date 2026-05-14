@@ -95,8 +95,21 @@ a.member-card { text-decoration: none; color: inherit; }
   <?php if (empty($members)): ?>
     <div class="alert alert-info">Aucun membre actif pour le moment.</div>
   <?php else: ?>
+  <?php
+    // Réordonner pour affichage colonne par colonne dans la grille CSS (3 cols desktop)
+    $cols  = 3;
+    $total = count($members);
+    $rows  = (int) ceil($total / $cols);
+    $grid  = [];
+    for ($pos = 0; $pos < $cols * $rows; $pos++) {
+        $col     = $pos % $cols;
+        $row     = (int) floor($pos / $cols);
+        $origIdx = $col * $rows + $row;
+        if ($origIdx < $total) $grid[] = $members[$origIdx];
+    }
+  ?>
   <div class="members-grid">
-    <?php foreach ($members as $m): ?>
+    <?php foreach ($grid as $m): ?>
     <?php $photo = $m->photo ? base_url('uploads/members/' . $m->photo) : null; ?>
     <a href="<?= base_url('club/membres/' . $m->id) ?>" class="member-card">
       <div class="member-photo-wrap">
