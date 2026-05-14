@@ -68,10 +68,18 @@ a.member-card { text-decoration: none; color: inherit; }
     padding: 1px 6px;
     letter-spacing: .3px;
 }
-.badge-junior   { background: #198754; color: #fff; font-size: .68rem; font-weight: 600; border-radius: 4px; padding: 1px 6px; }
+.badge-junior   { background: #FFD43C; color: #000; font-size: .68rem; font-weight: 600; border-radius: 4px; padding: 1px 6px; }
 .badge-supporter{ background: #6c757d; color: #fff; font-size: .68rem; font-weight: 600; border-radius: 4px; padding: 1px 6px; }
 .badge-school   { background: #fd7e14; color: #fff; font-size: .68rem; font-weight: 600; border-radius: 4px; padding: 1px 6px; }
 .member-ranking { font-size: .8rem; color: #84252B; font-weight: 600; }
+.filter-btn {
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color .2s, opacity .2s;
+    opacity: .72;
+}
+.filter-btn:hover { opacity: 1; }
+.filter-btn.active { opacity: 1; border-color: rgba(255,255,255,.7); }
 </style>
 <?= $this->endSection() ?>
 
@@ -82,12 +90,12 @@ a.member-card { text-decoration: none; color: inherit; }
   <!-- Compteurs -->
   <div class="text-center mb-4">
     <div class="d-flex justify-content-center gap-3 flex-wrap mb-2">
-      <span class="badge fs-6 fw-normal" style="background:#666666">
+      <button class="badge fs-6 fw-normal filter-btn active" data-filter="all" style="background:#666666">
         <i class="fas fa-users me-2"></i><?= count($members) ?> membres actifs
-      </span>
-      <span class="badge fs-6 fw-normal" style="background:#DA8508">
+      </button>
+      <button class="badge fs-6 fw-normal filter-btn" data-filter="federated" style="background:#DA8508">
         <i class="fas fa-id-card me-2"></i><?= $totalFederated ?> fédérés FRBB
-      </span>
+      </button>
     </div>
     <small class="text-muted fst-italic">Cliquez sur un nom pour voir sa fiche détaillée</small>
   </div>
@@ -96,7 +104,7 @@ a.member-card { text-decoration: none; color: inherit; }
     <div class="alert alert-info">Aucun membre actif pour le moment.</div>
   <?php else: ?>
   <?php
-    // Réordonner pour affichage colonne par colonne dans la grille CSS (3 cols desktop)
+    // Tri colonne par colonne — tous membres
     $cols  = 3;
     $total = count($members);
     $rows  = (int) ceil($total / $cols);
@@ -107,11 +115,27 @@ a.member-card { text-decoration: none; color: inherit; }
         $origIdx = $col * $rows + $row;
         if ($origIdx < $total) $grid[] = $members[$origIdx];
     }
+    // Tri colonne par colonne — fédérés uniquement
+    $fedOnly  = array_values(array_filter($members, fn($m) => $m->is_federated));
+    $totalFed = count($fedOnly);
+    $rowsFed  = (int) ceil($totalFed / $cols);
+    $gridFed  = [];
+    for ($pos = 0; $pos < $cols * $rowsFed; $pos++) {
+        $col     = $pos % $cols;
+        $row     = (int) floor($pos / $cols);
+        $origIdx = $col * $rowsFed + $row;
+        if ($origIdx < $totalFed) $gridFed[] = $fedOnly[$origIdx];
+    }
+    $fedPos = [];
+    foreach ($gridFed as $i => $fm) { $fedPos[$fm->id] = $i; }
   ?>
   <div class="members-grid">
-    <?php foreach ($grid as $m): ?>
+    <?php foreach ($grid as $allPos => $m): ?>
     <?php $photo = $m->photo ? base_url('uploads/members/' . $m->photo) : null; ?>
-    <a href="<?= base_url('club/membres/' . $m->id) ?>" class="member-card">
+    <a href="<?= base_url('club/membres/' . $m->id) ?>" class="member-card"
+       data-federated="<?= $m->is_federated ? '1' : '0' ?>"
+       data-all-pos="<?= $allPos ?>"
+       data-fed-pos="<?= $fedPos[$m->id] ?? -1 ?>">
       <div class="member-photo-wrap">
         <?php if ($m->photo): ?>
           <img src="<?= esc($photo) ?>" alt="<?= esc($m->last_name . ' ' . $m->first_name) ?>">
@@ -126,7 +150,7 @@ a.member-card { text-decoration: none; color: inherit; }
         </div>
         <div class="member-badges">
           <?php if ($m->is_federated): ?><span class="badge-frbb"><img src="<?= base_url('assets/images/frbb_kbbb_logo_100.png') ?>" alt="FRBB" style="width: 18px; height: 25px;"></span><?php endif; ?>
-          <?php if ($m->is_junior): ?><span class="badge-junior">Junior</span><?php endif; ?>
+          <?php if ($m->is_junior): ?><span class="badge-junior"><i class="fas fa-smile fa-lg me-1"></i> Junior</span><?php endif; ?>
         </div>
       </div>
     </a>
@@ -136,4 +160,30 @@ a.member-card { text-decoration: none; color: inherit; }
 
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const filter    = this.dataset.filter;
+        const container = document.querySelector('.members-grid');
+        const cards     = [...container.querySelectorAll('.member-card')];
+
+        if (filter === 'all') {
+            cards.sort((a, b) => +a.dataset.allPos - +b.dataset.allPos);
+            cards.forEach(card => { card.style.display = ''; container.appendChild(card); });
+        } else {
+            const fed    = cards.filter(c => c.dataset.federated === '1')
+                                .sort((a, b) => +a.dataset.fedPos - +b.dataset.fedPos);
+            const nonFed = cards.filter(c => c.dataset.federated !== '1');
+            fed.forEach(card    => { card.style.display = ''; container.appendChild(card); });
+            nonFed.forEach(card => { card.style.display = 'none'; container.appendChild(card); });
+        }
+    });
+});
+</script>
 <?= $this->endSection() ?>

@@ -35,7 +35,7 @@
 }
 .membre-badges { gap: 6px; }
 .badge-frbb     { background: #003082; color: #fff; font-size: .75rem; font-weight: 700; border-radius: 4px; padding: 3px 10px; }
-.badge-junior   { background: #198754; color: #fff; font-size: .75rem; font-weight: 600; border-radius: 4px; padding: 3px 10px; }
+.badge-junior   { background: #FFD43C; color: #000; font-size: .75rem; font-weight: 600; border-radius: 4px; padding: 3px 10px; }
 .badge-supporter{ background: #6c757d; color: #fff; font-size: .75rem; font-weight: 600; border-radius: 4px; padding: 3px 10px; }
 .badge-school   { background: #fd7e14; color: #fff; font-size: .75rem; font-weight: 600; border-radius: 4px; padding: 3px 10px; }
 .info-row {
@@ -146,9 +146,7 @@ $hasCoords = $canSee('phone',      $m->phone)
                    style="width:16px;height:22px;vertical-align:middle;margin-right:4px">FRBB
             </span>
           <?php endif; ?>
-          <?php if ($m->is_junior):    ?><span class="badge-junior">Junior</span><?php endif; ?>
-          <?php if ($m->is_school):    ?><span class="badge-school">École</span><?php endif; ?>
-          <?php if ($m->is_supporter): ?><span class="badge-supporter">Supporter</span><?php endif; ?>
+          <?php if ($m->is_junior): ?><span class="badge-junior"><i class="fas fa-smile fa-lg me-1"></i> Junior</span><?php endif; ?>
         </div>
 
         <?php if ($m->is_federated && $m->frbb_license): ?>
