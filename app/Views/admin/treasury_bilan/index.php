@@ -147,7 +147,7 @@ $delta = function(float $d) use ($fmt): string {
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-        <table class="table table-sm table-hover mb-0">
+        <table class="table table-sm table-hover mb-0" style="white-space:nowrap">
             <thead class="thead-rbcd">
                 <tr>
                     <th>Mois</th>
