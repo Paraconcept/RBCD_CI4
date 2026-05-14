@@ -150,7 +150,8 @@ class TreasuryRevenuesController extends BaseController
 
     private function getAvailableYears(): array
     {
-        $rows = $this->db->table('treasury_revenues')
+        $db   = \Config\Database::connect();
+        $rows = $db->table('treasury_revenues')
             ->select('YEAR(revenue_date) as y')
             ->distinct()
             ->orderBy('y', 'DESC')
