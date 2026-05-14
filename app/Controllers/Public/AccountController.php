@@ -195,12 +195,18 @@ class AccountController extends BaseController
 
         $post = $this->request->getPost();
         (new MemberModel())->update($memberId, [
-            'show_photo'      => isset($post['show_photo'])      ? 1 : 0,
-            'show_phone'      => isset($post['show_phone'])      ? 1 : 0,
-            'show_mobile'     => isset($post['show_mobile'])     ? 1 : 0,
-            'show_email'      => isset($post['show_email'])      ? 1 : 0,
-            'show_address'    => isset($post['show_address'])    ? 1 : 0,
-            'show_birth_date' => isset($post['show_birth_date']) ? 1 : 0,
+            'show_photo'             => isset($post['show_photo'])             ? 1 : 0,
+            'show_photo_members'     => isset($post['show_photo_members'])     ? 1 : 0,
+            'show_phone'             => isset($post['show_phone'])             ? 1 : 0,
+            'show_phone_members'     => isset($post['show_phone_members'])     ? 1 : 0,
+            'show_mobile'            => isset($post['show_mobile'])            ? 1 : 0,
+            'show_mobile_members'    => isset($post['show_mobile_members'])    ? 1 : 0,
+            'show_email'             => isset($post['show_email'])             ? 1 : 0,
+            'show_email_members'     => isset($post['show_email_members'])     ? 1 : 0,
+            'show_address'           => isset($post['show_address'])           ? 1 : 0,
+            'show_address_members'   => isset($post['show_address_members'])   ? 1 : 0,
+            'show_birth_date'        => isset($post['show_birth_date'])        ? 1 : 0,
+            'show_birth_date_members'=> isset($post['show_birth_date_members'])? 1 : 0,
         ]);
 
         return redirect()->to(base_url('mon-compte') . '?tab=confidentialite')
@@ -218,7 +224,14 @@ class AccountController extends BaseController
             return $this->response->setJSON(['success' => false]);
         }
 
-        $allowed = ['show_photo', 'show_phone', 'show_mobile', 'show_email', 'show_address', 'show_birth_date'];
+        $allowed = [
+            'show_photo', 'show_photo_members',
+            'show_phone', 'show_phone_members',
+            'show_mobile', 'show_mobile_members',
+            'show_email', 'show_email_members',
+            'show_address', 'show_address_members',
+            'show_birth_date', 'show_birth_date_members',
+        ];
         $field   = $this->request->getPost('field');
         $value   = (int) $this->request->getPost('value');
 

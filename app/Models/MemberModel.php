@@ -17,6 +17,8 @@ class MemberModel extends Model
         'is_junior', 'is_supporter', 'is_school',
         'ranking', 'is_active',
         'show_birth_date', 'show_address', 'show_phone', 'show_mobile', 'show_email', 'show_photo',
+        'show_birth_date_members', 'show_address_members', 'show_phone_members',
+        'show_mobile_members', 'show_email_members', 'show_photo_members',
     ];
 
     protected $useTimestamps = true;

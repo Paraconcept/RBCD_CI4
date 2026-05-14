@@ -123,6 +123,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,.25);
 }
 .privacy-toggle input:checked + .toggle-slider { background-color: #84252B; }
+.privacy-toggle.toggle-members input:checked + .toggle-slider { background-color: #555; }
 .privacy-toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
 /* Vignette photo cliquable */
 .privacy-photo-thumb {
@@ -500,14 +501,21 @@
       Choisissez les informations visibles sur votre fiche publique (accessible à tout visiteur du site).
     </div>
 
-    <!-- En-tête colonne -->
+    <!-- En-tête colonnes -->
     <div class="row align-items-stretch pb-2 mb-1 g-0" style="border-bottom:2px solid #e9ecef;">
-      <div class="col-8"></div>
-      <div class="col-4 text-center d-flex">
-        <span class="badge d-block mx-1 px-3 py-2 w-100"
-              style="font-size:.8rem;background:#84252B;color:#fff;">
-          <i class="fas fa-globe fa-lg mb-3"></i><br>
-          Visible sur<br>votre fiche
+      <div class="col-6"></div>
+      <div class="col-3 text-center d-flex px-1">
+        <span class="badge d-block px-1 py-2 w-100"
+              style="font-size:.75rem;background:#84252B;color:#fff;line-height:1.3;">
+          <i class="fas fa-globe fa-lg mb-1 d-block"></i>
+          Visible<br>pour tous
+        </span>
+      </div>
+      <div class="col-3 text-center d-flex px-1">
+        <span class="badge d-block px-1 py-2 w-100"
+              style="font-size:.75rem;background:#555;color:#fff;line-height:1.3;">
+          <i class="fas fa-user-lock fa-lg mb-1 d-block"></i>
+          Visible si<br>connecté
         </span>
       </div>
     </div>
@@ -517,43 +525,49 @@
       <?php
       $privacyItems = [
           'photo' => [
-              'icon'    => 'fa-camera',
-              'label'   => 'Photo de profil',
-              'value'   => '',
-              'checked' => (bool) ($member->show_photo ?? 1),
+              'icon'            => 'fa-camera',
+              'label'           => 'Photo de profil',
+              'value'           => '',
+              'checked'         => (bool) ($member->show_photo         ?? 1),
+              'checked_members' => (bool) ($member->show_photo_members ?? 0),
           ],
           'phone' => [
-              'icon'  => 'fa-phone',
-              'label' => 'Téléphone fixe',
-              'value' => $member->phone ? esc($member->phone) : '<em class="text-muted">Non renseigné</em>',
-              'checked' => (bool) $member->show_phone,
+              'icon'            => 'fa-phone',
+              'label'           => 'Téléphone fixe',
+              'value'           => $member->phone ? esc($member->phone) : '<em class="text-muted">Non renseigné</em>',
+              'checked'         => (bool) $member->show_phone,
+              'checked_members' => (bool) ($member->show_phone_members ?? 0),
           ],
           'mobile' => [
-              'icon'  => 'fa-mobile-alt',
-              'label' => 'GSM',
-              'value' => $member->mobile ? esc($member->mobile) : '<em class="text-muted">Non renseigné</em>',
-              'checked' => (bool) $member->show_mobile,
+              'icon'            => 'fa-mobile-alt',
+              'label'           => 'GSM',
+              'value'           => $member->mobile ? esc($member->mobile) : '<em class="text-muted">Non renseigné</em>',
+              'checked'         => (bool) $member->show_mobile,
+              'checked_members' => (bool) ($member->show_mobile_members ?? 0),
           ],
           'email' => [
-              'icon'  => 'fa-envelope',
-              'label' => 'E-mail',
-              'value' => $member->email ? esc($member->email) : '<em class="text-muted">Non renseigné</em>',
-              'checked' => (bool) $member->show_email,
+              'icon'            => 'fa-envelope',
+              'label'           => 'E-mail',
+              'value'           => $member->email ? esc($member->email) : '<em class="text-muted">Non renseigné</em>',
+              'checked'         => (bool) $member->show_email,
+              'checked_members' => (bool) ($member->show_email_members ?? 0),
           ],
           'address' => [
-              'icon'  => 'fa-home',
-              'label' => 'Adresse',
-              'value' => (function() use ($member) {
+              'icon'            => 'fa-home',
+              'label'           => 'Adresse',
+              'value'           => (function() use ($member) {
                   $parts = array_filter([$member->address, trim($member->postal_code . ' ' . $member->city)]);
                   return $parts ? esc(implode(', ', $parts)) : '<em class="text-muted">Non renseignée</em>';
               })(),
-              'checked' => (bool) $member->show_address,
+              'checked'         => (bool) $member->show_address,
+              'checked_members' => (bool) ($member->show_address_members ?? 0),
           ],
           'birth_date' => [
-              'icon'  => 'fa-birthday-cake',
-              'label' => 'Date de naissance',
-              'value' => $member->birth_date ? date('d/m/Y', strtotime($member->birth_date)) : '<em class="text-muted">Non renseignée</em>',
-              'checked' => (bool) $member->show_birth_date,
+              'icon'            => 'fa-birthday-cake',
+              'label'           => 'Date de naissance',
+              'value'           => $member->birth_date ? date('d/m/Y', strtotime($member->birth_date)) : '<em class="text-muted">Non renseignée</em>',
+              'checked'         => (bool) $member->show_birth_date,
+              'checked_members' => (bool) ($member->show_birth_date_members ?? 0),
           ],
       ];
       ?>
@@ -576,7 +590,7 @@
       <?php foreach ($privacyItems as $key => $item): ?>
       <div class="privacy-row row align-items-center py-3 g-0">
 
-        <div class="col-8 d-flex align-items-center gap-2">
+        <div class="col-6 d-flex align-items-center gap-2">
           <i class="fas <?= $item['icon'] ?> fa-fw privacy-icon"></i>
           <div>
             <span class="privacy-label"><?= $item['label'] ?></span>
@@ -584,11 +598,20 @@
           </div>
         </div>
 
-        <div class="col-4 text-center d-flex align-items-center justify-content-center">
-          <label class="privacy-toggle mb-0" title="Visible sur votre fiche publique">
+        <div class="col-3 text-center d-flex align-items-center justify-content-center">
+          <label class="privacy-toggle mb-0" title="Visible pour tous">
             <input type="checkbox" class="privacy-ajax-toggle" name="show_<?= $key ?>" value="1"
                    data-field="show_<?= $key ?>"
                    <?= $item['checked'] ? 'checked' : '' ?>>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="col-3 text-center d-flex align-items-center justify-content-center">
+          <label class="privacy-toggle toggle-members mb-0" title="Visible si connecté">
+            <input type="checkbox" class="privacy-ajax-toggle" name="show_<?= $key ?>_members" value="1"
+                   data-field="show_<?= $key ?>_members"
+                   <?= $item['checked_members'] ? 'checked' : '' ?>>
             <span class="toggle-slider"></span>
           </label>
         </div>

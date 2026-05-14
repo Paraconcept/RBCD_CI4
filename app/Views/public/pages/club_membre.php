@@ -97,13 +97,24 @@
 <?= $this->section('content') ?>
 
 <?php
-$m         = $member;
-$photo     = ($m->photo && ($m->show_photo ?? 1)) ? base_url('uploads/members/' . $m->photo) : null;
-$hasCoords = ($m->show_phone      && $m->phone)
-           || ($m->show_mobile    && $m->mobile)
-           || ($m->show_email     && $m->email)
-           || ($m->show_address   && ($m->address || $m->city))
-           || ($m->show_birth_date && $m->birth_date);
+$m          = $member;
+$isLoggedIn = (bool) session()->get('admin_logged_in');
+
+$canSee = function(string $field, $value) use ($m, $isLoggedIn): bool {
+    if (!$value) return false;
+    if ($m->{"show_{$field}"})                                      return true;
+    if ($isLoggedIn && ($m->{"show_{$field}_members"} ?? 0))        return true;
+    return false;
+};
+
+$showPhoto = $m->photo && ($m->show_photo || ($isLoggedIn && ($m->show_photo_members ?? 0)));
+$photo     = $showPhoto ? base_url('uploads/members/' . $m->photo) : null;
+
+$hasCoords = $canSee('phone',      $m->phone)
+           || $canSee('mobile',     $m->mobile)
+           || $canSee('email',      $m->email)
+           || $canSee('address',    $m->address || $m->city)
+           || $canSee('birth_date', $m->birth_date);
 ?>
 
 <div class="container pt-40 pb-60">
@@ -155,7 +166,7 @@ $hasCoords = ($m->show_phone      && $m->phone)
       <div class="col-12 col-md-5 membre-coords-col">
         <div class="section-title"><i class="fas fa-address-book me-2"></i>Coordonnées</div>
 
-        <?php if ($m->show_phone && $m->phone): ?>
+        <?php if ($canSee('phone', $m->phone)): ?>
         <div class="info-row">
           <span class="info-icon"><i class="fas fa-phone"></i></span>
           <span class="info-label">Téléphone</span>
@@ -165,7 +176,7 @@ $hasCoords = ($m->show_phone      && $m->phone)
         </div>
         <?php endif; ?>
 
-        <?php if ($m->show_mobile && $m->mobile): ?>
+        <?php if ($canSee('mobile', $m->mobile)): ?>
         <div class="info-row">
           <span class="info-icon"><i class="fas fa-mobile-alt"></i></span>
           <span class="info-label">GSM</span>
@@ -175,7 +186,7 @@ $hasCoords = ($m->show_phone      && $m->phone)
         </div>
         <?php endif; ?>
 
-        <?php if ($m->show_email && $m->email): ?>
+        <?php if ($canSee('email', $m->email)): ?>
         <div class="info-row">
           <span class="info-icon"><i class="fas fa-envelope"></i></span>
           <span class="info-label">E-mail</span>
@@ -185,19 +196,19 @@ $hasCoords = ($m->show_phone      && $m->phone)
         </div>
         <?php endif; ?>
 
-        <?php if ($m->show_address && ($m->address || $m->city)): ?>
+        <?php if ($canSee('address', $m->address || $m->city)): ?>
         <div class="info-row">
           <span class="info-icon"><i class="fas fa-map-marker-alt"></i></span>
           <span class="info-label">Adresse</span>
           <span class="info-value">
             : <?= esc($m->address) ?>
-            <?php if ($m->address && ($m->postal_code || $m->city)): ?><br><?php endif; ?>
+            <?php if ($m->address && ($m->postal_code || $m->city)): ?><br>&nbsp;<?php endif; ?>
             <?= esc(trim($m->postal_code . ' ' . $m->city)) ?>
           </span>
         </div>
         <?php endif; ?>
 
-        <?php if ($m->show_birth_date && $m->birth_date): ?>
+        <?php if ($canSee('birth_date', $m->birth_date)): ?>
         <div class="info-row">
           <span class="info-icon"><i class="fas fa-birthday-cake"></i></span>
           <span class="info-label">Né<?= $m->gender === 'F' ? 'e' : '' ?> le</span>
