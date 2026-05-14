@@ -121,6 +121,22 @@ $routes->group('admin', static function ($routes) {
         $routes->post('treasury/envelopes/(:num)/update',  'Admin\TreasuryEnvelopesController::update/$1');
         $routes->post('treasury/envelopes/(:num)/delete',  'Admin\TreasuryEnvelopesController::delete/$1');
 
+        // Trésorerie — dépenses
+        $routes->get ('treasury/expenses',                'Admin\TreasuryExpensesController::index');
+        $routes->get ('treasury/expenses/create',         'Admin\TreasuryExpensesController::create');
+        $routes->post('treasury/expenses',                'Admin\TreasuryExpensesController::store');
+        $routes->get ('treasury/expenses/(:num)/edit',    'Admin\TreasuryExpensesController::edit/$1');
+        $routes->post('treasury/expenses/(:num)/update',  'Admin\TreasuryExpensesController::update/$1');
+        $routes->post('treasury/expenses/(:num)/delete',  'Admin\TreasuryExpensesController::delete/$1');
+
+        // Trésorerie — recettes
+        $routes->get ('treasury/revenues',                'Admin\TreasuryRevenuesController::index');
+        $routes->get ('treasury/revenues/create',         'Admin\TreasuryRevenuesController::create');
+        $routes->post('treasury/revenues',                'Admin\TreasuryRevenuesController::store');
+        $routes->get ('treasury/revenues/(:num)/edit',    'Admin\TreasuryRevenuesController::edit/$1');
+        $routes->post('treasury/revenues/(:num)/update',  'Admin\TreasuryRevenuesController::update/$1');
+        $routes->post('treasury/revenues/(:num)/delete',  'Admin\TreasuryRevenuesController::delete/$1');
+
         // Clés membres (depuis fiche membre)
         $routes->post('members/(:num)/keys',               'Admin\MembersController::storeKey/$1');
         $routes->post('members/(:num)/keys/(:num)/return', 'Admin\MembersController::returnKey/$1/$2');
