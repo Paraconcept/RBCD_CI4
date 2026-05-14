@@ -71,7 +71,7 @@
                 <div class="col-md-8 form-group">
                     <label>Description <span class="text-danger">*</span></label>
                     <input type="text" name="description" class="form-control" required
-                           maxlength="255" placeholder="ex: Achat de ballons de démonstration"
+                           maxlength="255" placeholder="ex: Achat d'une nouvelle imprimante"
                            value="<?= esc(old('description', $isEdit ? $expense->description : '')) ?>">
                 </div>
 
