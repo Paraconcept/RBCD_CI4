@@ -146,6 +146,7 @@ $delta = function(float $d) use ($fmt): string {
         <h3 class="card-title"><i class="fas fa-chart-line mr-2"></i>Évolution mensuelle</h3>
     </div>
     <div class="card-body p-0">
+        <div class="table-responsive">
         <table class="table table-sm table-hover mb-0">
             <thead class="thead-rbcd">
                 <tr>
@@ -214,6 +215,7 @@ $delta = function(float $d) use ($fmt): string {
                 </tr>
             </tfoot>
         </table>
+        </div>
     </div>
 </div>
 
