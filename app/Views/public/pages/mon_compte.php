@@ -636,37 +636,37 @@
 
       <!-- Chiffres clés -->
       <div class="row g-2 mb-4">
-        <div class="col-4 col-md-2">
+        <div class="col-6 col-md-2">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['home_count'] ?></div>
             <div class="ms-lbl">joué à domicile</div>
           </div>
         </div>
-        <div class="col-4 col-md-2">
-          <div class="ms-stat-card">
+        <div class="col-6 col-md-2">
+          <div class="ms-stat-card me-md-4">
             <div class="ms-val"><?= $ms['required'] == floor($ms['required']) ? (int)$ms['required'] : number_format($ms['required'], 1, '.', '') ?></div>
             <div class="ms-lbl">Requis</div>
           </div>
         </div>
-        <div class="col-4 col-md-2">
+        <div class="col-6 col-md-2">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['arb_count'] ?></div>
             <div class="ms-lbl">Arbitrages</div>
           </div>
         </div>
-        <div class="col-4 col-md-2">
+        <div class="col-6 col-md-2">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['bar_count'] ?></div>
             <div class="ms-lbl">Bar</div>
           </div>
         </div>
-        <div class="col-4 col-md-2">
-          <div class="ms-stat-card">
+        <div class="col-6 col-md-2">
+          <div class="ms-stat-card me-md-4">
             <div class="ms-val"><?= $ms['done'] ?></div>
             <div class="ms-lbl">Fait</div>
           </div>
         </div>
-        <div class="col-4 col-md-2">
+        <div class="col-6 col-md-2">
           <?php
             $solde = $ms['solde'];
             $soldeFmt = ($solde == 0) ? '0'
