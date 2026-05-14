@@ -140,6 +140,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/bilan') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/bilan') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Bilan financier</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('admin/treasury/settings') ?>"
                                class="nav-link <?= strpos(uri_string(), 'admin/treasury/settings') === 0 ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>

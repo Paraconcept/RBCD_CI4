@@ -137,6 +137,9 @@ $routes->group('admin', static function ($routes) {
         $routes->post('treasury/revenues/(:num)/update',  'Admin\TreasuryRevenuesController::update/$1');
         $routes->post('treasury/revenues/(:num)/delete',  'Admin\TreasuryRevenuesController::delete/$1');
 
+        // Trésorerie — bilan
+        $routes->get('treasury/bilan', 'Admin\TreasuryBilanController::index');
+
         // Clés membres (depuis fiche membre)
         $routes->post('members/(:num)/keys',               'Admin\MembersController::storeKey/$1');
         $routes->post('members/(:num)/keys/(:num)/return', 'Admin\MembersController::returnKey/$1/$2');

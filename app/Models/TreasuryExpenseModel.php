@@ -61,4 +61,18 @@ class TreasuryExpenseModel extends Model
         }
         return $result;
     }
+
+    public function getMonthlyTotals(int $year): array
+    {
+        $result = array_fill(1, 12, 0.0);
+        $rows = $this->db->table('treasury_expenses')
+            ->select('MONTH(expense_date) as m, SUM(amount) as total')
+            ->where('YEAR(expense_date)', $year)
+            ->groupBy('MONTH(expense_date)')
+            ->get()->getResultArray();
+        foreach ($rows as $row) {
+            $result[(int) $row['m']] = (float) $row['total'];
+        }
+        return $result;
+    }
 }

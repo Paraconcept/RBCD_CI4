@@ -59,4 +59,18 @@ class TreasuryRevenueModel extends Model
         }
         return $result;
     }
+
+    public function getMonthlyTotals(int $year): array
+    {
+        $result = array_fill(1, 12, 0.0);
+        $rows = $this->db->table('treasury_revenues')
+            ->select('MONTH(revenue_date) as m, SUM(amount) as total')
+            ->where('YEAR(revenue_date)', $year)
+            ->groupBy('MONTH(revenue_date)')
+            ->get()->getResultArray();
+        foreach ($rows as $row) {
+            $result[(int) $row['m']] = (float) $row['total'];
+        }
+        return $result;
+    }
 }
