@@ -338,6 +338,28 @@
 }
 .ms-cal-sum-sep { border-left: 2px solid #adb5bd !important; }
 .ms-legend-dot { display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:middle; margin-right:3px; }
+/* Cellule nom sticky gauche */
+.ms-cal-name {
+    min-width: 110px; width: 110px;
+    box-sizing: border-box;
+    border: 1px solid #e0e0e0;
+    border-right: 2px solid #adb5bd !important;
+    margin: -1px 0 0 -1px;
+    flex-shrink: 0;
+    position: sticky; left: 0; z-index: 2;
+    font-size: .72rem; font-weight: 600;
+    display: flex; align-items: center;
+    padding: 0 6px;
+    height: 28px; min-height: 28px;
+}
+.ms-cal-name-head {
+    background: #84252B; color: #fff;
+    height: 60px; min-height: 60px;
+    font-size: .68rem; font-weight: 700;
+}
+.ms-cal-name-deficit { background: #f0b0b7; color: #212529; }
+.ms-cal-name-ok      { background: #bbecb1; color: #212529; }
+.ms-cal-name-none    { background: #fff;    color: #212529; }
 </style>
 <?= $this->endSection() ?>
 
@@ -708,6 +730,7 @@
           <div class="ms-cal">
             <!-- Ligne entêtes dates -->
             <div class="ms-cal-row">
+              <div class="ms-cal-name ms-cal-name-head">Joueur</div>
               <?php foreach ($ms['dates'] as $d): ?>
                 <div class="ms-cal-cell ms-cal-head">
                   <?= date('d', strtotime($d)) ?><br>
@@ -725,6 +748,16 @@
             </div>
             <!-- Ligne cellules colorées -->
             <div class="ms-cal-row">
+              <?php
+                $nameStatusClass = match($ms['status']) {
+                    'deficit' => 'ms-cal-name-deficit',
+                    'ok'      => 'ms-cal-name-ok',
+                    default   => 'ms-cal-name-none',
+                };
+              ?>
+              <div class="ms-cal-name <?= $nameStatusClass ?>">
+                <?= esc(mb_strtoupper($member->last_name)) ?> <?= esc(mb_substr($member->first_name, 0, 1)) ?>.
+              </div>
               <?php foreach ($ms['dates'] as $d):
                 $isHome = isset($ms['home_dates'][$d]);
                 $hasArb = isset($ms['arb_dates'][$d]);
