@@ -83,28 +83,49 @@ $delta = function(float $d) use ($fmt): string {
     <div class="card-body p-0">
         <table class="table table-sm mb-0">
             <tbody>
+                <?php $pctM = $totalRevAllN > 0 ? round($totalRevManualN / $totalRevAllN * 100) : 0; ?>
                 <tr>
-                    <td><i class="fas fa-pencil-alt text-muted mr-2"></i>Recettes manuelles
-                        <small class="text-muted">(subsides, sponsors…)</small>
+                    <td class="font-weight-bold">
+                        <i class="fas fa-pencil-alt text-muted mr-2"></i>Recettes manuelles
                     </td>
-                    <td class="text-right font-weight-bold text-success" style="width:160px">
-                        <?= $fmt($totalRevManualN) ?>
-                    </td>
-                    <?php $pctM = $totalRevAllN > 0 ? round($totalRevManualN / $totalRevAllN * 100) : 0; ?>
+                    <td class="text-right font-weight-bold text-success" style="width:160px"><?= $fmt($totalRevManualN) ?></td>
                     <td class="text-right text-muted" style="width:60px"><?= $pctM ?> %</td>
                 </tr>
+                <?php foreach ($revCategories as $key => $label):
+                    $m = $revByCatN[$key] ?? 0;
+                    if ($m <= 0) continue;
+                ?>
+                <tr style="background:#f8fff8">
+                    <td class="text-muted pl-4" style="font-size:.9rem">
+                        <i class="fas fa-angle-right mr-2 text-success" style="font-size:.75rem"></i><?= esc($label) ?>
+                    </td>
+                    <td class="text-right text-success" style="font-size:.9rem"><?= $fmt($m) ?></td>
+                    <td></td>
+                </tr>
+                <?php endforeach; ?>
+                <?php if (empty(array_filter($revByCatN))): ?>
+                <tr style="background:#f8fff8">
+                    <td class="text-muted pl-4" style="font-size:.9rem"><em>Aucune recette manuelle enregistrée</em></td>
+                    <td></td><td></td>
+                </tr>
+                <?php endif; ?>
+
+                <?php $pctC = $totalRevAllN > 0 ? round($totalCotisN / $totalRevAllN * 100) : 0; ?>
                 <tr>
-                    <td><i class="fas fa-users text-muted mr-2"></i>Cotisations
-                        <small class="text-muted">(RBCD <?= $fmt($cotisAmount) ?>/an · forfait <?= $fmt($forfaitAmount) ?>/sem.)</small>
+                    <td class="font-weight-bold">
+                        <i class="fas fa-users text-muted mr-2"></i>Cotisations
+                        <small class="text-muted font-weight-normal">(RBCD <?= $fmt($cotisAmount) ?>/an · forfait <?= $fmt($forfaitAmount) ?>/sem.)</small>
                     </td>
                     <td class="text-right font-weight-bold text-success"><?= $fmt($totalCotisN) ?></td>
-                    <?php $pctC = $totalRevAllN > 0 ? round($totalCotisN / $totalRevAllN * 100) : 0; ?>
                     <td class="text-right text-muted"><?= $pctC ?> %</td>
                 </tr>
+
+                <?php $pctE = $totalRevAllN > 0 ? round($totalEnvN / $totalRevAllN * 100) : 0; ?>
                 <tr>
-                    <td><i class="fas fa-cash-register text-muted mr-2"></i>Bar / Enveloppes de caisse</td>
+                    <td class="font-weight-bold">
+                        <i class="fas fa-cash-register text-muted mr-2"></i>Bar / Enveloppes de caisse
+                    </td>
                     <td class="text-right font-weight-bold text-success"><?= $fmt($totalEnvN) ?></td>
-                    <?php $pctE = $totalRevAllN > 0 ? round($totalEnvN / $totalRevAllN * 100) : 0; ?>
                     <td class="text-right text-muted"><?= $pctE ?> %</td>
                 </tr>
             </tbody>
@@ -196,88 +217,43 @@ $delta = function(float $d) use ($fmt): string {
     </div>
 </div>
 
-<!-- Ventilation par catégorie -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="card card-outline card-success">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-arrow-up mr-2 text-success"></i>Recettes manuelles par catégorie — <?= $year ?>
-                </h3>
-            </div>
-            <div class="card-body p-0">
-                <?php if (empty($revByCatN)): ?>
-                    <div class="p-3 text-muted">Aucune recette manuelle enregistrée.</div>
-                <?php else: ?>
-                <table class="table table-sm mb-0">
-                    <thead class="thead-rbcd">
-                        <tr><th>Catégorie</th><th class="text-right">Montant</th><th class="text-right" style="width:60px">%</th></tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($revCategories as $key => $label):
-                            $m = $revByCatN[$key] ?? 0;
-                            if ($m <= 0) continue;
-                            $pct = $totalRevManualN > 0 ? round($m / $totalRevManualN * 100) : 0;
-                        ?>
-                        <tr>
-                            <td><?= esc($label) ?></td>
-                            <td class="text-right text-success font-weight-bold"><?= $fmt($m) ?></td>
-                            <td class="text-right text-muted"><?= $pct ?> %</td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                    <tfoot class="tfoot-total">
-                        <tr>
-                            <td class="font-weight-bold">TOTAL</td>
-                            <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevManualN) ?></td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
-                <?php endif; ?>
-            </div>
-        </div>
+<!-- Dépenses par catégorie -->
+<div class="card card-outline card-danger">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-arrow-down mr-2 text-danger"></i>Dépenses par catégorie — <?= $year ?>
+        </h3>
     </div>
-
-    <div class="col-md-6">
-        <div class="card card-outline card-danger">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-arrow-down mr-2 text-danger"></i>Dépenses par catégorie — <?= $year ?>
-                </h3>
-            </div>
-            <div class="card-body p-0">
-                <?php if (empty($expByCatN)): ?>
-                    <div class="p-3 text-muted">Aucune dépense enregistrée.</div>
-                <?php else: ?>
-                <table class="table table-sm mb-0">
-                    <thead class="thead-rbcd">
-                        <tr><th>Catégorie</th><th class="text-right">Montant</th><th class="text-right" style="width:60px">%</th></tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($expCategories as $key => $label):
-                            $m = $expByCatN[$key] ?? 0;
-                            if ($m <= 0) continue;
-                            $pct = $totalExpN > 0 ? round($m / $totalExpN * 100) : 0;
-                        ?>
-                        <tr>
-                            <td><?= esc($label) ?></td>
-                            <td class="text-right text-danger font-weight-bold"><?= $fmt($m) ?></td>
-                            <td class="text-right text-muted"><?= $pct ?> %</td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                    <tfoot class="tfoot-total">
-                        <tr>
-                            <td class="font-weight-bold">TOTAL</td>
-                            <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
-                <?php endif; ?>
-            </div>
-        </div>
+    <div class="card-body p-0">
+        <?php if (empty($expByCatN)): ?>
+            <div class="p-3 text-muted">Aucune dépense enregistrée.</div>
+        <?php else: ?>
+        <table class="table table-sm mb-0">
+            <thead class="thead-rbcd">
+                <tr><th>Catégorie</th><th class="text-right">Montant</th><th class="text-right" style="width:60px">%</th></tr>
+            </thead>
+            <tbody>
+                <?php foreach ($expCategories as $key => $label):
+                    $m = $expByCatN[$key] ?? 0;
+                    if ($m <= 0) continue;
+                    $pct = $totalExpN > 0 ? round($m / $totalExpN * 100) : 0;
+                ?>
+                <tr>
+                    <td><?= esc($label) ?></td>
+                    <td class="text-right text-danger font-weight-bold"><?= $fmt($m) ?></td>
+                    <td class="text-right text-muted"><?= $pct ?> %</td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+            <tfoot class="tfoot-total">
+                <tr>
+                    <td class="font-weight-bold">TOTAL</td>
+                    <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+        <?php endif; ?>
     </div>
 </div>
 
