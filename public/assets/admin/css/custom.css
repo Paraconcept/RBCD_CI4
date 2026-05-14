@@ -214,3 +214,37 @@ a:hover { color: var(--rbcd-primary-dark); }
     background-color: var(--rbcd-primary) !important;
     border-color:     var(--rbcd-primary) !important;
 }
+
+/* ----------------------------------------------------------------
+   SIDEBAR — sections collapsibles (Trésorerie, Direction Sportive)
+   ---------------------------------------------------------------- */
+.nav-sidebar > .nav-item > .nav-section,
+.nav-sidebar > .nav-item > .nav-section:hover,
+.nav-sidebar > .nav-item > .nav-section:focus {
+    color: rgba(255, 255, 255, .4) !important;
+    background: transparent !important;
+}
+.nav-sidebar > .nav-item > .nav-section > p {
+    text-transform: uppercase !important;
+    font-size: .95rem !important;
+    font-weight: 600 !important;
+    letter-spacing: .3px !important;
+    color: rgba(255, 255, 255, .6) !important;
+}
+.nav-sidebar > .nav-item > .nav-section > .nav-icon,
+.nav-sidebar > .nav-item > .nav-section > p > .right {
+    color: rgba(255, 255, 255, .6) !important;
+    font-size: 1.1rem !important;
+}
+/* Section active (un enfant est sélectionné) → rouge */
+.nav-sidebar > .nav-item > .nav-section.active,
+.nav-sidebar > .nav-item > .nav-section.active:hover,
+.nav-sidebar > .nav-item > .nav-section.active:focus {
+    background-color: var(--rbcd-primary) !important;
+    color: #fff !important;
+}
+.nav-sidebar > .nav-item > .nav-section.active > p,
+.nav-sidebar > .nav-item > .nav-section.active > .nav-icon,
+.nav-sidebar > .nav-item > .nav-section.active > p > .right {
+    color: #fff !important;
+}

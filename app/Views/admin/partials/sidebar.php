@@ -94,8 +94,19 @@
                     </a>
                 </li>
 
-                <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'menu-open' : '' ?>">
-                    <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/treasury') === 0) ? 'active' : '' ?>">
+                <?php
+                $isTreasuryActive = strpos(uri_string(), 'admin/treasury') === 0;
+                $isDsActive = (uri_string() === 'admin/schedule' || strpos(uri_string(), 'admin/schedule/') === 0)
+                           || strpos(uri_string(), 'admin/schedule-events') === 0
+                           || strpos(uri_string(), 'admin/arbitrage-stats') === 0
+                           || strpos(uri_string(), 'admin/sport-results') === 0
+                           || strpos(uri_string(), 'admin/cdr') === 0
+                           || strpos(uri_string(), 'admin/intm') === 0;
+                ?>
+
+                <!-- ── TRÉSORERIE (section collapsible) ── -->
+                <li class="nav-item has-treeview mt-4 <?= $isTreasuryActive ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link nav-section <?= $isTreasuryActive ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-euro-sign"></i>
                         <p>Trésorerie <i class="right fas fa-angle-left"></i></p>
                     </a>
@@ -109,14 +120,28 @@
                         </li>
                         <li class="nav-item">
                             <a href="<?= base_url('admin/treasury/envelopes') ?>"
-                               class="nav-link <?= (strpos(uri_string(), 'admin/treasury/envelopes') === 0) ? 'active' : '' ?>">
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/envelopes') === 0 ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Enveloppes de caisse</p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/expenses') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/expenses') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Dépenses</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/revenues') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/revenues') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Recettes</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('admin/treasury/settings') ?>"
-                               class="nav-link <?= (strpos(uri_string(), 'admin/treasury/settings') === 0) ? 'active' : '' ?>">
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/settings') === 0 ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Paramètres financiers</p>
                             </a>
@@ -124,64 +149,72 @@
                     </ul>
                 </li>
 
-                <li class="nav-header mt-4">DIRECTION SPORTIVE</li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/schedule') ?>" class="nav-link <?= (uri_string() === 'admin/schedule' || strpos(uri_string(), 'admin/schedule/') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-calendar-week"></i>
-                        <p>Tableau des rencontres</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/schedule-events') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/schedule-events') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>Événements au tableau</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/arbitrage-stats') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/arbitrage-stats') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-chart-bar"></i>
-                        <p>Stats d'arbitrage</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/sport-results') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/sport-results') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-medal"></i>
-                        <p>Résultats sportifs</p>
-                    </a>
-                </li>
-
-                <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/cdr') === 0) ? 'menu-open' : '' ?>">
-                    <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/cdr') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-trophy"></i>
-                        <p>Coupe des Régions <i class="right fas fa-angle-left"></i></p>
+                <!-- ── DIRECTION SPORTIVE (section collapsible) ── -->
+                <li class="nav-item has-treeview mt-4 <?= $isDsActive ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link nav-section <?= $isDsActive ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-running"></i>
+                        <p>Direction Sportive <i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="<?= base_url('admin/cdr') ?>"
-                               class="nav-link <?= strpos(uri_string(), 'admin/cdr') === 0 ? 'active' : '' ?>">
+                            <a href="<?= base_url('admin/schedule') ?>"
+                               class="nav-link <?= (uri_string() === 'admin/schedule' || strpos(uri_string(), 'admin/schedule/') === 0) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Équipes</p>
+                                <p>Tableau des rencontres</p>
                             </a>
                         </li>
-                    </ul>
-                </li>
-
-                <li class="nav-item has-treeview <?= (strpos(uri_string(), 'admin/intm') === 0) ? 'menu-open' : '' ?>">
-                    <a href="#" class="nav-link <?= (strpos(uri_string(), 'admin/intm') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-trophy"></i>
-                        <p>I.N.T.M. <i class="right fas fa-angle-left"></i></p>
-                    </a>
-                    <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="<?= base_url('admin/intm') ?>"
-                               class="nav-link <?= strpos(uri_string(), 'admin/intm') === 0 ? 'active' : '' ?>">
+                            <a href="<?= base_url('admin/schedule-events') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/schedule-events') === 0 ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Équipes</p>
+                                <p>Événements au tableau</p>
                             </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/arbitrage-stats') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/arbitrage-stats') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Stats d'arbitrage</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/sport-results') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/sport-results') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Résultats sportifs</p>
+                            </a>
+                        </li>
+                        <!-- Coupe des Régions — niveau 2 -->
+                        <li class="nav-item has-treeview <?= strpos(uri_string(), 'admin/cdr') === 0 ? 'menu-open' : '' ?>">
+                            <a href="#" class="nav-link <?= strpos(uri_string(), 'admin/cdr') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Coupe des Régions <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?= base_url('admin/cdr') ?>"
+                                       class="nav-link <?= strpos(uri_string(), 'admin/cdr') === 0 ? 'active' : '' ?>">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p>Équipes</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- I.N.T.M. — niveau 2 -->
+                        <li class="nav-item has-treeview <?= strpos(uri_string(), 'admin/intm') === 0 ? 'menu-open' : '' ?>">
+                            <a href="#" class="nav-link <?= strpos(uri_string(), 'admin/intm') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>I.N.T.M. <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?= base_url('admin/intm') ?>"
+                                       class="nav-link <?= strpos(uri_string(), 'admin/intm') === 0 ? 'active' : '' ?>">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p>Équipes</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </li>
