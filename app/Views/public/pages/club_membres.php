@@ -114,8 +114,6 @@ a.member-card { text-decoration: none; color: inherit; }
         <div class="member-badges">
           <?php if ($m->is_federated): ?><span class="badge-frbb"><img src="<?= base_url('assets/images/frbb_kbbb_logo_100.png') ?>" alt="FRBB" style="width: 18px; height: 25px;"></span><?php endif; ?>
           <?php if ($m->is_junior): ?><span class="badge-junior">Junior</span><?php endif; ?>
-          <?php if ($m->is_school): ?><span class="badge-school">École</span><?php endif; ?>
-          <?php if ($m->is_supporter): ?><span class="badge-supporter">Supporter</span><?php endif; ?>
         </div>
       </div>
     </a>
