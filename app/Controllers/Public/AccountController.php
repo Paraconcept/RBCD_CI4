@@ -241,6 +241,15 @@ class AccountController extends BaseController
 
         $model  = new MemberModel();
         $model->update($memberId, [$field => $value]);
+
+        // Cascade : "pour tous"=1 → "si connecté"=1 ; "si connecté"=0 → "pour tous"=0
+        $isMembersField = str_ends_with($field, '_members');
+        if (!$isMembersField && $value === 1) {
+            $model->update($memberId, [$field . '_members' => 1]);
+        } elseif ($isMembersField && $value === 0) {
+            $model->update($memberId, [substr($field, 0, -8) => 0]);
+        }
+
         $member = $model->find($memberId);
 
         $photoUrl = ($member->photo && $member->show_photo)

@@ -913,22 +913,59 @@
   var baseUrl  = '<?= base_url() ?>';
 
   // ── Toggle Ajax ──────────────────────────────────────────────────
-  document.querySelectorAll('.privacy-ajax-toggle').forEach(function (cb) {
-    cb.addEventListener('change', function () {
-      var field = this.dataset.field;
-      var value = this.checked ? 1 : 0;
-      var body  = new FormData();
-      body.append(csrfName, csrfHash);
-      body.append('field', field);
-      body.append('value', value);
+  function postToggle(field, value, cb) {
+    var body = new FormData();
+    body.append(csrfName, csrfHash);
+    body.append('field', field);
+    body.append('value', value);
+    fetch(baseUrl + 'mon-compte/toggle-privacy', { method: 'POST', body: body })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) return;
+        csrfHash = data.csrf;
+        if (field === 'show_photo' || field === 'show_photo_members') updatePhotoThumb(data.photoUrl);
+        if (cb) cb(data);
+      });
+  }
 
-      fetch(baseUrl + 'mon-compte/toggle-privacy', { method: 'POST', body: body })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (!data.success) return;
-          csrfHash = data.csrf;
-          if (field === 'show_photo') updatePhotoThumb(data.photoUrl);
-        });
+  // ── Lien "pour tous" ↔ "si connecté" ─────────────────────────────
+  function lockMembersToggle(membersLabel, lock) {
+    membersLabel.style.opacity = lock ? '.4' : '';
+    membersLabel.style.pointerEvents = lock ? 'none' : '';
+    membersLabel.title = lock ? 'Inclus dans "Visible pour tous"' : 'Visible si connecté';
+  }
+
+  document.querySelectorAll('.privacy-ajax-toggle:not([data-field$="_members"])').forEach(function (pubCb) {
+    var membersField = pubCb.dataset.field + '_members';
+    var membersCb    = document.querySelector('[data-field="' + membersField + '"]');
+    if (!membersCb) return;
+    var membersLabel = membersCb.closest('label');
+
+    // État initial
+    if (pubCb.checked) {
+      membersCb.checked = true;
+      lockMembersToggle(membersLabel, true);
+    }
+
+    pubCb.addEventListener('change', function () {
+      var val = this.checked ? 1 : 0;
+      postToggle(this.dataset.field, val);
+      if (this.checked) {
+        membersCb.checked = true;
+        lockMembersToggle(membersLabel, true);
+      } else {
+        lockMembersToggle(membersLabel, false);
+      }
+    });
+
+    membersCb.addEventListener('change', function () {
+      var val = this.checked ? 1 : 0;
+      postToggle(this.dataset.field, val, function () {
+        if (!membersCb.checked && pubCb.checked) {
+          pubCb.checked = false;
+          postToggle(pubCb.dataset.field, 0);
+        }
+      });
     });
   });
 
