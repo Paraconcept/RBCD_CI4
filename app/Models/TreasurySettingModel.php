@@ -13,6 +13,8 @@ class TreasurySettingModel extends Model
     protected $allowedFields = [
         'annual_cotisation',
         'forfait_price',
+        'lesson_price',
+        'hourly_price',
     ];
 
     protected $useTimestamps = true;

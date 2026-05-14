@@ -175,6 +175,8 @@ class TreasuryController extends BaseController
         $data = [
             'annual_cotisation' => (float) str_replace(',', '.', $this->request->getPost('annual_cotisation')),
             'forfait_price'     => (float) str_replace(',', '.', $this->request->getPost('forfait_price')),
+            'lesson_price'      => (float) str_replace(',', '.', $this->request->getPost('lesson_price')),
+            'hourly_price'      => (float) str_replace(',', '.', $this->request->getPost('hourly_price')),
         ];
 
         if ($settings) {

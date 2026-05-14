@@ -203,11 +203,11 @@ while ($swDt <= $swEnd) {
         </a>
         <?php if (!$isCurrentWeek): ?>
             <a href="<?= base_url('tableau') ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
-                <i class="fas fa-home d-block d-sm-inline me-sm-2"></i>Semaine en cours
+                <i class="fas fa-chevron-down d-block d-sm-inline me-sm-2"></i>Semaine en cours
             </a>
         <?php else: ?>
             <span class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;background:#6c757d;border-color:#6c757d;color:#fff;pointer-events:none;">
-                <i class="fas fa-home d-block d-sm-inline me-sm-3"></i>Semaine en cours
+                <i class="fas fa-chevron-down d-block d-sm-inline me-sm-3"></i>Semaine en cours
             </span>
         <?php endif; ?>
         <a href="<?= base_url("tableau/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
@@ -259,6 +259,8 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barAm->last_name) ?> <?= esc(member_initials($barAm->first_name)) ?>.</span>
             <?php elseif ($isLogged): ?>
                 <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="am"
+                        data-date-label="<?= esc($dayLabel) ?>"
+                        data-period-label="<?= $isSunday ? 'le matin' : "l'après-midi" ?>"
                         data-bs-toggle="tooltip" data-bs-html="true"
                         title="S'inscrire au bar<br><?= $isSunday ? 'le matin' : "l'après-midi" ?>">
                     <i class="fas fa-user-plus"></i>
@@ -272,6 +274,8 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barSoir->last_name) ?> <?= esc(member_initials($barSoir->first_name)) ?>.</span>
             <?php elseif ($isLogged): ?>
                 <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="soir"
+                        data-date-label="<?= esc($dayLabel) ?>"
+                        data-period-label="en soirée"
                         data-bs-toggle="tooltip" data-bs-html="true"
                         title="S'inscrire au bar<br>en soirée">
                     <i class="fas fa-user-plus"></i>
@@ -466,11 +470,11 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
         </a>
         <?php if (!$isCurrentWeek): ?>
             <a href="<?= base_url('tableau') ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
-                <i class="fas fa-home d-block d-sm-inline me-sm-2"></i>Semaine en cours
+                <i class="fas fa-chevron-up d-block d-sm-inline me-sm-2"></i>Semaine en cours
             </a>
         <?php else: ?>
             <span class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;background:#6c757d;border-color:#6c757d;color:#fff;pointer-events:none;">
-                <i class="fas fa-home d-block d-sm-inline me-sm-3"></i>Semaine en cours
+                <i class="fas fa-chevron-up d-block d-sm-inline me-sm-3"></i>Semaine en cours
             </span>
         <?php endif; ?>
         <a href="<?= base_url("tableau/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary text-center px-2" style="flex:1;min-width:0;">
@@ -682,16 +686,31 @@ document.querySelectorAll('.btn-bar-signup').forEach(bindBarSignup);
 
 function bindBarSignup(btn) {
     btn.addEventListener('click', function() {
-        const date   = this.dataset.date;
-        const period = this.dataset.period;
-        postJson('<?= base_url('tableau/bar/signup') ?>', {date, period})
-        .then(data => {
-            if (!data.success) return Swal.fire('Erreur', data.message, 'error');
-            const parentDiv = this.parentElement;
-            this.outerHTML = `
-                <span class="bar-slot-taken">${data.name}</span>
-                <button class="btn-cancel btn-bar-cancel" data-id="${data.id}" data-date="${date}" data-period="${period}">Annuler</button>`;
-            bindBarCancel(parentDiv.querySelector('.btn-bar-cancel'));
+        const date        = this.dataset.date;
+        const period      = this.dataset.period;
+        const dateLabel   = this.dataset.dateLabel   || '';
+        const periodLabel = this.dataset.periodLabel || '';
+        const self        = this;
+
+        Swal.fire({
+            title: '<i class="fas fa-glass-cheers me-2" style="color:#0dcaf0"></i>Bar',
+            html: `Je me mets au bar pour ce<br><strong>${dateLabel}</strong><br>${periodLabel}`,
+            showCancelButton: true,
+            confirmButtonText: 'Je confirme',
+            cancelButtonText: 'Annuler',
+            customClass: { confirmButton: 'btn btn-info', cancelButton: 'btn btn-secondary ms-2' },
+            buttonsStyling: false,
+        }).then(result => {
+            if (!result.isConfirmed) return;
+            postJson('<?= base_url('tableau/bar/signup') ?>', {date, period})
+            .then(data => {
+                if (!data.success) return Swal.fire('Erreur', data.message, 'error');
+                const parentDiv = self.parentElement;
+                self.outerHTML = `
+                    <span class="bar-slot-taken">${data.name}</span>
+                    <button class="btn-cancel btn-bar-cancel" data-id="${data.id}" data-date="${date}" data-period="${period}">Annuler</button>`;
+                bindBarCancel(parentDiv.querySelector('.btn-bar-cancel'));
+            });
         });
     });
 }

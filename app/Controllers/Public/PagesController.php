@@ -158,6 +158,22 @@ class PagesController extends BaseController
         ]);
     }
 
+    public function clubTarifs(): string
+    {
+        $treasury = (new \App\Models\TreasurySettingModel())->first();
+
+        return view('public/pages/club_tarifs', [
+            'title'       => 'Tarifs & Fonctionnement — RBC Disonais',
+            'page_title'  => 'Tarifs & Fonctionnement',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Le Club', 'url' => '#'],
+                ['label' => 'Tarifs & Fonctionnement'],
+            ],
+            'treasury' => $treasury,
+        ]);
+    }
+
     public function contact(): string
     {
         $hours = (new \App\Models\OpeningHourModel())->getAllOrdered();

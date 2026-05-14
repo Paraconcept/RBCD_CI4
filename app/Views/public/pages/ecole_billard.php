@@ -32,6 +32,7 @@
           $freq        = $school->frequency_per_month ?? 4;
           $schedule    = $school->schedule ?? 'Samedi, 10h00 — 12h00';
           $price       = $treasury ? number_format((float)$treasury->annual_cotisation, 0, ',', '') : '50';
+        $lessonPrice = $treasury ? number_format((float)($treasury->lesson_price ?? 5), 0, ',', '') : '5';
         ?>
         <h4 class="font-weight-700 mt-0 mb-10">Un apprentissage adapté à chacun</h4>
         <p class="mb-30">
@@ -85,7 +86,11 @@
                   <i class="fas fa-coins"></i>
                 </a>
                 <div class="icon-text">
-                  <h5 class="icon-box-title text-uppercase mb-5"><?= $price ?> € par an</h5>
+                  <h5 class="icon-box-title text-uppercase mb-5">
+                    <?= $price ?> € / an
+                    <span class="me-2 ms-2">+</span>
+                    <?= $lessonPrice ?> € / cours
+                  </h5>
                   <p class="mb-0">Cotisation annuelle tout compris : cours du samedi <em>et</em> accès libre au club.</p>
                 </div>
                 <div class="clearfix"></div>

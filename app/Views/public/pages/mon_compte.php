@@ -721,7 +721,7 @@
         <p class="text-muted" style="font-size:.88rem;">Aucune activité enregistrée cette saison.</p>
       <?php else: ?>
         <!-- Légende -->
-        <div class="mb-2 d-flex flex-column" style="gap:.15rem; font-size:.8rem;">
+        <div class="mb-2 d-flex flex-column" style="gap:.1rem; font-size:.8rem;">
           <span><span class="ms-legend-dot" style="background: #93C37D"></span>Jour de jeu à domicile</span>
           <span><span class="ms-legend-dot" style="background: #D9534F"></span>Arbitrage</span>
           <span><span class="ms-legend-dot" style="background: #117DC4"></span>Bar</span>

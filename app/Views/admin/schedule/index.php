@@ -39,8 +39,6 @@
 .event-admin-time  { font-size: .78rem; opacity: .75; white-space: nowrap; }
 .event-admin-desc  { font-size: .8rem; opacity: .8; }
 
-.wna-next   { order:2; }
-.wna-center { order:3; flex-basis:100%; margin-top:.3rem; }
 
 @media (max-width:767px) {
     .day-card thead { display:none; }
@@ -91,21 +89,25 @@ $isCurrentWeek = ($week == (int)$nowDt->format('W') && $year == (int)$nowDt->for
 ?>
 
 <!-- Navigation semaine -->
-<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap" style="gap:.5rem">
-    <a href="<?= base_url("admin/schedule/{$prev['week']}/{$prev['year']}") ?>" class="btn btn-outline-secondary btn-sm">
-        <i class="fas fa-chevron-left mr-1"></i> Semaine précédente
-    </a>
-    <a href="<?= base_url("admin/schedule/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary btn-sm wna-next">
-        Semaine suivante <i class="fas fa-chevron-right ml-1"></i>
-    </a>
-    <div class="text-center wna-center">
+<div class="mb-3">
+    <div class="d-flex justify-content-center align-items-stretch mb-2" style="gap:.5rem">
+        <a href="<?= base_url("admin/schedule/{$prev['week']}/{$prev['year']}") ?>" class="btn btn-outline-secondary btn-sm text-center px-2" style="flex:1;min-width:0;">
+            <i class="fas fa-chevron-left d-block d-sm-inline mr-sm-2"></i>Semaine précédente
+        </a>
         <?php if (!$isCurrentWeek): ?>
-            <div class="mb-1">
-                <a href="<?= base_url('admin/schedule') ?>" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-chevron-down mr-1"></i>Semaine en cours
-                </a>
-            </div>
+            <a href="<?= base_url('admin/schedule') ?>" class="btn btn-outline-secondary btn-sm text-center px-2" style="flex:1;min-width:0;">
+                <i class="fas fa-chevron-down d-block d-sm-inline mr-sm-2"></i>Semaine en cours
+            </a>
+        <?php else: ?>
+            <span class="btn btn-outline-secondary btn-sm text-center px-2" style="flex:1;min-width:0;background:#6c757d;border-color:#6c757d;color:#fff;pointer-events:none;">
+                <i class="fas fa-chevron-down d-block d-sm-inline mr-sm-2"></i>Semaine en cours
+            </span>
         <?php endif; ?>
+        <a href="<?= base_url("admin/schedule/{$next['week']}/{$next['year']}") ?>" class="btn btn-outline-secondary btn-sm text-center px-2" style="flex:1;min-width:0;">
+            <i class="fas fa-chevron-right d-block d-sm-none"></i>Semaine suivante<i class="fas fa-chevron-right d-none d-sm-inline ml-2"></i>
+        </a>
+    </div>
+    <div class="text-center">
         <span class="badge badge-primary" style="font-size:1rem;padding:.5rem 1rem;">
             Semaine <?= $week ?> — <?= esc($periodStr) ?>
         </span>

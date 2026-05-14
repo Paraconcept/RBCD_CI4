@@ -17,7 +17,7 @@
               <ul>
                 <li class="contact-phone">
                   <div class="icon"><i class="flaticon-contact-042-phone-1"></i></div>
-                  <div class="text"><a href="tel:+32473453899">0473 / 45 38 99</a></div>
+                  <div class="text"><a href="tel:+32494797353">0494 / 797 353</a></div>
                 </li>
                 <li class="contact-email">
                   <div class="icon"><i class="flaticon-contact-043-email-1"></i></div>
@@ -58,6 +58,9 @@
               }
             ?>
             <div class="opening-hours border-dark">
+              <p style="font-size:1.4rem;color:#aaa;margin-top:10px;margin-bottom:-5px;text-align:right;margin-right:30px;">
+                <i class="fa fa-info-circle me-2"></i>
+              </p>
               <ul>
                 <?php foreach ($groups as $g):
                   $label = $g['start'] === $g['end'] ? $g['start'] : $g['start'] . ' — ' . $g['end'];
@@ -77,6 +80,9 @@
                 </li>
                 <?php endforeach; ?>
               </ul>
+              <p style="font-size:.8rem;color:#aaa;margin-top:10px;margin-bottom:0;">
+                <i class="fa fa-info-circle me-2"></i>Les horaires de soirées s'appliquent uniquement les soirs de compétitions.
+              </p>
             </div>
           </div>
         </div>

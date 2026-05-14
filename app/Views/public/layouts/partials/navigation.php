@@ -77,6 +77,7 @@
                       <li><a href="<?= base_url('club/comite') ?>">Le Comité</a></li>
                       <li><a href="<?= base_url('club/membres') ?>">Nos Membres</a></li>
                       <li><a href="<?= base_url('club/ecole-de-billard') ?>">Notre école de billard</a></li>
+                      <li><a href="<?= base_url('club/tarifs') ?>">Tarifs &amp; Fonctionnement</a></li>
                       <li><a href="<?= base_url('contact') ?>">Contact</a></li>
                     </ul>
                   </li>

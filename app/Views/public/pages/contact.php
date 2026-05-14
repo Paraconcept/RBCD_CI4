@@ -28,10 +28,12 @@
                 </div>
               </li>
               <li class="contact-phone">
-                <div class="icon"><i class="flaticon-contact-008-mobile-phone"></i></div>
+                <div class="icon"><i class="flaticon-contact-050-phone"></i></div>
                 <div class="text">
                   <a href="tel:+32494797353">0494 / 797 353</a>
-                  <i class="fas fa-comments ms-4" style="color:#84252B;font-size:1.1rem;cursor:help;"
+                  <pan class="ms-4 me-4">&nbsp;</pan>
+                  <i class="fas fa-long-arrow-alt-left" style="color:#84252B;"></i>
+                  <i class="fas fa-question-circle" style="color:#84252B;font-size:1.4rem;cursor:help;"
                      data-bs-toggle="tooltip" data-bs-html="true"
                      title="<i class='fas fa-mobile-alt fa-lg'></i><br>En raison des compétitions, le gsm est souvent sur silencieux.<br>N'hésitez pas à laisser un message, nous les écoutons tous !"></i>
                 </div>
