@@ -59,6 +59,12 @@
     margin: 0;
     border-top: 1px solid #f0f0f0;
 }
+/* Tooltip RBCD — rouge */
+.tooltip-rbcd .tooltip-inner { background-color: #84252B; color: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.35); }
+.tooltip-rbcd[data-popper-placement^="top"]    .tooltip-arrow::before { border-top-color:    #84252B; }
+.tooltip-rbcd[data-popper-placement^="bottom"] .tooltip-arrow::before { border-bottom-color: #84252B; }
+.tooltip-rbcd[data-popper-placement^="left"]   .tooltip-arrow::before { border-left-color:   #84252B; }
+.tooltip-rbcd[data-popper-placement^="right"]  .tooltip-arrow::before { border-right-color:  #84252B; }
 </style>
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 

@@ -31,6 +31,9 @@
                 <div class="icon"><i class="flaticon-contact-042-phone-1"></i></div>
                 <div class="text">
                   <a href="tel:+32494797353">0494 / 797 353</a>
+                  <i class="fas fa-comments ms-4" style="color:#84252B;font-size:1.1rem;cursor:help;"
+                     data-bs-toggle="tooltip" data-bs-html="true"
+                     title="En raison des compétitions, le gsm est souvent sur silencieux.<br>N'hésitez pas à laisser un message, nous les écoutons tous !"></i>
                 </div>
               </li>
               <li class="contact-email">
@@ -193,4 +196,13 @@
 }
 </style>
 <?= $this->endSection() ?>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+const rbcdTpl = '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>';
+document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+    new bootstrap.Tooltip(el, { template: rbcdTpl, html: true, sanitize: false, delay: { show: 80, hide: 100 } });
+});
+</script>
 <?= $this->endSection() ?>
