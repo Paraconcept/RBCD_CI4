@@ -3,18 +3,18 @@
 <?= $this->section('styles') ?>
 <style>
 .members-grid {
-    column-count: 3;
-    column-gap: 24px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 300px));
+    gap: 8px 24px;
+    justify-content: center;
 }
 @media (max-width: 575px) {
-    .members-grid { column-count: 2; }
+    .members-grid { grid-template-columns: repeat(2, minmax(0, 220px)); }
 }
 .member-card {
-    break-inside: avoid;
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 18px;
     padding: 8px;
     border-radius: 8px;
     transition: background .2s;
