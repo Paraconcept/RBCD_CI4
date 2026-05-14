@@ -89,7 +89,7 @@ $delta = function(float $d) use ($fmt): string {
                         <i class="fas fa-pencil-alt text-muted mr-2"></i>Recettes manuelles
                     </td>
                     <td class="text-right font-weight-bold text-success" style="width:160px"><?= $fmt($totalRevManualN) ?></td>
-                    <td class="text-right text-muted" style="width:60px"><?= $pctM ?> %</td>
+                    <td class="text-right text-muted text-nowrap" style="width:90px"><?= $pctM ?> %</td>
                 </tr>
                 <?php foreach ($revCategories as $key => $label):
                     $m = $revByCatN[$key] ?? 0;
@@ -117,7 +117,7 @@ $delta = function(float $d) use ($fmt): string {
                         <small class="text-muted font-weight-normal">(RBCD <?= $fmt($cotisAmount) ?>/an · forfait <?= $fmt($forfaitAmount) ?>/sem.)</small>
                     </td>
                     <td class="text-right font-weight-bold text-success"><?= $fmt($totalCotisN) ?></td>
-                    <td class="text-right text-muted"><?= $pctC ?> %</td>
+                    <td class="text-right text-muted text-nowrap"><?= $pctC ?> %</td>
                 </tr>
 
                 <?php $pctE = $totalRevAllN > 0 ? round($totalEnvN / $totalRevAllN * 100) : 0; ?>
@@ -126,7 +126,7 @@ $delta = function(float $d) use ($fmt): string {
                         <i class="fas fa-cash-register text-muted mr-2"></i>Bar / Enveloppes de caisse
                     </td>
                     <td class="text-right font-weight-bold text-success"><?= $fmt($totalEnvN) ?></td>
-                    <td class="text-right text-muted"><?= $pctE ?> %</td>
+                    <td class="text-right text-muted text-nowrap"><?= $pctE ?> %</td>
                 </tr>
             </tbody>
             <tfoot class="tfoot-total">
