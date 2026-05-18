@@ -343,6 +343,18 @@ class ScheduleController extends BaseController
         ]);
     }
 
+    public function removeBar(int $id)
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $duty = $this->barDuties->find($id);
+        if ($duty) {
+            $this->barDuties->delete($id);
+        }
+
+        return $this->response->setJSON(['success' => true]);
+    }
+
     private function validateEncounterForm(): bool
     {
         return $this->validate([

@@ -232,7 +232,8 @@ $routes->group('admin', static function ($routes) {
         $routes->post('schedule/(:num)/referee/remove',  'Admin\ScheduleController::removeReferee/$1');
         $routes->post('schedule/(:num)/marqueur',        'Admin\ScheduleController::designateMarqueur/$1');
         $routes->post('schedule/(:num)/marqueur/remove', 'Admin\ScheduleController::removeMarqueur/$1');
-        $routes->post('schedule/bar/assign',             'Admin\ScheduleController::assignBar');
+        $routes->post('schedule/bar/assign',              'Admin\ScheduleController::assignBar');
+        $routes->post('schedule/bar/(:num)/remove',       'Admin\ScheduleController::removeBar/$1');
 
         // Statistiques d'arbitrage
         $routes->get('arbitrage-stats',          'Admin\ArbitrageStatsController::index');

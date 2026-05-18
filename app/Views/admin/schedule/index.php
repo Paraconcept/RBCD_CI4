@@ -561,7 +561,7 @@ function bindBarCancel(btn) {
             cancelButtonText: 'Annuler',
         }).then(result => {
             if (!result.isConfirmed) return;
-            fetch(`<?= base_url('tableau/bar/') ?>${id}/cancel`, {
+            fetch(`<?= base_url('admin/schedule/bar/') ?>${id}/remove`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
                 body: `<?= csrf_token() ?>=${csrfToken}`
