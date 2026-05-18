@@ -100,7 +100,7 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-auto d-flex align-items-center justify-content-center">
+                    <div class="col-auto" style="padding-top:28px">
                         <strong class="text-secondary" style="font-size:1.2rem">=</strong>
                     </div>
                     <div class="col">
@@ -120,7 +120,7 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-auto d-flex align-items-center justify-content-center">
+                    <div class="col-auto" style="padding-top:28px">
                         <strong class="text-secondary" style="font-size:1.2rem">+</strong>
                     </div>
                     <div class="col">
