@@ -82,8 +82,8 @@ $todayPrefix = 'E' . date('d.m.');
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-3">
+                <div class="row align-items-end">
+                    <div class="col">
                         <div class="form-group">
                             <label>Montant calculé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
@@ -100,7 +100,7 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col">
                         <div class="form-group">
                             <label>Montant trouvé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
@@ -117,7 +117,10 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-auto" style="padding-bottom:9px">
+                        <strong class="text-secondary" style="font-size:1.2rem">+</strong>
+                    </div>
+                    <div class="col">
                         <div class="form-group">
                             <label>Montant SumUp (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
@@ -134,7 +137,7 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col">
                         <div class="form-group">
                             <label>Écart</label>
                             <div class="pt-2">
