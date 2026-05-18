@@ -301,9 +301,10 @@
   gap: 8px;
   margin-bottom: 1.5rem;
 }
-.ms-stat-item { min-width: 0; }
-/* Mobile : disposition 2 / 3 / 2 (grille virtuelle de 6 colonnes) */
-@media (max-width: 575.98px) {
+.ms-stat-item { min-width: 0; display: flex; flex-direction: column; }
+.ms-stat-item .ms-stat-card { flex: 1; }
+/* ≤ 782px : disposition 2 / 3 / 2 (grille virtuelle de 6 colonnes) */
+@media (max-width: 782px) {
   .ms-stats-row { grid-template-columns: repeat(6, 1fr); }
   .ms-stat-item:nth-child(1),
   .ms-stat-item:nth-child(2),
