@@ -686,10 +686,10 @@
         <div class="col-4 col-sm">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['home_count'] ?></div>
-            <div class="ms-lbl">Joué dom.</div>
+            <div class="ms-lbl">Joué&nbsp;dom.</div>
           </div>
         </div>
-        <div class="col-4 col-sm me-2">
+        <div class="col-4 col-sm me-3">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['required'] == floor($ms['required']) ? (int)$ms['required'] : number_format($ms['required'], 1, '.', '') ?></div>
             <div class="ms-lbl">Requis</div>
@@ -709,11 +709,11 @@
         </div>
         <div class="col-4 col-sm">
           <div class="ms-stat-card" style="border-top-color:#FFC109">
-            <div class="ms-val" style="color:#b38600"><?= $ms['mrq_count'] ?: '—' ?></div>
+            <div class="ms-val" style="color:#b38600"><?= $ms['mrq_count'] ?></div>
             <div class="ms-lbl">Marquages</div>
           </div>
         </div>
-        <div class="col-4 col-sm">
+        <div class="col-4 col-sm me-3">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['done'] ?></div>
             <div class="ms-lbl">Fait</div>
