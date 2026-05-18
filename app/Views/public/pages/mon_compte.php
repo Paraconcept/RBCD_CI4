@@ -708,6 +708,12 @@
           </div>
         </div>
         <div class="col-6 col-md-2">
+          <div class="ms-stat-card" style="border-top-color:#FFC109">
+            <div class="ms-val" style="color:#b38600"><?= $ms['mrq_count'] ?: '—' ?></div>
+            <div class="ms-lbl">Marquages finale</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-2">
           <div class="ms-stat-card me-md-4">
             <div class="ms-val"><?= $ms['done'] ?></div>
             <div class="ms-lbl">Fait</div>
