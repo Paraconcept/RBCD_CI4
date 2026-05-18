@@ -11,7 +11,7 @@ class ScheduleMarqueurModel extends Model
     protected $useTimestamps = true;
     protected $returnType    = 'object';
 
-    protected $allowedFields = ['encounter_id', 'member_id'];
+    protected $allowedFields = ['encounter_id', 'member_id', 'round'];
 
     public function getForEncounters(array $encounterIds): array
     {

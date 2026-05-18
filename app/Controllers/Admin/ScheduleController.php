@@ -276,9 +276,12 @@ class ScheduleController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Ce membre est déjà inscrit comme marqueur.']);
         }
 
+        $round = max(0, min(255, (int) $this->request->getPost('round')));
+
         $id = $this->marqueurs->insert([
             'encounter_id' => $encounterId,
             'member_id'    => $memberId,
+            'round'        => $round,
         ]);
 
         $row = $this->marqueurs->db
@@ -292,6 +295,7 @@ class ScheduleController extends BaseController
             'success' => true,
             'mrq_id'  => $id,
             'name'    => $row->last_name . ' ' . member_initials($row->first_name),
+            'round'   => $round,
         ]);
     }
 

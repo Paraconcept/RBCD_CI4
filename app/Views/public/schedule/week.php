@@ -371,6 +371,11 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                             <div class="arb-row" data-mrq-id="<?= $mrq->id ?>">
                                 <span class="arb-label">Marqueur :</span>
                                 <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $mrqName ?></span>
+                                <?php if ($mrq->round): ?>
+                                    <i class="far fa-clock arb-rounds"
+                                       data-bs-toggle="tooltip" data-bs-html="true"
+                                       title="Disponible :<br><?= esc(decodeTours($mrq->round)) ?>"></i>
+                                <?php endif; ?>
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -378,6 +383,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                             <?php if ($isLogged && !$enc->myMarqueur): ?>
                                 <button class="btn btn-warning btn-sm btn-mrq-signup"
                                         data-encounter="<?= $enc->id ?>"
+                                        data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>"
                                         data-date-label="<?= esc(frDay($enc->match_date, $frDays, $frMonths)) ?>">
                                     <i class="fas fa-pen me-1"></i>Marquer
                                 </button>
@@ -738,28 +744,54 @@ function bindMrqSignup(btn) {
     btn.addEventListener('click', function() {
         const encId     = this.dataset.encounter;
         const dateLabel = this.dataset.dateLabel || '';
+        const rounds    = parseInt(this.dataset.rounds || 3);
         const self      = this;
+
+        let chkHtml = '';
+        for (let i = 0; i < rounds; i++) {
+            const val = 1 << i;
+            chkHtml += `<div class="${i < rounds - 1 ? 'mb-1' : ''}"><label style="cursor:pointer">` +
+                `<input type="checkbox" class="swal-mrq-chk" value="${val}" checked style="margin-right:6px">Tour ${i + 1}` +
+                `</label></div>`;
+        }
 
         Swal.fire({
             title: '<i class="fas fa-pen me-2" style="color:#ffc107"></i>Marqueur',
-            html: `Je me mets comme <strong>marqueur</strong> pour ce<br><strong>${dateLabel}</strong>`,
+            html: `<p class="mb-3">Je me mets comme <strong>marqueur</strong> le <strong>${dateLabel}</strong>.<br>Quels tours ?</p>
+                   <div class="text-start ps-4">${chkHtml}</div>`,
             showCancelButton: true,
-            confirmButtonText: 'Je confirme',
+            confirmButtonText: '<i class="fas fa-pen me-1"></i>S\'inscrire',
             cancelButtonText: 'Annuler',
             customClass: { confirmButton: 'btn btn-warning', cancelButton: 'btn btn-secondary ms-2' },
             buttonsStyling: false,
+            preConfirm: () => {
+                let mask = 0;
+                document.querySelectorAll('.swal-mrq-chk').forEach(el => {
+                    if (el.checked) mask |= parseInt(el.value);
+                });
+                if (!mask) {
+                    Swal.showValidationMessage('Veuillez sélectionner au moins un tour');
+                    return false;
+                }
+                return mask;
+            }
         }).then(result => {
             if (!result.isConfirmed) return;
-            postJson(`<?= base_url('tableau/marqueur/') ?>${encId}/signup`, {})
+            postJson(`<?= base_url('tableau/marqueur/') ?>${encId}/signup`, {round: result.value})
             .then(data => {
                 if (!data.success) return Swal.fire('Erreur', data.message, 'error');
 
+                const roundTip = data.round > 0
+                    ? `<i class="far fa-clock arb-rounds" data-bs-toggle="tooltip" title="${decodeTours(data.round)}"></i>`
+                    : '';
                 const list = document.getElementById(`mrq-list-${encId}`);
                 list.insertAdjacentHTML('beforeend', `
                     <div class="arb-row" data-mrq-id="${data.mrq_id}">
                         <span class="arb-label">Marqueur :</span>
                         <span class="arb-name me-highlight">${data.name}</span>
+                        ${roundTip}
                     </div>`);
+                initTooltips(list.lastElementChild);
                 self.classList.add('d-none');
 
                 const dl = formatDateFr(data.match_date, data.match_time);

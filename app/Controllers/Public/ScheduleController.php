@@ -257,9 +257,12 @@ class ScheduleController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Tu es déjà inscrit comme marqueur pour cette rencontre.']);
         }
 
+        $round = max(0, min(255, (int) $this->request->getPost('round')));
+
         $id = $this->marqueurs->insert([
             'encounter_id' => $encounterId,
             'member_id'    => $memberId,
+            'round'        => $round,
         ]);
 
         $row = $this->marqueurs->db
@@ -272,12 +275,13 @@ class ScheduleController extends BaseController
         $this->sendMarqueurConfirmation($memberId, $encounter);
 
         return $this->response->setJSON([
-            'success'    => true,
-            'mrq_id'     => $id,
-            'name'       => $row->last_name . ' ' . member_initials($row->first_name),
-            'match_date' => $encounter->match_date,
-            'match_time' => $encounter->match_time,
-            'competition'=> $encounter->competition ?? '',
+            'success'     => true,
+            'mrq_id'      => $id,
+            'name'        => $row->last_name . ' ' . member_initials($row->first_name),
+            'round'       => $round,
+            'match_date'  => $encounter->match_date,
+            'match_time'  => $encounter->match_time,
+            'competition' => $encounter->competition ?? '',
         ]);
     }
 

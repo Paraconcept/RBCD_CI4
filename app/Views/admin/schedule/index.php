@@ -260,6 +260,9 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                             <?php foreach ($enc->marqueurRows as $mrq): ?>
                             <div class="arb-item" data-mrq-id="<?= $mrq->id ?>">
                                 <span class="arb-name"><?= esc($mrq->last_name) ?> <?= esc(member_initials($mrq->first_name)) ?>.</span>
+                                <?php if ($mrq->round): ?>
+                                    <i class="far fa-clock arb-rounds" data-toggle="tooltip" title="<?= esc(decodeTours($mrq->round)) ?>"></i>
+                                <?php endif; ?>
                                 <button class="btn btn-xs btn-danger btn-remove-marqueur"
                                         data-encounter="<?= $enc->id ?>"
                                         data-mrq-id="<?= $mrq->id ?>"
@@ -270,7 +273,8 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                             <?php endforeach; ?>
                         </div>
                         <button class="btn btn-xs btn-warning btn-designate-marqueur"
-                                data-encounter="<?= $enc->id ?>">
+                                data-encounter="<?= $enc->id ?>"
+                                data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
                             <i class="fas fa-pen mr-1"></i>Désigner
                         </button>
                     <?php elseif ($needsArb): ?>
@@ -371,7 +375,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
             </div>
             <div class="modal-body">
                 <input type="hidden" id="modalMarqueurEncounterId">
-                <div class="form-group mb-0">
+                <div class="form-group">
                     <label>Membre</label>
                     <select class="form-control" id="modalMarqueurMemberId">
                         <option value="">— Sélectionner —</option>
@@ -379,6 +383,10 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         <option value="<?= $m->id ?>"><?= esc($m->last_name) ?> <?= esc($m->first_name) ?></option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+                <div class="form-group mb-0" id="modalMarqueurRoundGroup">
+                    <label>Tours à marquer</label>
+                    <div id="modalMarqueurRoundCheckboxes" class="d-flex flex-wrap" style="gap:.8rem 1.2rem"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -627,10 +635,26 @@ document.getElementById('btnConfirmBar').addEventListener('click', function() {
 });
 
 // ── Marqueur : ouvrir modal ──
+let currentMrqRounds = 3;
+
 document.querySelectorAll('.btn-designate-marqueur').forEach(btn => {
     btn.addEventListener('click', function() {
+        currentMrqRounds = parseInt(this.dataset.rounds || 3);
         document.getElementById('modalMarqueurEncounterId').value = this.dataset.encounter;
         document.getElementById('modalMarqueurMemberId').value = '';
+
+        const container = document.getElementById('modalMarqueurRoundCheckboxes');
+        container.innerHTML = '';
+        for (let i = 0; i < currentMrqRounds; i++) {
+            const val = 1 << i;
+            const id  = 'mrqChk' + val;
+            container.insertAdjacentHTML('beforeend',
+                `<div class="custom-control custom-checkbox">` +
+                `<input type="checkbox" class="custom-control-input" id="${id}" value="${val}" checked>` +
+                `<label class="custom-control-label" for="${id}">Tour ${i + 1}</label>` +
+                `</div>`
+            );
+        }
         $('#modalMarqueur').modal('show');
     });
 });
@@ -641,19 +665,29 @@ document.getElementById('btnConfirmMarqueur').addEventListener('click', function
     const memberId    = document.getElementById('modalMarqueurMemberId').value;
     if (!memberId) return;
 
+    let round = 0;
+    document.querySelectorAll('#modalMarqueurRoundCheckboxes input[type="checkbox"]:checked').forEach(c => {
+        round |= parseInt(c.value);
+    });
+    if (!round) round = (1 << currentMrqRounds) - 1;
+
     fetch(`<?= base_url('admin/schedule/') ?>${encounterId}/marqueur`, {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
-        body: `<?= csrf_token() ?>=${csrfToken}&member_id=${memberId}`
+        body: `<?= csrf_token() ?>=${csrfToken}&member_id=${memberId}&round=${round}`
     })
     .then(r => r.json())
     .then(data => {
         if (!data.success) return Swal.fire('Erreur', data.message, 'warning');
         $('#modalMarqueur').modal('hide');
 
+        const roundLabel = round > 0
+            ? `<i class="far fa-clock arb-rounds" data-toggle="tooltip" title="${decodeTours(round)}"></i>`
+            : '';
         const newItem = `
             <div class="arb-item" data-mrq-id="${data.mrq_id}">
                 <span class="arb-name">${data.name}</span>
+                ${roundLabel}
                 <button class="btn btn-xs btn-danger btn-remove-marqueur"
                         data-encounter="${encounterId}" data-mrq-id="${data.mrq_id}" title="Retirer">
                     <i class="fas fa-times"></i>
@@ -661,6 +695,7 @@ document.getElementById('btnConfirmMarqueur').addEventListener('click', function
             </div>`;
         const list = document.getElementById(`mrq-list-${encounterId}`);
         list.insertAdjacentHTML('beforeend', newItem);
+        $(list.lastElementChild.querySelector('[data-toggle="tooltip"]')).tooltip();
         bindRemoveMarqueur(list.lastElementChild.querySelector('.btn-remove-marqueur'));
     });
 });
