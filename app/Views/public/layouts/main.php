@@ -101,7 +101,7 @@
           </div>
           <div class="text-center mt-3">
             <a href="<?= base_url('connexion/mot-de-passe-oublie') ?>"
-               class="text-muted" style="font-size:.85rem" data-bs-dismiss="modal">
+               class="text-muted" style="font-size:.85rem">
               <i class="fas fa-key me-1"></i>Première connexion / Mot de passe oublié ?
             </a>
           </div>
