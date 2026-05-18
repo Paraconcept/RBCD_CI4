@@ -28,8 +28,8 @@ class Email extends BaseConfig
     // ── DEV : Mailtrap (intercepte tous les emails sans les envoyer)
     // ── PROD : commenter le bloc Mailtrap et décommenter le bloc One.com
     public string $SMTPHost   = 'sandbox.smtp.mailtrap.io';
-    public string $SMTPUser   = 'b10e7bf6963b30';
-    public string $SMTPPass   = '646e7f2ca2534b';
+    public string $SMTPUser   = 'bd395758f1e393';
+    public string $SMTPPass   = '51b9255f24759e';
     public int    $SMTPPort   = 2525;
     public string $SMTPCrypto = 'tls';
 
