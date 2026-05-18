@@ -115,7 +115,7 @@
                             <a href="<?= base_url('admin/treasury') ?>"
                                class="nav-link <?= uri_string() === 'admin/treasury' ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>État des paiements</p>
+                                <p>Cotisations &amp; Forfaits</p>
                             </a>
                         </li>
                         <li class="nav-item">
