@@ -22,7 +22,7 @@ class TreasuryRevenueModel extends Model
     ];
 
     public static array $paymentMethods = [
-        'caisse'   => 'Caisse',
+        'caisse'   => 'Liquide',
         'virement' => 'Virement',
     ];
 
