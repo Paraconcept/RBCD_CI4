@@ -115,11 +115,11 @@ class PasswordResetController extends BaseController
         $confirm  = $this->request->getPost('password_confirm');
 
         if (strlen($password) < 8) {
-            return redirect()->back()->with('error', 'Le mot de passe doit contenir au moins 8 caractères.');
+            return redirect()->back()->with('form_error', 'Le mot de passe doit contenir au moins 8 caractères.');
         }
 
         if ($password !== $confirm) {
-            return redirect()->back()->with('error', 'Les deux mots de passe ne correspondent pas.');
+            return redirect()->back()->with('form_error', 'Les deux mots de passe ne correspondent pas.');
         }
 
         $loginModel->update($row->id, [

@@ -9,7 +9,7 @@
             </div>
             <div class="card-body">
 
-                <?php if ($msg = session()->getFlashdata('error')): ?>
+                <?php if ($msg = session()->getFlashdata('form_error')): ?>
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle me-2"></i><?= esc($msg) ?>
                     </div>
