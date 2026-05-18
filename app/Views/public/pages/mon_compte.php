@@ -294,14 +294,26 @@
 .ms-stat-solde-deficit { color: #c62828; }
 .ms-stat-card-ok      { background: #bbecb1; border-color: #93C37D; }
 .ms-stat-card-deficit { background: #f0b0b7; border-color: #D9534F; }
+/* Ligne des 7 cartes stats — flexbox pur (sans Bootstrap grid) */
+.ms-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+.ms-stat-item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+/* Mobile : disposition 2 / 3 / 2 */
 @media (max-width: 575.98px) {
-  .ms-stats-row > div:nth-child(1),
-  .ms-stats-row > div:nth-child(2),
-  .ms-stats-row > div:nth-child(6),
-  .ms-stats-row > div:nth-child(7) { flex: 0 0 auto; width: 50%; }
-  .ms-stats-row > div:nth-child(3),
-  .ms-stats-row > div:nth-child(4),
-  .ms-stats-row > div:nth-child(5) { flex: 0 0 auto; width: 33.333%; }
+  .ms-stat-item:nth-child(1),
+  .ms-stat-item:nth-child(2),
+  .ms-stat-item:nth-child(6),
+  .ms-stat-item:nth-child(7) { flex: 0 0 calc(50% - 4px); }
+  .ms-stat-item:nth-child(3),
+  .ms-stat-item:nth-child(4),
+  .ms-stat-item:nth-child(5) { flex: 0 0 calc(33.333% - 5.334px); }
 }
 /* Grille calendrier perso — flexbox (pas de <table> pour éviter width:100% du thème) */
 .ms-scroll-wrap  { overflow-x: auto; max-width: 100%; }
@@ -691,44 +703,44 @@
       </p>
 
       <!-- Chiffres clés -->
-      <div class="row g-2 mb-4 ms-stats-row">
-        <div class="col-sm">
+      <div class="ms-stats-row">
+        <div class="ms-stat-item">
           <div class="ms-stat-card" style="border-top-color:#93C37D">
             <div class="ms-val"><?= $ms['home_count'] ?></div>
             <div class="ms-lbl">Joué&nbsp;dom.</div>
           </div>
         </div>
-        <div class="col-sm">
+        <div class="ms-stat-item">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['required'] == floor($ms['required']) ? (int)$ms['required'] : number_format($ms['required'], 1, '.', '') ?></div>
             <div class="ms-lbl">Requis</div>
           </div>
         </div>
-        <div class="col-sm">
+        <div class="ms-stat-item">
           <div class="ms-stat-card" style="border-top-color:#D9534F">
             <div class="ms-val"><?= $ms['arb_count'] ?></div>
             <div class="ms-lbl">Arbitrages</div>
           </div>
         </div>
-        <div class="col-sm">
+        <div class="ms-stat-item">
           <div class="ms-stat-card" style="border-top-color:#147DC4">
             <div class="ms-val"><?= $ms['bar_count'] ?></div>
             <div class="ms-lbl">Bar</div>
           </div>
         </div>
-        <div class="col-sm">
+        <div class="ms-stat-item">
           <div class="ms-stat-card" style="border-top-color:#FFC109">
             <div class="ms-val"><?= $ms['mrq_count'] ?></div>
             <div class="ms-lbl">Marquages</div>
           </div>
         </div>
-        <div class="col-sm">
+        <div class="ms-stat-item">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['done'] ?></div>
             <div class="ms-lbl">Fait</div>
           </div>
         </div>
-        <div class="col-sm">
+        <div class="ms-stat-item">
           <?php
             $solde = $ms['solde'];
             $soldeFmt = ($solde == 0) ? '0'
