@@ -147,6 +147,7 @@
 
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-beautify@1.15.1/js/lib/beautify-html.min.js"></script>
 <script>
 $(function () {
 
@@ -217,6 +218,23 @@ $(function () {
           .on('mousedown', function (e) { e.preventDefault(); $('#content').summernote('outdent'); })
           .appendTo($indentGrp);
 
+        // Bouton Formater le HTML
+        var $fmtGrp = $('<div class="note-btn-group btn-group">');
+        $('<button type="button" class="note-btn btn btn-default btn-sm" title="Formater / indenter le HTML">')
+          .html('<i class="fas fa-code fa-fw"></i>')
+          .on('mousedown', function (e) {
+            e.preventDefault();
+            var raw       = $('#content').summernote('code');
+            var formatted = html_beautify(raw, {
+              indent_size: 2,
+              wrap_line_length: 0,
+              preserve_newlines: false,
+              end_with_newline: false,
+            });
+            $('#content').summernote('code', formatted);
+          })
+          .appendTo($fmtGrp);
+
         // Bouton Caractères spéciaux
         var $scGrp = $('<div class="note-btn-group btn-group">');
         $('<button id="btn-special-chars" type="button" class="note-btn btn btn-default btn-sm" title="Caractères spéciaux">')
@@ -232,6 +250,7 @@ $(function () {
         // Insertion dans la toolbar après le groupe 'para'
         var $paraGrp = $toolbar.find('.note-btn-group').eq(3); // para group (index 3)
         $indentGrp.insertAfter($paraGrp);
+        $fmtGrp.appendTo($toolbar);
         $scGrp.appendTo($toolbar);
       }
     }
