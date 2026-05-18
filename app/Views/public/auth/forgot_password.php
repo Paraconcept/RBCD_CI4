@@ -9,18 +9,6 @@
             </div>
             <div class="card-body">
 
-                <?php if ($msg = session()->getFlashdata('success')): ?>
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i><?= esc($msg) ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($msg = session()->getFlashdata('error')): ?>
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i><?= esc($msg) ?>
-                    </div>
-                <?php endif; ?>
-
                 <p class="text-muted mb-4" style="font-size:.95rem">
                     Entrez l'adresse e-mail liée à votre profil membre. Vous recevrez un lien pour créer ou réinitialiser votre mot de passe.
                 </p>
