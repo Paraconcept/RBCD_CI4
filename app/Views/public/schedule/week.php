@@ -96,11 +96,8 @@
 .bar-slot-free   { color:#666; font-style:italic; }
 
 /* Buttons */
-.btn-signup, .btn-cancel { font-size:.78rem; padding:2px 8px; border-radius:10px; }
-.btn-signup { background:#e8f4fd; color:#0d6efd; border:1px solid #bee3fd; }
+.btn-signup { font-size:.78rem; padding:2px 8px; border-radius:10px; background:#e8f4fd; color:#0d6efd; border:1px solid #bee3fd; }
 .btn-signup:hover { background:#0d6efd; color:#fff; }
-.btn-cancel { background:#fdecea; color:#dc3545; border:1px solid #f5c6cb; }
-.btn-cancel:hover { background:#dc3545; color:#fff; }
 .btn-confirm { font-size:.78rem; padding:2px 8px; border-radius:10px; background:#fff3cd; color:#856404; border:1px solid #ffc107; }
 .btn-confirm:hover { background:#ffc107; color:#000; }
 
@@ -410,37 +407,43 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                         </div>
 
                     <?php else: ?>
-                        <!-- Match normal : 1 seul arbitre -->
-                        <div class="arb-row" id="arb-normal-<?= $enc->id ?>">
-                            <span class="arb-label">Arbitrage :</span>
-                            <?php if (!empty($enc->arbitrageRows)): ?>
+                        <!-- Match normal : arbitres multiples autorisés -->
+                        <div id="arb-normal-<?= $enc->id ?>">
+                            <div id="arb-list-normal-<?= $enc->id ?>">
+                                <?php foreach ($enc->arbitrageRows as $arb): ?>
                                 <?php
-                                $arb    = $enc->arbitrageRows[0];
                                 $isMe   = $isLogged && $arb->member_id == $currentMemberId;
-                                $isConv  = $arb->assignment_type === 'designated';
+                                $isConv = $arb->assignment_type === 'designated';
                                 $arbName = esc($arb->last_name) . ' ' . esc(member_initials($arb->first_name)) . '.';
                                 ?>
-                                <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
-                                <?php if ($isMe && $isConv && !$arb->confirmed): ?>
-                                    <span class="badge-conv">Convoqué</span>
-                                    <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
-                                        <i class="fas fa-check me-1"></i>Confirmer
+                                <div class="arb-row" data-arb-id="<?= $arb->id ?>">
+                                    <span class="arb-label">Arbitrage :</span>
+                                    <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
+                                    <?php if ($isMe && $isConv && !$arb->confirmed): ?>
+                                        <span class="badge-conv">Convoqué</span>
+                                        <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
+                                            <i class="fas fa-check me-1"></i>Confirmer
+                                        </button>
+                                    <?php elseif ($arb->confirmed): ?>
+                                        <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
+                                    <?php else: ?>
+                                        <span class="badge-pending" data-bs-toggle="tooltip" data-bs-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="arb-row">
+                                <?php if ($isLogged && !$myArb): ?>
+                                    <button class="btn btn-info btn-sm btn-arb-signup"
+                                            data-encounter="<?= $enc->id ?>"
+                                            data-type="normal"
+                                            data-date-label="<?= esc(frDay($enc->match_date, $frDays, $frMonths)) ?>">
+                                        <i class="fas fa-hand-paper me-1"></i>Arbitrer
                                     </button>
-                                <?php elseif ($arb->confirmed): ?>
-                                    <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
-                                <?php else: ?>
-                                    <span class="badge-pending" data-bs-toggle="tooltip" data-bs-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
+                                <?php elseif (empty($enc->arbitrageRows) && !$isLogged): ?>
+                                    <span class="text-muted" style="font-size:.82rem">libre</span>
                                 <?php endif; ?>
-                            <?php elseif ($isLogged): ?>
-                                <button class="btn btn-info btn-sm btn-arb-signup"
-                                        data-encounter="<?= $enc->id ?>"
-                                        data-type="normal"
-                                        data-date-label="<?= esc(frDay($enc->match_date, $frDays, $frMonths)) ?>">
-                                    <i class="fas fa-hand-paper me-1"></i>Arbitrer
-                                </button>
-                            <?php else: ?>
-                                <span class="text-muted" style="font-size:.82rem">libre</span>
-                            <?php endif; ?>
+                            </div>
                         </div>
                     <?php endif; ?>
 
@@ -628,6 +631,15 @@ function decodeTours(mask) {
     return t.join(' · ');
 }
 
+function formatDateFr(dateStr, timeStr) {
+    const jours  = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+    const mois   = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dow = new Date(y, m - 1, d).getDay();
+    const hm  = timeStr ? timeStr.substring(0, 5).replace(':', 'h') : '';
+    return jours[dow] + ' ' + d + ' ' + mois[m - 1] + ' ' + y + (hm ? ' à ' + hm : '');
+}
+
 function doSignup(encId, round, btn) {
     postJson(`<?= base_url('tableau/arbitrage/') ?>${encId}/signup`, {round})
     .then(data => {
@@ -646,13 +658,31 @@ function doSignup(encId, round, btn) {
             initTooltips(list.lastElementChild);
             btn.classList.add('d-none');
         } else {
-            const div = document.getElementById(`arb-normal-${encId}`);
-            div.innerHTML = `
-                <span class="arb-label">Arbitrage :</span>
-                <span class="arb-name me-highlight">${data.name}</span>
-                <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>`;
-            initTooltips(div);
+            const list = document.getElementById(`arb-list-normal-${encId}`);
+            const newRow = `
+                <div class="arb-row" data-arb-id="${data.arb_id}">
+                    <span class="arb-label">Arbitrage :</span>
+                    <span class="arb-name me-highlight">${data.name}</span>
+                    <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
+                </div>`;
+            list.insertAdjacentHTML('beforeend', newRow);
+            initTooltips(list.lastElementChild);
+            btn.classList.add('d-none');
         }
+
+        const dateLabel = formatDateFr(data.match_date, data.match_time);
+        const compLine  = data.competition ? `<br><small>${data.competition}</small>` : '';
+        Swal.fire({
+            icon: 'success',
+            title: 'Inscription enregistrée !',
+            html: `Tu viens bien de t'inscrire à l'<strong>arbitrage</strong> le <strong>${dateLabel}</strong>${compLine}.<br><br>
+                   📧 Tu as reçu un email de confirmation.<br>
+                   📅 N'oublie pas de noter cette date dans ton agenda !<br><br>
+                   <em>On compte désormais sur toi !</em>`,
+            confirmButtonText: 'OK',
+            customClass: { confirmButton: 'btn btn-success' },
+            buttonsStyling: false,
+        });
     });
 }
 
@@ -699,11 +729,20 @@ function bindBarSignup(btn) {
             postJson('<?= base_url('tableau/bar/signup') ?>', {date, period})
             .then(data => {
                 if (!data.success) return Swal.fire('Erreur', data.message, 'error');
-                const parentDiv = self.parentElement;
-                self.outerHTML = `
-                    <span class="bar-slot-taken">${data.name}</span>
-                    <button class="btn-cancel btn-bar-cancel" data-id="${data.id}" data-date="${date}" data-period="${period}">Annuler</button>`;
-                bindBarCancel(parentDiv.querySelector('.btn-bar-cancel'));
+                self.outerHTML = `<span class="bar-slot-taken">${data.name}</span>`;
+
+                const periodLabel2 = period === 'am' ? 'Après-midi' : 'Soirée';
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Inscription enregistrée !',
+                    html: `Tu viens bien de t'inscrire au <strong>bar</strong> le <strong>${dateLabel}</strong> — ${periodLabel2}.<br><br>
+                           📧 Tu as reçu un email de confirmation.<br>
+                           📅 N'oublie pas de noter cette date dans ton agenda !<br><br>
+                           <em>On compte désormais sur toi !</em>`,
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'btn btn-info' },
+                    buttonsStyling: false,
+                });
             });
         });
     });
