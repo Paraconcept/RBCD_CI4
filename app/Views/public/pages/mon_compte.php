@@ -274,8 +274,8 @@
 }
 .mc-alert-success { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
 .mc-alert-error   { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
-/* Mobile : tabs 2×2 */
-@media (max-width: 600px) {
+/* Tabs 2×2 jusqu'à 1006px */
+@media (max-width: 1006px) {
     .mc-tabs-nav {
         flex-wrap: wrap;
         overflow-x: visible;
