@@ -683,43 +683,43 @@
 
       <!-- Chiffres clés -->
       <div class="row g-2 mb-4">
-        <div class="col-6 col-md-2">
+        <div class="col-4 col-sm">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['home_count'] ?></div>
-            <div class="ms-lbl">joué à domicile</div>
+            <div class="ms-lbl">Joué dom.</div>
           </div>
         </div>
-        <div class="col-6 col-md-2">
-          <div class="ms-stat-card me-md-4">
+        <div class="col-4 col-sm me-2">
+          <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['required'] == floor($ms['required']) ? (int)$ms['required'] : number_format($ms['required'], 1, '.', '') ?></div>
             <div class="ms-lbl">Requis</div>
           </div>
         </div>
-        <div class="col-6 col-md-2">
+        <div class="col-4 col-sm">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['arb_count'] ?></div>
             <div class="ms-lbl">Arbitrages</div>
           </div>
         </div>
-        <div class="col-6 col-md-2">
+        <div class="col-4 col-sm">
           <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['bar_count'] ?></div>
             <div class="ms-lbl">Bar</div>
           </div>
         </div>
-        <div class="col-6 col-md-2">
+        <div class="col-4 col-sm">
           <div class="ms-stat-card" style="border-top-color:#FFC109">
             <div class="ms-val" style="color:#b38600"><?= $ms['mrq_count'] ?: '—' ?></div>
-            <div class="ms-lbl">Marquages finale</div>
+            <div class="ms-lbl">Marquages</div>
           </div>
         </div>
-        <div class="col-6 col-md-2">
-          <div class="ms-stat-card me-md-4">
+        <div class="col-4 col-sm">
+          <div class="ms-stat-card">
             <div class="ms-val"><?= $ms['done'] ?></div>
             <div class="ms-lbl">Fait</div>
           </div>
         </div>
-        <div class="col-6 col-md-2">
+        <div class="col-12 col-sm">
           <?php
             $solde = $ms['solde'];
             $soldeFmt = ($solde == 0) ? '0'
