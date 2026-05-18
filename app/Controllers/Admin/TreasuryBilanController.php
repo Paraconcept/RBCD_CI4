@@ -190,7 +190,7 @@ class TreasuryBilanController extends BaseController
         $sheet->setCellValue("A{$r}", 'Dépenses totales');
         $sheet->setCellValue("B{$r}", $fmt($totalExpN));
         $sheet->setCellValue("C{$r}", $fmt($totalExpNm1));
-        $sheet->setCellValue("D{$r}", $fmtDelta($totalExpN - $totalExpNm1));
+        $sheet->setCellValue("D{$r}", $fmtDelta($totalExpNm1 - $totalExpN));
         $sheet->getStyle("B{$r}:D{$r}")->applyFromArray(array_merge($rightAlign, $redText));
 
         $r++;
