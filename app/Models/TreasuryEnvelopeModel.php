@@ -11,7 +11,7 @@ class TreasuryEnvelopeModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'name', 'date', 'category', 'amount_calculated', 'amount_found',
+        'name', 'date', 'category', 'amount_calculated', 'amount_found', 'amount_sumup',
         'closed_by_member_id', 'encoded_by_member_id', 'modified_by_member_id', 'notes',
     ];
 

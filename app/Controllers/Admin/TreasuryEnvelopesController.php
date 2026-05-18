@@ -45,11 +45,13 @@ class TreasuryEnvelopesController extends BaseController
                     'label'      => $monthNames[$m] . ' ' . date('Y', strtotime($r->date)),
                     'calculated' => 0.0,
                     'found'      => 0.0,
+                    'sumup'      => 0.0,
                     'rows'       => [],
                 ];
             }
             $byMonth[$key]['calculated'] += (float) $r->amount_calculated;
             $byMonth[$key]['found']      += (float) $r->amount_found;
+            $byMonth[$key]['sumup']      += (float) $r->amount_sumup;
             $byMonth[$key]['rows'][]      = $r;
         }
 
@@ -106,6 +108,7 @@ class TreasuryEnvelopesController extends BaseController
             'name_seq'            => 'required|in_list[01,02,03,04,05]',
             'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
             'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
+            'amount_sumup'        => 'required|decimal|greater_than_equal_to[0]',
             'closed_by_member_id' => 'required|is_natural_no_zero',
         ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
@@ -203,20 +206,25 @@ class TreasuryEnvelopesController extends BaseController
         $sheet->setCellValue('C1', 'Catégorie');
         $sheet->setCellValue('D1', 'Montant calculé');
         $sheet->setCellValue('E1', 'Montant trouvé');
-        $sheet->setCellValue('F1', 'Fermé par');
-        $sheet->setCellValue('G1', 'Encodé par');
-        $sheet->setCellValue('H1', 'Notes');
+        $sheet->setCellValue('F1', 'Montant SumUp');
+        $sheet->setCellValue('G1', 'Écart');
+        $sheet->setCellValue('H1', 'Fermé par');
+        $sheet->setCellValue('I1', 'Encodé par');
+        $sheet->setCellValue('J1', 'Notes');
 
         $row = 2;
         foreach ($rows as $r) {
+            $ecart = (float)$r->amount_found + (float)$r->amount_sumup - (float)$r->amount_calculated;
             $sheet->setCellValue('A' . $row, $r->name);
             $sheet->setCellValue('B' . $row, $r->date);
             $sheet->setCellValue('C' . $row, $r->category);
             $sheet->setCellValue('D' . $row, $r->amount_calculated);
             $sheet->setCellValue('E' . $row, $r->amount_found);
-            $sheet->setCellValue('F' . $row, $r->closer_name ?? '');
-            $sheet->setCellValue('G' . $row, $r->encoder_name ?? '');
-            $sheet->setCellValue('H' . $row, $r->notes ?? '');
+            $sheet->setCellValue('F' . $row, $r->amount_sumup);
+            $sheet->setCellValue('G' . $row, ($ecart >= 0 ? '+' : '') . number_format($ecart, 2, ',', '.') . ' €');
+            $sheet->setCellValue('H' . $row, $r->closer_name ?? '');
+            $sheet->setCellValue('I' . $row, $r->encoder_name ?? '');
+            $sheet->setCellValue('J' . $row, $r->notes ?? '');
             $row++;
         }
 
@@ -247,6 +255,7 @@ class TreasuryEnvelopesController extends BaseController
             'category'            => 'bar',
             'amount_calculated'   => (float) $post['amount_calculated'],
             'amount_found'        => (float) $post['amount_found'],
+            'amount_sumup'        => (float) $post['amount_sumup'],
             'closed_by_member_id' => ($post['closed_by_member_id'] ?: null),
             'notes'               => $post['notes'] ?: null,
         ];

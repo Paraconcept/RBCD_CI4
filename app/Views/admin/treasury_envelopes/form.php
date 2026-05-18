@@ -7,7 +7,7 @@ $errors = session()->getFlashdata('errors') ?? [];
 $v      = fn($f, $default = '') => old($f, $isEdit ? ($envelope->$f ?? $default) : $default);
 
 if ($isEdit) {
-    $ecartVal   = (float)$envelope->amount_found - (float)$envelope->amount_calculated;
+    $ecartVal   = (float)$envelope->amount_found + (float)$envelope->amount_sumup - (float)$envelope->amount_calculated;
     $ecartSign  = $ecartVal >= 0 ? '+' : '';
     $ecartClass = $ecartVal == 0 ? 'badge-success' : 'badge-danger';
     $ecartText  = $ecartSign . number_format($ecartVal, 2, ',', ' ') . ' €';
@@ -83,7 +83,7 @@ $todayPrefix = 'E' . date('d.m.');
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label>Montant calculé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
@@ -100,7 +100,7 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label>Montant trouvé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
@@ -117,7 +117,24 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Montant SumUp (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
+                            <?php if ($isEdit): ?>
+                                <input type="text" class="form-control text-right"
+                                       value="<?= number_format((float)$envelope->amount_sumup, 2, ',', ' ') ?> €" disabled>
+                            <?php else: ?>
+                                <input type="number" name="amount_sumup" id="amount_sumup"
+                                       class="form-control text-right <?= isset($errors['amount_sumup']) ? 'is-invalid' : '' ?>"
+                                       step="0.01" min="0"
+                                       value="<?= esc($v('amount_sumup', '0.00')) ?>" required>
+                                <?php if (isset($errors['amount_sumup'])): ?>
+                                    <div class="invalid-feedback"><?= $errors['amount_sumup'] ?></div>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label>Écart</label>
                             <div class="pt-2">
@@ -224,7 +241,8 @@ $(function () {
     function calcEcart() {
         const calc  = parseFloat($('#amount_calculated').val()) || 0;
         const found = parseFloat($('#amount_found').val()) || 0;
-        const ecart = found - calc;
+        const sumup = parseFloat($('#amount_sumup').val()) || 0;
+        const ecart = (found + sumup) - calc;
         const sign  = ecart >= 0 ? '+' : '';
         $('#ecart_badge')
             .text(sign + ecart.toFixed(2).replace('.', ',') + ' €')
@@ -232,7 +250,7 @@ $(function () {
             .addClass(ecart === 0 ? 'badge-success' : 'badge-danger');
     }
 
-    $('#amount_calculated, #amount_found').on('input', calcEcart);
+    $('#amount_calculated, #amount_found, #amount_sumup').on('input', calcEcart);
     calcEcart();
     <?php endif; ?>
 
