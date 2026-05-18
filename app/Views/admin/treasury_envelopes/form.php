@@ -101,7 +101,7 @@ $todayPrefix = 'E' . date('d.m.');
                         </div>
                     </div>
                     <div class="col-auto" style="padding-top:34px">
-                        <strong class="text-black" style="font-size:1.4rem">=</strong>
+                        <strong class="text-black" style="font-size:1.4rem"><i class="fas fa-equals"></i></strong>
                     </div>
                     <div class="col">
                         <div class="form-group">
@@ -121,7 +121,7 @@ $todayPrefix = 'E' . date('d.m.');
                         </div>
                     </div>
                     <div class="col-auto" style="padding-top:34px">
-                        <strong class="text-black" style="font-size:1.4rem">+</strong>
+                        <strong class="text-black" style="font-size:1.4rem"><i class="fas fa-plus"></i></strong>
                     </div>
                     <div class="col">
                         <div class="form-group">
@@ -141,7 +141,7 @@ $todayPrefix = 'E' . date('d.m.');
                         </div>
                     </div>
                     <div class="col-auto" style="padding-top:34px">
-                        <strong class="text-black" style="font-size:1.4rem">:</strong>
+                        <strong class="text-black" style="font-size:1.4rem"><i class="fas fa-arrows-alt-h"></i></strong>
                     </div>
                     <div class="col">
                         <div class="form-group">

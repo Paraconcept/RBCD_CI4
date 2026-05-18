@@ -129,14 +129,14 @@
                             <a href="<?= base_url('admin/treasury/expenses') ?>"
                                class="nav-link <?= strpos(uri_string(), 'admin/treasury/expenses') === 0 ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Dépenses</p>
+                                <p>Dépenses &nbsp; ( <i class="fas fa-minus"></i> )</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="<?= base_url('admin/treasury/revenues') ?>"
                                class="nav-link <?= strpos(uri_string(), 'admin/treasury/revenues') === 0 ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Recettes</p>
+                                <p>Recettes &nbsp; ( <i class="fas fa-plus"></i> )</p>
                             </a>
                         </li>
                         <li class="nav-item">
