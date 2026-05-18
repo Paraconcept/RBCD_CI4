@@ -84,14 +84,8 @@
 
                   <?php
                     $db = \Config\Database::connect();
-                    $cdrTeams = $db->table('cdr_teams')
-                        ->where('season', SAISON_EN_COURS)
-                        ->orderBy('CAST(TRIM(SUBSTRING_INDEX(name, " ", -1)) AS UNSIGNED)', 'ASC')
-                        ->get()->getResultObject();
-                    $intmTeams = $db->table('intm_teams')
-                        ->where('season', SAISON_EN_COURS)
-                        ->orderBy('CAST(TRIM(SUBSTRING_INDEX(name, " ", -1)) AS UNSIGNED)', 'ASC')
-                        ->get()->getResultObject();
+                    $cdrTeams  = $db->query('SELECT * FROM cdr_teams  WHERE season = ? ORDER BY CAST(TRIM(SUBSTRING_INDEX(name, " ", -1)) AS UNSIGNED) ASC', [SAISON_EN_COURS])->getResultObject();
+                    $intmTeams = $db->query('SELECT * FROM intm_teams WHERE season = ? ORDER BY CAST(TRIM(SUBSTRING_INDEX(name, " ", -1)) AS UNSIGNED) ASC', [SAISON_EN_COURS])->getResultObject();
                   ?>
                   <li class="menu-item">
                     <a href="#">Saison <?= ANNEE_1 ?>-<?= ANNEE_2 ?></a>
