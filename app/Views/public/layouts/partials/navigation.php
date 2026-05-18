@@ -86,11 +86,11 @@
                     $db = \Config\Database::connect();
                     $cdrTeams = $db->table('cdr_teams')
                         ->where('season', SAISON_EN_COURS)
-                        ->orderBy('name', 'ASC')
+                        ->orderBy('CAST(TRIM(SUBSTRING_INDEX(name, " ", -1)) AS UNSIGNED)', 'ASC')
                         ->get()->getResultObject();
                     $intmTeams = $db->table('intm_teams')
                         ->where('season', SAISON_EN_COURS)
-                        ->orderBy('name', 'ASC')
+                        ->orderBy('CAST(TRIM(SUBSTRING_INDEX(name, " ", -1)) AS UNSIGNED)', 'ASC')
                         ->get()->getResultObject();
                   ?>
                   <li class="menu-item">
