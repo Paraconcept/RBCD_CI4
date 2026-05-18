@@ -309,7 +309,7 @@ class PagesController extends BaseController
 
     public function archivesJournal(): string
     {
-        $isLoggedIn = (bool) session()->get('admin_logged_in');
+        $isLoggedIn = (bool) session()->get('member_logged_in');
         $byYear     = $isLoggedIn
             ? (new \App\Models\JournalIssueModel())->getPublishedGroupedByYear()
             : [];

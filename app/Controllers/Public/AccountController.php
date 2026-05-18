@@ -4,13 +4,13 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Models\MemberModel;
-use App\Models\AdminUserModel;
+use App\Models\MemberLoginModel;
 
 class AccountController extends BaseController
 {
     private function getMember(): object|null
     {
-        $memberId = session()->get('admin_member_id');
+        $memberId = session()->get('member_id');
         if (!$memberId) {
             return null;
         }
@@ -21,11 +21,10 @@ class AccountController extends BaseController
     {
         $member   = $this->getMember();
         $tab      = $this->request->getGet('tab') ?? 'coordonnees';
-        $memberId = (int) session()->get('admin_member_id');
-        $adminId  = (int) session()->get('admin_id');
+        $memberId = (int) session()->get('member_id');
 
         $memberStats = ($member && $member->is_federated && $memberId)
-            ? $this->getMemberStats($memberId, $adminId)
+            ? $this->getMemberStats($memberId)
             : null;
 
         return view('public/pages/mon_compte', [
@@ -43,7 +42,7 @@ class AccountController extends BaseController
         ]);
     }
 
-    private function getMemberStats(int $memberId, int $adminUserId): array
+    private function getMemberStats(int $memberId): array
     {
         $now        = new \DateTime();
         $y          = (int) $now->format('Y');
@@ -66,16 +65,16 @@ class AccountController extends BaseController
             SELECT se.match_date
             FROM schedule_arbitrage sa
             JOIN schedule_encounters se ON se.id = sa.encounter_id
-            WHERE (sa.member_id = ? OR sa.admin_user_id = ?)
+            WHERE sa.member_id = ?
               AND se.match_date >= ? AND se.match_date <= ?
-        ", [$memberId, $adminUserId, $seasonStart, $seasonEnd])->getResultObject();
+        ", [$memberId, $seasonStart, $seasonEnd])->getResultObject();
 
         $barRows = $db->query("
             SELECT bd.duty_date
             FROM schedule_bar_duties bd
-            WHERE (bd.member_id = ? OR bd.admin_user_id = ?)
+            WHERE bd.member_id = ?
               AND bd.duty_date >= ? AND bd.duty_date <= ?
-        ", [$memberId, $adminUserId, $seasonStart, $seasonEnd])->getResultObject();
+        ", [$memberId, $seasonStart, $seasonEnd])->getResultObject();
 
         $homeDates = [];
         $allDates  = [];
@@ -131,7 +130,7 @@ class AccountController extends BaseController
 
     public function saveCoordonnees()
     {
-        $memberId = session()->get('admin_member_id');
+        $memberId = session()->get('member_id');
         if (!$memberId) {
             return redirect()->to(base_url('mon-compte'))->with('error', 'Aucun profil membre lié à votre compte.');
         }
@@ -152,8 +151,8 @@ class AccountController extends BaseController
 
     public function savePassword()
     {
-        $userId = session()->get('admin_id');
-        if (!$userId) {
+        $loginId = session()->get('member_login_id');
+        if (!$loginId) {
             return redirect()->to(base_url('mon-compte'))->with('error', 'Session invalide.');
         }
 
@@ -161,10 +160,10 @@ class AccountController extends BaseController
         $new     = $this->request->getPost('new_password');
         $confirm = $this->request->getPost('new_password_confirm');
 
-        $adminModel = new AdminUserModel();
-        $user       = $adminModel->find($userId);
+        $loginModel = new MemberLoginModel();
+        $loginRow   = $loginModel->find($loginId);
 
-        if (!$user || !password_verify($current, $user->password_hash)) {
+        if (!$loginRow || !password_verify($current, $loginRow->password_hash)) {
             return redirect()->to(base_url('mon-compte') . '?tab=mot-de-passe')
                              ->with('error', 'Mot de passe actuel incorrect.');
         }
@@ -177,9 +176,8 @@ class AccountController extends BaseController
                              ->with('error', 'Les deux mots de passe ne correspondent pas.');
         }
 
-        $adminModel->update($userId, [
-            'password_hash'         => password_hash($new, PASSWORD_BCRYPT),
-            'password_default_hash' => null,
+        $loginModel->update($loginId, [
+            'password_hash' => password_hash($new, PASSWORD_BCRYPT),
         ]);
 
         return redirect()->to(base_url('mon-compte') . '?tab=mot-de-passe')
@@ -188,7 +186,7 @@ class AccountController extends BaseController
 
     public function saveConfidentialite()
     {
-        $memberId = session()->get('admin_member_id');
+        $memberId = session()->get('member_id');
         if (!$memberId) {
             return redirect()->to(base_url('mon-compte'))->with('error', 'Aucun profil membre lié à votre compte.');
         }
@@ -219,7 +217,7 @@ class AccountController extends BaseController
             return $this->response->setStatusCode(403);
         }
 
-        $memberId = session()->get('admin_member_id');
+        $memberId = session()->get('member_id');
         if (!$memberId) {
             return $this->response->setJSON(['success' => false]);
         }
@@ -271,7 +269,7 @@ class AccountController extends BaseController
             return $this->response->setStatusCode(403);
         }
 
-        $memberId = session()->get('admin_member_id');
+        $memberId = session()->get('member_id');
         if (!$memberId) {
             return $this->response->setJSON(['success' => false, 'error' => 'Non autorisé.']);
         }
@@ -317,7 +315,7 @@ class AccountController extends BaseController
             return $this->response->setStatusCode(403);
         }
 
-        $memberId = session()->get('admin_member_id');
+        $memberId = session()->get('member_id');
         if (!$memberId) {
             return $this->response->setJSON(['success' => false]);
         }

@@ -37,11 +37,12 @@ class ScheduleArbitrageModel extends Model
         return $indexed;
     }
 
-    // Get single user's signup for an encounter (UNIQUE enc+user guarantees at most 1)
-    public function getUserSignup(int $encounterId, int $userId): ?object
+    // Get single member's volunteer signup for an encounter
+    public function getUserSignup(int $encounterId, int $memberId): ?object
     {
         return $this->where('encounter_id', $encounterId)
-                    ->where('admin_user_id', $userId)
+                    ->where('member_id', $memberId)
+                    ->where('assignment_type', 'volunteer')
                     ->first();
     }
 }

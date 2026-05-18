@@ -12,11 +12,11 @@
         </div>
         <div class="col-xl-auto ms-xl-auto header-top-right align-self-center text-center text-xl-right">
           <div>
-            <?php if (session()->get('admin_logged_in')): ?>
+            <?php if (session()->get('member_logged_in')): ?>
               <div class="dropdown nav-user-dropdown">
                 <button class="btn btn-theme-colored2 btn-sm dropdown-toggle" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-user-circle me-2"></i><?= esc(session()->get('admin_name')) ?>
+                  <i class="fas fa-user-circle me-2"></i><?= esc(session()->get('member_name')) ?>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li>
@@ -24,11 +24,13 @@
                       <i class="fas fa-id-card me-2 text-muted"></i>Mon compte
                     </a>
                   </li>
+                  <?php if (session()->get('admin_logged_in')): ?>
                   <li>
                     <a class="dropdown-item" href="<?= base_url('admin') ?>">
                       <i class="fas fa-cog me-2 text-muted"></i>Administration
                     </a>
                   </li>
+                  <?php endif; ?>
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <button type="button" class="dropdown-item text-danger btn-logout-ajax">

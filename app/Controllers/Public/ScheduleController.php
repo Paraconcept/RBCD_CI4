@@ -38,14 +38,7 @@ class ScheduleController extends BaseController
         $barByDate            = $this->barDuties->getForDates($weekDates);
         $eventsByDate         = $this->events->getForDates($weekDates);
 
-        $currentUser = (int) session()->get('admin_id');
-        $currentMemberId = 0;
-        if ($currentUser) {
-            $adminRow = \Config\Database::connect()
-                ->table('admin_users')->select('member_id')
-                ->where('id', $currentUser)->get()->getRowObject();
-            $currentMemberId = $adminRow ? (int) $adminRow->member_id : 0;
-        }
+        $currentMemberId = (int) session()->get('member_id');
 
         $byDate        = [];
         $activeDates   = [];
@@ -53,11 +46,11 @@ class ScheduleController extends BaseController
         foreach ($encounters as $enc) {
             $enc->players       = $playersByEncounter[$enc->id] ?? [];
             $enc->arbitrageRows = $arbitrageByEncounter[$enc->id] ?? [];
-            // Current user's own signup for this encounter (null if not signed up)
+            // Current member's own signup for this encounter (null if not signed up)
             $enc->myArb = null;
-            if ($currentUser) {
+            if ($currentMemberId) {
                 foreach ($enc->arbitrageRows as $arb) {
-                    if ($arb->admin_user_id == $currentUser) {
+                    if ((int) $arb->member_id === $currentMemberId && $arb->assignment_type === 'volunteer') {
                         $enc->myArb = $arb;
                         break;
                     }
@@ -94,9 +87,8 @@ class ScheduleController extends BaseController
             'homeDateFlags' => $homeDateFlags,
             'prev'          => $nav['prev'],
             'next'          => $nav['next'],
-            'currentUser'     => $currentUser,
             'currentMemberId' => $currentMemberId,
-            'isLogged'        => (bool) session()->get('admin_logged_in'),
+            'isLogged'        => (bool) session()->get('member_logged_in'),
             'eventsByDate'    => $eventsByDate,
             'eventColors'     => ScheduleEventModel::$colors,
         ]);
@@ -106,14 +98,13 @@ class ScheduleController extends BaseController
     {
         $this->response->setHeader('Content-Type', 'application/json');
 
-        $adminUserId = (int) session()->get('admin_id');
-        $encounter   = $this->encounters->find($encounterId);
+        $memberId  = (int) session()->get('member_id');
+        $encounter = $this->encounters->find($encounterId);
         if (!$encounter) {
             return $this->response->setJSON(['success' => false, 'message' => 'Rencontre introuvable.']);
         }
 
-        // Prevent double signup (volunteer by admin_user_id OR already designated by member_id)
-        if ($this->getMyArbitrageRow($encounterId, $adminUserId)) {
+        if ($this->getMyArbitrageRow($encounterId, $memberId)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Vous êtes déjà inscrit pour cette rencontre.']);
         }
 
@@ -131,7 +122,7 @@ class ScheduleController extends BaseController
         $arbId = $this->arbitrage->insert([
             'encounter_id'    => $encounterId,
             'round'           => $round,
-            'admin_user_id'   => $adminUserId,
+            'member_id'       => $memberId,
             'assignment_type' => 'volunteer',
             'confirmed'       => 1,
             'confirmed_at'    => date('Y-m-d H:i:s'),
@@ -139,16 +130,16 @@ class ScheduleController extends BaseController
 
         $arb = $this->arbitrage->db
             ->table('schedule_arbitrage sa')
-            ->select('sa.*, au.last_name, au.first_name')
-            ->join('admin_users au', 'au.id = sa.admin_user_id')
+            ->select('sa.*, m.last_name, m.first_name')
+            ->join('members m', 'm.id = sa.member_id')
             ->where('sa.id', $arbId)
             ->get()->getRowObject();
 
         return $this->response->setJSON([
-            'success'     => true,
-            'arb_id'      => $arbId,
-            'name'        => $arb->last_name . ' ' . member_initials($arb->first_name),
-            'round'       => $round,
+            'success' => true,
+            'arb_id'  => $arbId,
+            'name'    => $arb->last_name . ' ' . member_initials($arb->first_name),
+            'round'   => $round,
         ]);
     }
 
@@ -156,8 +147,8 @@ class ScheduleController extends BaseController
     {
         $this->response->setHeader('Content-Type', 'application/json');
 
-        $adminUserId = (int) session()->get('admin_id');
-        $existing    = $this->getMyArbitrageRow($encounterId, $adminUserId);
+        $memberId = (int) session()->get('member_id');
+        $existing = $this->getMyArbitrageRow($encounterId, $memberId);
 
         if (!$existing) {
             return $this->response->setJSON(['success' => false, 'message' => 'Inscription non trouvée.']);
@@ -176,8 +167,8 @@ class ScheduleController extends BaseController
     {
         $this->response->setHeader('Content-Type', 'application/json');
 
-        $adminUserId = (int) session()->get('admin_id');
-        $existing    = $this->getMyArbitrageRow($encounterId, $adminUserId);
+        $memberId = (int) session()->get('member_id');
+        $existing = $this->getMyArbitrageRow($encounterId, $memberId);
 
         if (!$existing || $existing->assignment_type !== 'designated') {
             return $this->response->setJSON(['success' => false, 'message' => 'Convocation non trouvée.']);
@@ -195,9 +186,9 @@ class ScheduleController extends BaseController
     {
         $this->response->setHeader('Content-Type', 'application/json');
 
-        $adminUserId = (int) session()->get('admin_id');
-        $date        = $this->request->getPost('date');
-        $period      = $this->request->getPost('period');
+        $memberId = (int) session()->get('member_id');
+        $date     = $this->request->getPost('date');
+        $period   = $this->request->getPost('period');
 
         if (!$date || !in_array($period, ['am', 'soir'])) {
             return $this->response->setJSON(['success' => false, 'message' => 'Données invalides.']);
@@ -208,15 +199,15 @@ class ScheduleController extends BaseController
         }
 
         $id = $this->barDuties->insert([
-            'duty_date'     => $date,
-            'period'        => $period,
-            'admin_user_id' => $adminUserId,
+            'duty_date' => $date,
+            'period'    => $period,
+            'member_id' => $memberId,
         ]);
 
         $duty = $this->barDuties->db
             ->table('schedule_bar_duties bd')
-            ->select('bd.*, au.last_name, au.first_name')
-            ->join('admin_users au', 'au.id = bd.admin_user_id')
+            ->select('bd.*, m.last_name, m.first_name')
+            ->join('members m', 'm.id = bd.member_id')
             ->where('bd.id', $id)
             ->get()->getRowObject();
 
@@ -231,10 +222,10 @@ class ScheduleController extends BaseController
     {
         $this->response->setHeader('Content-Type', 'application/json');
 
-        $adminUserId = (int) session()->get('admin_id');
-        $duty        = $this->barDuties->find($id);
+        $memberId = (int) session()->get('member_id');
+        $duty     = $this->barDuties->find($id);
 
-        if (!$duty || $duty->admin_user_id != $adminUserId) {
+        if (!$duty || (int) $duty->member_id !== $memberId) {
             return $this->response->setJSON(['success' => false, 'message' => 'Inscription non trouvée.']);
         }
 
@@ -243,26 +234,12 @@ class ScheduleController extends BaseController
         return $this->response->setJSON(['success' => true]);
     }
 
-    // Cherche la ligne arbitrage du membre connecté : d'abord par admin_user_id
-    // (volunteer), puis par member_id (désigné par le DS sans compte admin_user_id).
-    private function getMyArbitrageRow(int $encounterId, int $adminUserId): ?object
+    private function getMyArbitrageRow(int $encounterId, int $memberId): ?object
     {
-        $row = $this->arbitrage->getUserSignup($encounterId, $adminUserId);
-        if ($row) {
-            return $row;
-        }
-
-        $adminRow = \Config\Database::connect()
-            ->table('admin_users')->select('member_id')
-            ->where('id', $adminUserId)->get()->getRowObject();
-        $memberId = $adminRow ? (int) $adminRow->member_id : 0;
-
-        if (!$memberId) {
-            return null;
-        }
-
-        return $this->arbitrage->where('encounter_id', $encounterId)
+        return $this->arbitrage->getUserSignup($encounterId, $memberId)
+            ?? $this->arbitrage->where('encounter_id', $encounterId)
                                ->where('member_id', $memberId)
+                               ->where('assignment_type', 'designated')
                                ->first();
     }
 

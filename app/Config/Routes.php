@@ -12,6 +12,12 @@ $routes->post('connexion',  'Public\AuthController::loginPost');
 $routes->get('deconnexion', 'Public\AuthController::logout');
 $routes->post('deconnexion','Public\AuthController::logout');
 
+// Mot de passe oublié / première connexion
+$routes->get ('connexion/mot-de-passe-oublie',         'Public\PasswordResetController::request');
+$routes->post('connexion/mot-de-passe-oublie',         'Public\PasswordResetController::sendLink');
+$routes->get ('connexion/reinitialiser/(:any)',         'Public\PasswordResetController::showForm/$1');
+$routes->post('connexion/reinitialiser/(:any)',         'Public\PasswordResetController::savePassword/$1');
+
 // Site public — Tableau hebdomadaire (lecture libre)
 $routes->get('tableau',               'Public\ScheduleController::week');
 $routes->get('tableau/(:num)/(:num)', 'Public\ScheduleController::week/$1/$2');

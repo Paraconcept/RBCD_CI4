@@ -35,6 +35,11 @@
                         <i class="fas fa-sign-in-alt me-2"></i>Se connecter
                     </button>
                 </form>
+                <div class="text-center mt-3">
+                    <a href="<?= base_url('connexion/mot-de-passe-oublie') ?>" class="text-muted" style="font-size:.9rem">
+                        <i class="fas fa-key me-1"></i>Première connexion / Mot de passe oublié ?
+                    </a>
+                </div>
             </div>
         </div>
     </div>

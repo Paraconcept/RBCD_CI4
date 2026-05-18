@@ -10,7 +10,7 @@ class PublicAuthFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null): mixed
     {
-        if (!session()->get('admin_logged_in')) {
+        if (!session()->get('member_logged_in')) {
             session()->set('redirect_after_login', current_url());
             return redirect()->to(base_url('connexion'))->with('error', 'Veuillez vous connecter pour accéder à cette page.');
         }

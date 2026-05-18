@@ -101,9 +101,9 @@
           </div>
         </form>
       </div>
-      <?php if (session()->get('admin_logged_in')): ?>
+      <?php if (session()->get('member_logged_in')): ?>
       <div class="modal-footer justify-content-center border-0 pt-0 pb-3 text-muted" style="font-size:.85rem">
-        Connecté en tant que <strong><?= esc(session()->get('admin_name')) ?></strong>
+        Connecté en tant que <strong><?= esc(session()->get('member_name')) ?></strong>
       </div>
       <?php endif; ?>
     </div>

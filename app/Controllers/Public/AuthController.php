@@ -3,14 +3,13 @@
 namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
-use App\Models\AdminUserModel;
-use App\Models\AdminUserRoleModel;
+use App\Models\MemberLoginModel;
 
 class AuthController extends BaseController
 {
     public function login(): mixed
     {
-        if (session()->get('admin_logged_in')) {
+        if (session()->get('member_logged_in')) {
             return redirect()->to(base_url('tableau'));
         }
 
@@ -47,7 +46,7 @@ class AuthController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $model = new AdminUserModel();
+        $model = new MemberLoginModel();
         $user  = $model->authenticate(
             $this->request->getPost('email'),
             $this->request->getPost('password')
@@ -57,43 +56,21 @@ class AuthController extends BaseController
             if ($isAjax) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Email ou mot de passe incorrect, ou compte verrouillé.',
+                    'message' => 'Email ou mot de passe incorrect, ou compte non activé.',
                     'csrf'    => csrf_hash(),
                 ]);
             }
             return redirect()->back()->withInput()
-                             ->with('error', 'Email ou mot de passe incorrect, ou compte verrouillé.');
-        }
-
-        if (!$user->is_active) {
-            if ($isAjax) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Ce compte est désactivé.',
-                    'csrf'    => csrf_hash(),
-                ]);
-            }
-            return redirect()->back()->withInput()->with('error', 'Ce compte est désactivé.');
-        }
-
-        $roles = (new AdminUserRoleModel())->getRolesForUser($user->id);
-
-        $memberPhoto = null;
-        if ($user->member_id) {
-            $linked = \Config\Database::connect()
-                ->table('members')->select('photo')
-                ->where('id', $user->member_id)->get()->getRowObject();
-            $memberPhoto = $linked?->photo ?? null;
+                             ->with('error', 'Email ou mot de passe incorrect, ou compte non activé.');
         }
 
         session()->set([
-            'admin_logged_in' => true,
-            'admin_id'        => $user->id,
-            'admin_name'      => $user->first_name . ' ' . $user->last_name,
-            'admin_email'     => $user->email,
-            'admin_roles'     => $roles,
-            'admin_photo'     => $memberPhoto,
-            'admin_member_id' => $user->member_id,
+            'member_logged_in' => true,
+            'member_id'        => $user->member_id,
+            'member_login_id'  => $user->id,
+            'member_name'      => $user->first_name . ' ' . $user->last_name,
+            'member_email'     => $user->email,
+            'member_photo'     => $user->photo,
         ]);
 
         if ($isAjax) {
@@ -114,6 +91,6 @@ class AuthController extends BaseController
             return $this->response->setJSON(['success' => true]);
         }
 
-        return redirect()->to(base_url('tableau'))->with('success', 'Vous avez été déconnecté.');
+        return redirect()->to(base_url('connexion'))->with('success', 'Vous avez été déconnecté.');
     }
 }

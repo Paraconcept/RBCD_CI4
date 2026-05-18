@@ -98,7 +98,7 @@
 
 <?php
 $m          = $member;
-$isLoggedIn = (bool) session()->get('admin_logged_in');
+$isLoggedIn = (bool) session()->get('member_logged_in');
 
 $canSee = function(string $field, $value) use ($m, $isLoggedIn): bool {
     if (!$value) return false;
