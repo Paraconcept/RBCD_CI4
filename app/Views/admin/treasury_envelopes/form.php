@@ -100,8 +100,8 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-auto" style="padding-top:28px">
-                        <strong class="text-secondary" style="font-size:1.2rem">=</strong>
+                    <div class="col-auto" style="padding-top:34px">
+                        <strong class="text-black" style="font-size:1.4rem">=</strong>
                     </div>
                     <div class="col">
                         <div class="form-group">
@@ -120,8 +120,8 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-auto" style="padding-top:28px">
-                        <strong class="text-secondary" style="font-size:1.2rem">+</strong>
+                    <div class="col-auto" style="padding-top:34px">
+                        <strong class="text-black" style="font-size:1.4rem">+</strong>
                     </div>
                     <div class="col">
                         <div class="form-group">
@@ -140,16 +140,19 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
+                    <div class="col-auto" style="padding-top:34px">
+                        <strong class="text-black" style="font-size:1.4rem">:</strong>
+                    </div>
                     <div class="col">
                         <div class="form-group">
                             <label>Écart</label>
-                            <div class="pt-2">
+                            <div class="pt-0">
                                 <?php if ($isEdit): ?>
-                                    <span class="badge <?= $ecartClass ?>" style="font-size:1rem;padding:.4em .7em">
+                                    <span class="badge <?= $ecartClass ?>" style="font-size:1rem;padding:.7em;">
                                         <?= $ecartText ?>
                                     </span>
                                 <?php else: ?>
-                                    <span id="ecart_badge" class="badge badge-secondary" style="font-size:1rem;padding:.4em .7em">
+                                    <span id="ecart_badge" class="badge badge-secondary" style="font-size:1rem;padding:.7em;">
                                         0,00 €
                                     </span>
                                 <?php endif; ?>
