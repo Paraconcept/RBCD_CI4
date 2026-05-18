@@ -37,9 +37,8 @@ class PagesController extends BaseController
         }
 
         $users = $db->table('members m')
-                    ->select('m.id, m.first_name, m.last_name, m.photo, m.gender')
+                    ->select('m.id, m.id AS member_id, m.first_name, m.last_name, m.photo, m.gender')
                     ->join('admin_user_roles aur', 'aur.member_id = m.id')
-                    ->join('members_login ml', 'ml.member_id = m.id', 'left')
                     ->where('m.is_active', 1)
                     ->groupBy('m.id')
                     ->get()->getResultObject();
