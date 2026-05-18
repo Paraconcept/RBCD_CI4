@@ -76,6 +76,14 @@ class AccountController extends BaseController
               AND bd.duty_date >= ? AND bd.duty_date <= ?
         ", [$memberId, $seasonStart, $seasonEnd])->getResultObject();
 
+        $mrqRows = $db->query("
+            SELECT se.match_date
+            FROM schedule_marqueurs sm
+            JOIN schedule_encounters se ON se.id = sm.encounter_id
+            WHERE sm.member_id = ?
+              AND se.match_date >= ? AND se.match_date <= ?
+        ", [$memberId, $seasonStart, $seasonEnd])->getResultObject();
+
         $homeDates = [];
         $allDates  = [];
         foreach ($homeRows as $r) {
@@ -95,13 +103,20 @@ class AccountController extends BaseController
             $allDates[$r->duty_date] = true;
         }
 
+        $mrqDates = [];
+        foreach ($mrqRows as $r) {
+            $mrqDates[] = $r->match_date;
+            $allDates[$r->match_date] = true;
+        }
+
         ksort($allDates);
 
         $homeCount = count($homeDates);
         $arbCount  = count($arbDates);
         $barCount  = count($barDates);
+        $mrqCount  = count($mrqDates);
         $required  = $homeCount * 3 / 2;
-        $done      = $arbCount + $barCount;
+        $done      = $arbCount + $barCount + $mrqCount;
         $solde     = $done - $required;
 
         if ($homeCount === 0 && $done === 0) {
@@ -118,9 +133,11 @@ class AccountController extends BaseController
             'home_dates'  => $homeDates,
             'arb_dates'   => array_count_values($arbDates),
             'bar_dates'   => array_count_values($barDates),
+            'mrq_dates'   => array_count_values($mrqDates),
             'home_count'  => $homeCount,
             'arb_count'   => $arbCount,
             'bar_count'   => $barCount,
+            'mrq_count'   => $mrqCount,
             'required'    => $required,
             'done'        => $done,
             'solde'       => $solde,

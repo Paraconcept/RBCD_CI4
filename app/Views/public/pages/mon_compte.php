@@ -317,8 +317,10 @@
 .ms-cell-home     { background: #93C37D; }
 .ms-cell-arb      { background: #D9534F; }
 .ms-cell-bar      { background: #117DC4; }
+.ms-cell-mrq      { background: #FFC109; }
 .ms-cell-home-arb { background: linear-gradient(135deg, #93C37D 50%, #D9534F 50%); }
 .ms-cell-home-bar { background: linear-gradient(135deg, #93C37D 50%, #117DC4 50%); }
+.ms-cell-home-mrq { background: linear-gradient(135deg, #93C37D 50%, #FFC109 50%); }
 .ms-cell-empty    { background: #fafafa; }
 /* Cellules sommaire (col. de droite) */
 .ms-cal-sum {
@@ -730,12 +732,12 @@
       <?php if ($ms['status'] === 'deficit'): ?>
         <div class="mc-alert mc-alert-error mb-4">
           <i class="fas fa-exclamation-triangle me-2"></i>
-          Vous êtes redevable de <strong><?= abs($soldeFmt) ?></strong> service(s) — pensez à vous inscrire à l'arbitrage ou au bar !
+          Vous êtes redevable de <strong><?= abs($soldeFmt) ?></strong> service(s) — pensez à vous inscrire à l'arbitrage, au bar ou comme marqueur !
         </div>
       <?php elseif ($ms['status'] === 'ok'): ?>
         <div class="mc-alert mc-alert-success mb-4">
           <i class="fas fa-check-circle me-2"></i>
-          Vous êtes en ordre pour cette saison — mais rien ne vous empêche de vous inscrire à l'arbitrage ou au bar et prendre de l'avance !
+          Vous êtes en ordre pour cette saison — mais rien ne vous empêche de vous inscrire à l'arbitrage, au bar ou comme marqueur et prendre de l'avance !
         </div>
       <?php endif; ?>
 
@@ -748,6 +750,7 @@
           <span><span class="ms-legend-dot" style="background: #93C37D"></span>Jour de jeu à domicile</span>
           <span><span class="ms-legend-dot" style="background: #D9534F"></span>Arbitrage</span>
           <span><span class="ms-legend-dot" style="background: #117DC4"></span>Bar</span>
+          <span><span class="ms-legend-dot" style="background: #FFC109"></span>Marqueur finale</span>
         </div>
         <div class="ms-scroll-wrap">
           <div class="ms-cal">
@@ -766,6 +769,7 @@
               <div class="ms-cal-sum ms-cal-sum-head" title="Services requis (règle 2/3)">Requis</div>
               <div class="ms-cal-sum ms-cal-sum-head" title="Arbitrages">Arb.</div>
               <div class="ms-cal-sum ms-cal-sum-head" title="Services bar">Bar</div>
+              <div class="ms-cal-sum ms-cal-sum-head" title="Marquages finale">Marq.</div>
               <div class="ms-cal-sum ms-cal-sum-head" title="Total services accomplis">Fait</div>
               <div class="ms-cal-sum ms-cal-sum-head" title="Solde (négatif = redevable)">Solde</div>
             </div>
@@ -785,12 +789,15 @@
                 $isHome = isset($ms['home_dates'][$d]);
                 $hasArb = isset($ms['arb_dates'][$d]);
                 $hasBar = isset($ms['bar_dates'][$d]);
+                $hasMrq = isset($ms['mrq_dates'][$d]);
 
-                if ($isHome && $hasArb)     { $c = 'ms-cell-home-arb'; $t = 'Domicile + Arbitrage'; }
-                elseif ($isHome && $hasBar) { $c = 'ms-cell-home-bar'; $t = 'Domicile + Bar'; }
-                elseif ($isHome)            { $c = 'ms-cell-home';     $t = 'Joue à domicile'; }
-                elseif ($hasArb)            { $c = 'ms-cell-arb';      $t = 'Arbitrage'; }
-                elseif ($hasBar)            { $c = 'ms-cell-bar';      $t = 'Bar'; }
+                if ($isHome && $hasArb)      { $c = 'ms-cell-home-arb'; $t = 'Domicile + Arbitrage'; }
+                elseif ($isHome && $hasBar)  { $c = 'ms-cell-home-bar'; $t = 'Domicile + Bar'; }
+                elseif ($isHome && $hasMrq)  { $c = 'ms-cell-home-mrq'; $t = 'Domicile + Marqueur'; }
+                elseif ($isHome)             { $c = 'ms-cell-home';     $t = 'Joue à domicile'; }
+                elseif ($hasArb)             { $c = 'ms-cell-arb';      $t = 'Arbitrage'; }
+                elseif ($hasBar)             { $c = 'ms-cell-bar';      $t = 'Bar'; }
+                elseif ($hasMrq)             { $c = 'ms-cell-mrq';      $t = 'Marqueur finale'; }
                 else                        { $c = 'ms-cell-empty';    $t = ''; }
               ?>
                 <div class="ms-cal-cell <?= $c ?>" <?= $t ? "title=\"{$t}\"" : '' ?>></div>
@@ -809,6 +816,7 @@
               <div class="ms-cal-sum"><?= $reqFmt ?></div>
               <div class="ms-cal-sum"><?= $ms['arb_count'] ?></div>
               <div class="ms-cal-sum"><?= $ms['bar_count'] ?></div>
+              <div class="ms-cal-sum"><?= $ms['mrq_count'] ?: '—' ?></div>
               <div class="ms-cal-sum"><?= $ms['done'] ?></div>
               <div class="ms-cal-sum" style="<?= $soldeColor ? "color:{$soldeColor};font-weight:700;" : '' ?>"><?= $soldeFmt ?></div>
             </div>
