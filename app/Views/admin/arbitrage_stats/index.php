@@ -130,7 +130,7 @@
             <span><span class="legend-box" style="background: #93C37D"></span> Joue à domicile (individuel)</span>
             <span><span class="legend-box" style="background: #D9534F"></span> Arbitre</span>
             <span><span class="legend-box" style="background: #117DC4"></span> Bar</span>
-            <span><span class="legend-box" style="background: #FFC109"></span> Marqueur</span>
+            <span><span class="legend-box" style="background: #FFC109"></span> Marqueur finale</span>
         </div>
         <div class="mb-3 d-flex flex-wrap" style="gap:.8rem; font-size:.82rem;">
             <span>
@@ -176,7 +176,7 @@
                     <th class="col-summary" title="Services requis (règle 2/3)">Requis</th>
                     <th class="col-summary" title="Arbitrages">Arb.</th>
                     <th class="col-summary" title="Services bar">Bar</th>
-                    <th class="col-summary" title="Marquages" style="background:#FFC109;color:#000">Marq.</th>
+                    <th class="col-summary" title="Marquages finale">Marq.</th>
                     <th class="col-summary" title="Total services accomplis">Fait</th>
                     <th class="col-summary" title="Solde (négatif = redevable)">Solde</th>
                 </tr>
@@ -220,7 +220,7 @@
                         : number_format($s['required'], 1, '.', '') ?></td>
                     <td class="col-summary"><?= $s['arb_count'] ?></td>
                     <td class="col-summary"><?= $s['bar_count'] ?></td>
-                    <td class="col-summary" style="background:#FFC10922"><?= $s['mrq_count'] ?: '—' ?></td>
+                    <td class="col-summary"><?= $s['mrq_count'] ?: '—' ?></td>
                     <td class="col-summary"><?= $s['done'] ?></td>
                     <td class="col-summary <?= $solde < 0 ? 'text-danger font-weight-bold' : ($solde > 0 ? 'text-success font-weight-bold' : '') ?>">
                         <?= $solde == 0 ? '0' : ($solde > 0 ? '+' : '') . (
