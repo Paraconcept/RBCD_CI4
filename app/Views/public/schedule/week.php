@@ -88,7 +88,6 @@
 
 .badge-confirmed { background:#198754; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; cursor:help; }
 .badge-pending   { background:#ffc107; color:#000; border-radius:10px; padding:1px 7px; font-size:.73rem; cursor:help; }
-.badge-conv      { background:#fd7e14; color:#fff; border-radius:10px; padding:1px 7px; font-size:.73rem; cursor:help; }
 
 /* Bar */
 .bar-slots { display:flex; align-items:center; gap:.5rem; font-size:.83rem; }
@@ -379,7 +378,6 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                        title="Disponible :<br><?= esc($roundTip) ?>"></i>
                                 <?php endif; ?>
                                 <?php if ($isMe && $isConv && !$arb->confirmed): ?>
-                                    <span class="badge-conv">Convoqué</span>
                                     <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
                                         <i class="fas fa-check me-1"></i>Confirmer
                                     </button>
@@ -420,7 +418,6 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                                     <span class="arb-label">Arbitrage :</span>
                                     <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
                                     <?php if ($isMe && $isConv && !$arb->confirmed): ?>
-                                        <span class="badge-conv">Convoqué</span>
                                         <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
                                             <i class="fas fa-check me-1"></i>Confirmer
                                         </button>
