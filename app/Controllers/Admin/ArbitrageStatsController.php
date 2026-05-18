@@ -55,6 +55,16 @@ class ArbitrageStatsController extends BaseController
               AND m.is_federated = 1
         ", [$seasonStart, $seasonEnd])->getResultObject();
 
+        $mrqRows = $db->query("
+            SELECT sm.member_id AS resolved_member_id, se.match_date
+            FROM schedule_marqueurs sm
+            JOIN schedule_encounters se ON se.id = sm.encounter_id
+            JOIN members m ON m.id = sm.member_id
+            WHERE se.match_date >= ? AND se.match_date <= ?
+              AND sm.member_id IS NOT NULL
+              AND m.is_federated = 1
+        ", [$seasonStart, $seasonEnd])->getResultObject();
+
         // Index home dates per member (unique dates)
         $homeByMember = [];
         $allDates     = [];
@@ -77,20 +87,29 @@ class ArbitrageStatsController extends BaseController
             $allDates[$r->duty_date] = true;
         }
 
+        // Index marqueur dates per member
+        $mrqByMember = [];
+        foreach ($mrqRows as $r) {
+            $mrqByMember[$r->resolved_member_id][] = $r->match_date;
+            $allDates[$r->match_date] = true;
+        }
+
         ksort($allDates);
         $dates = array_keys($allDates);
 
         $stats = [];
         foreach ($members as $m) {
-            $homeDates = $homeByMember[$m->id] ?? [];   // [date => true]
-            $arbDates  = $arbByMember[$m->id]  ?? [];   // [date, date, ...]
+            $homeDates = $homeByMember[$m->id] ?? [];
+            $arbDates  = $arbByMember[$m->id]  ?? [];
             $barDates  = $barByMember[$m->id]  ?? [];
+            $mrqDates  = $mrqByMember[$m->id]  ?? [];
 
             $homeCount = count($homeDates);
             $arbCount  = count($arbDates);
             $barCount  = count($barDates);
+            $mrqCount  = count($mrqDates);
             $required  = $homeCount * 3 / 2;
-            $done      = $arbCount + $barCount;
+            $done      = $arbCount + $barCount + $mrqCount;
 
             if ($homeCount === 0 && $done === 0) {
                 $status = 'none';
@@ -102,11 +121,13 @@ class ArbitrageStatsController extends BaseController
 
             $stats[$m->id] = [
                 'home_dates' => $homeDates,
-                'arb_dates'  => array_count_values($arbDates),  // [date => count]
+                'arb_dates'  => array_count_values($arbDates),
                 'bar_dates'  => array_count_values($barDates),
+                'mrq_dates'  => array_count_values($mrqDates),
                 'home_count' => $homeCount,
                 'arb_count'  => $arbCount,
                 'bar_count'  => $barCount,
+                'mrq_count'  => $mrqCount,
                 'required'   => $required,
                 'done'       => $done,
                 'status'     => $status,
