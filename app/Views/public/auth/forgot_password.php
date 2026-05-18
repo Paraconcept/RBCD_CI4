@@ -3,7 +3,7 @@
 
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
-        <div class="card card-outline card-primary mt-4">
+        <div class="card card-outline card-primary mt-4 mb-4">
             <div class="card-header text-center">
                 <h4 class="mb-0"><i class="fas fa-key me-2"></i><?= esc($page_title) ?></h4>
             </div>

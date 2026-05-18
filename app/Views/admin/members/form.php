@@ -255,30 +255,6 @@ $formAction = $isEdit
             </div>
         </div>
 
-        <!-- Compte admin lié -->
-        <div class="card card-outline card-primary">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-user-shield mr-2"></i>Compte admin</h3>
-            </div>
-            <div class="card-body">
-                <p class="text-muted small mb-2">Lier ce membre à un utilisateur admin (comité).</p>
-                <select name="admin_user_id" class="form-control select2" style="width:100%">
-                    <option value="">— Aucun lien —</option>
-                    <?php if ($linkedAdminUser): ?>
-                        <option value="<?= $linkedAdminUser->id ?>" selected>
-                            <?= esc($linkedAdminUser->last_name . ' ' . $linkedAdminUser->first_name) ?>
-                        </option>
-                    <?php endif; ?>
-                    <?php foreach ($freeAdminUsers as $au): ?>
-                        <?php if ($linkedAdminUser && $au->id == $linkedAdminUser->id) continue; ?>
-                        <option value="<?= $au->id ?>">
-                            <?= esc($au->last_name . ' ' . $au->first_name) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
-
     </div>
 </div>
 

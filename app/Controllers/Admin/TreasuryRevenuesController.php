@@ -70,7 +70,7 @@ class TreasuryRevenuesController extends BaseController
             'amount'         => (float) str_replace(',', '.', $this->request->getPost('amount')),
             'payment_method' => $this->request->getPost('payment_method'),
             'notes'          => $this->request->getPost('notes') ?: null,
-            'admin_user_id'  => session()->get('admin_id') ?: null,
+            'member_id'      => session()->get('member_id') ?: null,
             'created_at'     => date('Y-m-d H:i:s'),
         ]);
 

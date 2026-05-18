@@ -8,25 +8,39 @@ class AdminUserRoleModel extends Model
 {
     protected $table         = 'admin_user_roles';
     protected $primaryKey    = 'id';
-    protected $allowedFields = ['admin_user_id', 'role', 'sort_order'];
+    protected $allowedFields = ['member_id', 'role', 'sort_order'];
     protected $useTimestamps = false;
 
-    public function getRolesForUser(int $adminUserId): array
+    public const ROLES = [
+        'Webmaster',
+        'Président',
+        'Vice-Président',
+        'Secrétaire',
+        'Secrétaire Adjoint',
+        'Directeur Sportif',
+        'Directeur Sportif Adjoint',
+        'Trésorier',
+        'Trésorier Adjoint',
+        'Commissaire',
+        'PR & Communication',
+    ];
+
+    public function getRolesForUser(int $memberId): array
     {
-        return $this->where('admin_user_id', $adminUserId)
+        return $this->where('member_id', $memberId)
                     ->orderBy('sort_order', 'ASC')
                     ->findColumn('role') ?? [];
     }
 
-    public function setRolesForUser(int $adminUserId, array $roles): void
+    public function setRolesForUser(int $memberId, array $roles): void
     {
-        $this->where('admin_user_id', $adminUserId)->delete();
+        $this->where('member_id', $memberId)->delete();
 
         foreach (array_values($roles) as $order => $role) {
             $this->insert([
-                'admin_user_id' => $adminUserId,
-                'role'          => $role,
-                'sort_order'    => $order,
+                'member_id'  => $memberId,
+                'role'       => $role,
+                'sort_order' => $order,
             ]);
         }
     }

@@ -255,7 +255,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
         <div class="bar-slots">
             <span class="text-muted"><?= $barAmLabel ?> :</span>
             <?php if ($barAm): ?>
-                <?php $isMyBar = $isLogged && $barAm->admin_user_id == $currentUser; ?>
+                <?php $isMyBar = $isLogged && $barAm->member_id == $currentMemberId; ?>
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barAm->last_name) ?> <?= esc(member_initials($barAm->first_name)) ?>.</span>
             <?php elseif ($isLogged): ?>
                 <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="am"
@@ -270,7 +270,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             <?php endif; ?>
             <span class="text-muted ms-4">Bar soirée :</span>
             <?php if ($barSoir): ?>
-                <?php $isMyBar = $isLogged && $barSoir->admin_user_id == $currentUser; ?>
+                <?php $isMyBar = $isLogged && $barSoir->member_id == $currentMemberId; ?>
                 <span class="bar-slot-taken <?= $isMyBar ? 'me-highlight' : '' ?>"><?= esc($barSoir->last_name) ?> <?= esc(member_initials($barSoir->first_name)) ?>.</span>
             <?php elseif ($isLogged): ?>
                 <button class="btn btn-info btn-sm btn-bar-signup" data-date="<?= $date ?>" data-period="soir"
@@ -369,10 +369,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                         <div id="arb-list-<?= $enc->id ?>">
                             <?php foreach ($enc->arbitrageRows as $arb): ?>
                             <?php
-                            $isMe   = $isLogged && (
-                                ($arb->admin_user_id && $arb->admin_user_id == $currentUser) ||
-                                ($arb->member_id     && $arb->member_id     == $currentMemberId)
-                            );
+                            $isMe   = $isLogged && $arb->member_id == $currentMemberId;
                             $isConv = $arb->assignment_type === 'designated';
                             $roundTip = $arb->round ? decodeTours($arb->round) : '';
                             $arbName  = esc($arb->last_name) . ' ' . esc(member_initials($arb->first_name)) . '.';
@@ -419,10 +416,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                             <?php if (!empty($enc->arbitrageRows)): ?>
                                 <?php
                                 $arb    = $enc->arbitrageRows[0];
-                                $isMe   = $isLogged && (
-                                    ($arb->admin_user_id && $arb->admin_user_id == $currentUser) ||
-                                    ($arb->member_id     && $arb->member_id     == $currentMemberId)
-                                );
+                                $isMe   = $isLogged && $arb->member_id == $currentMemberId;
                                 $isConv  = $arb->assignment_type === 'designated';
                                 $arbName = esc($arb->last_name) . ' ' . esc(member_initials($arb->first_name)) . '.';
                                 ?>

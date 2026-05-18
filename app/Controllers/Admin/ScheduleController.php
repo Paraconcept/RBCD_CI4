@@ -213,7 +213,6 @@ class ScheduleController extends BaseController
             $arbId = $this->arbitrage->insert([
                 'encounter_id'    => $encounterId,
                 'member_id'       => $memberId,
-                'admin_user_id'   => null,
                 'round'           => $round,
                 'assignment_type' => 'designated',
                 'confirmed'       => 0,
@@ -275,10 +274,9 @@ class ScheduleController extends BaseController
         }
 
         $id = $this->barDuties->insert([
-            'duty_date'     => $date,
-            'period'        => $period,
-            'admin_user_id' => null,
-            'member_id'     => $memberId,
+            'duty_date' => $date,
+            'period'    => $period,
+            'member_id' => $memberId,
         ]);
 
         $member = \Config\Database::connect()
@@ -383,10 +381,12 @@ class ScheduleController extends BaseController
     private function getAdminUsersList(): array
     {
         return \Config\Database::connect()
-            ->table('admin_users')
-            ->select('id, last_name, first_name')
-            ->where('is_active', 1)
-            ->orderBy('last_name')->orderBy('first_name')
+            ->table('members m')
+            ->select('m.id, m.last_name, m.first_name')
+            ->join('admin_user_roles aur', 'aur.member_id = m.id')
+            ->where('m.is_active', 1)
+            ->groupBy('m.id')
+            ->orderBy('m.last_name')->orderBy('m.first_name')
             ->get()->getResultObject();
     }
 

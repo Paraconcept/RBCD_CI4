@@ -11,7 +11,7 @@ class TreasuryExpenseModel extends Model
     protected $returnType    = 'object';
     protected $allowedFields = [
         'expense_date', 'category', 'description',
-        'amount', 'payment_method', 'notes', 'admin_user_id', 'created_at',
+        'amount', 'payment_method', 'notes', 'member_id', 'created_at',
     ];
 
     public static array $categories = [
@@ -31,8 +31,8 @@ class TreasuryExpenseModel extends Model
     public function getByYear(int $year): array
     {
         return $this->db->table('treasury_expenses te')
-            ->select('te.*, au.last_name, au.first_name')
-            ->join('admin_users au', 'au.id = te.admin_user_id', 'left')
+            ->select('te.*, m.last_name, m.first_name')
+            ->join('members m', 'm.id = te.member_id', 'left')
             ->where('YEAR(te.expense_date)', $year)
             ->orderBy('te.expense_date', 'DESC')
             ->get()->getResultObject();

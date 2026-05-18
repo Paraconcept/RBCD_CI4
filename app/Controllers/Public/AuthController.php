@@ -4,6 +4,7 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Models\MemberLoginModel;
+use App\Models\AdminUserRoleModel;
 
 class AuthController extends BaseController
 {
@@ -64,6 +65,8 @@ class AuthController extends BaseController
                              ->with('error', 'Email ou mot de passe incorrect, ou compte non activé.');
         }
 
+        $roles = (new AdminUserRoleModel())->getRolesForUser($user->member_id);
+
         session()->set([
             'member_logged_in' => true,
             'member_id'        => $user->member_id,
@@ -72,6 +75,13 @@ class AuthController extends BaseController
             'member_email'     => $user->email,
             'member_photo'     => $user->photo,
         ]);
+
+        if (!empty($roles)) {
+            session()->set([
+                'admin_logged_in' => true,
+                'admin_roles'     => $roles,
+            ]);
+        }
 
         if ($isAjax) {
             return $this->response->setJSON(['success' => true]);

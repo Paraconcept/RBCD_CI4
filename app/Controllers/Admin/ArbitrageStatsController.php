@@ -36,26 +36,22 @@ class ArbitrageStatsController extends BaseController
             ->where('se.match_date <=', $seasonEnd)
             ->get()->getResultObject();
 
-        // Arbitrage entries per member (resolve admin_user → member via admin_users.member_id)
         $arbRows = $db->query("
-            SELECT COALESCE(sa.member_id, au.member_id) AS resolved_member_id, se.match_date
+            SELECT sa.member_id AS resolved_member_id, se.match_date
             FROM schedule_arbitrage sa
             JOIN schedule_encounters se ON se.id = sa.encounter_id
-            LEFT JOIN admin_users au ON au.id = sa.admin_user_id
-            LEFT JOIN members m ON m.id = COALESCE(sa.member_id, au.member_id)
+            JOIN members m ON m.id = sa.member_id
             WHERE se.match_date >= ? AND se.match_date <= ?
-              AND COALESCE(sa.member_id, au.member_id) IS NOT NULL
+              AND sa.member_id IS NOT NULL
               AND m.is_federated = 1
         ", [$seasonStart, $seasonEnd])->getResultObject();
 
-        // Bar duties per member (resolve admin_user → member) — federated only
         $barRows = $db->query("
-            SELECT COALESCE(bd.member_id, au.member_id) AS resolved_member_id, bd.duty_date
+            SELECT bd.member_id AS resolved_member_id, bd.duty_date
             FROM schedule_bar_duties bd
-            LEFT JOIN admin_users au ON au.id = bd.admin_user_id
-            LEFT JOIN members m ON m.id = COALESCE(bd.member_id, au.member_id)
+            JOIN members m ON m.id = bd.member_id
             WHERE bd.duty_date >= ? AND bd.duty_date <= ?
-              AND COALESCE(bd.member_id, au.member_id) IS NOT NULL
+              AND bd.member_id IS NOT NULL
               AND m.is_federated = 1
         ", [$seasonStart, $seasonEnd])->getResultObject();
 

@@ -8,7 +8,7 @@
                 <h3 class="card-title"><i class="fas fa-info-circle mr-2"></i>Bienvenue</h3>
             </div>
             <div class="card-body">
-                <p>Bonjour <strong><?= esc(explode(' ', session()->get('admin_name'))[0]) ?></strong>, bienvenue dans l'administration du <strong>RBC Disonais</strong>.</p>
+                <p>Bonjour <strong><?= esc(explode(' ', session()->get('member_name'))[0]) ?></strong>, bienvenue dans l'administration du <strong>RBC Disonais</strong>.</p>
                 <p class="text-muted mb-0">Utilisez le menu latéral pour naviguer dans les sections.</p>
             </div>
         </div>

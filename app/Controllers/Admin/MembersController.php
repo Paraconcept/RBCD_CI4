@@ -4,7 +4,6 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\MemberModel;
-use App\Models\AdminUserModel;
 use App\Models\MemberPaymentModel;
 use App\Models\MemberKeyModel;
 
@@ -21,11 +20,9 @@ class MembersController extends BaseController
     {
         $db = \Config\Database::connect();
 
-        $rows = $db->table('admin_users au')
-                   ->select('au.member_id, GROUP_CONCAT(aur.role ORDER BY aur.role SEPARATOR ", ") AS roles')
-                   ->join('admin_user_roles aur', 'aur.admin_user_id = au.id')
-                   ->where('au.member_id IS NOT NULL')
-                   ->groupBy('au.member_id')
+        $rows = $db->table('admin_user_roles')
+                   ->select('member_id, GROUP_CONCAT(role ORDER BY sort_order SEPARATOR ", ") AS roles')
+                   ->groupBy('member_id')
                    ->get()->getResultObject();
 
         $committeeMap = [];
@@ -82,12 +79,6 @@ class MembersController extends BaseController
         // Ligne de paiement pour l'année en cours
         (new MemberPaymentModel())->createForMember((int) $memberId);
 
-        // Lien avec un admin user
-        $adminUserId = (int) $this->request->getPost('admin_user_id');
-        if ($adminUserId) {
-            (new AdminUserModel())->update($adminUserId, ['member_id' => $memberId]);
-        }
-
         return redirect()->to(base_url('admin/members'))->with('success', 'Membre créé avec succès.');
     }
 
@@ -98,9 +89,6 @@ class MembersController extends BaseController
             return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
         }
 
-        $db              = \Config\Database::connect();
-        $linkedAdminUser = $db->table('admin_users')->where('member_id', $id)->get()->getRowObject();
-
         $keyModel = new MemberKeyModel();
 
         return view('admin/members/form', [
@@ -109,11 +97,9 @@ class MembersController extends BaseController
                 ['title' => 'Membres', 'url' => base_url('admin/members')],
                 ['title' => esc($member->first_name . ' ' . $member->last_name)],
             ],
-            'member'          => $member,
-            'linkedAdminUser' => $linkedAdminUser,
-            'freeAdminUsers'  => $this->getFreeAdminUsers($linkedAdminUser?->id),
-            'memberKeys'      => $keyModel->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
-            'availableKeys'   => $keyModel->where('member_id IS NULL')->orderBy('badge_number')->findAll(),
+            'member'        => $member,
+            'memberKeys'    => $keyModel->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
+            'availableKeys' => $keyModel->where('member_id IS NULL')->orderBy('badge_number')->findAll(),
         ]);
     }
 
@@ -153,32 +139,10 @@ class MembersController extends BaseController
 
         $this->model->update($id, $data);
 
-        // Gestion du lien admin user
-        $adminUserModel  = new AdminUserModel();
-        $db              = \Config\Database::connect();
-        $previousLink    = $db->table('admin_users')->where('member_id', $id)->get()->getRowObject();
-        $newAdminUserId  = (int) $this->request->getPost('admin_user_id');
-
-        // Délier l'ancien si changement
-        if ($previousLink && $previousLink->id !== $newAdminUserId) {
-            $adminUserModel->update($previousLink->id, ['member_id' => null]);
-        }
-        // Lier le nouveau
-        if ($newAdminUserId && $newAdminUserId !== ($previousLink?->id ?? 0)) {
-            $adminUserModel->update($newAdminUserId, ['member_id' => $id]);
-        }
-
-        // Rafraîchir la photo en session si ce membre est lié à l'admin connecté
-        $db = \Config\Database::connect();
-        $linkedAdmin = $db->table('admin_users')
-                          ->select('id')
-                          ->where('member_id', $id)
-                          ->where('id', session()->get('admin_id'))
-                          ->get()->getRowObject();
-        if ($linkedAdmin) {
-            // photo changée = dans $data ; inchangée = garder $member->photo
+        // Rafraîchir la photo en session si le membre connecté modifie son propre profil
+        if ((int) session()->get('member_id') === $id) {
             $currentPhoto = array_key_exists('photo', $data) ? $data['photo'] : $member->photo;
-            session()->set('admin_photo', $currentPhoto);
+            session()->set('member_photo', $currentPhoto);
         }
 
         return redirect()->to(base_url('admin/members'))->with('success', 'Membre mis à jour.');
@@ -190,10 +154,6 @@ class MembersController extends BaseController
         if (!$member) {
             return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
         }
-
-        // Délier du compte admin si nécessaire
-        $db = \Config\Database::connect();
-        $db->table('admin_users')->where('member_id', $id)->update(['member_id' => null]);
 
         $this->deletePhotoFile($member->photo);
         $this->model->delete($id);
@@ -306,19 +266,4 @@ class MembersController extends BaseController
         }
     }
 
-    private function getFreeAdminUsers(?int $currentLinkedId = null): array
-    {
-        $db = \Config\Database::connect();
-        $builder = $db->table('admin_users')
-                      ->select('id, first_name, last_name')
-                      ->where('is_active', 1);
-
-        // Inclure ceux sans member_id + celui actuellement lié
-        $builder->groupStart()
-                    ->where('member_id IS NULL')
-                    ->orWhere('id', $currentLinkedId)
-                ->groupEnd();
-
-        return $builder->orderBy('last_name')->get()->getResultObject();
-    }
 }

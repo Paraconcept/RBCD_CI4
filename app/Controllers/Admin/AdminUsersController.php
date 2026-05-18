@@ -3,269 +3,152 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\AdminUserModel;
 use App\Models\AdminUserRoleModel;
 use App\Models\MemberModel;
+use App\Models\MemberLoginModel;
 
 class AdminUsersController extends BaseController
 {
-    private AdminUserModel     $model;
     private AdminUserRoleModel $roleModel;
 
     public function __construct()
     {
-        $this->model     = new AdminUserModel();
         $this->roleModel = new AdminUserRoleModel();
     }
 
     public function index(): string
     {
-        $users = $this->model->orderBy('last_name', 'ASC')->findAll();
-
-        // Charger les rôles pour tous les users en une seule requête
-        $db        = \Config\Database::connect();
-        $allRoles  = $db->table('admin_user_roles')
-                        ->select('admin_user_id, role')
-                        ->get()->getResultObject();
-
-        $rolesMap = [];
-        foreach ($allRoles as $r) {
-            $rolesMap[$r->admin_user_id][] = $r->role;
-        }
+        $db     = \Config\Database::connect();
+        $admins = $db->table('admin_user_roles aur')
+                     ->select('m.id, m.first_name, m.last_name, m.email, m.photo,
+                               ml.is_active, ml.last_login,
+                               GROUP_CONCAT(aur.role ORDER BY aur.sort_order SEPARATOR ", ") AS roles_str')
+                     ->join('members m',      'm.id = aur.member_id')
+                     ->join('members_login ml', 'ml.member_id = m.id', 'left')
+                     ->groupBy('m.id')
+                     ->orderBy('m.last_name')->orderBy('m.first_name')
+                     ->get()->getResultObject();
 
         return view('admin/users/index', [
-            'title'       => 'Membres du Comité',
-            'breadcrumbs' => [['title' => 'Membres du Comité']],
-            'users'       => $users,
-            'rolesMap'    => $rolesMap,
-        ]);
-    }
-
-    public function pickMember(): string
-    {
-        $db = \Config\Database::connect();
-
-        // Membres sans compte admin
-        $members = $db->table('members m')
-                      ->select('m.id, m.first_name, m.last_name, m.email, m.photo')
-                      ->join('admin_users au', 'au.member_id = m.id', 'left')
-                      ->where('au.id IS NULL')
-                      ->where('m.is_active', 1)
-                      ->orderBy('m.last_name')->orderBy('m.first_name')
-                      ->get()->getResultObject();
-
-        return view('admin/users/pick_member', [
-            'title'       => 'Choisir un membre',
-            'breadcrumbs' => [
-                ['title' => 'Utilisateurs admin', 'url' => base_url('admin/users')],
-                ['title' => 'Choisir un membre'],
-            ],
-            'members' => $members,
+            'title'       => 'Accès Administration',
+            'breadcrumbs' => [['title' => 'Accès Administration']],
+            'admins'      => $admins,
         ]);
     }
 
     public function create(): string
     {
-        return view('admin/users/form', [
-            'title'       => 'Nouveau compte externe',
-            'breadcrumbs' => [
-                ['title' => 'Membres du Comité', 'url' => base_url('admin/users')],
-                ['title' => 'Compte externe'],
-            ],
-            'user'       => null,
-            'member'     => null,
-            'userRoles'  => [],
-            'roles'      => AdminUserModel::ROLES,
-            'isExternal' => true,
-        ]);
-    }
-
-    public function createForMember(int $memberId): string
-    {
-        $member = (new MemberModel())->find($memberId);
-        if (!$member) {
-            return redirect()->to(base_url('admin/users/pick-member'))->with('error', 'Membre introuvable.');
-        }
-
-        // Vérifier qu'il n'a pas déjà un compte
         $db = \Config\Database::connect();
-        if ($db->table('admin_users')->where('member_id', $memberId)->countAllResults()) {
-            return redirect()->to(base_url('admin/users/pick-member'))->with('error', 'Ce membre a déjà un compte admin.');
-        }
+
+        $members = $db->table('members m')
+                      ->select('m.id, m.first_name, m.last_name, m.email')
+                      ->join('admin_user_roles aur', 'aur.member_id = m.id', 'left')
+                      ->where('aur.id IS NULL')
+                      ->where('m.is_active', 1)
+                      ->orderBy('m.last_name')->orderBy('m.first_name')
+                      ->get()->getResultObject();
 
         return view('admin/users/form', [
-            'title'       => 'Nouvel utilisateur — ' . esc($member->first_name . ' ' . $member->last_name),
+            'title'       => 'Donner un accès admin',
             'breadcrumbs' => [
-                ['title' => 'Utilisateurs admin', 'url' => base_url('admin/users')],
-                ['title' => 'Choisir un membre', 'url' => base_url('admin/users/pick-member')],
+                ['title' => 'Accès Administration', 'url' => base_url('admin/users')],
                 ['title' => 'Nouveau'],
             ],
-            'user'       => null,
-            'member'     => $member,
-            'userRoles'  => [],
-            'roles'      => AdminUserModel::ROLES,
-            'isExternal' => false,
+            'member'    => null,
+            'userRoles' => [],
+            'roles'     => AdminUserRoleModel::ROLES,
+            'members'   => $members,
         ]);
     }
 
     public function store()
     {
-        $rawMemberId = $this->request->getPost('member_id');
-        $memberId    = $rawMemberId !== null ? (int) $rawMemberId : null;
-        $member      = null;
+        $memberId = (int) $this->request->getPost('member_id');
+        $roles    = $this->request->getPost('roles') ?? [];
 
-        if ($memberId) {
-            $member = (new MemberModel())->find($memberId);
-            if (!$member) {
-                return redirect()->to(base_url('admin/users/pick-member'))->with('error', 'Membre invalide.');
-            }
-        }
-
-        $rules = ['email' => 'required|valid_email|is_unique[admin_users.email]'];
         if (!$memberId) {
-            $rules['first_name'] = 'required|min_length[2]|max_length[100]';
-            $rules['last_name']  = 'required|min_length[2]|max_length[100]';
+            return redirect()->back()->withInput()->with('errors', ['member_id' => 'Sélectionnez un membre.']);
         }
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $selectedRoles = $memberId ? ($this->request->getPost('roles') ?? []) : ['Webmaster'];
-        if (empty($selectedRoles)) {
+        if (empty($roles)) {
             return redirect()->back()->withInput()->with('errors', ['roles' => 'Sélectionnez au moins un rôle.']);
         }
 
-        $defaultHash = password_hash('Admin@2026', PASSWORD_BCRYPT);
-
-        $userId = $this->model->insert([
-            'first_name'            => $member ? $member->first_name : $this->request->getPost('first_name'),
-            'last_name'             => $member ? $member->last_name  : mb_strtoupper($this->request->getPost('last_name'), 'UTF-8'),
-            'email'                 => $this->request->getPost('email') ?: ($member->email ?? ''),
-            'is_active'             => (int) $this->request->getPost('is_active'),
-            'member_id'             => $memberId ?: null,
-            'password_hash'         => $defaultHash,
-            'password_default_hash' => $defaultHash,
-        ]);
-
-        $this->roleModel->setRolesForUser((int) $userId, $selectedRoles);
-
-        return redirect()->to(base_url('admin/users'))->with('success', 'Compte admin créé. Mot de passe par défaut : Admin@2026');
-    }
-
-    public function edit(int $id): string
-    {
-        $user = $this->model->find($id);
-        if (!$user) {
-            return redirect()->to(base_url('admin/users'))->with('error', 'Utilisateur introuvable.');
+        $member = (new MemberModel())->find($memberId);
+        if (!$member) {
+            return redirect()->back()->withInput()->with('error', 'Membre introuvable.');
         }
 
-        return view('admin/users/form', [
-            'title'       => 'Modifier un utilisateur',
-            'breadcrumbs' => [
-                ['title' => 'Utilisateurs admin', 'url' => base_url('admin/users')],
-                ['title' => 'Modifier'],
-            ],
-            'user'       => $user,
-            'member'     => null,
-            'userRoles'  => $this->roleModel->getRolesForUser($id),
-            'roles'      => AdminUserModel::ROLES,
-            'isExternal' => $user->member_id === null,
-        ]);
-    }
-
-    public function update(int $id)
-    {
-        $user = $this->model->find($id);
-        if (!$user) {
-            return redirect()->to(base_url('admin/users'))->with('error', 'Utilisateur introuvable.');
-        }
-
-        $rules = [
-            'first_name' => 'required|min_length[2]|max_length[100]',
-            'last_name'  => 'required|min_length[2]|max_length[100]',
-            'email'      => "required|valid_email|is_unique[admin_users.email,id,{$id}]",
-        ];
-
-        $newPassword = $this->request->getPost('password');
-        if (!empty($newPassword)) {
-            $rules['password']         = 'min_length[8]';
-            $rules['password_confirm'] = 'matches[password]';
-        }
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $selectedRoles = $user->member_id === null ? ['Webmaster'] : ($this->request->getPost('roles') ?? []);
-        if (empty($selectedRoles)) {
-            return redirect()->back()->withInput()->with('errors', ['roles' => 'Sélectionnez au moins un rôle.']);
-        }
-
-        $data = [
-            'first_name' => $this->request->getPost('first_name'),
-            'last_name'  => mb_strtoupper($this->request->getPost('last_name'), 'UTF-8'),
-            'email'      => $this->request->getPost('email'),
-            'is_active'  => (int) $this->request->getPost('is_active'),
-        ];
-
-        if (!empty($newPassword)) {
-            $data['password_hash'] = password_hash($newPassword, PASSWORD_BCRYPT);
-        }
-
-        $this->model->update($id, $data);
-        $this->roleModel->setRolesForUser($id, $selectedRoles);
-
-        // Rafraîchir la session si l'utilisateur modifie son propre profil
-        if (session()->get('admin_id') == $id) {
-            session()->set([
-                'admin_name'  => $data['first_name'] . ' ' . $data['last_name'],
-                'admin_email' => $data['email'],
-                'admin_roles' => $selectedRoles,
+        // Ensure members_login exists (will be activated via password reset flow)
+        $loginModel = new MemberLoginModel();
+        if (!$loginModel->where('member_id', $memberId)->first()) {
+            $loginModel->insert([
+                'member_id'     => $memberId,
+                'password_hash' => password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT),
+                'is_active'     => 0,
             ]);
         }
 
-        return redirect()->to(base_url('admin/users'))->with('success', 'Utilisateur mis à jour.');
+        $this->roleModel->setRolesForUser($memberId, $roles);
+
+        $name = esc($member->first_name . ' ' . $member->last_name);
+        return redirect()->to(base_url('admin/users'))
+                         ->with('success', "{$name} a accès à l'administration. Il/elle devra définir son mot de passe via la page de connexion.");
     }
 
-    public function delete(int $id)
+    public function edit(int $memberId): string
     {
-        if (session()->get('admin_id') == $id) {
-            return redirect()->to(base_url('admin/users'))->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+        $member = (new MemberModel())->find($memberId);
+        if (!$member) {
+            return redirect()->to(base_url('admin/users'))->with('error', 'Membre introuvable.');
         }
 
-        if (!$this->model->find($id)) {
-            return redirect()->to(base_url('admin/users'))->with('error', 'Utilisateur introuvable.');
-        }
-
-        // Les rôles sont supprimés automatiquement (FK CASCADE)
-        $this->model->delete($id);
-
-        return redirect()->to(base_url('admin/users'))->with('success', 'Utilisateur supprimé.');
-    }
-
-    public function toggle(int $id)
-    {
-        if (!$this->request->isAJAX()) {
-            return redirect()->to(base_url('admin/users'));
-        }
-
-        if (session()->get('admin_id') == $id) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Impossible de désactiver votre propre compte.']);
-        }
-
-        $user = $this->model->find($id);
-        if (!$user) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Utilisateur introuvable.']);
-        }
-
-        $newStatus = $user->is_active ? 0 : 1;
-        $this->model->update($id, ['is_active' => $newStatus]);
-
-        return $this->response->setJSON([
-            'success'   => true,
-            'is_active' => $newStatus,
-            'message'   => $newStatus ? 'Compte activé.' : 'Compte désactivé.',
+        return view('admin/users/form', [
+            'title'       => 'Modifier l\'accès admin',
+            'breadcrumbs' => [
+                ['title' => 'Accès Administration', 'url' => base_url('admin/users')],
+                ['title' => esc($member->last_name . ' ' . $member->first_name)],
+            ],
+            'member'    => $member,
+            'userRoles' => $this->roleModel->getRolesForUser($memberId),
+            'roles'     => AdminUserRoleModel::ROLES,
+            'members'   => [],
         ]);
+    }
+
+    public function update(int $memberId)
+    {
+        $member = (new MemberModel())->find($memberId);
+        if (!$member) {
+            return redirect()->to(base_url('admin/users'))->with('error', 'Membre introuvable.');
+        }
+
+        $roles = $this->request->getPost('roles') ?? [];
+        if (empty($roles)) {
+            return redirect()->back()->withInput()->with('errors', ['roles' => 'Sélectionnez au moins un rôle.']);
+        }
+
+        $this->roleModel->setRolesForUser($memberId, $roles);
+
+        if ((int) session()->get('member_id') === $memberId) {
+            session()->set([
+                'member_name'  => $member->first_name . ' ' . $member->last_name,
+                'member_email' => $member->email,
+                'admin_roles'  => $roles,
+            ]);
+        }
+
+        return redirect()->to(base_url('admin/users'))->with('success', 'Rôles mis à jour.');
+    }
+
+    public function delete(int $memberId)
+    {
+        if ((int) session()->get('member_id') === $memberId) {
+            return redirect()->to(base_url('admin/users'))
+                             ->with('error', 'Vous ne pouvez pas révoquer votre propre accès.');
+        }
+
+        $this->roleModel->where('member_id', $memberId)->delete();
+
+        return redirect()->to(base_url('admin/users'))->with('success', 'Accès administration révoqué.');
     }
 }

@@ -99,6 +99,12 @@
               <i class="fa fa-sign-in-alt me-2"></i>Se connecter
             </button>
           </div>
+          <div class="text-center mt-3">
+            <a href="<?= base_url('connexion/mot-de-passe-oublie') ?>"
+               class="text-muted" style="font-size:.85rem" data-bs-dismiss="modal">
+              <i class="fas fa-key me-1"></i>Première connexion / Mot de passe oublié ?
+            </a>
+          </div>
         </form>
       </div>
       <?php if (session()->get('member_logged_in')): ?>

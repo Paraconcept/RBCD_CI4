@@ -11,7 +11,7 @@ class TreasuryRevenueModel extends Model
     protected $returnType    = 'object';
     protected $allowedFields = [
         'revenue_date', 'category', 'description',
-        'amount', 'payment_method', 'notes', 'admin_user_id', 'created_at',
+        'amount', 'payment_method', 'notes', 'member_id', 'created_at',
     ];
 
     public static array $categories = [
@@ -29,8 +29,8 @@ class TreasuryRevenueModel extends Model
     public function getByYear(int $year): array
     {
         return $this->db->table('treasury_revenues tr')
-            ->select('tr.*, au.last_name, au.first_name')
-            ->join('admin_users au', 'au.id = tr.admin_user_id', 'left')
+            ->select('tr.*, m.last_name, m.first_name')
+            ->join('members m', 'm.id = tr.member_id', 'left')
             ->where('YEAR(tr.revenue_date)', $year)
             ->orderBy('tr.revenue_date', 'DESC')
             ->get()->getResultObject();

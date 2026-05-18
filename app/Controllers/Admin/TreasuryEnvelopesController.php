@@ -63,9 +63,7 @@ class TreasuryEnvelopesController extends BaseController
             array_unshift($years, (string) $year);
         }
 
-        $adminUser       = $db->table('admin_users')->select('member_id')
-                              ->where('id', session()->get('admin_id'))->get()->getRowObject();
-        $currentMemberId = (int) ($adminUser?->member_id ?? 0);
+        $currentMemberId = (int) session()->get('member_id');
 
         return view('admin/treasury_envelopes/index', [
             'title'       => 'Enveloppes de caisse',
@@ -113,10 +111,6 @@ class TreasuryEnvelopesController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $db        = \Config\Database::connect();
-        $adminUser = $db->table('admin_users')->select('member_id')
-                        ->where('id', session()->get('admin_id'))->get()->getRowObject();
-
         $post = $this->request->getPost();
         $name = 'E' . date('d.m.', strtotime($post['date'])) . $post['name_seq'];
 
@@ -127,7 +121,7 @@ class TreasuryEnvelopesController extends BaseController
 
         $data = $this->collectData();
         $data['name']                 = $name;
-        $data['encoded_by_member_id'] = $adminUser?->member_id ?: null;
+        $data['encoded_by_member_id'] = (int) session()->get('member_id') ?: null;
 
         $this->model->insert($data);
 
@@ -166,15 +160,11 @@ class TreasuryEnvelopesController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $db        = \Config\Database::connect();
-        $adminUser = $db->table('admin_users')->select('member_id')
-                        ->where('id', session()->get('admin_id'))->get()->getRowObject();
-
         $post = $this->request->getPost();
         $this->model->update($id, [
-            'closed_by_member_id'  => $post['closed_by_member_id'] ?: null,
-            'notes'                => $post['notes'] ?: null,
-            'modified_by_member_id' => $adminUser?->member_id ?: null,
+            'closed_by_member_id'   => $post['closed_by_member_id'] ?: null,
+            'notes'                 => $post['notes'] ?: null,
+            'modified_by_member_id' => (int) session()->get('member_id') ?: null,
         ]);
 
         return redirect()->to(base_url('admin/treasury/envelopes'))->with('success', 'Enveloppe mise à jour.');
@@ -187,12 +177,9 @@ class TreasuryEnvelopesController extends BaseController
             return redirect()->to(base_url('admin/treasury/envelopes'))->with('error', 'Enveloppe introuvable.');
         }
 
-        $db              = \Config\Database::connect();
-        $adminUser       = $db->table('admin_users')->select('member_id')
-                              ->where('id', session()->get('admin_id'))->get()->getRowObject();
-        $currentMemberId = (int) ($adminUser?->member_id ?? 0);
+        $currentMemberId = (int) session()->get('member_id');
 
-        if ($envelope->encoded_by_member_id !== null && (int)$envelope->encoded_by_member_id !== $currentMemberId) {
+        if ($envelope->encoded_by_member_id !== null && (int) $envelope->encoded_by_member_id !== $currentMemberId) {
             return redirect()->to(base_url('admin/treasury/envelopes'))->with('error', 'Vous ne pouvez supprimer que les enveloppes que vous avez encodées.');
         }
 

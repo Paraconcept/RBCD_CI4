@@ -3,12 +3,12 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\AdminUserModel;
+use App\Models\MemberLoginModel;
 use App\Models\AdminUserRoleModel;
 
 class AuthController extends BaseController
 {
-    public function login(): string
+    public function login(): mixed
     {
         if (session()->get('admin_logged_in')) {
             return redirect()->to(base_url('admin/dashboard'));
@@ -19,55 +19,65 @@ class AuthController extends BaseController
 
     public function loginPost()
     {
-        $rules = [
+        if (!$this->validate([
             'email'    => 'required|valid_email',
             'password' => 'required',
-        ];
-
-        if (!$this->validate($rules)) {
+        ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $model = new AdminUserModel();
-        $user  = $model->authenticate(
-            $this->request->getPost('email'),
-            $this->request->getPost('password')
-        );
+        $email    = $this->request->getPost('email');
+        $password = $this->request->getPost('password');
 
-        if (!$user) {
-            return redirect()->back()->withInput()->with('error', 'Email ou mot de passe incorrect, ou compte verrouillé.');
+        $db     = \Config\Database::connect();
+        $member = $db->table('members')->where('email', $email)->get()->getRowObject();
+
+        if (!$member) {
+            return redirect()->back()->withInput()->with('error', 'Email ou mot de passe incorrect.');
         }
 
-        if (!$user->is_active) {
-            return redirect()->back()->withInput()->with('error', 'Ce compte est désactivé.');
+        $loginModel = new MemberLoginModel();
+        $loginRow   = $loginModel->where('member_id', $member->id)->first();
+
+        $roleModel = new AdminUserRoleModel();
+        $roles     = $roleModel->getRolesForUser($member->id);
+
+        if (!$loginRow || !$loginRow->is_active || empty($roles)) {
+            return redirect()->back()->withInput()
+                             ->with('error', 'Compte non autorisé ou inactif.');
         }
 
-        $roles = (new AdminUserRoleModel())->getRolesForUser($user->id);
-
-        $memberPhoto = null;
-        if ($user->member_id) {
-            $linked = \Config\Database::connect()
-                ->table('members')->select('photo')
-                ->where('id', $user->member_id)->get()->getRowObject();
-            $memberPhoto = $linked?->photo ?? null;
+        if ($loginRow->locked_until && strtotime($loginRow->locked_until) > time()) {
+            return redirect()->back()->withInput()
+                             ->with('error', 'Compte verrouillé temporairement. Réessayez dans 15 minutes.');
         }
+
+        if (!password_verify($password, $loginRow->password_hash)) {
+            $attempts = ($loginRow->login_attempts ?? 0) + 1;
+            $update   = ['login_attempts' => $attempts];
+            if ($attempts >= 5) {
+                $update['locked_until'] = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+            }
+            $loginModel->update($loginRow->id, $update);
+            return redirect()->back()->withInput()->with('error', 'Email ou mot de passe incorrect.');
+        }
+
+        $loginModel->update($loginRow->id, [
+            'login_attempts' => 0,
+            'locked_until'   => null,
+            'last_login'     => date('Y-m-d H:i:s'),
+        ]);
 
         session()->set([
             'admin_logged_in' => true,
-            'admin_id'        => $user->id,
-            'admin_name'      => $user->first_name . ' ' . $user->last_name,
-            'admin_email'     => $user->email,
-            'admin_roles'     => $roles,
-            'admin_photo'     => $memberPhoto,
+            'member_logged_in' => true,
+            'member_id'        => $member->id,
+            'member_login_id'  => $loginRow->id,
+            'member_name'      => $member->first_name . ' ' . $member->last_name,
+            'member_email'     => $member->email,
+            'member_photo'     => $member->photo,
+            'admin_roles'      => $roles,
         ]);
-
-        if ($user->password_default_hash && password_verify(
-            $this->request->getPost('password'),
-            $user->password_default_hash
-        )) {
-            session()->set('must_change_password', true);
-            return redirect()->to(base_url('admin/change-password'));
-        }
 
         return redirect()->to(base_url('admin/dashboard'));
     }
@@ -80,10 +90,6 @@ class AuthController extends BaseController
 
     public function changePassword(): string
     {
-        if (!session()->get('must_change_password')) {
-            return redirect()->to(base_url('admin/dashboard'));
-        }
-
         return view('admin/auth/change_password', [
             'title' => 'Changer votre mot de passe',
         ]);
@@ -91,10 +97,6 @@ class AuthController extends BaseController
 
     public function changePasswordPost()
     {
-        if (!session()->get('must_change_password')) {
-            return redirect()->to(base_url('admin/dashboard'));
-        }
-
         if (!$this->validate([
             'password'         => 'required|min_length[8]',
             'password_confirm' => 'required|matches[password]',
@@ -102,23 +104,16 @@ class AuthController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $newPassword = $this->request->getPost('password');
-        $model       = new AdminUserModel();
-        $id          = (int) session()->get('admin_id');
-        $user        = $model->find($id);
+        $loginModel = new MemberLoginModel();
+        $loginId    = (int) session()->get('member_login_id');
 
-        if ($user->password_default_hash && password_verify($newPassword, $user->password_default_hash)) {
-            return redirect()->back()->with('error', 'Choisissez un mot de passe différent du mot de passe par défaut.');
-        }
-
-        $model->update($id, [
-            'password_hash'         => password_hash($newPassword, PASSWORD_BCRYPT),
-            'password_default_hash' => null,
+        $loginModel->update($loginId, [
+            'password_hash' => password_hash($this->request->getPost('password'), PASSWORD_BCRYPT),
         ]);
 
         session()->remove('must_change_password');
 
         return redirect()->to(base_url('admin/dashboard'))
-                         ->with('success', 'Mot de passe modifié avec succès. Bienvenue !');
+                         ->with('success', 'Mot de passe modifié avec succès.');
     }
 }

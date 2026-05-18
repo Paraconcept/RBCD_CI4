@@ -25,22 +25,24 @@ class PagesController extends BaseController
     {
         $db = \Config\Database::connect();
 
-        $users = $db->table('admin_users au')
-                    ->select('au.id, au.first_name, au.last_name, au.member_id, m.photo, m.gender')
-                    ->join('members m', 'm.id = au.member_id', 'left')
-                    ->where('au.is_active', 1)
-                    ->get()->getResultObject();
-
         $allRoles = $db->table('admin_user_roles')
-                       ->select('admin_user_id, role')
-                       ->orderBy('admin_user_id', 'ASC')
+                       ->select('member_id, role')
+                       ->orderBy('member_id', 'ASC')
                        ->orderBy('sort_order', 'ASC')
                        ->get()->getResultObject();
 
         $rolesMap = [];
         foreach ($allRoles as $r) {
-            $rolesMap[$r->admin_user_id][] = $r->role;
+            $rolesMap[(int) $r->member_id][] = $r->role;
         }
+
+        $users = $db->table('members m')
+                    ->select('m.id, m.first_name, m.last_name, m.photo, m.gender')
+                    ->join('admin_user_roles aur', 'aur.member_id = m.id')
+                    ->join('members_login ml', 'ml.member_id = m.id', 'left')
+                    ->where('m.is_active', 1)
+                    ->groupBy('m.id')
+                    ->get()->getResultObject();
 
         $publicOrder = array_flip([
             'Président', 'Vice-Président', 'Secrétaire', 'Secrétaire Adjoint',
@@ -315,12 +317,11 @@ class PagesController extends BaseController
             : [];
 
         $db     = \Config\Database::connect();
-        $editor = $db->table('admin_users au')
-                     ->select('au.first_name, au.last_name, m.id as member_id, m.photo, m.gender')
-                     ->join('admin_user_roles aur', 'aur.admin_user_id = au.id')
-                     ->join('members m', 'm.id = au.member_id', 'left')
+        $editor = $db->table('members m')
+                     ->select('m.first_name, m.last_name, m.id as member_id, m.photo, m.gender')
+                     ->join('admin_user_roles aur', 'aur.member_id = m.id')
                      ->where('aur.role', 'PR & Communication')
-                     ->where('au.is_active', 1)
+                     ->where('m.is_active', 1)
                      ->limit(1)
                      ->get()->getRowObject();
 

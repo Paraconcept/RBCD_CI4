@@ -6,9 +6,9 @@
     <div class="sidebar">
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                <?php $adminPhoto = session()->get('admin_photo'); ?>
-                <?php if ($adminPhoto): ?>
-                    <img src="<?= base_url('uploads/members/' . $adminPhoto) ?>"
+                <?php $memberPhoto = session()->get('member_photo'); ?>
+                <?php if ($memberPhoto): ?>
+                    <img src="<?= base_url('uploads/members/' . $memberPhoto) ?>"
                          class="img-circle member-photo-thumb"
                          style="width:34px;height:34px;object-fit:cover;">
                 <?php else: ?>
@@ -16,7 +16,7 @@
                 <?php endif; ?>
             </div>
             <div class="info">
-                <a href="#" class="d-block"><?= esc(session()->get('admin_name')) ?></a>
+                <a href="#" class="d-block"><?= esc(session()->get('member_name')) ?></a>
                 <?php foreach (session()->get('admin_roles') ?? [] as $role): ?>
                     <small class="d-block text-white-50"><?= esc($role) ?></small>
                 <?php endforeach; ?>

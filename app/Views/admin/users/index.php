@@ -3,13 +3,10 @@
 
 <div class="card card-outline card-primary">
     <div class="card-header d-flex align-items-center">
-        <h3 class="card-title"><i class="fas fa-users-cog mr-2"></i>Membres du Comité</h3>
+        <h3 class="card-title"><i class="fas fa-user-shield mr-2"></i>Accès Administration</h3>
         <div class="ml-auto">
-            <a href="<?= base_url('admin/users/pick-member') ?>" class="btn btn-primary btn-sm mr-1">
-                <i class="fas fa-user-plus mr-1"></i> Membre du comité
-            </a>
-            <a href="<?= base_url('admin/users/create') ?>" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-globe mr-1"></i> Compte externe
+            <a href="<?= base_url('admin/users/create') ?>" class="btn btn-primary btn-sm">
+                <i class="fas fa-user-plus mr-1"></i> Donner un accès
             </a>
         </div>
     </div>
@@ -18,63 +15,51 @@
             <table id="usersTable" class="table table-bordered table-hover table-striped">
                 <thead class="thead-rbcd">
                     <tr>
-                        <th>Nom</th>
+                        <th>Membre</th>
                         <th>Email</th>
                         <th>Rôles</th>
-                        <th class="text-center">Statut</th>
+                        <th>Compte actif</th>
                         <th>Dernière connexion</th>
                         <th class="text-center no-sort">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($users as $u): ?>
-                    <?php $uRoles = $rolesMap[$u->id] ?? []; ?>
-                    <tr id="row-<?= $u->id ?>">
-                        <td><?= esc($u->last_name . ' ' . $u->first_name) ?></td>
-                        <td><?= esc($u->email) ?></td>
+                    <?php foreach ($admins as $a): ?>
+                    <tr>
                         <td>
-                            <?php foreach ($uRoles as $role): ?>
+                            <?php if ($a->photo): ?>
+                                <img src="<?= base_url('uploads/members/' . $a->photo) ?>"
+                                     class="img-circle mr-2" style="width:28px;height:28px;object-fit:cover">
+                            <?php endif; ?>
+                            <?= esc($a->last_name . ' ' . $a->first_name) ?>
+                        </td>
+                        <td><?= esc($a->email) ?></td>
+                        <td>
+                            <?php foreach (explode(', ', $a->roles_str ?? '') as $role): ?>
+                                <?php if ($role): ?>
                                 <span class="badge badge-secondary mr-1"><?= esc($role) ?></span>
+                                <?php endif; ?>
                             <?php endforeach; ?>
-                            <?php if (empty($uRoles)): ?>
-                                <span class="text-muted">—</span>
-                            <?php endif; ?>
                         </td>
                         <td class="text-center">
-                            <?php if (session()->get('admin_id') != $u->id): ?>
-                                <span id="badge-<?= $u->id ?>"
-                                      class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?> btn-toggle tt-rbcd"
-                                      role="button" style="cursor:pointer"
-                                      data-id="<?= $u->id ?>"
-                                      data-active="<?= $u->is_active ?>"
-                                      data-name="<?= esc($u->last_name . ' ' . $u->first_name) ?>"
-                                      data-toggle="tooltip" data-placement="top"
-                                      title="<?= $u->is_active ? 'Désactiver' : 'Activer' ?><br><?= esc($u->last_name . ' ' . $u->first_name) ?> du comité">
-                                    <?= $u->is_active ? 'Actif' : 'Inactif' ?>
-                                </span>
+                            <?php if ($a->is_active): ?>
+                                <span class="badge badge-success">Actif</span>
                             <?php else: ?>
-                                <span id="badge-<?= $u->id ?>"
-                                      class="badge <?= $u->is_active ? 'badge-success' : 'badge-danger' ?> tt-rbcd"
-                                      data-toggle="tooltip" data-placement="top"
-                                      title="<?= $u->is_active ? 'Je ne peux pas me désactiver moi-même' : 'Je ne peux pas m\'activer moi-même' ?>">
-                                    <?= $u->is_active ? 'Actif' : 'Inactif' ?>
-                                </span>
+                                <span class="badge badge-warning">Mot de passe non défini</span>
                             <?php endif; ?>
                         </td>
-                        <td><?= $u->last_login ? date('d/m/Y H:i', strtotime($u->last_login)) : '<span class="text-muted">Jamais</span>' ?></td>
+                        <td><?= $a->last_login ? date('d/m/Y H:i', strtotime($a->last_login)) : '<span class="text-muted">Jamais</span>' ?></td>
                         <td class="text-center">
-                            <a href="<?= base_url('admin/users/' . $u->id . '/edit') ?>" class="btn btn-xs btn-info tt-rbcd"
-                               data-toggle="tooltip" data-placement="top"
-                               title="Modifier<br>le(s) mandat(s) de<br> <?= esc($u->last_name . ' ' . $u->first_name) ?>">
+                            <a href="<?= base_url('admin/users/' . $a->id . '/edit') ?>"
+                               class="btn btn-xs btn-info tt-rbcd"
+                               data-toggle="tooltip" data-placement="top" title="Modifier les rôles">
                                 <i class="fas fa-edit"></i>
                             </a>
-
-                            <?php if (session()->get('admin_id') != $u->id): ?>
+                            <?php if ((int) session()->get('member_id') !== (int) $a->id): ?>
                                 <button type="button" class="btn btn-xs btn-danger btn-delete tt-rbcd"
-                                    data-id="<?= $u->id ?>"
-                                    data-name="<?= esc($u->first_name . ' ' . $u->last_name) ?>"
-                                    data-toggle="tooltip" data-placement="top"
-                                    title="Supprimer <br> <?= esc($u->last_name . ' ' . $u->first_name) ?>">
+                                    data-id="<?= $a->id ?>"
+                                    data-name="<?= esc($a->first_name . ' ' . $a->last_name) ?>"
+                                    data-toggle="tooltip" data-placement="top" title="Révoquer l'accès">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             <?php else: ?>
@@ -107,57 +92,19 @@ $(function() {
         columnDefs: [{ orderable: false, targets: 'no-sort' }]
     });
     $('.tt-rbcd').tooltip(tooltipOpts);
-    table.on('draw.dt', function() {
+    table.on('draw.dt', function () {
         $('.tt-rbcd').tooltip('dispose').tooltip(tooltipOpts);
     });
 
-    $(document).on('click', '.btn-toggle', function() {
-        const id     = $(this).data('id');
-        const active = $(this).data('active');
-        const name   = $(this).data('name');
-        Swal.fire({
-            title: 'Confirmer',
-            html: `Voulez-vous ${active ? 'désactiver' : 'activer'} l'accès comité de<br> <strong>${name}</strong> ?<br><small class="text-muted">La fiche membre reste inchangée.</small>`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Oui',
-            cancelButtonText: 'Annuler',
-            confirmButtonColor: active ? '#e5a54b' : '#28a745',
-        }).then(result => {
-            if (!result.isConfirmed) return;
-            $.post(`<?= base_url('admin/users/') ?>${id}/toggle`, {
-                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
-            }).done(function(res) {
-                if (res.success) {
-                    const badge = $(`#badge-${id}`);
-                    if (res.is_active) {
-                        badge.removeClass('badge-danger').addClass('badge-success')
-                             .text('Actif')
-                             .attr('data-original-title', 'Désactiver ' + name)
-                             .data('active', 1);
-                    } else {
-                        badge.removeClass('badge-success').addClass('badge-danger')
-                             .text('Inactif')
-                             .attr('data-original-title', 'Activer ' + name)
-                             .data('active', 0);
-                    }
-                    Swal.fire({ icon: 'success', title: res.message, timer: 1500, showConfirmButton: false });
-                } else {
-                    Swal.fire({ icon: 'error', title: res.message });
-                }
-            });
-        });
-    });
-
-    $(document).on('click', '.btn-delete', function() {
+    $(document).on('click', '.btn-delete', function () {
         const id   = $(this).data('id');
         const name = $(this).data('name');
         Swal.fire({
-            title: 'Supprimer ?',
-            html: `Supprimer le compte comité de <strong>${name}</strong> ?<br><small class="text-muted">La fiche membre reste intacte. Cette action est irréversible.</small>`,
+            title: 'Révoquer l\'accès ?',
+            html: `Supprimer l'accès admin de <strong>${name}</strong> ?<br><small class="text-muted">La fiche membre reste intacte. Le mot de passe public est conservé.</small>`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Supprimer',
+            confirmButtonText: 'Révoquer',
             cancelButtonText: 'Annuler',
             confirmButtonColor: '#dc3545',
         }).then(result => {
