@@ -17,9 +17,16 @@ class TreasuryExpenseModel extends Model
     public static array $categories = [
         'enveloppes_prix'  => 'Primes des finalistes reçues',
         'achat_materiel'   => 'Achat matériel',
-        'frais_admin'      => 'Frais administratifs',
+        'commune'          => 'Commune',
         'frais_sportifs'   => 'Frais sportifs',
-        'divers'           => 'Divers',
+        'proximus'         => 'Proximus',
+        'cafe_liegeois'    => 'Café Liégeois',
+        'boulanger'        => 'Boulanger - Brasseur',
+        'colruyt'          => 'Colruyt',
+        'intermarche'      => 'Intermarché',
+        'bnp'              => 'BNP Paribas Fortis',
+        'nicolay'          => 'Pierre Nicolay - vin',
+        'gv_compta'        => 'GV Compta',
     ];
 
     public static array $paymentMethods = [
