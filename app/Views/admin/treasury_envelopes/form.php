@@ -82,7 +82,7 @@ $todayPrefix = 'E' . date('d.m.');
                     </div>
                 </div>
 
-                <div class="row align-items-end">
+                <div class="row">
                     <div class="col">
                         <div class="form-group">
                             <label>Montant calculé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
@@ -99,6 +99,9 @@ $todayPrefix = 'E' . date('d.m.');
                                 <?php endif; ?>
                             <?php endif; ?>
                         </div>
+                    </div>
+                    <div class="col-auto d-flex align-items-center justify-content-center">
+                        <strong class="text-secondary" style="font-size:1.2rem">=</strong>
                     </div>
                     <div class="col">
                         <div class="form-group">
@@ -117,7 +120,7 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-auto" style="padding-bottom:9px">
+                    <div class="col-auto d-flex align-items-center justify-content-center">
                         <strong class="text-secondary" style="font-size:1.2rem">+</strong>
                     </div>
                     <div class="col">
