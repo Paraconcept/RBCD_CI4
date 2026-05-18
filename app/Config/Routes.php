@@ -15,8 +15,8 @@ $routes->post('deconnexion','Public\AuthController::logout');
 // Mot de passe oublié / première connexion
 $routes->get ('connexion/mot-de-passe-oublie',         'Public\PasswordResetController::request');
 $routes->post('connexion/mot-de-passe-oublie',         'Public\PasswordResetController::sendLink');
-$routes->get ('connexion/reinitialiser/(:any)',         'Public\PasswordResetController::showForm/$1');
-$routes->post('connexion/reinitialiser/(:any)',         'Public\PasswordResetController::savePassword/$1');
+$routes->get ('connexion/reinitialiser/([a-f0-9]{64})', 'Public\PasswordResetController::showForm/$1');
+$routes->post('connexion/reinitialiser/([a-f0-9]{64})', 'Public\PasswordResetController::savePassword/$1');
 
 // Site public — Tableau hebdomadaire (lecture libre)
 $routes->get('tableau',               'Public\ScheduleController::week');
@@ -38,6 +38,7 @@ $routes->group('tableau', ['filter' => 'publicAuth'], static function ($routes) 
     $routes->post('arbitrage/(:num)/signup',  'Public\ScheduleController::signupArbitrage/$1');
     $routes->post('arbitrage/(:num)/cancel',  'Public\ScheduleController::cancelArbitrage/$1');
     $routes->post('arbitrage/(:num)/confirm', 'Public\ScheduleController::confirmArbitrage/$1');
+    $routes->post('marqueur/(:num)/signup',   'Public\ScheduleController::signupMarqueur/$1');
     $routes->post('bar/signup',               'Public\ScheduleController::signupBar');
     $routes->post('bar/(:num)/cancel',        'Public\ScheduleController::cancelBar/$1');
 });

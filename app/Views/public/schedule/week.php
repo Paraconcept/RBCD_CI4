@@ -356,92 +356,121 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 <?php endif; ?>
             </div>
 
-            <!-- Arbitrage -->
+            <!-- Arbitrage / Marqueurs -->
             <div class="arb-col" id="arb-<?= $enc->id ?>">
-                <?php if ($enc->is_home && ($enc->requires_arbitrage ?? 1)): ?>
+                <?php if ($enc->is_home): ?>
 
-                    <?php if ($isFinale): ?>
-                        <!-- Finale : liste libre d'arbitres inscrits -->
-                        <div id="arb-list-<?= $enc->id ?>">
-                            <?php foreach ($enc->arbitrageRows as $arb): ?>
+                    <?php if ($isFinale && !($enc->requires_arbitrage ?? 1)): ?>
+                        <!-- Finale sans arbitrage fédéral : marqueurs -->
+                        <div id="mrq-list-<?= $enc->id ?>">
+                            <?php foreach ($enc->marqueurRows as $mrq): ?>
                             <?php
-                            $isMe   = $isLogged && $arb->member_id == $currentMemberId;
-                            $isConv = $arb->assignment_type === 'designated';
-                            $roundTip = $arb->round ? decodeTours($arb->round) : '';
-                            $arbName  = esc($arb->last_name) . ' ' . esc(member_initials($arb->first_name)) . '.';
+                            $isMe    = $isLogged && $mrq->member_id == $currentMemberId;
+                            $mrqName = esc($mrq->last_name) . ' ' . esc(member_initials($mrq->first_name)) . '.';
                             ?>
-                            <div class="arb-row" data-arb-id="<?= $arb->id ?>">
-                                <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
-                                <?php if ($arb->round): ?>
-                                    <i class="far fa-clock arb-rounds"
-                                       data-bs-toggle="tooltip" data-bs-html="true"
-                                       title="Disponible :<br><?= esc($roundTip) ?>"></i>
-                                <?php endif; ?>
-                                <?php if ($isMe && $isConv && !$arb->confirmed): ?>
-                                    <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
-                                        <i class="fas fa-check me-1"></i>Confirmer
-                                    </button>
-                                <?php elseif ($arb->confirmed): ?>
-                                    <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
-                                <?php elseif (!$arb->confirmed && $isConv): ?>
-                                    <span class="badge-pending" data-bs-toggle="tooltip" data-bs-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
-                                <?php endif; ?>
+                            <div class="arb-row" data-mrq-id="<?= $mrq->id ?>">
+                                <span class="arb-label">Marqueur :</span>
+                                <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $mrqName ?></span>
                             </div>
                             <?php endforeach; ?>
                         </div>
-                        <!-- Bouton toujours visible si pas encore inscrit -->
                         <div class="arb-row">
-                            <span class="arb-label">Arbitrage :</span>
-                            <?php if ($isLogged): ?>
-                            <button class="btn btn-info btn-sm btn-arb-signup <?= $myArb ? 'd-none' : '' ?>"
-                                    data-encounter="<?= $enc->id ?>"
-                                    data-type="finale"
-                                    data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
-                                <i class="fas fa-hand-paper me-1"></i>Arbitrer
-                            </button>
-                            <?php elseif (empty($enc->arbitrageRows)): ?>
+                            <?php if ($isLogged && !$enc->myMarqueur): ?>
+                                <button class="btn btn-warning btn-sm btn-mrq-signup"
+                                        data-encounter="<?= $enc->id ?>"
+                                        data-date-label="<?= esc(frDay($enc->match_date, $frDays, $frMonths)) ?>">
+                                    <i class="fas fa-pen me-1"></i>Marquer
+                                </button>
+                            <?php elseif (empty($enc->marqueurRows) && !$isLogged): ?>
                                 <span class="text-muted" style="font-size:.82rem">libre</span>
                             <?php endif; ?>
                         </div>
 
-                    <?php else: ?>
-                        <!-- Match normal : arbitres multiples autorisés -->
-                        <div id="arb-normal-<?= $enc->id ?>">
-                            <div id="arb-list-normal-<?= $enc->id ?>">
+                    <?php elseif ($enc->requires_arbitrage ?? 1): ?>
+
+                        <?php if ($isFinale): ?>
+                            <!-- Finale avec arbitrage : liste libre d'arbitres -->
+                            <div id="arb-list-<?= $enc->id ?>">
                                 <?php foreach ($enc->arbitrageRows as $arb): ?>
                                 <?php
                                 $isMe   = $isLogged && $arb->member_id == $currentMemberId;
                                 $isConv = $arb->assignment_type === 'designated';
-                                $arbName = esc($arb->last_name) . ' ' . esc(member_initials($arb->first_name)) . '.';
+                                $roundTip = $arb->round ? decodeTours($arb->round) : '';
+                                $arbName  = esc($arb->last_name) . ' ' . esc(member_initials($arb->first_name)) . '.';
                                 ?>
                                 <div class="arb-row" data-arb-id="<?= $arb->id ?>">
-                                    <span class="arb-label">Arbitrage :</span>
                                     <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
+                                    <?php if ($arb->round): ?>
+                                        <i class="far fa-clock arb-rounds"
+                                           data-bs-toggle="tooltip" data-bs-html="true"
+                                           title="Disponible :<br><?= esc($roundTip) ?>"></i>
+                                    <?php endif; ?>
                                     <?php if ($isMe && $isConv && !$arb->confirmed): ?>
                                         <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
                                             <i class="fas fa-check me-1"></i>Confirmer
                                         </button>
                                     <?php elseif ($arb->confirmed): ?>
                                         <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
-                                    <?php else: ?>
+                                    <?php elseif (!$arb->confirmed && $isConv): ?>
                                         <span class="badge-pending" data-bs-toggle="tooltip" data-bs-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
                                     <?php endif; ?>
                                 </div>
                                 <?php endforeach; ?>
                             </div>
                             <div class="arb-row">
-                                <?php if ($isLogged && !$myArb): ?>
-                                    <button class="btn btn-info btn-sm btn-arb-signup"
-                                            data-encounter="<?= $enc->id ?>"
-                                            data-type="normal"
-                                            data-date-label="<?= esc(frDay($enc->match_date, $frDays, $frMonths)) ?>">
-                                        <i class="fas fa-hand-paper me-1"></i>Arbitrer
-                                    </button>
-                                <?php elseif (empty($enc->arbitrageRows) && !$isLogged): ?>
+                                <span class="arb-label">Arbitrage :</span>
+                                <?php if ($isLogged): ?>
+                                <button class="btn btn-info btn-sm btn-arb-signup <?= $myArb ? 'd-none' : '' ?>"
+                                        data-encounter="<?= $enc->id ?>"
+                                        data-type="finale"
+                                        data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
+                                    <i class="fas fa-hand-paper me-1"></i>Arbitrer
+                                </button>
+                                <?php elseif (empty($enc->arbitrageRows)): ?>
                                     <span class="text-muted" style="font-size:.82rem">libre</span>
                                 <?php endif; ?>
                             </div>
-                        </div>
+
+                        <?php else: ?>
+                            <!-- Match normal : arbitres multiples -->
+                            <div id="arb-normal-<?= $enc->id ?>">
+                                <div id="arb-list-normal-<?= $enc->id ?>">
+                                    <?php foreach ($enc->arbitrageRows as $arb): ?>
+                                    <?php
+                                    $isMe   = $isLogged && $arb->member_id == $currentMemberId;
+                                    $isConv = $arb->assignment_type === 'designated';
+                                    $arbName = esc($arb->last_name) . ' ' . esc(member_initials($arb->first_name)) . '.';
+                                    ?>
+                                    <div class="arb-row" data-arb-id="<?= $arb->id ?>">
+                                        <span class="arb-label">Arbitrage :</span>
+                                        <span class="arb-name <?= $isMe ? 'me-highlight' : '' ?>"><?= $arbName ?></span>
+                                        <?php if ($isMe && $isConv && !$arb->confirmed): ?>
+                                            <button class="btn-confirm btn-arb-confirm" data-encounter="<?= $enc->id ?>">
+                                                <i class="fas fa-check me-1"></i>Confirmer
+                                            </button>
+                                        <?php elseif ($arb->confirmed): ?>
+                                            <span class="badge-confirmed" data-bs-toggle="tooltip" title="Confirmé"><i class="fas fa-check"></i></span>
+                                        <?php else: ?>
+                                            <span class="badge-pending" data-bs-toggle="tooltip" data-bs-html="true" title="En attente<br>de confirmation"><i class="fas fa-hourglass-start"></i></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <div class="arb-row">
+                                    <?php if ($isLogged && !$myArb): ?>
+                                        <button class="btn btn-info btn-sm btn-arb-signup"
+                                                data-encounter="<?= $enc->id ?>"
+                                                data-type="normal"
+                                                data-date-label="<?= esc(frDay($enc->match_date, $frDays, $frMonths)) ?>">
+                                            <i class="fas fa-hand-paper me-1"></i>Arbitrer
+                                        </button>
+                                    <?php elseif (empty($enc->arbitrageRows) && !$isLogged): ?>
+                                        <span class="text-muted" style="font-size:.82rem">libre</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
                     <?php endif; ?>
 
                 <?php endif; ?>
@@ -701,6 +730,55 @@ document.querySelectorAll('.btn-arb-confirm').forEach(btn => {
         });
     });
 });
+
+// ── Marqueur : s'inscrire ──
+document.querySelectorAll('.btn-mrq-signup').forEach(bindMrqSignup);
+
+function bindMrqSignup(btn) {
+    btn.addEventListener('click', function() {
+        const encId     = this.dataset.encounter;
+        const dateLabel = this.dataset.dateLabel || '';
+        const self      = this;
+
+        Swal.fire({
+            title: '<i class="fas fa-pen me-2" style="color:#ffc107"></i>Marqueur',
+            html: `Je me mets comme <strong>marqueur</strong> pour ce<br><strong>${dateLabel}</strong>`,
+            showCancelButton: true,
+            confirmButtonText: 'Je confirme',
+            cancelButtonText: 'Annuler',
+            customClass: { confirmButton: 'btn btn-warning', cancelButton: 'btn btn-secondary ms-2' },
+            buttonsStyling: false,
+        }).then(result => {
+            if (!result.isConfirmed) return;
+            postJson(`<?= base_url('tableau/marqueur/') ?>${encId}/signup`, {})
+            .then(data => {
+                if (!data.success) return Swal.fire('Erreur', data.message, 'error');
+
+                const list = document.getElementById(`mrq-list-${encId}`);
+                list.insertAdjacentHTML('beforeend', `
+                    <div class="arb-row" data-mrq-id="${data.mrq_id}">
+                        <span class="arb-label">Marqueur :</span>
+                        <span class="arb-name me-highlight">${data.name}</span>
+                    </div>`);
+                self.classList.add('d-none');
+
+                const dl = formatDateFr(data.match_date, data.match_time);
+                const cp = data.competition ? `<br><small>${data.competition}</small>` : '';
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Inscription enregistrée !',
+                    html: `Tu viens bien de t'inscrire comme <strong>marqueur</strong> le <strong>${dl}</strong>${cp}.<br><br>
+                           📧 Tu as reçu un email de confirmation.<br>
+                           📅 N'oublie pas de noter cette date dans ton agenda !<br><br>
+                           <em>On compte désormais sur toi !</em>`,
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'btn btn-warning' },
+                    buttonsStyling: false,
+                });
+            });
+        });
+    });
+}
 
 // ── Bar : s'inscrire ──
 document.querySelectorAll('.btn-bar-signup').forEach(bindBarSignup);
