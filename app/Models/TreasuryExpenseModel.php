@@ -15,7 +15,7 @@ class TreasuryExpenseModel extends Model
     ];
 
     public static array $categories = [
-        'enveloppes_prix'  => 'Enveloppes / Prix',
+        'enveloppes_prix'  => 'Primes des finalistes reçues',
         'achat_materiel'   => 'Achat matériel',
         'frais_admin'      => 'Frais administratifs',
         'frais_sportifs'   => 'Frais sportifs',
