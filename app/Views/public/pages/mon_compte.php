@@ -294,26 +294,24 @@
 .ms-stat-solde-deficit { color: #c62828; }
 .ms-stat-card-ok      { background: #bbecb1; border-color: #93C37D; }
 .ms-stat-card-deficit { background: #f0b0b7; border-color: #D9534F; }
-/* Ligne des 7 cartes stats — flexbox pur (sans Bootstrap grid) */
+/* Ligne des 7 cartes stats — CSS Grid */
 .ms-stats-row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
   gap: 8px;
   margin-bottom: 1.5rem;
 }
-.ms-stat-item {
-  flex: 1 1 0;
-  min-width: 0;
-}
-/* Mobile : disposition 2 / 3 / 2 */
+.ms-stat-item { min-width: 0; }
+/* Mobile : disposition 2 / 3 / 2 (grille virtuelle de 6 colonnes) */
 @media (max-width: 575.98px) {
+  .ms-stats-row { grid-template-columns: repeat(6, 1fr); }
   .ms-stat-item:nth-child(1),
   .ms-stat-item:nth-child(2),
   .ms-stat-item:nth-child(6),
-  .ms-stat-item:nth-child(7) { flex: 0 0 calc(50% - 4px); }
+  .ms-stat-item:nth-child(7) { grid-column: span 3; }
   .ms-stat-item:nth-child(3),
   .ms-stat-item:nth-child(4),
-  .ms-stat-item:nth-child(5) { flex: 0 0 calc(33.333% - 5.334px); }
+  .ms-stat-item:nth-child(5) { grid-column: span 2; }
 }
 /* Grille calendrier perso — flexbox (pas de <table> pour éviter width:100% du thème) */
 .ms-scroll-wrap  { overflow-x: auto; max-width: 100%; }
