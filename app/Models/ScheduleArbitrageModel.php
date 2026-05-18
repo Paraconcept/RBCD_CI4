@@ -27,6 +27,7 @@ class ScheduleArbitrageModel extends Model
             ->select('sa.*, m.last_name, m.first_name')
             ->join('members m', 'm.id = sa.member_id', 'left')
             ->whereIn('sa.encounter_id', $encounterIds)
+            ->where('sa.member_id IS NOT NULL')
             ->get()->getResultObject();
 
         $indexed = [];
