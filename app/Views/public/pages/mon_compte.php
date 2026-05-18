@@ -274,11 +274,31 @@
 }
 .mc-alert-success { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
 .mc-alert-error   { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
-/* Mobile : tabs scrollables */
+/* Mobile : tabs 2×2 */
 @media (max-width: 600px) {
-    .mc-tabs-nav { overflow-x: auto; flex-wrap: nowrap; }
+    .mc-tabs-nav {
+        flex-wrap: wrap;
+        overflow-x: visible;
+        border-bottom: none;
+    }
+    .mc-tabs-nav .nav-link {
+        flex: 0 0 50%;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        padding: 12px 8px;
+        font-size: .8rem;
+        text-align: center;
+        white-space: normal;
+        margin-bottom: 0;
+        border-bottom: 2px solid #e8e8e8;
+        border-right: 1px solid #e8e8e8;
+    }
+    .mc-tabs-nav .nav-link:nth-child(even) { border-right: none; }
+    .mc-tabs-nav .nav-link.active,
+    .mc-tabs-nav .nav-link:hover { border-bottom-color: #84252B; }
     .mc-tab-pane { padding: 22px 18px; }
-    .mc-tabs-nav .nav-link { padding: 14px 18px; }
 }
 /* ── Onglet Mes statistiques ── */
 .ms-stat-card {
