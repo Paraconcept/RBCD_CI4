@@ -197,7 +197,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     <th style="width:110px"></th>
                     <th class="text-center">Rencontre</th>
                     <th style="width:180px">Compétition</th>
-                    <th style="width:230px">Arbitrage</th>
+                    <th style="width:230px">Arbitrage / Marqueurs</th>
                     <th style="width:80px" class="text-right">Actions</th>
                 </tr>
             </thead>
@@ -249,8 +249,32 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     <?php endif; ?>
                 </td>
                 <td class="align-middle" id="arb-cell-<?= $enc->id ?>">
-                    <?php if ($enc->is_home && ($enc->requires_arbitrage ?? 1)): ?>
-                        <!-- Liste des arbitres déjà inscrits -->
+                    <?php
+                    $isFinaleEnc  = $enc->encounter_type === 'finale';
+                    $needsMarqueur = $enc->is_home && $isFinaleEnc && !($enc->requires_arbitrage ?? 1);
+                    $needsArb      = $enc->is_home && ($enc->requires_arbitrage ?? 1);
+                    ?>
+                    <?php if ($needsMarqueur): ?>
+                        <!-- Finale fédérale : marqueurs -->
+                        <div class="arb-list" id="mrq-list-<?= $enc->id ?>">
+                            <?php foreach ($enc->marqueurRows as $mrq): ?>
+                            <div class="arb-item" data-mrq-id="<?= $mrq->id ?>">
+                                <span class="arb-name"><?= esc($mrq->last_name) ?> <?= esc(member_initials($mrq->first_name)) ?>.</span>
+                                <button class="btn btn-xs btn-danger btn-remove-marqueur"
+                                        data-encounter="<?= $enc->id ?>"
+                                        data-mrq-id="<?= $mrq->id ?>"
+                                        title="Retirer">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <button class="btn btn-xs btn-warning btn-designate-marqueur"
+                                data-encounter="<?= $enc->id ?>">
+                            <i class="fas fa-pen mr-1"></i>Désigner
+                        </button>
+                    <?php elseif ($needsArb): ?>
+                        <!-- Arbitrage normal ou finale avec arbitres RBCD -->
                         <div class="arb-list" id="arb-list-<?= $enc->id ?>">
                             <?php foreach ($enc->arbitrageRows as $arb): ?>
                             <div class="arb-item" data-arb-id="<?= $arb->id ?>">
@@ -276,15 +300,12 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                             </div>
                             <?php endforeach; ?>
                         </div>
-                        <!-- Bouton Désigner — visible si arbitrages requis -->
                         <button class="btn btn-xs btn-info btn-designate-referee"
                                 data-encounter="<?= $enc->id ?>"
                                 data-type="<?= $enc->encounter_type ?>"
                                 data-rounds="<?= (int)($enc->rounds_count ?? 3) ?>">
                             <i class="fas fa-user-plus mr-1"></i>Désigner
                         </button>
-                    <?php elseif ($enc->is_home): ?>
-                        <span class="text-muted" style="font-size:.8rem"><i class="fas fa-info-circle mr-1"></i>Arbitres fédération</span>
                     <?php endif; ?>
                 </td>
                 <td class="align-middle text-right text-nowrap col-actions">
@@ -334,6 +355,36 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                 <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Annuler</button>
                 <button type="button" class="btn btn-primary btn-sm" id="btnConfirmBar">
                     <i class="fas fa-check mr-1"></i>Assigner
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal désignation marqueur -->
+<div class="modal fade" id="modalMarqueur" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-pen mr-2"></i>Désigner un marqueur</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modalMarqueurEncounterId">
+                <div class="form-group mb-0">
+                    <label>Membre</label>
+                    <select class="form-control" id="modalMarqueurMemberId">
+                        <option value="">— Sélectionner —</option>
+                        <?php foreach ($allMembers as $m): ?>
+                        <option value="<?= $m->id ?>"><?= esc($m->last_name) ?> <?= esc($m->first_name) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-warning" id="btnConfirmMarqueur">
+                    <i class="fas fa-check mr-1"></i>Confirmer
                 </button>
             </div>
         </div>
@@ -574,6 +625,75 @@ document.getElementById('btnConfirmBar').addEventListener('click', function() {
         }
     });
 });
+
+// ── Marqueur : ouvrir modal ──
+document.querySelectorAll('.btn-designate-marqueur').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.getElementById('modalMarqueurEncounterId').value = this.dataset.encounter;
+        document.getElementById('modalMarqueurMemberId').value = '';
+        $('#modalMarqueur').modal('show');
+    });
+});
+
+// ── Marqueur : confirmer désignation ──
+document.getElementById('btnConfirmMarqueur').addEventListener('click', function() {
+    const encounterId = document.getElementById('modalMarqueurEncounterId').value;
+    const memberId    = document.getElementById('modalMarqueurMemberId').value;
+    if (!memberId) return;
+
+    fetch(`<?= base_url('admin/schedule/') ?>${encounterId}/marqueur`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+        body: `<?= csrf_token() ?>=${csrfToken}&member_id=${memberId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) return Swal.fire('Erreur', data.message, 'warning');
+        $('#modalMarqueur').modal('hide');
+
+        const newItem = `
+            <div class="arb-item" data-mrq-id="${data.mrq_id}">
+                <span class="arb-name">${data.name}</span>
+                <button class="btn btn-xs btn-danger btn-remove-marqueur"
+                        data-encounter="${encounterId}" data-mrq-id="${data.mrq_id}" title="Retirer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>`;
+        const list = document.getElementById(`mrq-list-${encounterId}`);
+        list.insertAdjacentHTML('beforeend', newItem);
+        bindRemoveMarqueur(list.lastElementChild.querySelector('.btn-remove-marqueur'));
+    });
+});
+
+// ── Marqueur : retirer ──
+function bindRemoveMarqueur(btn) {
+    btn.addEventListener('click', function() {
+        const encId = this.dataset.encounter;
+        const mrqId = this.dataset.mrqId;
+        Swal.fire({
+            title: 'Retirer ce marqueur ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Oui, retirer',
+            cancelButtonText: 'Annuler',
+        }).then(result => {
+            if (!result.isConfirmed) return;
+            fetch(`<?= base_url('admin/schedule/') ?>${encId}/marqueur/remove`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+                body: `<?= csrf_token() ?>=${csrfToken}&mrq_id=${mrqId}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) return;
+                const item = document.querySelector(`#mrq-list-${encId} [data-mrq-id="${mrqId}"]`);
+                if (item) item.remove();
+            });
+        });
+    });
+}
+document.querySelectorAll('.btn-remove-marqueur').forEach(bindRemoveMarqueur);
 
 // ── Supprimer rencontre ──
 document.querySelectorAll('.btn-delete-encounter').forEach(btn => {

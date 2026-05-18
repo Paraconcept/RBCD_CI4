@@ -7,6 +7,7 @@ use App\Models\ScheduleEncounterModel;
 use App\Models\ScheduleEncounterPlayerModel;
 use App\Models\ScheduleArbitrageModel;
 use App\Models\ScheduleBarDutyModel;
+use App\Models\ScheduleMarqueurModel;
 use App\Models\MemberModel;
 use App\Models\ScheduleEventModel;
 
@@ -16,6 +17,7 @@ class ScheduleController extends BaseController
     private ScheduleEncounterPlayerModel $players;
     private ScheduleArbitrageModel       $arbitrage;
     private ScheduleBarDutyModel         $barDuties;
+    private ScheduleMarqueurModel        $marqueurs;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class ScheduleController extends BaseController
         $this->players    = new ScheduleEncounterPlayerModel();
         $this->arbitrage  = new ScheduleArbitrageModel();
         $this->barDuties  = new ScheduleBarDutyModel();
+        $this->marqueurs  = new ScheduleMarqueurModel();
     }
 
     public function index(?string $week = null, ?string $year = null): string
@@ -37,6 +40,7 @@ class ScheduleController extends BaseController
 
         $playersByEncounter   = $this->getPlayersByEncounter($encounterIds);
         $arbitrageByEncounter = $this->arbitrage->getForEncounters($encounterIds);
+        $marqueursByEncounter = $this->marqueurs->getForEncounters($encounterIds);
         $barByDate            = $this->barDuties->getForDates($weekDates);
         $eventsByDate         = (new ScheduleEventModel())->getForDates($weekDates);
 
@@ -44,6 +48,7 @@ class ScheduleController extends BaseController
         foreach ($encounters as $enc) {
             $enc->players       = $playersByEncounter[$enc->id] ?? [];
             $enc->arbitrageRows = $arbitrageByEncounter[$enc->id] ?? [];
+            $enc->marqueurRows  = $marqueursByEncounter[$enc->id] ?? [];
             $byDate[$enc->match_date][] = $enc;
         }
 
@@ -251,6 +256,54 @@ class ScheduleController extends BaseController
             $existing = $this->arbitrage->where('encounter_id', $encounterId)->first();
             if ($existing) {
                 $this->arbitrage->delete($existing->id);
+            }
+        }
+
+        return $this->response->setJSON(['success' => true]);
+    }
+
+    public function designateMarqueur(int $encounterId)
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $memberId = (int) $this->request->getPost('member_id');
+        if (!$memberId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Membre invalide.']);
+        }
+
+        $existing = $this->marqueurs->getUserSignup($encounterId, $memberId);
+        if ($existing) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Ce membre est déjà inscrit comme marqueur.']);
+        }
+
+        $id = $this->marqueurs->insert([
+            'encounter_id' => $encounterId,
+            'member_id'    => $memberId,
+        ]);
+
+        $row = $this->marqueurs->db
+            ->table('schedule_marqueurs sm')
+            ->select('sm.*, m.last_name, m.first_name')
+            ->join('members m', 'm.id = sm.member_id')
+            ->where('sm.id', $id)
+            ->get()->getRowObject();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'mrq_id'  => $id,
+            'name'    => $row->last_name . ' ' . member_initials($row->first_name),
+        ]);
+    }
+
+    public function removeMarqueur(int $encounterId)
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $mrqId = (int) $this->request->getPost('mrq_id');
+        if ($mrqId) {
+            $row = $this->marqueurs->find($mrqId);
+            if ($row && $row->encounter_id == $encounterId) {
+                $this->marqueurs->delete($mrqId);
             }
         }
 
