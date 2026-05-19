@@ -366,7 +366,7 @@ body { overflow-x: clip; }
             </ul>
             <?php endif; ?>
             <img src="<?= base_url('assets/images/JoyeuxAnniversaire.png') ?>"
-                 alt="Joyeux Anniversaire" class="img-responsive mb-2" style="width:80%;display:block;margin:10px auto 0;">
+                 alt="Joyeux Anniversaire" class="img-responsive mb-2" style="width:70%;display:block;margin:10px auto 0;">
           </div>
 
           <!-- Widget : Liens utiles -->
