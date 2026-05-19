@@ -171,6 +171,14 @@ $routes->group('admin', static function ($routes) {
         $routes->post('club-keys/(:num)/return',     'Admin\ClubKeysController::returnKey/$1');
         $routes->post('club-keys/(:num)/delete',     'Admin\ClubKeysController::delete/$1');
 
+        // Documents PDF
+        $routes->get ('documents',                   'Admin\DocumentsController::index');
+        $routes->get ('documents/create',            'Admin\DocumentsController::create');
+        $routes->post('documents',                   'Admin\DocumentsController::store');
+        $routes->get ('documents/(:num)/edit',       'Admin\DocumentsController::edit/$1');
+        $routes->post('documents/(:num)/update',     'Admin\DocumentsController::update/$1');
+        $routes->post('documents/(:num)/delete',     'Admin\DocumentsController::delete/$1');
+
         // Journal "Partie Libre"
         $routes->get ('journal',                   'Admin\JournalController::index');
         $routes->get ('journal/create',            'Admin\JournalController::create');

@@ -50,6 +50,13 @@
                 </li>
 
                 <li class="nav-item">
+                    <a href="<?= base_url('admin/documents') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/documents') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-file-pdf"></i>
+                        <p>Documents PDF</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="<?= base_url('admin/journal') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/journal') === 0) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-newspaper"></i>
                         <p>Journal "Partie Libre"</p>
