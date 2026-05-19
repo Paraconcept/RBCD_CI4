@@ -147,7 +147,7 @@
       </div>
 
       <!-- Droite : carte inscription -->
-      <div class="col-lg-4 mt-sm-30">
+      <div class="col-lg-4 mt-sm-30" style="position:sticky;top:120px;align-self:flex-start;">
         <div class="ecole-card p-30">
           <h4 class="mt-0 mb-20">
             <i class="fas fa-user-plus me-2"></i>S'inscrire
@@ -182,10 +182,10 @@
           </div>
 
           <div class="ecole-card-note">
-            <i class="fas fa-info-circle me-1"></i>
-            Inscription accordée sous réserve de disponibilité des places.
+            <i class="fas fa-info-circle"></i>
+            <span>Inscription accordée sous réserve de disponibilité des places.</span>
           </div>
-        </div>
+        </div><!-- /.ecole-card -->
       </div>
 
     </div><!-- /.row align-items-start -->
@@ -231,6 +231,8 @@
 
 <?= $this->section('styles') ?>
 <style>
+/* overflow-x:hidden sur body (Studypress) casse position:sticky — clip ne crée pas de scroll container */
+body { overflow-x: clip; }
 .ecole-illustration {
     text-align: center;
 }
@@ -274,7 +276,7 @@
     gap: 12px;
 }
 .ecole-contact-line i {
-    color: rgba(255,255,255,.7);
+    color: rgba(255,255,255,.8);
     font-size: 1rem;
     margin-top: 3px;
     flex-shrink: 0;
@@ -282,11 +284,18 @@
     text-align: center;
 }
 .ecole-card-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
     background: rgba(0,0,0,.15);
     border-radius: 4px;
     padding: 10px 14px;
     font-size: .88rem;
-    color: rgba(255,255,255,.85);
+    color: rgba(255,255,255,.99);
+}
+.ecole-card-note i {
+    flex-shrink: 0;
+    margin-top: 8px;
 }
 /* Logos mutuelles */
 .mutuelles-logos {
