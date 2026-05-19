@@ -27,11 +27,6 @@
         </tr>
       </thead>
       <tbody>
-        <?php if (empty($documents)): ?>
-        <tr>
-          <td colspan="5" class="text-center text-muted py-4">Aucun document encore ajouté.</td>
-        </tr>
-        <?php else: ?>
         <?php foreach ($documents as $doc): ?>
         <tr>
           <td><?= esc($doc->title) ?></td>
@@ -67,7 +62,6 @@
           </td>
         </tr>
         <?php endforeach; ?>
-        <?php endif; ?>
       </tbody>
     </table>
   </div>
@@ -78,7 +72,11 @@
 <?= $this->section('scripts') ?>
 <script>
 $(function () {
-  $('#docsTable').DataTable({ order: [[0, 'asc']], pageLength: 25 });
+  $('#docsTable').DataTable({
+    order: [[0, 'asc']],
+    pageLength: 25,
+    language: { emptyTable: 'Aucun document encore ajouté.' }
+  });
 });
 </script>
 <?= $this->endSection() ?>
