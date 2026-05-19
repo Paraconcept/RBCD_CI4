@@ -115,7 +115,8 @@ class PagesController extends BaseController
             }
         }
 
-        $sportResults = (new \App\Models\SportResultModel())->getByMember($id);
+        $currentSeason = ANNEE_1 . '-' . ANNEE_2;
+        $sportResults  = (new \App\Models\SportResultModel())->getByMember($id, $currentSeason);
 
         return view('public/pages/club_membre', [
             'title'       => $name . ' — RBC Disonais',
@@ -126,10 +127,11 @@ class PagesController extends BaseController
                 ['label' => 'Nos Membres',  'url' => base_url('club/membres')],
                 ['label' => $name],
             ],
-            'member'       => $member,
-            'backUrl'      => $backUrl,
-            'backLabel'    => $backLabel,
-            'sportResults' => $sportResults,
+            'member'        => $member,
+            'backUrl'       => $backUrl,
+            'backLabel'     => $backLabel,
+            'sportResults'  => $sportResults,
+            'currentSeason' => $currentSeason,
         ]);
     }
 

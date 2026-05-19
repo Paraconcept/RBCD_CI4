@@ -72,11 +72,15 @@ class SportResultModel extends Model
             ->get()->getResultObject();
     }
 
-    public function getByMember(int $memberId): array
+    public function getByMember(int $memberId, ?string $season = null): array
     {
-        return $this->db->table('sport_results')
+        $builder = $this->db->table('sport_results')
             ->select(['season', 'type', 'title', 'place', 'final_date', 'pdf_file'])
-            ->where('winner_member_id', $memberId)
+            ->where('winner_member_id', $memberId);
+        if ($season !== null) {
+            $builder->where('season', $season);
+        }
+        return $builder
             ->orderBy('final_date', 'DESC')
             ->orderBy('title', 'ASC')
             ->orderBy('place', 'ASC')
