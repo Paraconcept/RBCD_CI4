@@ -255,8 +255,8 @@
       </div>
 
       <!-- Sidebar droite -->
-      <div class="col-md-3" id="home-sidebar-col">
-        <div class="sidebar sidebar-right mt-sm-30 mb-4" id="home-sidebar">
+      <div class="col-md-3" style="position:sticky;top:90px;align-self:flex-start;">
+        <div class="sidebar sidebar-right mt-sm-30 mb-4">
 
           <!-- Widget : Prochains matchs -->
           <div class="widget text-center">
@@ -337,43 +337,5 @@ window.addEventListener('load', function () {
     }
 });
 
-// Sticky sidebar JS (body overflow-x:hidden casse position:sticky natif)
-(function () {
-    var sidebar = document.getElementById('home-sidebar');
-    var col     = document.getElementById('home-sidebar-col');
-    var section = document.getElementById('actualites');
-    if (!sidebar || !col || !section) return;
-
-    var TOP_GAP = 90;
-    var origTop, origWidth;
-
-    function recalc() {
-        sidebar.style.cssText = '';
-        origTop   = col.getBoundingClientRect().top + window.pageYOffset;
-        origWidth = col.offsetWidth;
-    }
-
-    function update() {
-        var scrollY      = window.pageYOffset;
-        var secBottom    = section.getBoundingClientRect().bottom + scrollY;
-        var sidebarH     = sidebar.offsetHeight;
-
-        if (scrollY + TOP_GAP >= origTop && scrollY + TOP_GAP + sidebarH <= secBottom) {
-            sidebar.style.position = 'fixed';
-            sidebar.style.top      = TOP_GAP + 'px';
-            sidebar.style.width    = origWidth + 'px';
-            sidebar.style.left     = col.getBoundingClientRect().left + 'px';
-        } else {
-            sidebar.style.position = '';
-            sidebar.style.top      = '';
-            sidebar.style.width    = '';
-            sidebar.style.left     = '';
-        }
-    }
-
-    recalc();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', function () { recalc(); update(); });
-})();
 </script>
 <?= $this->endSection() ?>
