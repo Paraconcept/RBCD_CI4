@@ -12,7 +12,7 @@
   <div class="main-content-area">
 
     <?php if (!empty($page_title)): ?>
-    <section class="page-title layer-overlay overlay-dark-3 section-typo-light rbcd-banner">
+    <section class="page-title layer-overlay overlay-dark-4 section-typo-light rbcd-banner">
       <div class="container pt-50 pb-50">
         <div class="section-content">
           <div class="row">

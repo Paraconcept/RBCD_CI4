@@ -88,6 +88,15 @@
       </div>
     </div>
 
+    <!-- Séparateur -->
+    <div class="row mt-20 mb-10">
+      <div class="separator">
+        <img src="<?= base_url('assets/images/billiard-chalk.png') ?>"
+             alt="Séparateur Craie de billard"
+             style="width:20px;opacity:0.7;margin: 0 10px;">
+      </div>
+    </div>
+
   </div>
 </section>
 

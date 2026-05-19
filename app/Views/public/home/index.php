@@ -219,6 +219,7 @@ body { overflow-x: clip; }
           <div class="tm-sc tm-sc-section-title section-title">
             <div class="title-wrapper">
               <h2 class="text-uppercase line-bottom line-bottom-theme-colored1">
+                <i class="far fa-newspaper me-3 text-theme-colored1"></i>
                 Dernières <span class="text-theme-colored1">Actualités</span>
               </h2>
             </div>
@@ -321,7 +322,7 @@ body { overflow-x: clip; }
                     ?>
                     <div class="sb-match">
                       <span class="<?= $enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $rbcdName : $oppName ?></span>
-                      <span class="sb-vs">↔</span>
+                      <span class="sb-vs"><i class="fas fa-arrows-alt-h"></i></span>
                       <span class="<?= !$enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $oppName : $rbcdName ?></span>
                     </div>
                     <?php endforeach; ?>
