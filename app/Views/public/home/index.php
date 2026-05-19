@@ -256,7 +256,7 @@
 
       <!-- Sidebar droite -->
       <div class="col-md-3">
-        <div class="sidebar sidebar-right mt-sm-30 mb-4">
+        <div class="sidebar sidebar-right mt-sm-30 mb-4" style="position:sticky;top:90px;">
 
           <!-- Widget : Prochains matchs -->
           <div class="widget text-center">
