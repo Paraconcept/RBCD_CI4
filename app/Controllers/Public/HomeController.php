@@ -23,6 +23,7 @@ class HomeController extends BaseController
                       ->select('first_name, last_name, birth_date, photo, gender')
                       ->where('is_active', 1)
                       ->where('birth_date IS NOT NULL', null, false)
+                      ->where('show_birth_date', 1)
                       ->get()->getResultArray();
 
         $today  = new \DateTime();
