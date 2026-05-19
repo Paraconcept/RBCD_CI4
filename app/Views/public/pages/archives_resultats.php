@@ -65,7 +65,8 @@
                 <ul class="sr-list">
                   <?php foreach ($results as $r): ?>
                   <?php
-                    $winnerName = $r->m_id
+                    $place      = (int) ($r->place ?? 1);
+                    $playerName = $r->m_id
                         ? (mb_strtoupper($r->m_last) . ' ' . $r->m_first)
                         : ($r->winner_name ?? null);
                     $photo = ($r->winner_photo ?? null)
@@ -80,32 +81,43 @@
                     }
                     $pdfPath = $r->pdf_file ? FCPATH . 'uploads/PDF/SportResults/' . $r->pdf_file : null;
                     $hasPdf  = $pdfPath && file_exists($pdfPath);
+
+                    $placeLabel = match(true) {
+                        $place === 1 && $r->type === 'coupe'       => 'Vainqueur',
+                        $place === 1 && $r->type === 'championnat' => 'Champion',
+                        $place === 1                               => '1er',
+                        default                                    => 'À la ' . $place . 'ème place',
+                    };
                   ?>
                   <li class="sr-item">
 
                     <!-- Photo -->
                     <div class="sr-photo">
                       <?php if ($photo): ?>
-                        <img src="<?= esc($photo) ?>" alt="<?= esc($winnerName ?? '') ?>">
+                        <img src="<?= esc($photo) ?>" alt="<?= esc($playerName ?? '') ?>">
                       <?php else: ?>
                         <i class="fas fa-user"></i>
                       <?php endif; ?>
                     </div>
 
-                    <!-- Icône type -->
+                    <!-- Icône type (1er uniquement) / numéro de place -->
                     <div class="sr-type-col">
-                      <?php if ($r->type === 'coupe'): ?>
-                        <i class="fas fa-trophy sr-icon-coupe" title="Coupe"></i>
-                      <?php elseif ($r->type === 'championnat'): ?>
-                        <i class="fas fa-medal sr-icon-championnat" title="Championnat"></i>
+                      <?php if ($place === 1): ?>
+                        <?php if ($r->type === 'coupe'): ?>
+                          <i class="fas fa-trophy sr-icon-coupe" title="Coupe"></i>
+                        <?php elseif ($r->type === 'championnat'): ?>
+                          <i class="fas fa-medal sr-icon-championnat" title="Championnat"></i>
+                        <?php endif; ?>
+                      <?php else: ?>
+                        <span class="sr-place-num">&nbsp;</span>
                       <?php endif; ?>
                     </div>
 
-                    <!-- Titre + vainqueur -->
+                    <!-- Titre + joueur -->
                     <div class="sr-info">
                       <div class="sr-title"><?= esc($r->title) ?></div>
-                      <?php if ($winnerName): ?>
-                      <div class="sr-winner"><strong>Vainqueur :</strong> <?= esc($winnerName) ?></div>
+                      <?php if ($playerName): ?>
+                      <div class="sr-winner"><strong><?= $placeLabel ?> :</strong> <?= esc($playerName) ?></div>
                       <?php endif; ?>
                     </div>
 
@@ -188,10 +200,16 @@
 }
 .sr-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* Icône type */
+/* Icône type / numéro de place */
 .sr-type-col { flex-shrink: 0; width: 30px; text-align: center; }
 .sr-icon-coupe       { font-size: 1.5rem; color: #e6a800; }
 .sr-icon-championnat { font-size: 1.5rem; color: #84252B; }
+.sr-place-num {
+    display: inline-block;
+    font-size: .8rem; font-weight: 700;
+    color: #888;
+    line-height: 1;
+}
 
 /* Infos */
 .sr-info { flex: 1; min-width: 0; }
