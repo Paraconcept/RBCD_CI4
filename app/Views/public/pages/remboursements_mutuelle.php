@@ -103,7 +103,9 @@
     color: #555;
     text-align: left;
     max-width: 680px;
+    transition: box-shadow .2s;
 }
+.mutuelle-info:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
 .mutuelle-info i { flex-shrink: 0; margin-top: 2px; }
 .mutuelle-info a { color: #84252B; }
 </style>
