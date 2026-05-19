@@ -366,24 +366,33 @@ class PagesController extends BaseController
         return $this->placeholder('Documents utiles');
     }
 
-    public function documentsStatuts(): string
+    public function documentsStatuts()
     {
-        return $this->placeholder('Statuts du club', 'Documents utiles', base_url('documents'));
+        return $this->serveDocument('statuts', 'Statuts du club');
     }
 
-    public function documentsRoi(): string
+    public function documentsRoi()
     {
-        return $this->placeholder("Règlement d'ordre intérieur", 'Documents utiles', base_url('documents'));
+        return $this->serveDocument('roi', "Règlement d'ordre intérieur");
     }
 
-    public function documentsRgpd(): string
+    public function documentsRgpd()
     {
-        return $this->placeholder('R.G.P.D.', 'Documents utiles', base_url('documents'));
+        return $this->serveDocument('rgpd', 'R.G.P.D.');
     }
 
-    public function documentsReglementSportif(): string
+    public function documentsReglementSportif()
     {
-        return $this->placeholder('Règlement sportif', 'Documents utiles', base_url('documents'));
+        return $this->serveDocument('reglement-sportif', 'Règlement sportif');
+    }
+
+    private function serveDocument(string $slug, string $title)
+    {
+        $doc = (new \App\Models\ClubDocumentModel())->findBySlug($slug);
+        if ($doc && $doc->filename) {
+            return redirect()->to(base_url('uploads/PDF/Documents/' . $doc->filename));
+        }
+        return $this->placeholder($title, 'Documents utiles', base_url('documents'));
     }
 
     // ── Helper ───────────────────────────────────────────────────────────

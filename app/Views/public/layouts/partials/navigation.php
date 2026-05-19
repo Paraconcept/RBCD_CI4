@@ -125,15 +125,30 @@
                     </ul>
                   </li>
 
+                  <?php
+                    $slugOrder = ['statuts' => 0, 'roi' => 1, 'rgpd' => 2, 'reglement-sportif' => 3];
+                    $slugLabels = [
+                        'statuts'           => 'Statuts du club',
+                        'roi'               => "Règlement d'ordre intérieur",
+                        'rgpd'              => 'R.G.P.D.',
+                        'reglement-sportif' => 'Règlement sportif',
+                    ];
+                    $clubDocs = $db->table('club_documents')
+                        ->where('filename IS NOT NULL', null, false)
+                        ->where('filename !=', '')
+                        ->get()->getResultObject();
+                    usort($clubDocs, fn($a, $b) => ($slugOrder[$a->slug] ?? 99) - ($slugOrder[$b->slug] ?? 99));
+                  ?>
+                  <?php if ($clubDocs): ?>
                   <li class="menu-item">
                     <a href="<?= base_url('documents') ?>">Documents utiles</a>
                     <ul class="dropdown">
-                      <li><a href="<?= base_url('documents/statuts') ?>">Statuts du club<i class="far fa-file-pdf"></i></a></li>
-                      <li><a href="<?= base_url('documents/roi') ?>">Règlement d'ordre intérieur<i class="far fa-file-pdf"></i></a></li>
-                      <li><a href="<?= base_url('documents/rgpd') ?>">R.G.P.D.<i class="far fa-file-pdf"></i></a></li>
-                      <li><a href="<?= base_url('documents/reglement-sportif') ?>">Règlement sportif<i class="far fa-file-pdf"></i></a></li>
+                      <?php foreach ($clubDocs as $cdoc): ?>
+                      <li><a href="<?= base_url('documents/' . esc($cdoc->slug)) ?>"><?= esc($slugLabels[$cdoc->slug] ?? $cdoc->title) ?><i class="far fa-file-pdf"></i></a></li>
+                      <?php endforeach; ?>
                     </ul>
                   </li>
+                  <?php endif; ?>
 
                   <li class="menu-item">
                     <a href="<?= base_url('tableau') ?>">Au Tableau</a>
