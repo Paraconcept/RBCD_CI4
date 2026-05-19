@@ -257,7 +257,7 @@ class SportResultsController extends BaseController
         $builder = $this->model->db->table('sport_results')
             ->select('pdf_file, title, season')
             ->where('pdf_file IS NOT NULL')
-            ->groupBy('pdf_file')
+            ->groupBy('pdf_file, title, season')
             ->orderBy('season', 'DESC')
             ->orderBy('title', 'ASC');
 
