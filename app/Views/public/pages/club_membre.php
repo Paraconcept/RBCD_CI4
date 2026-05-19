@@ -220,7 +220,8 @@ $hasCoords = $canSee('phone',      $m->phone)
     </div>
   </div>
 
-  <!-- Catégories : encart d'attente -->
+  <!-- Catégories : encart d'attente (fédérés uniquement) -->
+  <?php if ($m->is_federated): ?>
   <div class="d-flex align-items-start gap-3 p-3 mb-4 rounded"
        style="background:#f8f9fa;border:1px solid #dee2e6;font-size:.9rem;color:#555">
     <i class="fas fa-info-circle mt-1" style="color:#84252B;flex-shrink:0"></i>
@@ -234,6 +235,7 @@ $hasCoords = $canSee('phone',      $m->phone)
       <p class="mb-0">Merci de votre compréhension.</p>
     </div>
   </div>
+  <?php endif; ?>
 
   <!-- Retour -->
   <a href="<?= esc($backUrl) ?>" class="btn btn-outline-secondary">
