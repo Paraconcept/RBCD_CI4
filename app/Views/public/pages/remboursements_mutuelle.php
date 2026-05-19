@@ -34,6 +34,14 @@
             <img src="<?= base_url('assets/images/mutuelles/Mut_Neutre.jpg') ?>" alt="Mutuelle Neutre">
             <p class="mutuelle-name">Mutuelle Neutre</p>
           </a>
+          <a href="<?= base_url('uploads/mutuelles/MUTUALITE-LIBERALE-ClubSportif.pdf') ?>" title="Mutualité Libérale" class="mutuelle-link" target="_blank">
+            <img src="<?= base_url('assets/images/mutuelles/Mut_Liberale.jpg') ?>" alt="Mutualité Libérale">
+            <p class="mutuelle-name">Mutualité Libérale</p>
+          </a>
+          <a href="<?= base_url('uploads/mutuelles/PARTENAMUT-ClubSportif.pdf') ?>" title="Partenamut" class="mutuelle-link" target="_blank">
+            <img src="<?= base_url('assets/images/mutuelles/Mut_Partenamut.jpg') ?>" alt="Partenamut">
+            <p class="mutuelle-name">Partenamut</p>
+          </a>
         </div>
 
         <div class="mutuelle-info mt-40">

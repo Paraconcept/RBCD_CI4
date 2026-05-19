@@ -214,6 +214,12 @@
           <a href="<?= base_url('uploads/mutuelles/MUTUALIA-ClubSportif.pdf') ?>" title="Mutuelle Neutre" class="mutuelle-link" target="_blank">
             <img src="<?= base_url('assets/images/mutuelles/Mut_Neutre.jpg') ?>" alt="Mutuelle Neutre">
           </a>
+          <a href="<?= base_url('uploads/mutuelles/MUTUALITE-LIBERALE-ClubSportif.pdf') ?>" title="Mutualité Libérale" class="mutuelle-link" target="_blank">
+            <img src="<?= base_url('assets/images/mutuelles/Mut_Liberale.jpg') ?>" alt="Mutualité Libérale">
+          </a>
+          <a href="<?= base_url('uploads/mutuelles/PARTENAMUT-ClubSportif.pdf') ?>" title="Partenamut" class="mutuelle-link" target="_blank">
+            <img src="<?= base_url('assets/images/mutuelles/Mut_Partenamut.jpg') ?>" alt="Partenamut">
+          </a>
         </div>
       </div>
     </div>
