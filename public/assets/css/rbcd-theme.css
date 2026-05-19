@@ -118,7 +118,8 @@ h2.text-theme-colored2                     { color: #84252B !important; }
 .rbcd-banner {
     background-image: url('../images/RBCD_Banner.png');
     background-size: cover;
-    background-position: center bottom;
+    background-position: center 60%;
     background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
