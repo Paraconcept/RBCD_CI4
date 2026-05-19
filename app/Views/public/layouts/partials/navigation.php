@@ -144,7 +144,7 @@
                     <a href="<?= base_url('documents') ?>">Documents utiles</a>
                     <ul class="dropdown">
                       <?php foreach ($clubDocs as $cdoc): ?>
-                      <li><a href="<?= base_url('documents/' . esc($cdoc->slug)) ?>"><?= esc($slugLabels[$cdoc->slug] ?? $cdoc->title) ?><i class="far fa-file-pdf"></i></a></li>
+                      <li><a href="<?= base_url('documents/' . esc($cdoc->slug)) ?>" target="_blank"><?= esc($slugLabels[$cdoc->slug] ?? $cdoc->title) ?><i class="far fa-file-pdf"></i></a></li>
                       <?php endforeach; ?>
                     </ul>
                   </li>
