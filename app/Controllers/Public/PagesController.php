@@ -381,6 +381,11 @@ class PagesController extends BaseController
         return $this->placeholder('R.G.P.D.', 'Documents utiles', base_url('documents'));
     }
 
+    public function documentsReglementSportif(): string
+    {
+        return $this->placeholder('Règlement sportif', 'Documents utiles', base_url('documents'));
+    }
+
     // ── Helper ───────────────────────────────────────────────────────────
 
     private function placeholder(string $title, string $section = '', string $sectionUrl = ''): string
