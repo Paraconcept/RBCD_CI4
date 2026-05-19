@@ -29,19 +29,13 @@
     ];
     // Emails liés à la fonction (pas à la personne)
     $roleEmails = [
-        'Président'                      => 'president@rbcd.be',
-        'Présidente'                     => 'president@rbcd.be',
-        'Secrétaire'                     => 'contact@rbcd.be',
-        'Secrétaire Adjoint'             => 'contact@rbcd.be',
-        'Secrétaire Adjointe'            => 'contact@rbcd.be',
-        'Directeur Sportif'              => 'ds@rbcd.be',
-        'Directrice Sportive'            => 'ds@rbcd.be',
-        'Directeur Sportif Adjoint'      => 'ds@rbcd.be',
-        'Directrice Sportive Adjointe'   => 'ds@rbcd.be',
-        'Trésorier'                      => 'tresorerie@rbcd.be',
-        'Trésorière'                     => 'tresorerie@rbcd.be',
-        'Trésorier Adjoint'              => 'tresorerie@rbcd.be',
-        'Trésorière Adjointe'            => 'tresorerie@rbcd.be',
+        'Président'          => 'president@rbcd.be',
+        'Présidente'         => 'president@rbcd.be',
+        'Secrétaire'         => 'contact@rbcd.be',
+        'Directeur Sportif'  => 'ds@rbcd.be',
+        'Directrice Sportive'=> 'ds@rbcd.be',
+        'Trésorier'          => 'tresorerie@rbcd.be',
+        'Trésorière'         => 'tresorerie@rbcd.be',
     ];
     ?>
 
