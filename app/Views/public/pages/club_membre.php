@@ -78,35 +78,60 @@
     padding-bottom: 8px;
     border-bottom: 2px solid #84252B;
 }
-/* ── Palmarès ── */
-.sr-list { list-style: none; margin: 0; padding: 0; }
-.sr-item {
-    display: flex; align-items: center; gap: 14px;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-.sr-item:last-child { border-bottom: none; }
-.sr-item-group-end:not(:last-child) { border-bottom: 2px solid #adb5bd; }
-.sr-type-col { flex-shrink: 0; width: 28px; text-align: center; }
-.sr-icon-coupe       { font-size: 1.4rem; color: #e6a800; }
-.sr-icon-championnat { font-size: 1.4rem; color: #84252B; }
-.sr-place-num { display: inline-block; font-size: .8rem; font-weight: 700; color: #888; }
-.sr-info { flex: 1; min-width: 0; }
-.sr-title { font-weight: 700; color: #333; font-size: .92rem; text-decoration: underline; margin-bottom: 2px; }
-.sr-winner { font-size: .82rem; color: #555; }
-.sr-date-col { flex-shrink: 0; font-size: .8rem; color: #777; min-width: 120px; }
-.sr-pdf { flex-shrink: 0; }
-.sr-pdf-link { color: #c0392b; font-size: 1.5rem; }
-.sr-pdf-link:hover { color: #84252B; }
-.sr-pdf-none { color: #ddd; font-size: 1.5rem; }
-
-/* Accordion palmarès */
+/* ── Accordéon palmarès ── */
 .accordion-theme-colored1 .accordion-button:not(.collapsed) {
     background-color: #84252B; color: #fff;
 }
 .accordion-theme-colored1 .accordion-button:not(.collapsed)::after { filter: brightness(10); }
 .accordion-theme-colored1 .accordion-button:focus { box-shadow: 0 0 0 .2rem rgba(132,37,43,.25); }
-.accordion-theme-colored1 .accordion-item { border: 1px solid rgba(0,0,0,.1); margin-bottom: 6px; border-radius: 4px !important; overflow: hidden; }
+.accordion-item { border: 1px solid rgba(0,0,0,.1); margin-bottom: 6px; border-radius: 4px !important; overflow: hidden; }
+
+/* ── Liste des résultats ── */
+.sr-list { list-style: none; margin: 0; padding: 0; }
+.sr-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background .15s;
+}
+.sr-item:last-child { border-bottom: none; }
+.sr-item-group-end:not(:last-child) { border-bottom: 2px solid #adb5bd; }
+.sr-item:hover { background: #fafafa; }
+/* Photo */
+.sr-photo {
+    flex-shrink: 0;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 2px solid #dee2e6;
+    overflow: hidden;
+    background: #f0f0f0;
+    display: flex; align-items: center; justify-content: center;
+    color: #bbb; font-size: 1.4rem;
+}
+.sr-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Icône type / numéro de place */
+.sr-type-col { flex-shrink: 0; width: 30px; text-align: center; }
+.sr-icon-coupe       { font-size: 1.5rem; color: #e6a800; }
+.sr-icon-championnat { font-size: 1.5rem; color: #84252B; }
+.sr-place-num { display: inline-block; font-size: .8rem; font-weight: 700; color: #888; line-height: 1; }
+/* Infos */
+.sr-info { flex: 1; min-width: 0; }
+.sr-title { font-weight: 700; color: #333; font-size: .95rem; text-decoration: underline; margin-bottom: 4px; }
+.sr-winner { font-size: .85rem; color: #555; }
+/* Date */
+.sr-date-col { flex-shrink: 0; min-width: 170px; font-size: .8rem; color: #555; }
+.sr-date-label { display: block; font-weight: 600; margin-bottom: 2px; }
+.sr-date-value { display: block; }
+/* PDF */
+.sr-pdf { flex-shrink: 0; text-align: center; }
+.sr-pdf-link { color: #c0392b; text-decoration: none; transition: transform .15s, color .15s; display: block; }
+.sr-pdf-link i { font-size: 1.8rem; }
+.sr-pdf-link:hover { color: #84252B; transform: scale(1.1); }
+.sr-pdf-none { color: #ccc; cursor: default; display: block; }
+.sr-pdf-none i { font-size: 1.8rem; }
+.sr-count { font-size: .8rem; font-weight: 400; opacity: .75; }
 
 /* Colonne coordonnées : séparation verticale sur desktop, horizontale sur mobile */
 @media (min-width: 768px) {
@@ -278,19 +303,21 @@ $hasCoords = $canSee('phone',      $m->phone)
 
   <!-- Palmarès du membre (saison en cours) -->
   <?php if (!empty($sportResults)): ?>
-  <div class="accordion accordion-theme-colored1 mb-4" id="accordionPalmares">
+  <div class="accordion tm-accordion accordion-classic accordion-theme-colored1 mb-4" id="accordionPalmares">
     <div class="accordion-item">
       <h2 class="accordion-header" id="headingPalmares">
         <button class="accordion-button" type="button"
                 data-bs-toggle="collapse" data-bs-target="#collapsePalmares"
                 aria-expanded="true" aria-controls="collapsePalmares">
-          <i class="fas fa-trophy me-2"></i>Palmarès — Saison <?= esc($currentSeason) ?>
+          <i class="fas fa-trophy me-3" style="opacity:.7"></i>
+          <strong>Palmarès — Saison <?= esc($currentSeason) ?></strong>
+          <span class="sr-count ms-3"><?= count($sportResults) ?> résultat<?= count($sportResults) > 1 ? 's' : '' ?></span>
         </button>
       </h2>
       <div id="collapsePalmares" class="accordion-collapse collapse show"
            aria-labelledby="headingPalmares" data-bs-parent="#accordionPalmares">
-        <div class="accordion-body p-0">
-          <ul class="sr-list px-3 py-2">
+        <div class="accordion-body py-0 px-0">
+          <ul class="sr-list">
             <?php $resArr = array_values($sportResults); $resCount = count($resArr); ?>
             <?php foreach ($resArr as $i => $r): ?>
             <?php
@@ -299,8 +326,9 @@ $hasCoords = $canSee('phone',      $m->phone)
               $dateStr    = null;
               if ($r->final_date) {
                   $dt     = new DateTime($r->final_date);
+                  $days   = ['','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
                   $months = ['','janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-                  $dateStr = $dt->format('j') . ' ' . $months[(int)$dt->format('n')] . ' ' . $dt->format('Y');
+                  $dateStr = $days[(int)$dt->format('N')] . ' ' . $dt->format('j') . ' ' . $months[(int)$dt->format('n')] . ' ' . $dt->format('Y');
               }
               $pdfPath = $r->pdf_file ? FCPATH . 'uploads/PDF/SportResults/' . $r->pdf_file : null;
               $hasPdf  = $pdfPath && file_exists($pdfPath);
@@ -313,37 +341,53 @@ $hasCoords = $canSee('phone',      $m->phone)
             ?>
             <li class="sr-item<?= $isGroupEnd ? ' sr-item-group-end' : '' ?>">
 
+              <!-- Photo -->
+              <div class="sr-photo">
+                <?php if ($photo): ?>
+                  <img src="<?= esc($photo) ?>" alt="<?= esc($m->last_name . ' ' . $m->first_name) ?>">
+                <?php else: ?>
+                  <i class="fas fa-user"></i>
+                <?php endif; ?>
+              </div>
+
+              <!-- Icône type (1er uniquement) -->
               <div class="sr-type-col">
                 <?php if ($place === 1): ?>
                   <?php if ($r->type === 'coupe'): ?>
-                    <i class="fas fa-trophy sr-icon-coupe"></i>
+                    <i class="fas fa-trophy sr-icon-coupe" title="Coupe"></i>
                   <?php elseif ($r->type === 'championnat'): ?>
-                    <i class="fas fa-medal sr-icon-championnat"></i>
+                    <i class="fas fa-medal sr-icon-championnat" title="Championnat"></i>
                   <?php endif; ?>
                 <?php else: ?>
                   <span class="sr-place-num">&nbsp;</span>
                 <?php endif; ?>
               </div>
 
+              <!-- Titre + place -->
               <div class="sr-info">
                 <div class="sr-title"><?= esc($r->title) ?></div>
                 <div class="sr-winner"><?= $placeLabel ?></div>
               </div>
 
+              <!-- Date -->
               <div class="sr-date-col">
                 <?php if ($dateStr): ?>
+                  <span class="sr-date-label"><i class="far fa-calendar-alt me-1"></i>Finale disputée le :</span>
                   <span class="sr-date-value"><?= $dateStr ?></span>
                 <?php endif; ?>
               </div>
 
+              <!-- PDF -->
               <div class="sr-pdf">
                 <?php if ($hasPdf): ?>
                   <a href="<?= base_url('uploads/PDF/SportResults/' . $r->pdf_file) ?>"
-                     target="_blank" rel="noopener" class="sr-pdf-link" title="Télécharger le PDF">
+                     target="_blank" rel="noopener" class="sr-pdf-link" title="Télécharger les résultats (PDF)">
                     <i class="fas fa-file-pdf"></i>
                   </a>
                 <?php else: ?>
-                  <span class="sr-pdf-none"><i class="fas fa-file-pdf"></i></span>
+                  <span class="sr-pdf-none" title="Pas de fichier PDF disponible">
+                    <i class="fas fa-file-pdf"></i>
+                  </span>
                 <?php endif; ?>
               </div>
 
