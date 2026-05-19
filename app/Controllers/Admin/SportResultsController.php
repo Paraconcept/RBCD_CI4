@@ -254,7 +254,7 @@ class SportResultsController extends BaseController
 
     private function getExistingPdfs(?int $excludeId = null): array
     {
-        $builder = $this->db->table('sport_results')
+        $builder = $this->model->db->table('sport_results')
             ->select('pdf_file, title, season')
             ->where('pdf_file IS NOT NULL')
             ->groupBy('pdf_file')
