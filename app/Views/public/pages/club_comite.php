@@ -61,6 +61,16 @@
               <?php endif; ?>
             </h4>
             <p class="member-roles"><?= esc(implode(' | ', $roles)) ?></p>
+            <?php if (($m->show_email && $m->email) || ($m->show_mobile && $m->mobile)): ?>
+            <div class="comite-contact">
+              <?php if ($m->show_email && $m->email): ?>
+                <a href="mailto:<?= esc($m->email) ?>" title="<?= esc($m->email) ?>"><i class="fas fa-envelope"></i></a>
+              <?php endif; ?>
+              <?php if ($m->show_mobile && $m->mobile): ?>
+                <a href="tel:<?= esc($m->mobile) ?>" title="<?= esc($m->mobile) ?>"><i class="fas fa-mobile-alt"></i></a>
+              <?php endif; ?>
+            </div>
+            <?php endif; ?>
           </div>
         </div>
       </div>
@@ -147,6 +157,14 @@
     color: #84252B;
     margin: 0;
 }
+.comite-contact { display:flex; justify-content:center; gap:8px; margin-top:10px; }
+.comite-contact a {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:32px; height:32px; border-radius:50%;
+    background:#202C45; color:#fff; font-size:.8rem;
+    text-decoration:none; transition:background .2s;
+}
+.comite-contact a:hover { background:#84252B; }
 /* Conteneur limité à 3/5 de la largeur → chaque carte col-4 = 20 % du container */
 @media (min-width: 992px) {
     .comite-wrapper {
