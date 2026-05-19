@@ -20,7 +20,7 @@ class HomeController extends BaseController
 
         $db      = \Config\Database::connect();
         $members = $db->table('members')
-                      ->select('first_name, last_name, birth_date, photo, gender')
+                      ->select('id, first_name, last_name, birth_date, photo, gender')
                       ->where('is_active', 1)
                       ->where('birth_date IS NOT NULL', null, false)
                       ->where('show_birth_date', 1)
