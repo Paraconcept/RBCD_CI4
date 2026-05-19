@@ -10,7 +10,7 @@ class HomeController extends BaseController
 {
     public function index(): string
     {
-        $perPage = (int) (new SiteSettingModel())->get('news_per_page', 5);
+        $perPage = (int) (new SiteSettingModel())->getSetting('news_per_page', 5);
         $model   = new NewsModel();
         $news    = $model->where('is_published', 1)
                          ->where('published_at <=', date('Y-m-d'))

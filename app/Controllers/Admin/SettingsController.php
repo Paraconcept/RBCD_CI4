@@ -11,7 +11,7 @@ class SettingsController extends BaseController
     {
         $model = new SiteSettingModel();
         return view('admin/settings/index', [
-            'news_per_page' => (int) $model->get('news_per_page', 5),
+            'news_per_page' => (int) $model->getSetting('news_per_page', 5),
         ]);
     }
 
@@ -23,7 +23,7 @@ class SettingsController extends BaseController
         if ($newsPerPage < 1)  $newsPerPage = 1;
         if ($newsPerPage > 50) $newsPerPage = 50;
 
-        $model->set('news_per_page', $newsPerPage);
+        $model->setSetting('news_per_page', $newsPerPage);
 
         return redirect()->to(base_url('admin/settings'))
                          ->with('success', 'Paramètres enregistrés.');

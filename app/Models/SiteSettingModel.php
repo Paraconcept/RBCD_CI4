@@ -16,13 +16,13 @@ class SiteSettingModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    public function get(string $key, mixed $default = null): mixed
+    public function getSetting(string $key, mixed $default = null): mixed
     {
         $row = $this->where('key', $key)->first();
         return $row ? $row->value : $default;
     }
 
-    public function set(string $key, mixed $value): void
+    public function setSetting(string $key, mixed $value): void
     {
         $row = $this->where('key', $key)->first();
         if ($row) {
