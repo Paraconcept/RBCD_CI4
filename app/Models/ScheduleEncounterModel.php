@@ -28,6 +28,41 @@ class ScheduleEncounterModel extends Model
                     ->findAll();
     }
 
+    public function getNextActiveDay(): array
+    {
+        $today = date('Y-m-d');
+
+        $row = $this->db->table('schedule_encounters')
+            ->selectMin('match_date', 'next_date')
+            ->where('match_date >=', $today)
+            ->get()->getRowObject();
+
+        if (!$row || !$row->next_date) return [];
+
+        $encounters = $this->where('match_date', $row->next_date)
+            ->orderBy('match_time', 'ASC')
+            ->findAll();
+
+        if (empty($encounters)) return [];
+
+        $ids     = array_map(fn($e) => $e->id, $encounters);
+        $players = $this->db->table('schedule_encounter_players sep')
+            ->select('sep.encounter_id, sep.member_id, sep.player_home_name, sep.opponent_name, m.last_name, m.first_name')
+            ->join('members m', 'm.id = sep.member_id', 'left')
+            ->whereIn('sep.encounter_id', $ids)
+            ->get()->getResultObject();
+
+        $byEnc = [];
+        foreach ($players as $p) {
+            $byEnc[$p->encounter_id][] = $p;
+        }
+        foreach ($encounters as $enc) {
+            $enc->players = $byEnc[$enc->id] ?? [];
+        }
+
+        return ['date' => $row->next_date, 'isToday' => $row->next_date === $today, 'encounters' => $encounters];
+    }
+
     public function getWithPlayers(int $id): ?object
     {
         $encounter = $this->find($id);

@@ -29,6 +29,16 @@ body { overflow-x: clip; }
 .news-card-excerpt { font-size: .87rem; color: #555; line-height: 1.55; flex: 1; margin-bottom: 16px; }
 .news-card-link { font-size: .85rem; font-weight: 600; color: #84252B; text-decoration: none; align-self: flex-start; }
 .news-card-link:hover { text-decoration: underline; }
+/* Widget sidebar matchs */
+.sb-enc { border-left: 3px solid #dee2e6; padding: 6px 8px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: .8rem; }
+.sb-home { border-left-color: #198754; background: #f0faf4; }
+.sb-away { border-left-color: #c6000d; background: #fff5f5; }
+.sb-enc-head { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 3px; }
+.sb-time { background: #e9ecef; border-radius: 10px; padding: 1px 7px; font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.sb-comp { font-size: .72rem; color: #555; font-style: italic; margin-left: auto; text-align: right; }
+.sb-venue { font-size: .72rem; color: #c6000d; }
+.sb-match { display: flex; align-items: center; gap: 4px; line-height: 1.4; flex-wrap: wrap; }
+.sb-vs { color: #999; font-size: .75rem; flex-shrink: 0; }
 /* Écusson slide 1 — taille forcée car RS6 ignore data-wh sur layer manuel */
                             #slider-10-slide-47-layer-img img { width: 240px !important; height: auto !important; }
 @media (max-width:1199px) { #slider-10-slide-47-layer-img img { width: 180px !important; } }
@@ -257,17 +267,64 @@ body { overflow-x: clip; }
       </div>
 
       <!-- Sidebar droite -->
-      <div class="col-md-3" style="position:sticky;top:90px;align-self:flex-start;">
+      <div class="col-md-3" style="position:sticky;top:120px;align-self:flex-start;">
         <div class="sidebar sidebar-right mt-sm-30 mb-4">
 
           <!-- Widget : Prochains matchs -->
-          <div class="widget text-center">
-            <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">Prochains matchs</h4>
-            <a href="<?= base_url('tableau') ?>">
-              <img src="<?= base_url('assets/images/Chalkboard.png') ?>"
-                    alt="tableau"
-                    class="img-responsive img-fullwidth" style="max-height:219px;object-fit:contain;">
-            </a>
+          <div class="widget">
+            <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">
+              <?php if (!empty($nextMatches)): ?>
+                <?= $nextMatches['isToday'] ? "Matchs d'aujourd'hui" : 'Prochain jour de matchs' ?>
+              <?php else: ?>
+                Prochains matchs
+              <?php endif; ?>
+            </h4>
+
+            <?php if (empty($nextMatches)): ?>
+              <p class="text-center text-muted" style="font-size:.88rem;">Aucun match à venir.</p>
+            <?php else: ?>
+              <?php
+                $frDaysShort   = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+                $frMonthsSb    = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+                $dt            = new \DateTime($nextMatches['date']);
+                $dateLabel     = $frDaysShort[(int)$dt->format('N')-1] . ' ' . $dt->format('j') . ' ' . $frMonthsSb[(int)$dt->format('n')-1];
+              ?>
+              <p class="text-muted mb-2" style="font-size:.8rem;"><i class="fas fa-calendar-alt me-1"></i><?= $dateLabel ?></p>
+
+              <?php foreach ($nextMatches['encounters'] as $enc): ?>
+              <div class="sb-enc <?= $enc->is_home ? 'sb-home' : 'sb-away' ?>">
+                <div class="sb-enc-head">
+                  <span class="sb-time"><?= substr($enc->match_time, 0, 5) ?></span>
+                  <?php if ($enc->is_home): ?>
+                    <i class="fas fa-home" style="color:#198754;" title="À domicile"></i>
+                  <?php else: ?>
+                    <i class="fas fa-car-side" style="color:#c6000d;" title="En déplacement"></i>
+                    <?php if ($enc->venue): ?>
+                      <span class="sb-venue"><?= esc($enc->venue) ?></span>
+                    <?php endif; ?>
+                  <?php endif; ?>
+                  <?php if ($enc->competition): ?>
+                    <span class="sb-comp"><?= esc($enc->competition) ?></span>
+                  <?php endif; ?>
+                </div>
+                <?php foreach ($enc->players as $p): ?>
+                <?php
+                  helper('member');
+                  $rbcdName = $p->member_id
+                      ? esc($p->last_name . ' ' . member_initials($p->first_name)) . '.'
+                      : esc($p->player_home_name ?? '—');
+                  $oppName  = esc($p->opponent_name ?? '—');
+                ?>
+                <div class="sb-match">
+                  <span class="<?= $enc->is_home ? 'fw-semibold' : '' ?>"><?= $enc->is_home ? $rbcdName : $oppName ?></span>
+                  <span class="sb-vs">↔</span>
+                  <span class="<?= !$enc->is_home ? 'fw-semibold' : '' ?>"><?= $enc->is_home ? $oppName : $rbcdName ?></span>
+                </div>
+                <?php endforeach; ?>
+              </div>
+              <?php endforeach; ?>
+            <?php endif; ?>
+
             <a href="<?= base_url('tableau') ?>" class="btn btn-theme-colored2 btn-sm btn-block mt-10">
               Voir le tableau complet
             </a>

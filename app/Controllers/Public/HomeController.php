@@ -4,6 +4,7 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Models\NewsModel;
+use App\Models\ScheduleEncounterModel;
 use App\Models\SiteSettingModel;
 
 class HomeController extends BaseController
@@ -44,12 +45,14 @@ class HomeController extends BaseController
         }
         usort($birthdays, fn($a, $b) => $a['birthday_day_month'] <=> $b['birthday_day_month']);
 
+        $nextMatches = (new ScheduleEncounterModel())->getNextActiveDay();
+
         return view('public/home/index', [
-            'title'            => 'RBC Disonais — Club de Billard Carambole à Dison',
-            'news'             => $news,
-            'pager'            => $model->pager,
-            'upcoming_matches' => [],
-            'birthdays'        => $birthdays,
+            'title'        => 'RBC Disonais — Club de Billard Carambole à Dison',
+            'news'         => $news,
+            'pager'        => $model->pager,
+            'birthdays'    => $birthdays,
+            'nextMatches'  => $nextMatches,
         ]);
     }
 }
