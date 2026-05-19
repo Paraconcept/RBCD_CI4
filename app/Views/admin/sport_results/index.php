@@ -82,7 +82,7 @@
                   $place === 1 && $r->type === 'coupe'       => '<span class="badge" style="background:#ffc107;color:#333">Vainqueur</span>',
                   $place === 1 && $r->type === 'championnat' => '<span class="badge" style="background:#84252B;color:#fff">Champion</span>',
                   $place === 1                               => '<span class="badge badge-secondary">1er</span>',
-                  default                                    => '<span class="badge badge-info">' . $place . '<sup>ème</sup></span>',
+                  default                                    => '<span class="badge badge-info">&nbsp;' . $place . '&deg;&nbsp;</span>',
               };
               $playerName = $r->m_id
                   ? (mb_strtoupper($r->m_last) . ' ' . $r->m_first)

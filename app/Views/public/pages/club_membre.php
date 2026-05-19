@@ -311,7 +311,11 @@ $hasCoords = $canSee('phone',      $m->phone)
                 aria-expanded="true" aria-controls="collapsePalmares">
           <i class="fas fa-trophy me-3" style="opacity:.7"></i>
           <strong>Mon Palmarès — Saison <?= esc($currentSeason) ?></strong>
-          <span class="sr-count ms-3"><?= count($sportResults) ?> résultat<?= count($sportResults) > 1 ? 's' : '' ?></span>
+          <span class="sr-count ms-5">
+            <?= count($sportResults) ?>&nbsp;
+            résultat<?= count($sportResults) > 1 ? 's' : '' ?>&nbsp;
+            encodé<?= count($sportResults) > 1 ? 's' : '' ?>
+          </span>
         </button>
       </h2>
       <div id="collapsePalmares" class="accordion-collapse collapse show"
