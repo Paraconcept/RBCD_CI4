@@ -4,8 +4,29 @@
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/css/rs6.css') ?>">
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/extra-rev-slider1.css') ?>">
 <style>
-article.post { transition: background .2s; }
-article.post:hover { background: #F9F9F9E5; }
+.news-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-top: 4px solid #84252B;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow .2s;
+}
+.news-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+.news-card-img-wrap { display: block; overflow: hidden; }
+.news-card-img { width: 100%; height: 190px; object-fit: cover; display: block; transition: transform .3s; }
+.news-card-img-wrap:hover .news-card-img { transform: scale(1.03); }
+.news-card-img-placeholder { height: 190px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 2.5rem; }
+.news-card-body { padding: 20px 22px 22px; display: flex; flex-direction: column; flex: 1; }
+.news-card-date { font-size: .78rem; color: #84252B; font-weight: 600; margin-bottom: 8px; }
+.news-card-title { font-size: 1rem; font-weight: 700; margin: 0 0 10px; line-height: 1.4; }
+.news-card-title a { color: #222; text-decoration: none; }
+.news-card-title a:hover { color: #84252B; }
+.news-card-excerpt { font-size: .87rem; color: #555; line-height: 1.55; flex: 1; margin-bottom: 16px; }
+.news-card-link { font-size: .85rem; font-weight: 600; color: #84252B; text-decoration: none; align-self: flex-start; }
+.news-card-link:hover { text-decoration: underline; }
 /* Écusson slide 1 — taille forcée car RS6 ignore data-wh sur layer manuel */
                             #slider-10-slide-47-layer-img img { width: 240px !important; height: auto !important; }
 @media (max-width:1199px) { #slider-10-slide-47-layer-img img { width: 180px !important; } }
@@ -194,55 +215,39 @@ article.post:hover { background: #F9F9F9E5; }
           <div class="alert alert-info">Aucune actualité pour le moment.</div>
           <?php endif; ?>
 
+          <div class="row">
           <?php foreach ($news as $n): ?>
-          <article class="post clearfix mb-30 border-1px">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <div class="post-thumb thumb">
-                  <?php if ($n->image): ?>
-                  <a href="<?= base_url('actualites/' . $n->slug) ?>">
-                    <img src="<?= base_url('uploads/news/' . $n->image) ?>"
-                         alt="<?= esc($n->title) ?>"
-                         class="img-responsive img-fullwidth" style="height:200px;object-fit:contain;">
-                  </a>
-                  <?php else: ?>
-                  <a href="<?= base_url('actualites/' . $n->slug) ?>"
-                     style="height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;text-decoration:none;">
-                    <i class="fas fa-newspaper fa-3x text-muted"></i>
-                  </a>
-                  <?php endif; ?>
-                </div>
+          <div class="col-sm-6 mb-30">
+            <article class="news-card h-100">
+              <a href="<?= base_url('actualites/' . $n->slug) ?>" class="news-card-img-wrap">
+                <?php if ($n->image): ?>
+                  <img src="<?= base_url('uploads/news/' . $n->image) ?>"
+                       alt="<?= esc($n->title) ?>"
+                       class="news-card-img">
+                <?php else: ?>
+                  <div class="news-card-img-placeholder"><i class="fas fa-newspaper"></i></div>
+                <?php endif; ?>
+              </a>
+              <div class="news-card-body">
+                <?php if ($n->published_at): ?>
+                  <div class="news-card-date"><i class="fas fa-calendar-alt me-1"></i><?= date('d/m/Y', strtotime($n->published_at)) ?></div>
+                <?php endif; ?>
+                <h5 class="news-card-title">
+                  <a href="<?= base_url('actualites/' . $n->slug) ?>"><?= esc($n->title) ?></a>
+                </h5>
+                <?php
+                  $_t  = strip_tags($n->content ?? '');
+                  $_ex = $n->excerpt ?: (mb_strlen($_t) > 120 ? mb_substr($_t, 0, 120) . '…' : $_t);
+                ?>
+                <?php if ($_ex): ?>
+                  <p class="news-card-excerpt"><?= esc($_ex) ?></p>
+                <?php endif; ?>
+                <a href="<?= base_url('actualites/' . $n->slug) ?>" class="news-card-link">Lire la suite →</a>
               </div>
-              <div class="col-md-8">
-                <div class="entry-content" style="padding:0 15px">
-                  <h4 class="entry-title">
-                    <a href="<?= base_url('actualites/' . $n->slug) ?>"><?= esc($n->title) ?></a>
-                  </h4>
-                  <?php
-                    $_t  = strip_tags($n->content ?? '');
-                    $_ex = $n->excerpt ?: (mb_strlen($_t) > 100 ? mb_substr($_t, 0, 100) . '…' : $_t);
-                  ?>
-                  <?php if ($_ex): ?>
-                  <p class="mt-4 mb-10"><?= esc($_ex) ?></p>
-                  <?php endif; ?>
-                  <?php if ($n->published_at): ?>
-                  <div class="entry-meta mb-10">
-                    <span class=" font-size-13">
-                      <i class="fas fa-edit me-2 text-theme-colored1"></i>
-                      <?= date('d/m/Y', strtotime($n->published_at)) ?>
-                    </span>
-                  </div>
-                  <?php endif; ?>
-                  <div class="text-right">
-                    <a href="<?= base_url('actualites/' . $n->slug) ?>"
-                      class="btn btn-plain-text-with-arrow">Lire la suite
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
+            </article>
+          </div>
           <?php endforeach; ?>
+          </div>
 
           <?= $pager->links('default', 'home_pager') ?>
           
