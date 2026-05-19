@@ -213,7 +213,7 @@ body { overflow-x: clip; }
     <div class="row">
 
       <!-- Colonne principale : Actualités -->
-      <div class="col-md-9 sm-pull-none">
+      <div class="col-md-8 sm-pull-none">
 
         <div class="mb-40">
           <div class="tm-sc tm-sc-section-title section-title">
@@ -271,7 +271,7 @@ body { overflow-x: clip; }
       </div>
 
       <!-- Sidebar droite -->
-      <div class="col-md-3" style="position:sticky;top:120px;align-self:flex-start;">
+      <div class="col-md-4" style="position:sticky;top:120px;align-self:flex-start;">
         <div class="sidebar sidebar-right mt-sm-30 mb-4">
 
           <!-- Widget : Prochains matchs -->
