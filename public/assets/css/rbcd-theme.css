@@ -114,6 +114,11 @@ h2.text-theme-colored2                     { color: #84252B !important; }
 .paraconcept-link:hover .logo-off { opacity: 0; }
 .paraconcept-link:hover .logo-on  { opacity: 1; }
 
-/* Bandeau page-title : positionne l'image vers le bas (main + billes) */
-.page-title.parallax { background-position: center bottom !important; }
+/* Bandeau page-title : image fixe via CSS (hors parallax JS) */
+.rbcd-banner {
+    background-image: url('../images/RBCD_Banner.png');
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+}
 

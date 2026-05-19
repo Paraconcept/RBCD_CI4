@@ -12,9 +12,7 @@
   <div class="main-content-area">
 
     <?php if (!empty($page_title)): ?>
-    <section class="page-title layer-overlay overlay-dark-7 section-typo-light parallax"
-             data-tm-bg-img="<?= base_url('assets/images/RBCD_Banner.png') ?>"
-             data-parallax-ratio="0.1">
+    <section class="page-title layer-overlay overlay-dark-7 section-typo-light rbcd-banner">
       <div class="container pt-50 pb-50">
         <div class="section-content">
           <div class="row">
