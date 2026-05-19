@@ -45,7 +45,7 @@
         </div>
 
         <div class="mutuelle-info mt-40">
-          <i class="fas fa-info-circle"></i>
+          <i class="fas fa-info-circle fa-lg"></i>
           <span>Si votre mutuelle ne figure pas dans cette liste, renseignez-vous directement auprès d'elle —
           de nombreuses mutuelles remboursent l'affiliation sportive sur présentation d'une attestation du club.</span>
         </div>
@@ -98,7 +98,7 @@
     background: #f8f9fa;
     border-left: 4px solid #84252B;
     padding: 16px 20px;
-    border-radius: 0 4px 4px 0;
+    border-radius: 4px;
     font-size: .9rem;
     color: #555;
     text-align: left;
