@@ -20,7 +20,7 @@
       <thead class="thead-rbcd">
         <tr>
           <th>Titre</th>
-          <th style="width:200px">Lien menu</th>
+          <th style="width:200px">Slug / URL</th>
           <th style="width:70px" class="text-center">PDF</th>
           <th style="width:100px">Date upload</th>
           <th style="width:110px"></th>
@@ -31,8 +31,8 @@
         <tr>
           <td><?= esc($doc->title) ?></td>
           <td>
-            <?php if ($doc->slug && isset($menuSlugs[$doc->slug])): ?>
-              <span class="badge badge-info"><?= esc($menuSlugs[$doc->slug]) ?></span>
+            <?php if ($doc->slug): ?>
+              <code>/documents/<?= esc($doc->slug) ?></code>
             <?php else: ?>
               <span class="text-muted">—</span>
             <?php endif; ?>

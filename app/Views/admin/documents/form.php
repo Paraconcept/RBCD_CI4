@@ -35,17 +35,14 @@
         </div>
         <div class="col-md-3">
           <div class="form-group">
-            <label for="slug">Lien menu</label>
-            <select name="slug" id="slug" class="form-control">
-              <option value="">— Aucun lien menu —</option>
-              <?php foreach ($menuSlugs as $slugKey => $label): ?>
-              <option value="<?= esc($slugKey) ?>"
-                <?= old('slug', $document->slug ?? '') === $slugKey ? 'selected' : '' ?>>
-                <?= esc($label) ?>
-              </option>
-              <?php endforeach; ?>
-            </select>
-            <small class="form-text text-muted">Associe ce PDF à une entrée du menu public.</small>
+            <label for="slug">
+              Slug <span class="text-danger">*</span>
+              <small class="text-muted ml-1">/documents/<span id="slug-preview"><?= esc(old('slug', $document->slug ?? '')) ?></span></small>
+            </label>
+            <input type="text" name="slug" id="slug" class="form-control"
+                   placeholder="ex : statuts-du-club"
+                   value="<?= esc(old('slug', $document->slug ?? '')) ?>" required>
+            <small class="form-text text-muted">Segment d'URL (auto-généré depuis le titre).</small>
           </div>
         </div>
         <div class="col-md-3">
@@ -116,5 +113,29 @@ $('#pdf_file').on('change', function () {
   var name = $(this).val().split('\\').pop();
   $(this).next('.custom-file-label').text(name || 'Choisir un PDF…');
 });
+
+function titleToSlug(val) {
+  return val.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+<?php if (!$isEdit): ?>
+var slugLocked = false;
+$('#title').on('input', function () {
+  if (slugLocked) return;
+  var slug = titleToSlug($(this).val());
+  $('#slug').val(slug);
+  $('#slug-preview').text(slug);
+});
+$('#slug').on('input', function () {
+  slugLocked = true;
+  $('#slug-preview').text($(this).val());
+});
+<?php else: ?>
+$('#slug').on('input', function () {
+  $('#slug-preview').text($(this).val());
+});
+<?php endif; ?>
 </script>
 <?= $this->endSection() ?>

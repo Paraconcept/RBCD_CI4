@@ -11,14 +11,6 @@ class DocumentsController extends BaseController
     private string $uploadPath;
     private string $uploadDir = 'uploads/PDF/Documents/';
 
-    // Slugs disponibles pour le lien menu
-    public const MENU_SLUGS = [
-        'statuts'            => 'Statuts du club',
-        'roi'                => "Règlement d'ordre intérieur",
-        'rgpd'               => 'R.G.P.D.',
-        'reglement-sportif'  => 'Règlement sportif',
-    ];
-
     public function __construct()
     {
         $this->model      = new ClubDocumentModel();
@@ -31,7 +23,6 @@ class DocumentsController extends BaseController
             'title'       => 'Documents PDF',
             'breadcrumbs' => [['title' => 'Documents PDF']],
             'documents'   => $this->model->orderBy('title', 'ASC')->findAll(),
-            'menuSlugs'   => self::MENU_SLUGS,
         ]);
     }
 
@@ -44,23 +35,24 @@ class DocumentsController extends BaseController
                 ['title' => 'Nouveau'],
             ],
             'document'      => null,
-            'menuSlugs'     => self::MENU_SLUGS,
             'existingFiles' => $this->listExistingPdfs(),
         ]);
     }
 
     public function store()
     {
-        if (!$this->validate(['title' => 'required|max_length[200]'])) {
+        if (!$this->validate([
+            'title' => 'required|max_length[200]',
+            'slug'  => 'required|max_length[100]',
+        ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $slug = $this->request->getPost('slug') ?: null;
+        $slug = $this->request->getPost('slug');
 
-        // Vérifier que le slug n'est pas déjà utilisé
-        if ($slug && $this->model->findBySlug($slug)) {
+        if ($this->model->findBySlug($slug)) {
             return redirect()->back()->withInput()
-                ->with('errors', ['slug' => 'Ce lien menu est déjà associé à un autre document.']);
+                ->with('errors', ['slug' => 'Ce slug est déjà utilisé par un autre document.']);
         }
 
         $this->model->insert([
@@ -87,7 +79,6 @@ class DocumentsController extends BaseController
                 ['title' => 'Modifier'],
             ],
             'document'      => $doc,
-            'menuSlugs'     => self::MENU_SLUGS,
             'existingFiles' => $this->listExistingPdfs(),
         ]);
     }
@@ -99,19 +90,18 @@ class DocumentsController extends BaseController
             return redirect()->to(base_url('admin/documents'))->with('error', 'Document introuvable.');
         }
 
-        if (!$this->validate(['title' => 'required|max_length[200]'])) {
+        if (!$this->validate([
+            'title' => 'required|max_length[200]',
+            'slug'  => 'required|max_length[100]',
+        ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $slug = $this->request->getPost('slug') ?: null;
-
-        // Vérifier que le slug n'est pas utilisé par un autre document
-        if ($slug) {
-            $existing = $this->model->findBySlug($slug);
-            if ($existing && (int) $existing->id !== $id) {
-                return redirect()->back()->withInput()
-                    ->with('errors', ['slug' => 'Ce lien menu est déjà associé à un autre document.']);
-            }
+        $slug     = $this->request->getPost('slug');
+        $existing = $this->model->findBySlug($slug);
+        if ($existing && (int) $existing->id !== $id) {
+            return redirect()->back()->withInput()
+                ->with('errors', ['slug' => 'Ce slug est déjà utilisé par un autre document.']);
         }
 
         $this->model->update($id, [

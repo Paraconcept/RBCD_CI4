@@ -126,25 +126,18 @@
                   </li>
 
                   <?php
-                    $slugOrder = ['statuts' => 0, 'roi' => 1, 'rgpd' => 2, 'reglement-sportif' => 3];
-                    $slugLabels = [
-                        'statuts'           => 'Statuts du club',
-                        'roi'               => "Règlement d'ordre intérieur",
-                        'rgpd'              => 'R.G.P.D.',
-                        'reglement-sportif' => 'Règlement sportif',
-                    ];
                     $clubDocs = $db->table('club_documents')
                         ->where('filename IS NOT NULL', null, false)
                         ->where('filename !=', '')
+                        ->orderBy('title', 'ASC')
                         ->get()->getResultObject();
-                    usort($clubDocs, fn($a, $b) => ($slugOrder[$a->slug] ?? 99) - ($slugOrder[$b->slug] ?? 99));
                   ?>
                   <?php if ($clubDocs): ?>
                   <li class="menu-item">
                     <a href="<?= base_url('documents') ?>">Documents utiles</a>
                     <ul class="dropdown">
                       <?php foreach ($clubDocs as $cdoc): ?>
-                      <li><a href="<?= base_url('documents/' . esc($cdoc->slug)) ?>" target="_blank"><?= esc($slugLabels[$cdoc->slug] ?? $cdoc->title) ?><i class="far fa-file-pdf"></i></a></li>
+                      <li><a href="<?= base_url('documents/' . esc($cdoc->slug)) ?>" target="_blank"><?= esc($cdoc->title) ?><i class="far fa-file-pdf"></i></a></li>
                       <?php endforeach; ?>
                     </ul>
                   </li>

@@ -73,11 +73,8 @@ $routes->get('galeries/(:segment)',   'Public\GalleriesController::show/$1');
 $routes->get('archives/journal', 'Public\PagesController::archivesJournal');
 
 // Documents utiles
-$routes->get('documents',             'Public\PagesController::documents');
-$routes->get('documents/statuts',     'Public\PagesController::documentsStatuts');
-$routes->get('documents/roi',         'Public\PagesController::documentsRoi');
-$routes->get('documents/rgpd',              'Public\PagesController::documentsRgpd');
-$routes->get('documents/reglement-sportif', 'Public\PagesController::documentsReglementSportif');
+$routes->get('documents',              'Public\PagesController::documents');
+$routes->get('documents/(:segment)',   'Public\PagesController::documentShow/$1');
 
 // ----------------------------------------------------------------
 // Administration

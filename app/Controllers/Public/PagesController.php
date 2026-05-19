@@ -366,32 +366,22 @@ class PagesController extends BaseController
         return $this->placeholder('Documents utiles');
     }
 
-    public function documentsStatuts()
-    {
-        return $this->serveDocument('statuts', 'Statuts du club');
-    }
-
-    public function documentsRoi()
-    {
-        return $this->serveDocument('roi', "Règlement d'ordre intérieur");
-    }
-
-    public function documentsRgpd()
-    {
-        return $this->serveDocument('rgpd', 'R.G.P.D.');
-    }
-
-    public function documentsReglementSportif()
-    {
-        return $this->serveDocument('reglement-sportif', 'Règlement sportif');
-    }
-
-    private function serveDocument(string $slug, string $title)
+    public function documentShow(string $slug)
     {
         $doc = (new \App\Models\ClubDocumentModel())->findBySlug($slug);
+
         if ($doc && $doc->filename) {
-            return redirect()->to(base_url('uploads/PDF/Documents/' . $doc->filename));
+            $path = FCPATH . 'uploads/PDF/Documents/' . $doc->filename;
+            if (file_exists($path)) {
+                return $this->response
+                    ->setHeader('Content-Type', 'application/pdf')
+                    ->setHeader('Content-Disposition', 'inline; filename="' . basename($doc->filename) . '"')
+                    ->setHeader('Content-Length', (string) filesize($path))
+                    ->setBody(file_get_contents($path));
+            }
         }
+
+        $title = $doc->title ?? ucwords(str_replace('-', ' ', $slug));
         return $this->placeholder($title, 'Documents utiles', base_url('documents'));
     }
 
