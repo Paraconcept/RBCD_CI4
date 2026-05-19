@@ -4,6 +4,8 @@
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/css/rs6.css') ?>">
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/extra-rev-slider1.css') ?>">
 <style>
+/* overflow-x:hidden sur body (Studypress) casse position:sticky — clip ne crée pas de scroll container */
+body { overflow-x: clip; }
 .news-card {
     background: #fff;
     border: 1px solid #e0e0e0;
