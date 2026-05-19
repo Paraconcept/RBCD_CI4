@@ -78,6 +78,28 @@
     padding-bottom: 8px;
     border-bottom: 2px solid #84252B;
 }
+/* ── Palmarès ── */
+.sr-list { list-style: none; margin: 0; padding: 0; }
+.sr-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.sr-item:last-child { border-bottom: none; }
+.sr-item-group-end:not(:last-child) { border-bottom: 2px solid #adb5bd; }
+.sr-type-col { flex-shrink: 0; width: 28px; text-align: center; }
+.sr-icon-coupe       { font-size: 1.4rem; color: #e6a800; }
+.sr-icon-championnat { font-size: 1.4rem; color: #84252B; }
+.sr-place-num { display: inline-block; font-size: .8rem; font-weight: 700; color: #888; }
+.sr-info { flex: 1; min-width: 0; }
+.sr-title { font-weight: 700; color: #333; font-size: .92rem; text-decoration: underline; margin-bottom: 2px; }
+.sr-winner { font-size: .82rem; color: #555; }
+.sr-date-col { flex-shrink: 0; font-size: .8rem; color: #777; min-width: 120px; }
+.sr-pdf { flex-shrink: 0; }
+.sr-pdf-link { color: #c0392b; font-size: 1.5rem; }
+.sr-pdf-link:hover { color: #84252B; }
+.sr-pdf-none { color: #ddd; font-size: 1.5rem; }
+
 /* Colonne coordonnées : séparation verticale sur desktop, horizontale sur mobile */
 @media (min-width: 768px) {
     .membre-coords-col {
@@ -234,6 +256,82 @@ $hasCoords = $canSee('phone',      $m->phone)
       </p>
       <p class="mb-0">Merci de votre compréhension.</p>
     </div>
+  </div>
+  <?php endif; ?>
+
+  <!-- Séparateur -->
+  <div class="row mt-20 mb-10">
+    <div class="separator">
+      <img src="<?= base_url('assets/images/billiard-chalk.png') ?>"
+            alt="Séparateur Craie de billard"
+            style="width:20px;opacity:0.7;margin: 0 10px;">
+    </div>
+  </div>
+
+  <!-- Palmarès du membre -->
+  <?php if (!empty($sportResults)): ?>
+  <div class="section-card mb-4">
+    <div class="section-title"><i class="fas fa-trophy me-2"></i>Palmarès</div>
+    <ul class="sr-list">
+      <?php $resArr = array_values($sportResults); $resCount = count($resArr); ?>
+      <?php foreach ($resArr as $i => $r): ?>
+      <?php
+        $place      = (int) ($r->place ?? 1);
+        $isGroupEnd = ($i === $resCount - 1) || ($resArr[$i + 1]->title !== $r->title);
+        $dateStr    = null;
+        if ($r->final_date) {
+            $dt     = new DateTime($r->final_date);
+            $months = ['','janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+            $dateStr = $dt->format('j') . ' ' . $months[(int)$dt->format('n')] . ' ' . $dt->format('Y');
+        }
+        $pdfPath = $r->pdf_file ? FCPATH . 'uploads/PDF/SportResults/' . $r->pdf_file : null;
+        $hasPdf  = $pdfPath && file_exists($pdfPath);
+        $placeLabel = match(true) {
+            $place === 1 && $r->type === 'coupe'       => 'Vainqueur',
+            $place === 1 && $r->type === 'championnat' => 'Champion',
+            $place === 1                               => '1<sup>er</sup>',
+            default                                    => $place . '<sup>ème</sup> place',
+        };
+      ?>
+      <li class="sr-item<?= $isGroupEnd ? ' sr-item-group-end' : '' ?>">
+
+        <div class="sr-type-col">
+          <?php if ($place === 1): ?>
+            <?php if ($r->type === 'coupe'): ?>
+              <i class="fas fa-trophy sr-icon-coupe"></i>
+            <?php elseif ($r->type === 'championnat'): ?>
+              <i class="fas fa-medal sr-icon-championnat"></i>
+            <?php endif; ?>
+          <?php else: ?>
+            <span class="sr-place-num">&nbsp;</span>
+          <?php endif; ?>
+        </div>
+
+        <div class="sr-info">
+          <div class="sr-title"><?= esc($r->title) ?></div>
+          <div class="sr-winner"><?= $placeLabel ?> · Saison <?= esc($r->season) ?></div>
+        </div>
+
+        <div class="sr-date-col">
+          <?php if ($dateStr): ?>
+            <span class="sr-date-value"><?= $dateStr ?></span>
+          <?php endif; ?>
+        </div>
+
+        <div class="sr-pdf">
+          <?php if ($hasPdf): ?>
+            <a href="<?= base_url('uploads/PDF/SportResults/' . $r->pdf_file) ?>"
+               target="_blank" rel="noopener" class="sr-pdf-link" title="Télécharger le PDF">
+              <i class="fas fa-file-pdf"></i>
+            </a>
+          <?php else: ?>
+            <span class="sr-pdf-none"><i class="fas fa-file-pdf"></i></span>
+          <?php endif; ?>
+        </div>
+
+      </li>
+      <?php endforeach; ?>
+    </ul>
   </div>
   <?php endif; ?>
 

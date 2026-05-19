@@ -72,6 +72,17 @@ class SportResultModel extends Model
             ->get()->getResultObject();
     }
 
+    public function getByMember(int $memberId): array
+    {
+        return $this->db->table('sport_results')
+            ->select(['season', 'type', 'title', 'place', 'final_date', 'pdf_file'])
+            ->where('winner_member_id', $memberId)
+            ->orderBy('final_date', 'DESC')
+            ->orderBy('title', 'ASC')
+            ->orderBy('place', 'ASC')
+            ->get()->getResultObject();
+    }
+
     public function getAllSeasons(): array
     {
         return array_column(
