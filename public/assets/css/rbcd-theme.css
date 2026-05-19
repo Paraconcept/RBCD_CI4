@@ -114,6 +114,3 @@ h2.text-theme-colored2                     { color: #84252B !important; }
 .paraconcept-link:hover .logo-off { opacity: 0; }
 .paraconcept-link:hover .logo-on  { opacity: 1; }
 
-/* Bandeau page-title : réduit la hauteur pour voir l'image en entier */
-.page-title .container { padding-top: 20px !important; padding-bottom: 20px !important; }
-.page-title.parallax   { background-position: center center !important; background-size: auto 100% !important; }
