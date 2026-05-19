@@ -246,7 +246,7 @@ body { overflow-x: clip; }
               </a>
               <div class="news-card-body">
                 <?php if ($n->published_at): ?>
-                  <div class="news-card-date"><i class="fas fa-calendar-alt me-1"></i><?= date('d/m/Y', strtotime($n->published_at)) ?></div>
+                  <div class="news-card-date"><i class="fas fa-calendar-day me-1"></i><?= date('d/m/Y', strtotime($n->published_at)) ?></div>
                 <?php endif; ?>
                 <h5 class="news-card-title">
                   <a href="<?= base_url('actualites/' . $n->slug) ?>"><?= esc($n->title) ?></a>
@@ -276,7 +276,9 @@ body { overflow-x: clip; }
 
           <!-- Widget : Prochains matchs -->
           <div class="widget sb-widget">
-            <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">Prochains matchs</h4>
+            <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">
+              <i class="fas fa-calendar-alt me-3 text-theme-colored1"></i>Prochains matchs
+            </h4>
 
             <?php if (empty($nextMatches)): ?>
               <p class="text-center text-muted" style="font-size:.88rem;">Aucun match à venir.</p>
@@ -318,9 +320,9 @@ body { overflow-x: clip; }
                       $oppName  = esc($p->opponent_name ?? '—');
                     ?>
                     <div class="sb-match">
-                      <span class="<?= $enc->is_home ? 'fw-semibold' : '' ?>"><?= $enc->is_home ? $rbcdName : $oppName ?></span>
+                      <span class="<?= $enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $rbcdName : $oppName ?></span>
                       <span class="sb-vs">↔</span>
-                      <span class="<?= !$enc->is_home ? 'fw-semibold' : '' ?>"><?= $enc->is_home ? $oppName : $rbcdName ?></span>
+                      <span class="<?= !$enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $oppName : $rbcdName ?></span>
                     </div>
                     <?php endforeach; ?>
                   </div>
@@ -335,9 +337,9 @@ body { overflow-x: clip; }
           </div>
 
           <!-- Widget : Anniversaires de la semaine -->
-          <div class="widget" style="border-bottom:2px solid #84252B;">
+          <div class="widget" style="border-bottom:2px solid #84252B;padding-top:30px;">
             <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">
-              <i class="fas fa-birthday-cake me-5 text-theme-colored1"></i>Anniversaires
+              <i class="fas fa-birthday-cake me-3 text-theme-colored1"></i>Anniversaires
             </h4>
             <?php if (empty($birthdays)): ?>
             <p class="font-size-16 text-dark text-center">Pas d'anniversaires cette semaine !</p>
@@ -367,7 +369,8 @@ body { overflow-x: clip; }
           </div>
 
           <!-- Widget : Liens utiles -->
-          <div class="widget">
+          <!--
+          <div class="widget" style="padding-top:30px;">
             <h4 class="widget-title widget-title-line-bottom line-bottom-theme-colored1">Liens utiles</h4>
             <ul>
               <li><a href="<?= base_url('documents') ?>"><i class="fa fa-file-pdf me-5 text-theme-colored1"></i>Documents utiles</a></li>
@@ -376,6 +379,7 @@ body { overflow-x: clip; }
               <li><a href="<?= base_url('contact') ?>"><i class="fa fa-envelope me-5 text-theme-colored1"></i>Nous contacter</a></li>
             </ul>
           </div>
+          -->
 
         </div>
       </div>
