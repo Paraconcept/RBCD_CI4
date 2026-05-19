@@ -73,8 +73,9 @@ $routes->get('galeries/(:segment)',   'Public\GalleriesController::show/$1');
 $routes->get('archives/journal', 'Public\PagesController::archivesJournal');
 
 // Documents utiles
-$routes->get('documents',              'Public\PagesController::documents');
-$routes->get('documents/(:segment)',   'Public\PagesController::documentShow/$1');
+$routes->get('documents',                              'Public\PagesController::documents');
+$routes->get('documents/remboursements-mutuelle',      'Public\PagesController::documentsRemboursementsMutuelle');
+$routes->get('documents/(:segment)',                   'Public\PagesController::documentShow/$1');
 
 // ----------------------------------------------------------------
 // Administration

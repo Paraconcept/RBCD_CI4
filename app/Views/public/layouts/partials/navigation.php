@@ -132,16 +132,15 @@
                         ->orderBy('title', 'ASC')
                         ->get()->getResultObject();
                   ?>
-                  <?php if ($clubDocs): ?>
                   <li class="menu-item">
                     <a href="<?= base_url('documents') ?>">Documents utiles</a>
                     <ul class="dropdown">
                       <?php foreach ($clubDocs as $cdoc): ?>
                       <li><a href="<?= base_url('documents/' . esc($cdoc->slug)) ?>" target="_blank"><?= esc($cdoc->title) ?><i class="far fa-file-pdf"></i></a></li>
                       <?php endforeach; ?>
+                      <li><a href="<?= base_url('documents/remboursements-mutuelle') ?>">Remboursements Mutuelle</a></li>
                     </ul>
                   </li>
-                  <?php endif; ?>
 
                   <li class="menu-item">
                     <a href="<?= base_url('tableau') ?>">Au Tableau</a>

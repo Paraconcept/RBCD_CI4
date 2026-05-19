@@ -366,6 +366,18 @@ class PagesController extends BaseController
         return $this->placeholder('Documents utiles');
     }
 
+    public function documentsRemboursementsMutuelle(): string
+    {
+        return view('public/pages/remboursements_mutuelle', [
+            'title'       => 'Remboursements Mutuelle — RBC Disonais',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Documents utiles', 'url' => base_url('documents')],
+                ['label' => 'Remboursements Mutuelle'],
+            ],
+        ]);
+    }
+
     public function documentShow(string $slug)
     {
         $doc = (new \App\Models\ClubDocumentModel())->findBySlug($slug);
