@@ -72,19 +72,37 @@
 
       </div>
 
-      <!-- Titre -->
-      <div class="form-group">
-        <label for="title">Titre de la compétition <span class="text-danger">*</span></label>
-        <input type="text" name="title" id="title" class="form-control" required
-               value="<?= esc(old('title', $result->title ?? '')) ?>"
-               placeholder="ex : Finale Régionale 3° Libre PF">
+      <!-- Titre + Place -->
+      <div class="row">
+        <div class="col-md-8">
+          <div class="form-group">
+            <label for="title">Titre de la compétition <span class="text-danger">*</span></label>
+            <input type="text" name="title" id="title" class="form-control" required
+                   value="<?= esc(old('title', $result->title ?? '')) ?>"
+                   placeholder="ex : Finale Régionale 3° Libre PF">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="place">Place obtenue <span class="text-danger">*</span></label>
+            <select name="place" id="place" class="form-control" required>
+              <?php
+                $selectedPlace = (int) old('place', $result->place ?? 1);
+                $places = [1 => '1er — Champion / Vainqueur', 2 => '2ème', 3 => '3ème', 4 => '4ème', 5 => '5ème', 6 => '6ème'];
+                foreach ($places as $val => $label):
+              ?>
+              <option value="<?= $val ?>" <?= $selectedPlace === $val ? 'selected' : '' ?>><?= $label ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <!-- Vainqueur -->
+      <!-- Joueur -->
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label for="winner_member_id">Vainqueur — Membre RBCD</label>
+            <label for="winner_member_id">Joueur — Membre RBCD</label>
             <select name="winner_member_id" id="winner_member_id" class="form-control">
               <option value="">— Aucun membre lié —</option>
               <?php foreach ($members as $m): ?>
@@ -99,16 +117,16 @@
         </div>
         <div class="col-md-6">
           <div class="form-group">
-            <label for="winner_name">Vainqueur — Nom libre <small class="text-muted">(si pas de membre lié)</small></label>
+            <label for="winner_name">Joueur — Nom libre <small class="text-muted">(si pas de membre lié)</small></label>
             <input type="text" name="winner_name" id="winner_name" class="form-control"
                    value="<?= esc(old('winner_name', $result->winner_name ?? '')) ?>"
                    placeholder="ex : FANIELLE Henri">
           </div>
 
-          <!-- Photo vainqueur (visible uniquement si aucun membre sélectionné) -->
+          <!-- Photo joueur (visible uniquement si aucun membre sélectionné) -->
           <div id="winner-photo-block" <?= ($result->winner_member_id ?? 0) ? 'style="display:none"' : '' ?>>
             <div class="form-group">
-              <label>Photo du vainqueur <small class="text-muted">(si pas de membre lié)</small></label>
+              <label>Photo du joueur <small class="text-muted">(si pas de membre lié)</small></label>
               <?php if ($isEdit && ($result->winner_photo ?? null) && !($result->winner_member_id ?? 0)): ?>
               <div class="mb-2">
                 <img id="winner-photo-preview"

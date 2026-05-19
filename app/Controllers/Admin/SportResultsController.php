@@ -156,6 +156,7 @@ class SportResultsController extends BaseController
             'season' => 'required|min_length[9]|max_length[9]',
             'type'   => 'required|in_list[coupe,championnat,autre]',
             'title'  => 'required|max_length[255]',
+            'place'  => 'required|is_natural_no_zero|less_than_equal_to[99]',
         ];
 
         if (!$this->validate($rules)) {
@@ -179,6 +180,7 @@ class SportResultsController extends BaseController
             'season'           => $this->request->getPost('season'),
             'type'             => $this->request->getPost('type'),
             'title'            => $this->request->getPost('title'),
+            'place'            => (int) $this->request->getPost('place'),
             'winner_member_id' => $memberId,
             'winner_name'      => $winnerName,
             'final_date'       => $this->request->getPost('final_date') ?: null,

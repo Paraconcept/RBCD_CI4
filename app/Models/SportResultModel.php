@@ -11,7 +11,7 @@ class SportResultModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'season', 'type', 'title',
+        'season', 'type', 'title', 'place',
         'winner_member_id', 'winner_name', 'winner_photo',
         'final_date', 'pdf_file',
     ];
@@ -30,7 +30,7 @@ class SportResultModel extends Model
     {
         $rows = $this->db->table('sport_results sr')
             ->select([
-                'sr.id', 'sr.season', 'sr.type', 'sr.title',
+                'sr.id', 'sr.season', 'sr.type', 'sr.title', 'sr.place',
                 'sr.winner_member_id', 'sr.winner_name', 'sr.winner_photo',
                 'sr.final_date', 'sr.pdf_file',
                 'm.last_name  AS m_last',
@@ -40,7 +40,8 @@ class SportResultModel extends Model
             ])
             ->join('members m', 'm.id = sr.winner_member_id', 'left')
             ->orderBy('sr.season', 'DESC')
-            ->orderBy('sr.final_date', 'DESC')
+            ->orderBy('sr.title', 'ASC')
+            ->orderBy('sr.place', 'ASC')
             ->get()->getResultObject();
 
         $grouped = [];

@@ -62,7 +62,8 @@
             <tr>
               <th width="80">Type</th>
               <th>Compétition</th>
-              <th>Vainqueur</th>
+              <th width="90">Place</th>
+              <th>Joueur</th>
               <th>Finale</th>
               <th width="60" class="text-center">PDF</th>
               <th width="100" class="text-right">Actions</th>
@@ -76,14 +77,22 @@
                   'championnat' => '<span class="badge" style="background:#84252B;color:#fff"><i class="fas fa-medal mr-1"></i>Champ.</span>',
                   default       => '<span class="badge badge-secondary">Autre</span>',
               };
-              $winnerName = $r->m_id
+              $place     = (int) $r->place;
+              $placeLabel = match(true) {
+                  $place === 1 && $r->type === 'coupe'       => '<span class="badge" style="background:#ffc107;color:#333">Vainqueur</span>',
+                  $place === 1 && $r->type === 'championnat' => '<span class="badge" style="background:#84252B;color:#fff">Champion</span>',
+                  $place === 1                               => '<span class="badge badge-secondary">1er</span>',
+                  default                                    => '<span class="badge badge-light border">' . $place . '<sup>ème</sup></span>',
+              };
+              $playerName = $r->m_id
                   ? (mb_strtoupper($r->m_last) . ' ' . $r->m_first)
                   : ($r->winner_name ?? '—');
             ?>
             <tr>
               <td><?= $typeLabel ?></td>
               <td><?= esc($r->title) ?></td>
-              <td><?= esc($winnerName) ?></td>
+              <td><?= $placeLabel ?></td>
+              <td><?= esc($playerName) ?></td>
               <td><?= $r->final_date ? date('d/m/Y', strtotime($r->final_date)) : '—' ?></td>
               <td class="text-center">
                 <?php if ($r->pdf_file): ?>
