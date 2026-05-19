@@ -220,6 +220,21 @@ $hasCoords = $canSee('phone',      $m->phone)
     </div>
   </div>
 
+  <!-- Catégories : encart d'attente -->
+  <div class="d-flex align-items-start gap-3 p-3 mb-4 rounded"
+       style="background:#f8f9fa;border:1px solid #dee2e6;font-size:.9rem;color:#555">
+    <i class="fas fa-info-circle mt-1" style="color:#84252B;flex-shrink:0"></i>
+    <div>
+      <p class="mb-2">
+        <strong style="color:#333">Catégories du joueur</strong><br>
+        La FRBB est actuellement en train de revoir le système de classification et de catégories des joueurs.
+        Ce projet, dont la mise en œuvre s'avère complexe à l'échelle des différentes régions, n'est pas encore finalisé.
+        Dès que les nouvelles catégories seront arrêtées, elles apparaîtront sur chaque fiche joueur.
+      </p>
+      <p class="mb-0">Merci de votre compréhension.</p>
+    </div>
+  </div>
+
   <!-- Retour -->
   <a href="<?= esc($backUrl) ?>" class="btn btn-outline-secondary">
     <i class="fas fa-arrow-left me-2"></i><?= esc($backLabel) ?>
