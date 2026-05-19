@@ -104,7 +104,7 @@
     flex-shrink: 0;
     width: 56px; height: 56px;
     border-radius: 50%;
-    border: 2px solid #dee2e6;
+    border: 1px solid #84252B;
     overflow: hidden;
     background: #f0f0f0;
     display: flex; align-items: center; justify-content: center;
@@ -310,7 +310,7 @@ $hasCoords = $canSee('phone',      $m->phone)
                 data-bs-toggle="collapse" data-bs-target="#collapsePalmares"
                 aria-expanded="true" aria-controls="collapsePalmares">
           <i class="fas fa-trophy me-3" style="opacity:.7"></i>
-          <strong>Palmarès — Saison <?= esc($currentSeason) ?></strong>
+          <strong>Mon Palmarès — Saison <?= esc($currentSeason) ?></strong>
           <span class="sr-count ms-3"><?= count($sportResults) ?> résultat<?= count($sportResults) > 1 ? 's' : '' ?></span>
         </button>
       </h2>

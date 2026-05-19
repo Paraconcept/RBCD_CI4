@@ -60,9 +60,10 @@
                     $playerName = $r->m_id
                         ? (mb_strtoupper($r->m_last) . ' ' . $r->m_first)
                         : ($r->winner_name ?? null);
-                    $photo = ($r->winner_photo ?? null)
-                        ? base_url('uploads/sport_results/' . $r->winner_photo)
-                        : null;
+                    $photo = $r->m_id
+                        ? ($r->m_photo ? base_url('uploads/members/' . $r->m_photo) : null)
+                        : (($r->winner_photo ?? null) ? base_url('uploads/sport_results/' . $r->winner_photo) : null);
+                    $memberUrl = $r->m_id ? base_url('club/membres/' . $r->m_id) : null;
                     $dateStr = null;
                     if ($r->final_date) {
                         $dt     = new DateTime($r->final_date);
@@ -83,13 +84,21 @@
                   ?>
                   <li class="sr-item<?= $isGroupEnd ? ' sr-item-group-end' : '' ?>">
 
+                    <?php if ($memberUrl): ?>
+                    <a href="<?= esc($memberUrl) ?>" class="sr-photo" title="Fiche de <?= esc($playerName ?? '') ?>">
+                    <?php else: ?>
                     <div class="sr-photo">
+                    <?php endif; ?>
                       <?php if ($photo): ?>
                         <img src="<?= esc($photo) ?>" alt="<?= esc($playerName ?? '') ?>">
                       <?php else: ?>
                         <i class="fas fa-user"></i>
                       <?php endif; ?>
+                    <?php if ($memberUrl): ?>
+                    </a>
+                    <?php else: ?>
                     </div>
+                    <?php endif; ?>
 
                     <div class="sr-type-col">
                       <?php if ($place === 1): ?>
@@ -188,13 +197,15 @@
     flex-shrink: 0;
     width: 56px; height: 56px;
     border-radius: 50%;
-    border: 2px solid #dee2e6;
+    border: 1px solid #84252B;
     overflow: hidden;
     background: #f0f0f0;
     display: flex; align-items: center; justify-content: center;
     color: #bbb; font-size: 1.4rem;
 }
 .sr-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+a.sr-photo { text-decoration: none; transition: opacity .15s; }
+a.sr-photo:hover { opacity: .8; }
 
 /* Icône type / numéro de place */
 .sr-type-col { flex-shrink: 0; width: 30px; text-align: center; }
