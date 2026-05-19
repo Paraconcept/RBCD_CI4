@@ -71,6 +71,13 @@
                 </li>
 
 
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/settings') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/settings') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-cog"></i>
+                        <p>Paramètres</p>
+                    </a>
+                </li>
+
                 <li class="nav-header mt-4">GESTION DU CLUB</li>
 
                 <li class="nav-item">

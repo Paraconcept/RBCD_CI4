@@ -114,6 +114,9 @@ $routes->group('admin', static function ($routes) {
         $routes->post('members/(:num)/payments/(:num)/delete',   'Admin\MemberPaymentsController::delete/$1/$2');
 
         // Trésorerie — paiements
+        $routes->get ('settings',      'Admin\SettingsController::index');
+        $routes->post('settings/save', 'Admin\SettingsController::save');
+
         $routes->get('treasury', 'Admin\TreasuryController::index');
         $routes->get('treasury/export', 'Admin\TreasuryController::export');
         $routes->get ('treasury/settings',      'Admin\TreasuryController::settings');

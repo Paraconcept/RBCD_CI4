@@ -4,17 +4,19 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Models\NewsModel;
+use App\Models\SiteSettingModel;
 
 class HomeController extends BaseController
 {
     public function index(): string
     {
-        $model = new NewsModel();
-        $news  = $model->where('is_published', 1)
-                       ->where('published_at <=', date('Y-m-d'))
-                       ->orderBy('published_at', 'DESC')
-                       ->orderBy('id', 'DESC')
-                       ->paginate(5);
+        $perPage = (int) (new SiteSettingModel())->get('news_per_page', 5);
+        $model   = new NewsModel();
+        $news    = $model->where('is_published', 1)
+                         ->where('published_at <=', date('Y-m-d'))
+                         ->orderBy('published_at', 'DESC')
+                         ->orderBy('id', 'DESC')
+                         ->paginate($perPage);
 
         $db      = \Config\Database::connect();
         $members = $db->table('members')
