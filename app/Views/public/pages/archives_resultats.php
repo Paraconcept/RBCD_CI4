@@ -11,8 +11,8 @@
         <div class="tm-sc-heading">
           <h3 class="heading-title text-center">Résultats sportifs</h3>
           <div class="heading-border-line"></div>
-          <p class="heading-description text-center mt-20">
-            Palmarès des joueurs du RBC Disonais — coupes et championnats, saison après saison.
+          <p class="heading-description text-center text-dark mt-20">
+            Palmarès des joueurs du RBC Disonais (vainqueurs et finalistes) des coupes et championnats, saison après saison.
           </p>
         </div>
       </div>
@@ -63,9 +63,11 @@
                  data-bs-parent="#resultsAccordion">
               <div class="accordion-body py-0 px-0">
                 <ul class="sr-list">
-                  <?php foreach ($results as $r): ?>
+                  <?php $resultsArr = array_values($results); $resCount = count($resultsArr); ?>
+                  <?php foreach ($resultsArr as $i => $r): ?>
                   <?php
                     $place      = (int) ($r->place ?? 1);
+                    $isGroupEnd = ($i === $resCount - 1) || ($resultsArr[$i + 1]->title !== $r->title);
                     $playerName = $r->m_id
                         ? (mb_strtoupper($r->m_last) . ' ' . $r->m_first)
                         : ($r->winner_name ?? null);
@@ -86,10 +88,10 @@
                         $place === 1 && $r->type === 'coupe'       => 'Vainqueur',
                         $place === 1 && $r->type === 'championnat' => 'Champion',
                         $place === 1                               => '1er',
-                        default                                    => 'À la ' . $place . 'ème place',
+                        default                                    => $place . '<sup>ème</sup> place',
                     };
                   ?>
-                  <li class="sr-item">
+                  <li class="sr-item<?= $isGroupEnd ? ' sr-item-group-end' : '' ?>">
 
                     <!-- Photo -->
                     <div class="sr-photo">
@@ -185,6 +187,7 @@
     transition: background .15s;
 }
 .sr-item:last-child { border-bottom: none; }
+.sr-item-group-end:not(:last-child) { border-bottom: 2px solid #adb5bd; }
 .sr-item:hover { background: #fafafa; }
 
 /* Photo */
