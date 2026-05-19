@@ -131,6 +131,7 @@
                       <li><a href="<?= base_url('documents/statuts') ?>">Statuts du club<i class="far fa-file-pdf"></i></a></li>
                       <li><a href="<?= base_url('documents/roi') ?>">Règlement d'ordre intérieur<i class="far fa-file-pdf"></i></a></li>
                       <li><a href="<?= base_url('documents/rgpd') ?>">R.G.P.D.<i class="far fa-file-pdf"></i></a></li>
+                      <li><a href="<?= base_url('documents/reglement-sportif') ?>">Règlement sportif<i class="far fa-file-pdf"></i></a></li>
                     </ul>
                   </li>
 
