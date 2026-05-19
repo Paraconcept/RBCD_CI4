@@ -107,7 +107,7 @@
               <option value="">— Aucun membre lié —</option>
               <?php foreach ($members as $m): ?>
               <option value="<?= $m->id ?>"
-                <?= (int) old('winner_member_id', $result->winner_member_id ?? 0) === $m->id ? 'selected' : '' ?>>
+                <?= (int) old('winner_member_id', $result->winner_member_id ?? 0) === (int) $m->id ? 'selected' : '' ?>>
                 <?= esc(mb_strtoupper($m->last_name) . ' ' . $m->first_name) ?>
               </option>
               <?php endforeach; ?>
