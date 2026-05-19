@@ -45,10 +45,9 @@
         </div>
 
         <div class="mutuelle-info mt-40">
-          <i class="fas fa-info-circle me-2"></i>
-          Si votre mutuelle ne figure pas dans cette liste, renseignez-vous directement auprès d'elle —
-          de nombreuses mutuelles remboursent l'affiliation sportive sur présentation d'une attestation du club.
-          <br>Contactez-nous à <a href="mailto:contact@rbcd.be">contact@rbcd.be</a> pour obtenir une attestation.
+          <i class="fas fa-info-circle"></i>
+          <span>Si votre mutuelle ne figure pas dans cette liste, renseignez-vous directement auprès d'elle —
+          de nombreuses mutuelles remboursent l'affiliation sportive sur présentation d'une attestation du club.</span>
         </div>
       </div>
     </div>
@@ -93,7 +92,9 @@
     font-weight: 600;
 }
 .mutuelle-info {
-    display: inline-block;
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 12px;
     background: #f8f9fa;
     border-left: 4px solid #84252B;
     padding: 16px 20px;
@@ -103,6 +104,7 @@
     text-align: left;
     max-width: 680px;
 }
+.mutuelle-info i { flex-shrink: 0; margin-top: 2px; }
 .mutuelle-info a { color: #84252B; }
 </style>
 <?= $this->endSection() ?>
