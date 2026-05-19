@@ -13,7 +13,7 @@
 
     <?php if (!empty($page_title)): ?>
     <section class="page-title layer-overlay overlay-dark-7 section-typo-light parallax"
-             data-tm-bg-img="<?= base_url('assets/images/bg-banner-2.jpg') ?>"
+             data-tm-bg-img="<?= base_url('assets/images/RBCD_Banner.png') ?>"
              data-parallax-ratio="0.1">
       <div class="container pt-50 pb-50">
         <div class="section-content">
