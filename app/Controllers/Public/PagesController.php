@@ -369,7 +369,8 @@ class PagesController extends BaseController
     public function documentsRemboursementsMutuelle(): string
     {
         return view('public/pages/remboursements_mutuelle', [
-            'title'       => 'Remboursements Mutuelle — RBC Disonais',
+            'title'      => 'Remboursements Mutuelle — RBC Disonais',
+            'page_title' => 'Remboursements Mutuelle',
             'breadcrumbs' => [
                 ['label' => 'Accueil', 'url' => base_url('/')],
                 ['label' => 'Documents utiles', 'url' => base_url('documents')],
