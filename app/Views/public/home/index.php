@@ -290,8 +290,11 @@
                   <i class="fas fa-user" style="font-size:.75rem;color:#333333;"></i>
                 </div>
                 <?php endif; ?>
-                <span class="font-size-13 flex-grow-1 text-dark"><?= esc($b['first_name'] . ' ' . $b['last_name']) ?></span>
-                <span class="text-dark font-size-13"><?= esc($b['birthday_day_month']) ?></span>
+                <span class="font-size-13 flex-grow-1 text-dark"><?= esc($b['first_name'] . ' ' . mb_strtoupper($b['last_name'])) ?></span>
+                <span class="text-dark text-right" style="font-size:.78rem;line-height:1.3;white-space:nowrap;">
+                  <strong><?= (int)$b['age'] ?> ans</strong><br>
+                  <span class="text-muted">ce <?= esc($b['birthday_day_month']) ?></span>
+                </span>
               </li>
               <?php endforeach; ?>
             </ul>

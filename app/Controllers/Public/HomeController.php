@@ -37,6 +37,7 @@ class HomeController extends BaseController
             try { $bday = new \DateTime("$year-$mo-$d"); } catch (\Exception $e) { continue; }
             if ($bday >= $monday && $bday <= $sunday) {
                 $m['birthday_day_month'] = $bday->format('d/m');
+                $m['age']                = $year - (int) $y;
                 $birthdays[] = $m;
             }
         }
