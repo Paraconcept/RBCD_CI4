@@ -28,9 +28,10 @@ class SportResultsController extends BaseController
     public function create(): string
     {
         return view('admin/sport_results/form', [
-            'title'   => 'Nouveau résultat',
-            'result'  => null,
-            'members' => $this->getActiveMembers(),
+            'title'        => 'Nouveau résultat',
+            'result'       => null,
+            'members'      => $this->getActiveMembers(),
+            'existingPdfs' => $this->getExistingPdfs(),
         ]);
     }
 
@@ -41,9 +42,16 @@ class SportResultsController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $pdfFile = $this->handlePdf();
-        if ($pdfFile !== false) {
-            $data['pdf_file'] = $pdfFile;
+        switch ($this->request->getPost('pdf_action')) {
+            case 'upload':
+                $pdfFile = $this->handlePdf();
+                if ($pdfFile !== false) { $data['pdf_file'] = $pdfFile; }
+                break;
+            case 'existing':
+                $data['pdf_file'] = $this->request->getPost('existing_pdf') ?: null;
+                break;
+            default: // none
+                $data['pdf_file'] = null;
         }
 
         // Photo : upload manuel prioritaire, sinon snapshot du membre
@@ -71,9 +79,10 @@ class SportResultsController extends BaseController
         }
 
         return view('admin/sport_results/form', [
-            'title'   => 'Modifier le résultat',
-            'result'  => $result,
-            'members' => $this->getActiveMembers(),
+            'title'        => 'Modifier le résultat',
+            'result'       => $result,
+            'members'      => $this->getActiveMembers(),
+            'existingPdfs' => $this->getExistingPdfs($id),
         ]);
     }
 
@@ -90,18 +99,29 @@ class SportResultsController extends BaseController
         }
 
         // PDF
-        $pdfFile = $this->handlePdf();
-        if ($pdfFile !== false) {
-            if ($result->pdf_file && $pdfFile !== null) {
-                $old = FCPATH . 'uploads/PDF/SportResults/' . $result->pdf_file;
-                if (file_exists($old)) unlink($old);
-            }
-            $data['pdf_file'] = $pdfFile;
-        }
-        if ($this->request->getPost('remove_pdf') && $result->pdf_file) {
-            $old = FCPATH . 'uploads/PDF/SportResults/' . $result->pdf_file;
-            if (file_exists($old)) unlink($old);
-            $data['pdf_file'] = null;
+        switch ($this->request->getPost('pdf_action')) {
+            case 'upload':
+                $pdfFile = $this->handlePdf();
+                if ($pdfFile !== false) {
+                    if ($result->pdf_file && $pdfFile !== null) {
+                        $old = FCPATH . 'uploads/PDF/SportResults/' . $result->pdf_file;
+                        if (file_exists($old)) unlink($old);
+                    }
+                    $data['pdf_file'] = $pdfFile;
+                }
+                break;
+            case 'existing':
+                // Référence vers un PDF existant : on ne touche pas aux fichiers
+                $data['pdf_file'] = $this->request->getPost('existing_pdf') ?: null;
+                break;
+            case 'remove':
+                if ($result->pdf_file) {
+                    $old = FCPATH . 'uploads/PDF/SportResults/' . $result->pdf_file;
+                    if (file_exists($old)) unlink($old);
+                }
+                $data['pdf_file'] = null;
+                break;
+            // 'keep' ou défaut : on ne touche pas au pdf_file
         }
 
         // Photo vainqueur
@@ -230,6 +250,22 @@ class SportResultsController extends BaseController
         if (!$filename) return;
         $path = FCPATH . 'uploads/sport_results/' . $filename;
         if (file_exists($path)) unlink($path);
+    }
+
+    private function getExistingPdfs(?int $excludeId = null): array
+    {
+        $builder = $this->db->table('sport_results')
+            ->select('pdf_file, title, season')
+            ->where('pdf_file IS NOT NULL')
+            ->groupBy('pdf_file')
+            ->orderBy('season', 'DESC')
+            ->orderBy('title', 'ASC');
+
+        if ($excludeId) {
+            $builder->where('id !=', $excludeId);
+        }
+
+        return $builder->get()->getResultArray();
     }
 
     private function getActiveMembers(): array

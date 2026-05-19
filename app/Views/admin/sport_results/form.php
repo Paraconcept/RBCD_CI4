@@ -160,33 +160,72 @@
 
       <!-- PDF -->
       <div class="row">
-        <div class="col-md-7">
+        <div class="col-md-8">
           <div class="form-group">
-            <label>Fichier PDF des résultats</label>
+            <label class="d-block">Fichier PDF des résultats</label>
+
             <?php if ($isEdit && $result->pdf_file): ?>
-            <div class="mb-2">
-              <a href="<?= base_url('uploads/PDF/SportResults/' . $result->pdf_file) ?>"
-                 target="_blank" class="btn btn-sm btn-outline-danger">
-                <i class="fas fa-file-pdf mr-1"></i>Voir le PDF actuel
-              </a>
+            <!-- Édition : PDF déjà associé -->
+            <div class="custom-control custom-radio mb-2">
+              <input type="radio" id="pdf_keep" name="pdf_action" value="keep" class="custom-control-input" checked>
+              <label class="custom-control-label" for="pdf_keep">
+                Conserver le PDF actuel —
+                <a href="<?= base_url('uploads/PDF/SportResults/' . $result->pdf_file) ?>"
+                   target="_blank" class="text-danger ml-1">
+                  <i class="fas fa-file-pdf mr-1"></i>Voir
+                </a>
+              </label>
             </div>
-            <div class="custom-control custom-checkbox mb-2">
-              <input type="checkbox" name="remove_pdf" id="remove_pdf" value="1" class="custom-control-input">
-              <label class="custom-control-label text-danger" for="remove_pdf">Supprimer le PDF</label>
+            <?php else: ?>
+            <div class="custom-control custom-radio mb-2">
+              <input type="radio" id="pdf_none" name="pdf_action" value="none" class="custom-control-input" checked>
+              <label class="custom-control-label" for="pdf_none">Aucun PDF</label>
             </div>
             <?php endif; ?>
-            <div class="input-group">
-              <div class="custom-file">
-                <input type="file" name="pdf_file" id="pdf_file" class="custom-file-input" accept="application/pdf">
-                <label class="custom-file-label" for="pdf_file">
-                  <?= ($isEdit && $result->pdf_file) ? 'Remplacer le PDF…' : 'Choisir un fichier PDF…' ?>
-                </label>
-              </div>
+
+            <?php if (!empty($existingPdfs)): ?>
+            <div class="custom-control custom-radio mb-1">
+              <input type="radio" id="pdf_existing_radio" name="pdf_action" value="existing" class="custom-control-input">
+              <label class="custom-control-label" for="pdf_existing_radio">Réutiliser un PDF déjà enregistré</label>
             </div>
-            <small class="form-text text-muted">PDF uniquement · max 10 Mo</small>
+            <div id="pdf-existing-block" class="ml-4 mb-2" style="display:none">
+              <select name="existing_pdf" id="existing_pdf" class="form-control form-control-sm">
+                <option value="">— Choisir —</option>
+                <?php foreach ($existingPdfs as $ep): ?>
+                <option value="<?= esc($ep['pdf_file']) ?>">
+                  <?= esc($ep['season'] . ' — ' . $ep['title']) ?>
+                </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <?php endif; ?>
+
+            <div class="custom-control custom-radio mb-1">
+              <input type="radio" id="pdf_upload_radio" name="pdf_action" value="upload" class="custom-control-input">
+              <label class="custom-control-label" for="pdf_upload_radio">
+                <?= ($isEdit && $result->pdf_file) ? 'Remplacer par un nouveau PDF' : 'Uploader un nouveau PDF' ?>
+              </label>
+            </div>
+            <div id="pdf-upload-block" class="ml-4 mb-2" style="display:none">
+              <div class="input-group">
+                <div class="custom-file">
+                  <input type="file" name="pdf_file" id="pdf_file" class="custom-file-input" accept="application/pdf">
+                  <label class="custom-file-label" for="pdf_file">Choisir un fichier PDF…</label>
+                </div>
+              </div>
+              <small class="form-text text-muted">PDF uniquement · max 10 Mo</small>
+            </div>
+
+            <?php if ($isEdit && $result->pdf_file): ?>
+            <div class="custom-control custom-radio mb-1">
+              <input type="radio" id="pdf_remove" name="pdf_action" value="remove" class="custom-control-input">
+              <label class="custom-control-label text-danger" for="pdf_remove">Supprimer le PDF</label>
+            </div>
+            <?php endif; ?>
+
           </div>
         </div>
-        <div class="col-md-5"></div>
+        <div class="col-md-4"></div>
       </div>
 
     </div><!-- /card-body -->
@@ -208,9 +247,15 @@
 <?= $this->section('scripts') ?>
 <script>
 $(function () {
+  // Affiche/masque les sous-blocs PDF selon le radio sélectionné
+  $('input[name="pdf_action"]').on('change', function () {
+    $('#pdf-existing-block').toggle($(this).val() === 'existing');
+    $('#pdf-upload-block').toggle($(this).val() === 'upload');
+  });
+
   // Mise à jour libellé file input
   $('#pdf_file').on('change', function () {
-    var name = this.files[0] ? this.files[0].name : '<?= ($isEdit && $result->pdf_file) ? 'Remplacer le PDF…' : 'Choisir un fichier PDF…' ?>';
+    var name = this.files[0] ? this.files[0].name : 'Choisir un fichier PDF…';
     $(this).closest('.custom-file').find('.custom-file-label').text(name);
   });
 
