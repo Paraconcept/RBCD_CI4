@@ -27,6 +27,22 @@
         'Trésorier'                 => 'Trésorière',
         'Trésorier Adjoint'         => 'Trésorière Adjointe',
     ];
+    // Emails liés à la fonction (pas à la personne)
+    $roleEmails = [
+        'Président'                      => 'president@rbcd.be',
+        'Présidente'                     => 'president@rbcd.be',
+        'Secrétaire'                     => 'contact@rbcd.be',
+        'Secrétaire Adjoint'             => 'contact@rbcd.be',
+        'Secrétaire Adjointe'            => 'contact@rbcd.be',
+        'Directeur Sportif'              => 'ds@rbcd.be',
+        'Directrice Sportive'            => 'ds@rbcd.be',
+        'Directeur Sportif Adjoint'      => 'ds@rbcd.be',
+        'Directrice Sportive Adjointe'   => 'ds@rbcd.be',
+        'Trésorier'                      => 'tresorerie@rbcd.be',
+        'Trésorière'                     => 'tresorerie@rbcd.be',
+        'Trésorier Adjoint'              => 'tresorerie@rbcd.be',
+        'Trésorière Adjointe'            => 'tresorerie@rbcd.be',
+    ];
     ?>
 
     <div class="comite-wrapper">
@@ -38,6 +54,13 @@
         if ($isFemale) {
             $roles = array_map(fn($r) => $feminineRoles[$r] ?? $r, $roles);
         }
+        // Email fonctionnel si rôle titré, sinon email personnel
+        $displayEmail = null;
+        foreach ($roles as $r) {
+            if (isset($roleEmails[$r])) { $displayEmail = $roleEmails[$r]; break; }
+        }
+        if ($displayEmail === null) { $displayEmail = $m->email ?: null; }
+
         $photoUrl = $m->photo
             ? base_url('uploads/members/' . esc($m->photo))
             : null;
@@ -61,12 +84,12 @@
               <?php endif; ?>
             </h4>
             <p class="member-roles"><?= esc(implode(' | ', $roles)) ?></p>
-            <?php if (($m->show_email && $m->email) || ($m->show_mobile && $m->mobile)): ?>
+            <?php if ($displayEmail || $m->mobile): ?>
             <div class="comite-contact">
-              <?php if ($m->show_email && $m->email): ?>
-                <a href="mailto:<?= esc($m->email) ?>" title="<?= esc($m->email) ?>"><i class="fas fa-envelope"></i></a>
+              <?php if ($displayEmail): ?>
+                <a href="mailto:<?= esc($displayEmail) ?>" title="<?= esc($displayEmail) ?>"><i class="fas fa-envelope"></i></a>
               <?php endif; ?>
-              <?php if ($m->show_mobile && $m->mobile): ?>
+              <?php if ($m->mobile): ?>
                 <a href="tel:<?= esc($m->mobile) ?>" title="<?= esc($m->mobile) ?>"><i class="fas fa-mobile-alt"></i></a>
               <?php endif; ?>
             </div>
