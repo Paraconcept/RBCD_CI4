@@ -226,6 +226,7 @@ class MembersController extends BaseController
             'first_name'      => $post['first_name'],
             'gender'          => $post['gender'],
             'birth_date'      => $post['birth_date'] ?: null,
+            'reg_nat'         => $post['reg_nat'] ?: null,
             'address'         => $post['address'] ?: null,
             'postal_code'     => $post['postal_code'] ?: null,
             'city'            => $post['city'] ? mb_strtoupper($post['city'], 'UTF-8') : null,

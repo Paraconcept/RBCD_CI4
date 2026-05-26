@@ -11,7 +11,7 @@ class MemberModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'last_name', 'first_name', 'gender', 'birth_date',
+        'last_name', 'first_name', 'gender', 'birth_date', 'reg_nat',
         'address', 'postal_code', 'city', 'phone', 'mobile', 'email',
         'photo', 'is_federated', 'frbb_license',
         'is_junior', 'is_supporter', 'is_school',

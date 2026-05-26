@@ -75,6 +75,14 @@ $formAction = $isEdit
                                    value="<?= esc(old('birth_date', $member->birth_date ?? '')) ?>">
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>N° Registre National</label>
+                            <input type="text" name="reg_nat" class="form-control"
+                                   placeholder="00-00-00-000-00"
+                                   value="<?= esc(old('reg_nat', $member->reg_nat ?? '')) ?>">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
