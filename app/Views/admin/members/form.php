@@ -79,7 +79,7 @@ $formAction = $isEdit
                         <div class="form-group">
                             <label>N° Registre National</label>
                             <input type="text" name="reg_nat" class="form-control"
-                                   placeholder="00-00-00-000-00"
+                                   placeholder="00.00.00-000.00"
                                    value="<?= esc(old('reg_nat', $member->reg_nat ?? '')) ?>">
                         </div>
                     </div>
