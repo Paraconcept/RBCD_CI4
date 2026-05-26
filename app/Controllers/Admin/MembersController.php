@@ -46,9 +46,7 @@ class MembersController extends BaseController
                 ['title' => 'Membres', 'url' => base_url('admin/members')],
                 ['title' => 'Nouveau'],
             ],
-            'member'         => null,
-            'linkedAdminUser' => null,
-            'freeAdminUsers' => $this->getFreeAdminUsers(),
+            'member' => null,
         ]);
     }
 
