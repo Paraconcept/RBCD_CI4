@@ -30,6 +30,11 @@
                             <?php if ($a->photo): ?>
                                 <img src="<?= base_url('uploads/members/' . $a->photo) ?>"
                                      class="img-circle mr-2" style="width:28px;height:28px;object-fit:cover">
+                            <?php else: ?>
+                                <span class="img-circle mr-2 d-inline-flex align-items-center justify-content-center bg-secondary text-white"
+                                      style="width:28px;height:28px;font-size:14px;flex-shrink:0">
+                                    <i class="fas fa-user"></i>
+                                </span>
                             <?php endif; ?>
                             <?= esc($a->last_name . ' ' . $a->first_name) ?>
                         </td>
