@@ -389,6 +389,48 @@ $formAction = $isEdit
 $(function() {
     $('.select2').select2({ theme: 'bootstrap4', placeholder: '— Aucun lien —', allowClear: true });
 
+    // Auto-format N° Registre National → XX.XX.XX-XXX.XX
+    (function () {
+        const rn = document.querySelector('input[name="reg_nat"]');
+        if (!rn) return;
+
+        function fmt(digits) {
+            digits = digits.replace(/\D/g, '').slice(0, 11);
+            let out = '';
+            for (let i = 0; i < digits.length; i++) {
+                if (i === 2 || i === 4) out += '.';
+                else if (i === 6)       out += '-';
+                else if (i === 9)       out += '.';
+                out += digits[i];
+            }
+            return out;
+        }
+
+        rn.addEventListener('keydown', function (e) {
+            const pos = this.selectionStart;
+            if (e.key === 'Backspace' && this.selectionStart === this.selectionEnd
+                    && pos > 0 && /[.\-]/.test(this.value[pos - 1])) {
+                e.preventDefault();
+                const newVal = fmt(this.value.slice(0, pos - 2) + this.value.slice(pos));
+                this.value = newVal;
+                this.setSelectionRange(pos - 2, pos - 2);
+            }
+        });
+
+        rn.addEventListener('input', function () {
+            const pos   = this.selectionStart;
+            const raw   = this.value;
+            const dBefore = raw.slice(0, pos).replace(/\D/g, '').length;
+            this.value  = fmt(raw);
+            let np = 0, cnt = 0;
+            while (np < this.value.length && cnt < dBefore) {
+                if (/\d/.test(this.value[np])) cnt++;
+                np++;
+            }
+            this.setSelectionRange(np, np);
+        });
+    })();
+
     $('#photoInput').on('change', function() {
         const file = this.files[0];
         if (!file) return;
