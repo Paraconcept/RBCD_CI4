@@ -118,7 +118,10 @@ $isCurrentWeek = ($week == (int)$nowDt->format('W') && $year == (int)$nowDt->for
     </div>
 </div>
 
-<div class="d-flex justify-content-end mb-3">
+<div class="d-flex justify-content-end mb-3" style="gap:.5rem">
+    <a href="<?= base_url('admin/schedule-events/create') ?>" class="btn btn-secondary btn-sm">
+        <i class="fas fa-plus mr-1"></i> Ajouter un événement
+    </a>
     <a href="<?= base_url('admin/schedule/create') ?>" class="btn btn-primary btn-sm">
         <i class="fas fa-plus mr-1"></i> Ajouter une rencontre
     </a>
