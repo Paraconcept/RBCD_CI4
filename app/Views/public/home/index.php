@@ -322,7 +322,7 @@ body { overflow-x: clip; }
                     ?>
                     <div class="sb-match">
                       <span class="<?= $enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $rbcdName : $oppName ?></span>
-                      <span class="sb-vs"><i class="fas fa-arrows-alt-h"></i></span>
+                      <?php if (!empty($p->opponent_name)): ?><span class="sb-vs"><i class="fas fa-arrows-alt-h"></i></span><?php endif; ?>
                       <span class="<?= !$enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $oppName : $rbcdName ?></span>
                     </div>
                     <?php endforeach; ?>

@@ -342,7 +342,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 ?>
                     <div class="match-line">
                         <span class="player-home <?= (!$isFinale && $enc->is_home)  ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $pName : $oppName ?></span>
-                        <span class="vs-sep"><i class="fas fa-arrows-alt-h me-2 ms-2"></i></span>
+                        <?php if (!empty($p->opponent_name)): ?><span class="vs-sep"><i class="fas fa-arrows-alt-h me-2 ms-2"></i></span><?php endif; ?>
                         <span class="player-away <?= (!$isFinale && !$enc->is_home) ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $oppName : $pName ?></span>
                     </div>
                 <?php endforeach; ?>

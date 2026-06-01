@@ -233,7 +233,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                         ?>
                             <div class="match-line">
                                 <span class="player-home <?= (!$isFinaleRow && $enc->is_home)  ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $pName : $oppName ?></span>
-                                <span class="text-muted" style="font-size:.78rem;padding:0 2px"><i class="fas fa-arrows-alt-h mr-2 ml-2"></i></span>
+                                <?php if (!empty($p->opponent_name)): ?><span class="text-muted" style="font-size:.78rem;padding:0 2px"><i class="fas fa-arrows-alt-h mr-2 ml-2"></i></span><?php endif; ?>
                                 <span class="player-away <?= (!$isFinaleRow && !$enc->is_home) ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $oppName : $pName ?></span>
                             </div>
                         <?php endforeach; ?>
