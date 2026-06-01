@@ -73,8 +73,6 @@
 .player-away { text-align:left; }
 .vs-sep { color:#666; font-size:.78rem; text-align:center; }
 .match-line-solo { display:block; }
-.match-line-solo .player-home { text-align:left; }
-.match-line-solo .player-away { display:none; }
 
 /* Compétition */
 .comp-col { border-left:2px solid rgba(0,0,0,.08); border-right:2px solid rgba(0,0,0,.08); padding:0 .8rem; }
@@ -345,11 +343,17 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 $pName = $isMyPlayer ? "<span class=\"me-highlight\">{$pName}</span>" : $pName;
                 $oppName = esc($p->opponent_name);
                 ?>
-                    <div class="match-line <?= empty($p->opponent_name) ? 'match-line-solo' : '' ?>">
+                    <?php if (empty($p->opponent_name)): ?>
+                    <div class="match-line match-line-solo">
+                        <span><?= $pName ?></span>
+                    </div>
+                    <?php else: ?>
+                    <div class="match-line">
                         <span class="player-home <?= (!$isFinale && $enc->is_home)  ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $pName : $oppName ?></span>
-                        <?php if (!empty($p->opponent_name)): ?><span class="vs-sep"><i class="fas fa-arrows-alt-h me-2 ms-2"></i></span><?php endif; ?>
+                        <span class="vs-sep"><i class="fas fa-arrows-alt-h me-2 ms-2"></i></span>
                         <span class="player-away <?= (!$isFinale && !$enc->is_home) ? 'player-rbcd' : '' ?>"><?= $enc->is_home ? $oppName : $pName ?></span>
                     </div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
 
