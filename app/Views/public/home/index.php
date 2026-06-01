@@ -81,7 +81,7 @@ body { overflow-x: clip; }
                 <img src="<?= base_url('assets/images/bg-slider/bg-rbcd-GF.jpg') ?>" title="bg3" width="1920" height="1280" data-parallax="off" class="rev-slidebg" data-no-retina>
                 <rs-layer id="slider-10-slide-47-layer-2" data-type="text" data-rsp_ch="on"
                   data-xy="x:l,l,l,c;xo:48px,45px,50px,0;yo:226px,212px,179px,153px;"
-                  data-text="w:normal;s:115,100,95,78;l:115,89,90,71;ls:1px,0px,0px,0px;fw:700;a:left,left,left,center;"
+                  data-text="w:normal;s:115,100,95,46;l:115,89,90,48;ls:1px,0px,0px,0px;fw:700;a:left,left,left,center;"
                   data-frame_1="st:300;sp:1000;sR:310;"
                   data-frame_999="o:0;st:w;sR:7690;"
                   style="z-index:11;text-transform:uppercase;">RBC Disonais
