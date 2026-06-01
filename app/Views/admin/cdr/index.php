@@ -90,7 +90,7 @@
               <td class="text-right">
                 <a href="<?= base_url('admin/cdr/' . $team->id . '/edit') ?>"
                    class="btn btn-xs btn-warning" title="Modifier">
-                  <i class="fas fa-pencil-alt"></i>
+                  <i class="fas fa-edit"></i>
                 </a>
                 <form method="post" action="<?= base_url('admin/cdr/' . $team->id . '/delete') ?>"
                       class="d-inline" onsubmit="return confirm('Supprimer cette équipe ?');">

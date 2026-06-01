@@ -327,7 +327,7 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     </a>
                     <a href="<?= base_url("admin/schedule/{$enc->id}/edit") ?>"
                        class="btn btn-xs btn-warning" title="Modifier">
-                        <i class="fas fa-pencil-alt"></i>
+                        <i class="fas fa-edit"></i>
                     </a>
                     <button class="btn btn-xs btn-danger btn-delete-encounter ml-1"
                             data-id="<?= $enc->id ?>"

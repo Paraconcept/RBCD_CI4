@@ -86,7 +86,7 @@ $delta = function(float $d) use ($fmt): string {
                 <?php $pctM = $totalRevAllN > 0 ? round($totalRevManualN / $totalRevAllN * 100) : 0; ?>
                 <tr>
                     <td class="font-weight-bold">
-                        <i class="fas fa-pencil-alt text-muted mr-2"></i>Recettes manuelles
+                        <i class="fas fa-edit text-muted mr-2"></i>Recettes manuelles
                     </td>
                     <td class="text-right font-weight-bold text-success" style="width:160px"><?= $fmt($totalRevManualN) ?></td>
                     <td class="text-right text-muted text-nowrap" style="width:90px"><?= $pctM ?> %</td>

@@ -47,8 +47,8 @@
           </td>
           <td class="text-right">
             <a href="<?= base_url('admin/journal/' . $issue->id . '/edit') ?>"
-               class="btn btn-xs btn-default" title="Modifier">
-              <i class="fas fa-pencil-alt"></i>
+               class="btn btn-xs btn-warning" title="Modifier">
+              <i class="fas fa-edit"></i>
             </a>
             <form method="post" action="<?= base_url('admin/journal/' . $issue->id . '/delete') ?>"
                   class="d-inline" onsubmit="return confirm('Supprimer ce numéro ?');">

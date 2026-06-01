@@ -25,7 +25,7 @@ $requiresArb   = $source ? (int)($source->requires_arbitrage ?? 1) : 1;
 <div class="card card-outline card-primary">
     <div class="card-header">
         <h3 class="card-title">
-            <i class="fas <?= $isEdit ? 'fa-pencil-alt' : (isset($prefill) ? 'fa-copy' : 'fa-plus') ?> mr-2"></i>
+            <i class="fas <?= $isEdit ? 'fa-edit' : (isset($prefill) ? 'fa-copy' : 'fa-plus') ?> mr-2"></i>
             <?= esc($title) ?>
         </h3>
     </div>

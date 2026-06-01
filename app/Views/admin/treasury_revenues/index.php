@@ -102,8 +102,8 @@
                     </td>
                     <td class="text-center text-nowrap">
                         <a href="<?= base_url('admin/treasury/revenues/' . $r->id . '/edit') ?>"
-                           class="btn btn-xs btn-outline-primary mr-1" title="Modifier">
-                            <i class="fas fa-pencil-alt"></i>
+                           class="btn btn-xs btn-warning mr-1" title="Modifier">
+                            <i class="fas fa-edit"></i>
                         </a>
                         <button type="button" class="btn btn-xs btn-outline-danger btn-delete"
                                 data-id="<?= $r->id ?>" data-desc="<?= esc($r->description) ?>">

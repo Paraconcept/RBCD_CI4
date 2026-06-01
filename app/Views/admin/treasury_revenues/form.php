@@ -6,7 +6,7 @@
 <div class="card card-outline card-primary">
     <div class="card-header">
         <h3 class="card-title">
-            <i class="fas <?= $isEdit ? 'fa-pencil-alt' : 'fa-plus' ?> mr-2"></i>
+            <i class="fas <?= $isEdit ? 'fa-edit' : 'fa-plus' ?> mr-2"></i>
             <?= $isEdit ? 'Modifier la recette' : 'Nouvelle recette' ?>
         </h3>
     </div>

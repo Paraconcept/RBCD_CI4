@@ -82,7 +82,7 @@
                         </td>
                         <!-- Actions -->
                         <td class="text-center">
-                            <a href="<?= base_url('admin/members/' . $m->id . '/edit') ?>" class="btn btn-xs btn-info tt-rbcd"
+                            <a href="<?= base_url('admin/members/' . $m->id . '/edit') ?>" class="btn btn-xs btn-warning tt-rbcd"
                                data-toggle="tooltip" data-placement="top"
                                title="Modifier<br> <?= esc($m->last_name . ' ' . $m->first_name) ?>">
                                 <i class="fas fa-edit"></i>
