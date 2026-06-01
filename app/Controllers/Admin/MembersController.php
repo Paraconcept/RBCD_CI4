@@ -87,21 +87,26 @@ class MembersController extends BaseController
             return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
         }
 
-        $keyModel = new MemberKeyModel();
+        $keyModel  = new MemberKeyModel();
+        $validTabs = ['coordonnees', 'visibilite', 'photo', 'cles', 'categories'];
+        $activeTab = in_array($this->request->getGet('tab'), $validTabs, true)
+            ? $this->request->getGet('tab')
+            : 'coordonnees';
 
-        return view('admin/members/form', [
-            'title'       => 'Modifier un membre',
+        return view('admin/members/edit', [
+            'title'       => esc($member->first_name . ' ' . $member->last_name),
             'breadcrumbs' => [
                 ['title' => 'Membres', 'url' => base_url('admin/members')],
                 ['title' => esc($member->first_name . ' ' . $member->last_name)],
             ],
             'member'        => $member,
+            'activeTab'     => $activeTab,
             'memberKeys'    => $keyModel->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
             'availableKeys' => $keyModel->where('member_id IS NULL')->orderBy('badge_number')->findAll(),
         ]);
     }
 
-    public function update(int $id)
+    public function updateIdentity(int $id)
     {
         $member = $this->model->find($id);
         if (!$member) {
@@ -113,37 +118,106 @@ class MembersController extends BaseController
             'first_name' => 'required|min_length[2]|max_length[100]',
             'gender'     => 'required|in_list[M,F]',
             'email'      => 'permit_empty|valid_email|max_length[150]',
-            'photo'      => 'permit_empty|is_image[photo]|max_size[photo,2048]|mime_in[photo,image/jpeg,image/png,image/webp]',
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()->to(base_url('admin/members/' . $id . '/edit?tab=coordonnees'))
+                             ->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $data = $this->collectFormData();
+        $post = $this->request->getPost();
+        $bool = fn($key) => ($post[$key] ?? '0') == '1' ? 1 : 0;
 
-        // Nouvelle photo
+        $this->model->update($id, [
+            'last_name'    => mb_strtoupper($post['last_name'], 'UTF-8'),
+            'first_name'   => $post['first_name'],
+            'gender'       => $post['gender'],
+            'birth_date'   => $post['birth_date']   ?: null,
+            'reg_nat'      => $post['reg_nat']       ?: null,
+            'address'      => $post['address']       ?: null,
+            'postal_code'  => $post['postal_code']   ?: null,
+            'city'         => $post['city'] ? mb_strtoupper($post['city'], 'UTF-8') : null,
+            'phone'        => $post['phone']         ?: null,
+            'mobile'       => $post['mobile']        ?: null,
+            'email'        => $post['email']         ?: null,
+            'is_federated' => $bool('is_federated'),
+            'frbb_license' => $post['frbb_license']  ?: null,
+            'is_junior'    => $bool('is_junior'),
+            'is_supporter' => $bool('is_supporter'),
+            'is_school'    => $bool('is_school'),
+            'is_active'    => $bool('is_active'),
+        ]);
+
+        return redirect()->to(base_url('admin/members/' . $id . '/edit?tab=coordonnees'))
+                         ->with('success', 'Coordonnées mises à jour.');
+    }
+
+    public function updateVisibility(int $id)
+    {
+        $member = $this->model->find($id);
+        if (!$member) {
+            return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
+        }
+
+        $post = $this->request->getPost();
+        $bool = fn($key) => ($post[$key] ?? '0') == '1' ? 1 : 0;
+
+        $this->model->update($id, [
+            'show_birth_date' => $bool('show_birth_date'),
+            'show_address'    => $bool('show_address'),
+            'show_phone'      => $bool('show_phone'),
+            'show_mobile'     => $bool('show_mobile'),
+            'show_email'      => $bool('show_email'),
+        ]);
+
+        return redirect()->to(base_url('admin/members/' . $id . '/edit?tab=visibilite'))
+                         ->with('success', 'Visibilité mise à jour.');
+    }
+
+    public function updatePhoto(int $id)
+    {
+        $member = $this->model->find($id);
+        if (!$member) {
+            return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
+        }
+
+        $rules = [
+            'photo' => 'permit_empty|is_image[photo]|max_size[photo,2048]|mime_in[photo,image/jpeg,image/png,image/webp]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->to(base_url('admin/members/' . $id . '/edit?tab=photo'))
+                             ->with('errors', $this->validator->getErrors());
+        }
+
+        $data      = [];
         $photoFile = $this->request->getFile('photo');
+
         if ($photoFile && $photoFile->isValid() && !$photoFile->hasMoved()) {
             $this->deletePhotoFile($member->photo);
             $data['photo'] = $this->uploadPhoto($photoFile);
         }
 
-        // Suppression de la photo demandée
         if ($this->request->getPost('remove_photo') && $member->photo) {
             $this->deletePhotoFile($member->photo);
             $data['photo'] = null;
         }
 
-        $this->model->update($id, $data);
-
-        // Rafraîchir la photo en session si le membre connecté modifie son propre profil
-        if ((int) session()->get('member_id') === $id) {
-            $currentPhoto = array_key_exists('photo', $data) ? $data['photo'] : $member->photo;
-            session()->set('member_photo', $currentPhoto);
+        if (!empty($data)) {
+            $this->model->update($id, $data);
+            if ((int) session()->get('member_id') === $id) {
+                session()->set('member_photo', $data['photo'] ?? null);
+            }
         }
 
-        return redirect()->to(base_url('admin/members'))->with('success', 'Membre mis à jour.');
+        return redirect()->to(base_url('admin/members/' . $id . '/edit?tab=photo'))
+                         ->with('success', 'Photo mise à jour.');
+    }
+
+    public function update(int $id)
+    {
+        // Conservé pour compatibilité — non utilisé par la nouvelle interface
+        return redirect()->to(base_url('admin/members/' . $id . '/edit'));
     }
 
     public function delete(int $id)
@@ -200,7 +274,7 @@ class MembersController extends BaseController
             'returned_date' => null,
         ]);
 
-        return redirect()->to(base_url('admin/members/' . $memberId . '/edit'))->with('success', 'Clé attribuée.');
+        return redirect()->to(base_url('admin/members/' . $memberId . '/edit?tab=cles'))->with('success', 'Clé attribuée.');
     }
 
     public function returnKey(int $memberId, int $keyId)
@@ -209,7 +283,7 @@ class MembersController extends BaseController
             'member_id'     => null,
             'returned_date' => date('Y-m-d'),
         ]);
-        return redirect()->to(base_url('admin/members/' . $memberId . '/edit'))->with('success', 'Clé marquée comme retournée.');
+        return redirect()->to(base_url('admin/members/' . $memberId . '/edit?tab=cles'))->with('success', 'Clé marquée comme retournée.');
     }
 
     // ----------------------------------------------------------------

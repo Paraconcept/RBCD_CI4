@@ -99,10 +99,13 @@ $routes->group('admin', static function ($routes) {
         $routes->get('members',                         'Admin\MembersController::index');
         $routes->get('members/create',                  'Admin\MembersController::create');
         $routes->post('members',                        'Admin\MembersController::store');
-        $routes->get('members/(:num)/edit',             'Admin\MembersController::edit/$1');
-        $routes->post('members/(:num)/update',          'Admin\MembersController::update/$1');
-        $routes->post('members/(:num)/delete',          'Admin\MembersController::delete/$1');
-        $routes->post('members/(:num)/toggle',          'Admin\MembersController::toggle/$1');
+        $routes->get('members/(:num)/edit',                    'Admin\MembersController::edit/$1');
+        $routes->post('members/(:num)/update/identity',       'Admin\MembersController::updateIdentity/$1');
+        $routes->post('members/(:num)/update/visibility',     'Admin\MembersController::updateVisibility/$1');
+        $routes->post('members/(:num)/update/photo',          'Admin\MembersController::updatePhoto/$1');
+        $routes->post('members/(:num)/update',                'Admin\MembersController::update/$1');
+        $routes->post('members/(:num)/delete',                'Admin\MembersController::delete/$1');
+        $routes->post('members/(:num)/toggle',                'Admin\MembersController::toggle/$1');
 
         // Paiements membres
         $routes->get('members/(:num)/payments',         'Admin\MemberPaymentsController::index/$1');
