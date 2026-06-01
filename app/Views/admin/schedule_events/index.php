@@ -49,6 +49,10 @@
                         <small><?= esc($c['label']) ?></small>
                     </td>
                     <td class="text-right">
+                        <a href="<?= base_url("admin/schedule-events/{$ev->id}/duplicate") ?>"
+                           class="btn btn-xs btn-info mr-1" title="Dupliquer">
+                            <i class="fas fa-copy"></i>
+                        </a>
                         <a href="<?= base_url("admin/schedule-events/{$ev->id}/edit") ?>"
                            class="btn btn-xs btn-warning mr-1">
                             <i class="fas fa-edit"></i>

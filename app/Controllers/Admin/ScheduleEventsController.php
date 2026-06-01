@@ -43,6 +43,21 @@ class ScheduleEventsController extends BaseController
                          ->with('success', 'Événement créé.');
     }
 
+    public function duplicate(int $id): string
+    {
+        $source = $this->model->find($id);
+        if (!$source) {
+            return redirect()->to(base_url('admin/schedule-events'));
+        }
+
+        return view('admin/schedule_events/form', [
+            'title'   => 'Dupliquer — ' . $source->title,
+            'event'   => null,
+            'prefill' => $source,
+            'colors'  => ScheduleEventModel::$colors,
+        ]);
+    }
+
     public function edit(int $id): string
     {
         $event = $this->model->find($id);

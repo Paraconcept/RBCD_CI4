@@ -253,9 +253,10 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('schedule-events',               'Admin\ScheduleEventsController::index');
         $routes->get ('schedule-events/create',        'Admin\ScheduleEventsController::create');
         $routes->post('schedule-events',               'Admin\ScheduleEventsController::store');
-        $routes->get ('schedule-events/(:num)/edit',   'Admin\ScheduleEventsController::edit/$1');
-        $routes->post('schedule-events/(:num)/update', 'Admin\ScheduleEventsController::update/$1');
-        $routes->post('schedule-events/(:num)/delete', 'Admin\ScheduleEventsController::delete/$1');
+        $routes->get ('schedule-events/(:num)/edit',      'Admin\ScheduleEventsController::edit/$1');
+        $routes->post('schedule-events/(:num)/update',    'Admin\ScheduleEventsController::update/$1');
+        $routes->post('schedule-events/(:num)/delete',    'Admin\ScheduleEventsController::delete/$1');
+        $routes->get ('schedule-events/(:num)/duplicate', 'Admin\ScheduleEventsController::duplicate/$1');
 
         // Utilisateurs admin
         $routes->get ('users',               'Admin\AdminUsersController::index');

@@ -172,8 +172,12 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     <span class="event-admin-desc ml-2">— <?= esc($ev->description) ?></span>
                 <?php endif; ?>
             </div>
+            <a href="<?= base_url("admin/schedule-events/{$ev->id}/duplicate") ?>"
+               class="btn btn-xs btn-info ml-auto" title="Dupliquer">
+                <i class="fas fa-copy"></i>
+            </a>
             <a href="<?= base_url("admin/schedule-events/{$ev->id}/edit") ?>"
-               class="btn btn-xs btn-warning ml-auto" title="Modifier">
+               class="btn btn-xs btn-warning" title="Modifier">
                 <i class="fas fa-edit"></i>
             </a>
             <form method="post" action="<?= base_url("admin/schedule-events/{$ev->id}/delete") ?>"
