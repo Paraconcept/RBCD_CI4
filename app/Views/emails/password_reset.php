@@ -39,7 +39,7 @@
         </a>
       </p>
 
-      <p>Ce lien est valable <strong>24 heures</strong>. Après ce délai, vous devrez faire une nouvelle demande.</p>
+      <p>Ce lien est valable <strong>5 jours</strong>. Après ce délai, vous devrez faire une nouvelle demande.</p>
 
       <p>Si vous n'avez pas effectué cette demande, ignorez simplement cet e-mail.</p>
 
