@@ -39,8 +39,10 @@
     gap:.5rem;
 }
 .enc-block:last-child { border-bottom:none; }
-.enc-block.home { border-left:4px solid var(--clr-home); background: #e8f5e9; }
-.enc-block.away { border-left:4px solid var(--clr-away); background: #DC656D24; }
+.enc-block.home { border-left:4px solid var(--clr-home); background: #e8f5e9; transition:background .15s; }
+.enc-block.away { border-left:4px solid var(--clr-away); background: #DC656D24; transition:background .15s; }
+.enc-block.home:hover { background: #d0f7d3; }
+.enc-block.away:hover { background: #dc656d47; }
 
 /* Time badge */
 .time-pill {
