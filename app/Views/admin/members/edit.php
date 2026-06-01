@@ -55,9 +55,9 @@
                        href="#cotisations" data-toggle="pill" role="tab">
                         <i class="fas fa-euro-sign fa-fw mr-2"></i>Cotisations
                     </a>
-                    <a class="nav-link disabled text-muted" href="#categories" data-toggle="pill" role="tab">
+                    <a class="nav-link <?= $activeTab === 'categories' ? 'active' : '' ?>"
+                       href="#categories" data-toggle="pill" role="tab">
                         <i class="fas fa-layer-group fa-fw mr-2"></i>Catégories
-                        <small class="d-block ml-4 mt-n1" style="font-size:.7rem">(bientôt)</small>
                     </a>
 
                 </div>
@@ -219,7 +219,7 @@
                     <!-- Statut club -->
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-tag mr-2"></i>Statut club</h3>
+                            <h3 class="card-title"><i class="fas fa-tags mr-2"></i>Statut club</h3>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -603,14 +603,19 @@
             <!-- ══════════════════════════════════════════════════════
                  ONGLET — Catégories (placeholder)
             ══════════════════════════════════════════════════════ -->
-            <div class="tab-pane fade" id="categories" role="tabpanel">
-                <div class="card card-outline card-secondary">
+            <div class="tab-pane fade <?= $activeTab === 'categories' ? 'show active' : '' ?>"
+                 id="categories" role="tabpanel">
+
+                <div class="card card-outline card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-layer-group mr-2"></i>Catégories</h3>
+                    </div>
                     <div class="card-body text-center py-5 text-muted">
-                        <i class="fas fa-tag fa-3x mb-3"></i>
-                        <h5>Catégories</h5>
-                        <p class="mb-0">Cette section est en cours de développement.</p>
+                        <i class="fas fa-layer-group fa-3x mb-3"></i>
+                        <p class="mb-0">Bientôt disponible.</p>
                     </div>
                 </div>
+
             </div>
 
         </div><!-- /.tab-content -->
