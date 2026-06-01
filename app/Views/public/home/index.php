@@ -309,7 +309,7 @@ body { overflow-x: clip; }
 
                   <?php foreach ($day['events'] as $ev): ?>
                     <?php $c = $eventColors[$ev->color] ?? $eventColors['blue']; ?>
-                    <div class="sb-ev-block" style="background:<?= $c['bg'] ?>;border-left:3px solid <?= $c['border'] ?>;">
+                    <div class="sb-ev-block" style="background:<?= $c['bg'] ?>;border-left:4px solid <?= $c['border'] ?>;">
                       <div class="d-flex align-items-center gap-1 flex-wrap">
                         <i class="fas fa-calendar-check" style="color:<?= $c['border'] ?>;font-size:.78rem;flex-shrink:0;"></i>
                         <?php if ($ev->start_time): ?>

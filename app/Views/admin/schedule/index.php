@@ -1,15 +1,17 @@
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('styles') ?>
 <style>
-.enc-home      { border-left:4px solid #28a745; background: #e8f5e9; }
-.enc-away      { border-left:4px solid #c6000d; background: #DC656D24; }
+.enc-home      { background: #e8f5e9; }
+.enc-away      { background: #DC656D24; }
+.enc-home > td:first-child { border-left: 4px solid #28a745; }
+.enc-away > td:first-child { border-left: 4px solid #c6000d; }
 .text-away     { color: #c6000d; }
 .enc-row        { transition:background .15s; }
 .enc-home:hover { background: #d0f7d3; }
 .enc-away:hover { background: #dc656d47; }
 
 .arb-name      { font-weight:600; }
-.day-card      { margin-bottom:1.25rem; }
+.day-card      { margin-bottom:1.25rem; overflow:hidden; }
 .time-badge    { font-size:.82rem; background:#e9ecef; color:#343a40; border-radius:4px; padding:2px 7px; white-space:nowrap; }
 .loc-cell      { display:flex; align-items:flex-start; gap:5px; }
 .loc-cell i    { margin-top:2px; flex-shrink:0; }
