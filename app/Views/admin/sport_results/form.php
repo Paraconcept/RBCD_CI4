@@ -72,6 +72,38 @@
 
       </div>
 
+      <!-- Équipe liée (CDR ou INTM selon le type) -->
+      <div class="row" id="teamLinkRow">
+        <div class="col-md-6" id="cdrTeamGroup" style="display:none">
+          <div class="form-group">
+            <label>Équipe CDR associée <small class="text-muted">(optionnel)</small></label>
+            <select name="cdr_team_id" class="form-control">
+              <option value="">— Aucune équipe CDR —</option>
+              <?php foreach ($cdrTeams as $t): ?>
+              <option value="<?= $t->id ?>"
+                <?= old('cdr_team_id', $result->cdr_team_id ?? '') == $t->id ? 'selected' : '' ?>>
+                <?= esc($t->season) ?> — <?= esc($t->name) ?> (<?= esc($t->game_mode) ?>)
+              </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6" id="intmTeamGroup" style="display:none">
+          <div class="form-group">
+            <label>Équipe INTM associée <small class="text-muted">(optionnel)</small></label>
+            <select name="intm_team_id" class="form-control">
+              <option value="">— Aucune équipe INTM —</option>
+              <?php foreach ($intmTeams as $t): ?>
+              <option value="<?= $t->id ?>"
+                <?= old('intm_team_id', $result->intm_team_id ?? '') == $t->id ? 'selected' : '' ?>>
+                <?= esc($t->season) ?> — <?= esc($t->name) ?> (Div. <?= esc($t->division) ?>)
+              </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <!-- Titre + Place -->
       <div class="row">
         <div class="col-md-8">
@@ -288,6 +320,15 @@ $(function () {
     reader.readAsDataURL(file);
     $(this).closest('.custom-file').find('.custom-file-label').text(file.name);
   });
+
+  // Afficher le dropdown d'équipe selon le type sélectionné
+  function updateTeamDropdowns() {
+    var type = $('#type').val();
+    $('#cdrTeamGroup').toggle(type === 'coupe');
+    $('#intmTeamGroup').toggle(type === 'championnat');
+  }
+  $('#type').on('change', updateTeamDropdowns);
+  updateTeamDropdowns(); // init au chargement
 });
 </script>
 <?= $this->endSection() ?>

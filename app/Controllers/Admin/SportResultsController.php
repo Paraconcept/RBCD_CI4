@@ -5,6 +5,8 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\SportResultModel;
 use App\Models\MemberModel;
+use App\Models\CdrTeamModel;
+use App\Models\IntmTeamModel;
 
 class SportResultsController extends BaseController
 {
@@ -32,6 +34,8 @@ class SportResultsController extends BaseController
             'result'       => null,
             'members'      => $this->getActiveMembers(),
             'existingPdfs' => $this->getExistingPdfs(),
+            'cdrTeams'     => $this->getCdrTeams(),
+            'intmTeams'    => $this->getIntmTeams(),
         ]);
     }
 
@@ -83,6 +87,8 @@ class SportResultsController extends BaseController
             'result'       => $result,
             'members'      => $this->getActiveMembers(),
             'existingPdfs' => $this->getExistingPdfs($id),
+            'cdrTeams'     => $this->getCdrTeams(),
+            'intmTeams'    => $this->getIntmTeams(),
         ]);
     }
 
@@ -214,6 +220,8 @@ class SportResultsController extends BaseController
             'winner_name'      => $winnerName,
             'final_date'       => $this->request->getPost('final_date') ?: null,
             'is_published'     => (int) $this->request->getPost('is_published'),
+            'cdr_team_id'      => $this->request->getPost('cdr_team_id')  ?: null,
+            'intm_team_id'     => $this->request->getPost('intm_team_id') ?: null,
         ];
     }
 
@@ -285,5 +293,15 @@ class SportResultsController extends BaseController
             ->orderBy('last_name', 'ASC')
             ->orderBy('first_name', 'ASC')
             ->findAll();
+    }
+
+    private function getCdrTeams(): array
+    {
+        return (new CdrTeamModel())->orderBy('season', 'DESC')->orderBy('name', 'ASC')->findAll();
+    }
+
+    private function getIntmTeams(): array
+    {
+        return (new IntmTeamModel())->orderBy('season', 'DESC')->orderBy('name', 'ASC')->findAll();
     }
 }

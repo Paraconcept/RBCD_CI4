@@ -88,6 +88,20 @@
       </div>
     </div>
 
+    <?php if (!empty($sportResults)): ?>
+    <!-- Séparateur -->
+    <div class="row mt-20 mb-10">
+      <div class="separator">
+        <img src="<?= base_url('assets/images/billiard-chalk.png') ?>"
+             alt="Séparateur Craie de billard"
+             style="width:20px;opacity:0.7;margin: 0 10px;">
+      </div>
+    </div>
+
+    <!-- Palmarès de l'équipe -->
+    <?= view('public/pages/_sport_results_block', ['sportResults' => $sportResults, 'teamName' => $team->name, 'season' => $team->season]) ?>
+    <?php endif; ?>
+
     <!-- Séparateur -->
     <div class="row mt-20 mb-10">
       <div class="separator">

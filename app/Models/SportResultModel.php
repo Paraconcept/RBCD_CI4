@@ -14,6 +14,7 @@ class SportResultModel extends Model
         'season', 'type', 'title', 'place',
         'winner_member_id', 'winner_name', 'winner_photo',
         'final_date', 'pdf_file', 'is_published',
+        'cdr_team_id', 'intm_team_id',
     ];
 
     protected $useTimestamps = true;
@@ -94,5 +95,27 @@ class SportResultModel extends Model
             $this->db->query("SELECT DISTINCT season FROM sport_results ORDER BY season DESC")->getResultArray(),
             'season'
         );
+    }
+
+    public function getByCdrTeam(int $teamId, bool $publishedOnly = false): array
+    {
+        $builder = $this->db->table('sport_results')
+            ->where('cdr_team_id', $teamId)
+            ->orderBy('final_date', 'DESC')
+            ->orderBy('title', 'ASC')
+            ->orderBy('place', 'ASC');
+        if ($publishedOnly) { $builder->where('is_published', 1); }
+        return $builder->get()->getResultObject();
+    }
+
+    public function getByIntmTeam(int $teamId, bool $publishedOnly = false): array
+    {
+        $builder = $this->db->table('sport_results')
+            ->where('intm_team_id', $teamId)
+            ->orderBy('final_date', 'DESC')
+            ->orderBy('title', 'ASC')
+            ->orderBy('place', 'ASC');
+        if ($publishedOnly) { $builder->where('is_published', 1); }
+        return $builder->get()->getResultObject();
     }
 }

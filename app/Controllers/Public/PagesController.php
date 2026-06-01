@@ -272,7 +272,8 @@ class PagesController extends BaseController
                 ['label' => 'Coupe des Régions',   'url' => '#'],
                 ['label' => esc($team->name)],
             ],
-            'team' => $team,
+            'team'         => $team,
+            'sportResults' => (new \App\Models\SportResultModel())->getByCdrTeam($id, publishedOnly: true),
         ]);
     }
 
@@ -307,7 +308,8 @@ class PagesController extends BaseController
                 ['label' => 'I.N.T.M.',            'url' => '#'],
                 ['label' => esc($team->name)],
             ],
-            'team' => $team,
+            'team'         => $team,
+            'sportResults' => (new \App\Models\SportResultModel())->getByIntmTeam($id, publishedOnly: true),
         ]);
     }
 
