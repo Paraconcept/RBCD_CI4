@@ -82,7 +82,7 @@ class HomeController extends BaseController
 
         $allDates = array_unique(array_merge(array_keys($encByDate), array_keys($evByDate)));
         sort($allDates);
-        $allDates = array_slice($allDates, 0, 3);
+        $allDates = array_slice($allDates, 0, 2);
 
         $upcomingDays = [];
         foreach ($allDates as $date) {
