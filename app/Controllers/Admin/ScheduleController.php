@@ -378,7 +378,7 @@ class ScheduleController extends BaseController
             foreach ($homeNames as $i => $homeName) {
                 $homeName     = trim($homeName);
                 $opponentName = trim($opponentNames[$i] ?? '');
-                if ($homeName !== '' && $opponentName !== '') {
+                if ($homeName !== '') {
                     $this->players->insert([
                         'encounter_id'     => $encounterId,
                         'member_id'        => null,
