@@ -51,7 +51,7 @@ class PasswordResetController extends BaseController
         }
 
         $token   = bin2hex(random_bytes(32));
-        $expires = date('Y-m-d H:i:s', strtotime('+24 hours'));
+        $expires = date('Y-m-d H:i:s', strtotime('+5 days'));
         $isFirst = !$loginRow->is_active;
 
         $loginModel->update($loginRow->id, [
@@ -75,7 +75,7 @@ class PasswordResetController extends BaseController
         $emailLib->send();
 
         return redirect()->to(base_url('connexion/mot-de-passe-oublie'))
-                         ->with('success', 'Email envoyé ! Vérifiez votre boîte mail (et vos spams). Le lien est valable 24 heures.');
+                         ->with('success', 'Email envoyé ! Vérifiez votre boîte mail (et vos spams). Le lien est valable 5 jours.');
     }
 
     public function showForm(string $token): mixed
