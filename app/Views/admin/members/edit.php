@@ -1,4 +1,18 @@
 <?= $this->extend('admin/layouts/main') ?>
+
+<?= $this->section('styles') ?>
+<style>
+#memberTabs .nav-link.active {
+    background-color: #84252B;
+    color: #fff !important;
+}
+#memberTabs .nav-link:hover:not(.active):not(.disabled) {
+    background-color: rgba(132,37,43,.08);
+    color: #84252B;
+}
+</style>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 
 <?php $errors = session()->getFlashdata('errors') ?? []; ?>
@@ -35,7 +49,8 @@
                        href="#cles" data-toggle="pill" role="tab">
                         <i class="fas fa-key fa-fw mr-2"></i>Clés du club
                     </a>
-                    <a class="nav-link" href="<?= base_url('admin/members/' . $member->id . '/payments') ?>">
+                    <a class="nav-link <?= $activeTab === 'cotisations' ? 'active' : '' ?>"
+                       href="#cotisations" data-toggle="pill" role="tab">
                         <i class="fas fa-euro-sign fa-fw mr-2"></i>Cotisations
                     </a>
                     <a class="nav-link disabled text-muted" href="#categories" data-toggle="pill" role="tab">
@@ -464,6 +479,126 @@
             </div>
 
             <!-- ══════════════════════════════════════════════════════
+                 ONGLET — Cotisations
+            ══════════════════════════════════════════════════════ -->
+            <div class="tab-pane fade <?= $activeTab === 'cotisations' ? 'show active' : '' ?>"
+                 id="cotisations" role="tabpanel">
+
+                <div class="card card-outline card-primary">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title">
+                            <i class="fas fa-euro-sign mr-2"></i>Cotisations
+                        </h3>
+                        <div class="ml-auto">
+                            <button type="button" class="btn btn-primary btn-sm" id="btnAddPayment">
+                                <i class="fas fa-plus mr-1"></i> Ajouter une saison
+                            </button>
+                        </div>
+                    </div>
+
+                    <?php if (empty($payments)): ?>
+                    <div class="card-body">
+                        <div class="alert alert-info mb-0">Aucune cotisation enregistrée pour ce membre.</div>
+                    </div>
+                    <?php else: ?>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-striped mb-0">
+                            <thead class="thead-rbcd">
+                                <tr>
+                                    <th>Saison</th>
+                                    <th class="text-center">Cotis. RBCD<br><small>jan–déc</small></th>
+                                    <th class="text-center">Cotis. FRBB<br><small>sep–juin</small></th>
+                                    <th class="text-center">Forfait F1<br><small>jan–juin</small></th>
+                                    <th class="text-center">Forfait F2<br><small>juil–déc</small></th>
+                                    <th class="text-center" style="width:90px">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($payments as $p): ?>
+                                <tr>
+                                    <td><strong><?= $p->year . '-' . ($p->year + 1) ?></strong></td>
+
+                                    <td class="text-center">
+                                        <?php if ($p->rbcd_paid): ?>
+                                            <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
+                                            <?php if ($p->rbcd_paid_date): ?><br><small class="text-muted"><?= date('d/m/Y', strtotime($p->rbcd_paid_date)) ?></small><?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="badge badge-danger"><i class="fas fa-times mr-1"></i>Non payé</span>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <?php if ($p->frbb_paid): ?>
+                                            <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
+                                            <?php if ($p->frbb_paid_date): ?><br><small class="text-muted"><?= date('d/m/Y', strtotime($p->frbb_paid_date)) ?></small><?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="badge badge-danger"><i class="fas fa-times mr-1"></i>Non payé</span>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <?php if (!$p->forfait_f1_choice): ?>
+                                            <span class="text-muted">—</span>
+                                        <?php elseif ($p->forfait_f1_paid): ?>
+                                            <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
+                                            <?php if ($p->forfait_f1_paid_date): ?><br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_f1_paid_date)) ?></small><?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="badge badge-warning text-dark"><i class="fas fa-clock mr-1"></i>En attente</span>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <?php if (!$p->forfait_f2_choice): ?>
+                                            <span class="text-muted">—</span>
+                                        <?php elseif ($p->forfait_f2_paid): ?>
+                                            <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Payé</span>
+                                            <?php if ($p->forfait_f2_paid_date): ?><br><small class="text-muted"><?= date('d/m/Y', strtotime($p->forfait_f2_paid_date)) ?></small><?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="badge badge-warning text-dark"><i class="fas fa-clock mr-1"></i>En attente</span>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-xs btn-info btn-edit-payment" title="Modifier"
+                                                data-id="<?= $p->id ?>"
+                                                data-year="<?= $p->year ?>"
+                                                data-rbcd-paid="<?= (int)$p->rbcd_paid ?>"
+                                                data-rbcd-paid-date="<?= esc($p->rbcd_paid_date ?? '') ?>"
+                                                data-frbb-paid="<?= (int)$p->frbb_paid ?>"
+                                                data-frbb-paid-date="<?= esc($p->frbb_paid_date ?? '') ?>"
+                                                data-f1-choice="<?= (int)$p->forfait_f1_choice ?>"
+                                                data-f1-paid="<?= (int)$p->forfait_f1_paid ?>"
+                                                data-f1-paid-date="<?= esc($p->forfait_f1_paid_date ?? '') ?>"
+                                                data-f2-choice="<?= (int)$p->forfait_f2_choice ?>"
+                                                data-f2-paid="<?= (int)$p->forfait_f2_paid ?>"
+                                                data-f2-paid-date="<?= esc($p->forfait_f2_paid_date ?? '') ?>"
+                                                data-update-url="<?= base_url('admin/members/' . $member->id . '/payments/' . $p->id . '/update') ?>">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-xs btn-danger btn-delete-payment" title="Supprimer"
+                                                data-id="<?= $p->id ?>" data-year="<?= $p->year ?>">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <form id="del-pay-<?= $p->id ?>"
+                                              action="<?= base_url('admin/members/' . $member->id . '/payments/' . $p->id . '/delete') ?>"
+                                              method="post" class="d-none">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="_back" value="member_edit">
+                                        </form>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+            </div>
+
+            <!-- ══════════════════════════════════════════════════════
                  ONGLET — Catégories (placeholder)
             ══════════════════════════════════════════════════════ -->
             <div class="tab-pane fade" id="categories" role="tabpanel">
@@ -480,6 +615,158 @@
     </div><!-- /.col -->
 
 </div><!-- /.row -->
+
+<!-- ══ Modal — Cotisations (ajouter / modifier) ══════════ -->
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <form id="paymentForm" method="post" autocomplete="off">
+                <?= csrf_field() ?>
+                <input type="hidden" name="_back" value="member_edit">
+
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title" id="paymentModalTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- Année (création seulement) -->
+                    <div id="yearWrap" class="form-group">
+                        <label>Année de début <span class="text-danger">*</span>
+                            <small class="text-muted">(ex : <?= ANNEE_1 ?> pour la saison <?= SAISON_EN_COURS ?>)</small>
+                        </label>
+                        <input type="number" name="year" id="modalYear" class="form-control"
+                               value="<?= ANNEE_1 ?>" min="2000" max="2100" style="max-width:120px">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6">
+
+                            <!-- Cotisation RBCD -->
+                            <div class="card card-outline card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" style="height:1.4em;vertical-align:middle" class="mr-2">
+                                        Cotisation RBCD
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="custom-control custom-switch mb-3">
+                                        <input type="hidden" name="rbcd_paid" value="0">
+                                        <input type="checkbox" class="custom-control-input" id="pm_rbcd_paid" name="rbcd_paid" value="1">
+                                        <label class="custom-control-label" for="pm_rbcd_paid">Cotisation payée</label>
+                                    </div>
+                                    <div class="form-group mb-0" id="pm_rbcd_date_wrap" style="display:none">
+                                        <label>Date de paiement</label>
+                                        <input type="date" name="rbcd_paid_date" id="pm_rbcd_paid_date" class="form-control" style="max-width:180px">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cotisation FRBB -->
+                            <div class="card card-outline card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <img src="<?= base_url('assets/images/Ecusson_FRBB-LL.png') ?>" style="height:1.4em;vertical-align:middle" class="mr-2">
+                                        Cotisation FRBB
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="custom-control custom-switch mb-3">
+                                        <input type="hidden" name="frbb_paid" value="0">
+                                        <input type="checkbox" class="custom-control-input" id="pm_frbb_paid" name="frbb_paid" value="1">
+                                        <label class="custom-control-label" for="pm_frbb_paid">Cotisation payée</label>
+                                    </div>
+                                    <div class="form-group mb-0" id="pm_frbb_date_wrap" style="display:none">
+                                        <label>Date de paiement</label>
+                                        <input type="date" name="frbb_paid_date" id="pm_frbb_paid_date" class="form-control" style="max-width:180px">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-lg-6">
+
+                            <!-- Forfait F1 -->
+                            <div class="card card-outline card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;vertical-align:middle" class="mr-2">
+                                        Forfait F1 <small class="text-muted">(jan–juin — 75 €)</small>
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="custom-control custom-switch mb-3">
+                                        <input type="hidden" name="forfait_f1_choice" value="0">
+                                        <input type="checkbox" class="custom-control-input pm-choice-toggle"
+                                               id="pm_f1_choice" name="forfait_f1_choice" value="1"
+                                               data-target="#pm_f1_details">
+                                        <label class="custom-control-label" for="pm_f1_choice">Le membre a souscrit au forfait F1</label>
+                                    </div>
+                                    <div id="pm_f1_details" style="display:none">
+                                        <div class="custom-control custom-switch mb-3">
+                                            <input type="hidden" name="forfait_f1_paid" value="0">
+                                            <input type="checkbox" class="custom-control-input" id="pm_f1_paid" name="forfait_f1_paid" value="1">
+                                            <label class="custom-control-label" for="pm_f1_paid">Forfait F1 payé</label>
+                                        </div>
+                                        <div class="form-group mb-0" id="pm_f1_date_wrap" style="display:none">
+                                            <label>Date de paiement</label>
+                                            <input type="date" name="forfait_f1_paid_date" id="pm_f1_paid_date" class="form-control" style="max-width:180px">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Forfait F2 -->
+                            <div class="card card-outline card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;vertical-align:middle" class="mr-2">
+                                        Forfait F2 <small class="text-muted">(juil–déc — 75 €)</small>
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="custom-control custom-switch mb-3">
+                                        <input type="hidden" name="forfait_f2_choice" value="0">
+                                        <input type="checkbox" class="custom-control-input pm-choice-toggle"
+                                               id="pm_f2_choice" name="forfait_f2_choice" value="1"
+                                               data-target="#pm_f2_details">
+                                        <label class="custom-control-label" for="pm_f2_choice">Le membre a souscrit au forfait F2</label>
+                                    </div>
+                                    <div id="pm_f2_details" style="display:none">
+                                        <div class="custom-control custom-switch mb-3">
+                                            <input type="hidden" name="forfait_f2_paid" value="0">
+                                            <input type="checkbox" class="custom-control-input" id="pm_f2_paid" name="forfait_f2_paid" value="1">
+                                            <label class="custom-control-label" for="pm_f2_paid">Forfait F2 payé</label>
+                                        </div>
+                                        <div class="form-group mb-0" id="pm_f2_date_wrap" style="display:none">
+                                            <label>Date de paiement</label>
+                                            <input type="date" name="forfait_f2_paid_date" id="pm_f2_paid_date" class="form-control" style="max-width:180px">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div><!-- /.modal-body -->
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-1"></i> Enregistrer
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<!-- ══ /Modal cotisations ════════════════════════════════ -->
 
 <?= $this->endSection() ?>
 
@@ -549,6 +836,91 @@ $(function () {
         reader.readAsDataURL(file);
         $('#remove_photo').prop('checked', false);
     });
+
+    // ── Cotisations — modal add/edit ─────────────────────────
+    const addPaymentUrl = '<?= base_url('admin/members/' . $member->id . '/payments') ?>';
+
+    function resetPaymentModal() {
+        $('#paymentForm')[0].reset();
+        $('#pm_rbcd_date_wrap, #pm_frbb_date_wrap, #pm_f1_details, #pm_f1_date_wrap, #pm_f2_details, #pm_f2_date_wrap').hide();
+    }
+
+    $('#btnAddPayment').on('click', function () {
+        resetPaymentModal();
+        $('#paymentForm').attr('action', addPaymentUrl);
+        $('#paymentModalTitle').text('Ajouter une saison');
+        $('#yearWrap').show();
+        $('#modalYear').attr('required', true).val('<?= ANNEE_1 ?>');
+        $('#paymentModal').modal('show');
+    });
+
+    $(document).on('click', '.btn-edit-payment', function () {
+        resetPaymentModal();
+        const d = $(this).data();
+        $('#paymentForm').attr('action', d.updateUrl);
+        $('#paymentModalTitle').text('Modifier saison ' + d.year + '-' + (parseInt(d.year) + 1));
+        $('#yearWrap').hide();
+        $('#modalYear').removeAttr('required');
+
+        // RBCD
+        $('#pm_rbcd_paid').prop('checked', d.rbcdPaid == 1);
+        $('#pm_rbcd_paid_date').val(d.rbcdPaidDate || '');
+        $('#pm_rbcd_date_wrap').toggle(d.rbcdPaid == 1);
+
+        // FRBB
+        $('#pm_frbb_paid').prop('checked', d.frbbPaid == 1);
+        $('#pm_frbb_paid_date').val(d.frbbPaidDate || '');
+        $('#pm_frbb_date_wrap').toggle(d.frbbPaid == 1);
+
+        // F1
+        $('#pm_f1_choice').prop('checked', d.f1Choice == 1);
+        $('#pm_f1_details').toggle(d.f1Choice == 1);
+        $('#pm_f1_paid').prop('checked', d.f1Paid == 1);
+        $('#pm_f1_paid_date').val(d.f1PaidDate || '');
+        $('#pm_f1_date_wrap').toggle(d.f1Paid == 1);
+
+        // F2
+        $('#pm_f2_choice').prop('checked', d.f2Choice == 1);
+        $('#pm_f2_details').toggle(d.f2Choice == 1);
+        $('#pm_f2_paid').prop('checked', d.f2Paid == 1);
+        $('#pm_f2_paid_date').val(d.f2PaidDate || '');
+        $('#pm_f2_date_wrap').toggle(d.f2Paid == 1);
+
+        $('#paymentModal').modal('show');
+    });
+
+    // Afficher/cacher date quand on coche payé
+    $(document).on('change', '#pm_rbcd_paid',  function () { $('#pm_rbcd_date_wrap').toggle(this.checked); });
+    $(document).on('change', '#pm_frbb_paid',  function () { $('#pm_frbb_date_wrap').toggle(this.checked); });
+    $(document).on('change', '#pm_f1_paid',    function () { $('#pm_f1_date_wrap').toggle(this.checked); });
+    $(document).on('change', '#pm_f2_paid',    function () { $('#pm_f2_date_wrap').toggle(this.checked); });
+
+    // Afficher/cacher détails forfait
+    $(document).on('change', '.pm-choice-toggle', function () {
+        const $target = $($(this).data('target'));
+        $target.toggle(this.checked);
+        if (!this.checked) {
+            $target.find('input[type=checkbox]').prop('checked', false).trigger('change');
+        }
+    });
+
+    // Supprimer une cotisation
+    $(document).on('click', '.btn-delete-payment', function () {
+        const id   = $(this).data('id');
+        const year = $(this).data('year');
+        Swal.fire({
+            title: 'Supprimer la saison ' + year + '-' + (parseInt(year) + 1) + ' ?',
+            text: 'Cette action est irréversible.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler',
+            confirmButtonColor: '#84252B',
+        }).then(result => {
+            if (result.isConfirmed) $('#del-pay-' + id).submit();
+        });
+    });
+    // ── /Cotisations ──────────────────────────────────────────
 
     // Confirmation retour de clé
     $(document).on('click', '.btn-return-key', function () {

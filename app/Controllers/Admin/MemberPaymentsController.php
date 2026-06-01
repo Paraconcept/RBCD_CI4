@@ -118,6 +118,10 @@ class MemberPaymentsController extends BaseController
 
         $this->paymentModel->insert($this->collectData($memberId, $year));
 
+        if ($this->request->getPost('_back') === 'member_edit') {
+            return redirect()->to(base_url("admin/members/{$memberId}/edit?tab=cotisations"))
+                             ->with('success', "Saison {$season} ajoutée.");
+        }
         $ref         = $this->request->getGet('ref') ?? '';
         $redirectUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
         return redirect()->to($redirectUrl)->with('success', "Saison {$season} ajoutée.");
@@ -132,9 +136,14 @@ class MemberPaymentsController extends BaseController
 
         $this->paymentModel->update($paymentId, $this->collectData($memberId, (int) $payment->year));
 
+        $season = $payment->year . '-' . ($payment->year + 1);
+
+        if ($this->request->getPost('_back') === 'member_edit') {
+            return redirect()->to(base_url("admin/members/{$memberId}/edit?tab=cotisations"))
+                             ->with('success', "Saison {$season} mise à jour.");
+        }
         $ref         = $this->request->getGet('ref') ?? '';
         $redirectUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
-        $season      = $payment->year . '-' . ($payment->year + 1);
         return redirect()->to($redirectUrl)->with('success', "Saison {$season} mise à jour.");
     }
 
@@ -148,6 +157,11 @@ class MemberPaymentsController extends BaseController
         $this->paymentModel->delete($paymentId);
 
         $season = $payment->year . '-' . ($payment->year + 1);
+
+        if ($this->request->getPost('_back') === 'member_edit') {
+            return redirect()->to(base_url("admin/members/{$memberId}/edit?tab=cotisations"))
+                             ->with('success', "Saison {$season} supprimée.");
+        }
         return redirect()->to(base_url("admin/members/{$memberId}/payments"))
                          ->with('success', "Saison {$season} supprimée.");
     }

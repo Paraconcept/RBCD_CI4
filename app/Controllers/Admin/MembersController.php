@@ -87,9 +87,10 @@ class MembersController extends BaseController
             return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
         }
 
-        $keyModel  = new MemberKeyModel();
-        $validTabs = ['coordonnees', 'visibilite', 'photo', 'cles', 'categories'];
-        $activeTab = in_array($this->request->getGet('tab'), $validTabs, true)
+        $keyModel     = new MemberKeyModel();
+        $paymentModel = new MemberPaymentModel();
+        $validTabs    = ['coordonnees', 'visibilite', 'photo', 'cles', 'cotisations', 'categories'];
+        $activeTab    = in_array($this->request->getGet('tab'), $validTabs, true)
             ? $this->request->getGet('tab')
             : 'coordonnees';
 
@@ -103,6 +104,7 @@ class MembersController extends BaseController
             'activeTab'     => $activeTab,
             'memberKeys'    => $keyModel->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
             'availableKeys' => $keyModel->where('member_id IS NULL')->orderBy('badge_number')->findAll(),
+            'payments'      => $paymentModel->getForMember($id),
         ]);
     }
 
