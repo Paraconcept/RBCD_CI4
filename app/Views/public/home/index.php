@@ -40,7 +40,8 @@ body { overflow-x: clip; }
 .sb-widget .enc-block.away { border-left:4px solid var(--clr-away); background:#DC656D24; transition:background .15s; }
 .sb-widget .enc-block.home:hover { background:#d0f7d3; }
 .sb-widget .enc-block.away:hover { background:#dc656d47; }
-.sb-ev-block { padding:.4rem .8rem; border-bottom:1px solid #f0f0f0; font-size:.8rem; }
+.sb-ev-block { padding:.4rem .8rem; border-bottom:1px solid #f0f0f0; font-size:.8rem; transition:filter .15s; }
+.sb-ev-block:hover { filter:brightness(.93); }
 .sb-widget .day-card-body > *:last-child { border-bottom:none; }
 .sb-widget .day-card + .day-card { margin-top:.6rem; }
 .sb-time { display:inline-block; background:#e9ecef; color:#343a40; border-radius:20px; padding:1px 8px; font-size:.75rem; font-weight:600; white-space:nowrap; }

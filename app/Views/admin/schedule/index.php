@@ -35,7 +35,9 @@
     padding: .45rem 1rem;
     font-size: .85rem;
     border-bottom: 1px solid rgba(0,0,0,.06);
+    transition: filter .15s;
 }
+.event-admin-row:hover { filter: brightness(.93); }
 .event-admin-row:last-of-type { border-bottom: none; }
 .event-admin-title { font-weight: 700; flex: 1; }
 .event-admin-time  { font-size: .78rem; opacity: .75; white-space: nowrap; }

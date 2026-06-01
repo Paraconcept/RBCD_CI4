@@ -112,8 +112,9 @@
 .day-card-header .text-muted { color:#555 !important; }
 
 /* Événements — même grille que enc-block */
-.event-block { border-bottom: 1px solid rgba(0,0,0,.06); }
+.event-block { border-bottom: 1px solid rgba(0,0,0,.06); transition:filter .15s; }
 .event-block:last-child { border-bottom: none; }
+.event-block:hover { filter:brightness(.93); }
 .event-block-title { font-weight: 700; font-size: .88rem; }
 .event-block-desc  { font-size: .8rem; font-style: italic; }
 
