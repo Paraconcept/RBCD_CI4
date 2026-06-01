@@ -56,7 +56,7 @@
                         <i class="fas fa-euro-sign fa-fw mr-2"></i>Cotisations
                     </a>
                     <a class="nav-link disabled text-muted" href="#categories" data-toggle="pill" role="tab">
-                        <i class="fas fa-tag fa-fw mr-2"></i>Catégories
+                        <i class="fas fa-layer-group fa-fw mr-2"></i>Catégories
                         <small class="d-block ml-4 mt-n1" style="font-size:.7rem">(bientôt)</small>
                     </a>
 
@@ -219,7 +219,7 @@
                     <!-- Statut club -->
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-trophy mr-2"></i>Statut club</h3>
+                            <h3 class="card-title"><i class="fas fa-tag mr-2"></i>Statut club</h3>
                         </div>
                         <div class="card-body">
                             <div class="row">
