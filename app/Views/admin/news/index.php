@@ -55,7 +55,7 @@
           </td>
           <td class="text-right">
             <a href="<?= base_url('admin/news/' . $n->id . '/edit') ?>"
-               class="btn btn-xs btn-default" title="Modifier">
+               class="btn btn-xs btn-warning" title="Modifier">
               <i class="fas fa-pencil-alt"></i>
             </a>
             <form method="post" action="<?= base_url('admin/news/' . $n->id . '/delete') ?>"
