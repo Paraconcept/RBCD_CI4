@@ -39,7 +39,10 @@ class ScheduleEventsController extends BaseController
         $data = $this->collectPost();
         $this->model->insert($data);
 
-        return redirect()->to(base_url('admin/schedule-events'))
+        $week = (int) (new \DateTime($data['event_date']))->format('W');
+        $year = (int) (new \DateTime($data['event_date']))->format('o');
+
+        return redirect()->to(base_url("admin/schedule/{$week}/{$year}"))
                          ->with('success', 'Événement créé.');
     }
 

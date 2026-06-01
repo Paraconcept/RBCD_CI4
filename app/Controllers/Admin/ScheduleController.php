@@ -115,7 +115,10 @@ class ScheduleController extends BaseController
 
         $this->savePlayers((int) $encounterId);
 
-        return redirect()->to(base_url('admin/schedule'))->with('success', 'Rencontre créée avec succès.');
+        $week = (int) (new \DateTime($this->request->getPost('match_date')))->format('W');
+        $year = (int) (new \DateTime($this->request->getPost('match_date')))->format('o');
+
+        return redirect()->to(base_url("admin/schedule/{$week}/{$year}"))->with('success', 'Rencontre créée avec succès.');
     }
 
     public function edit(int $id): string
