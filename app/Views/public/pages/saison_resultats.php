@@ -64,6 +64,9 @@
                         ? ($r->m_photo ? base_url('uploads/members/' . $r->m_photo) : null)
                         : (($r->winner_photo ?? null) ? base_url('uploads/sport_results/' . $r->winner_photo) : null);
                     $memberUrl = $r->m_id ? base_url('club/membres/' . $r->m_id) : null;
+                    $teamUrl   = !empty($r->cdr_team_id)  ? base_url('saison/coupe-des-regions/' . $r->cdr_team_id)
+                               : (!empty($r->intm_team_id) ? base_url('saison/intm/' . $r->intm_team_id) : null);
+                    $linkUrl   = $teamUrl ?? $memberUrl;
                     $dateStr = null;
                     if ($r->final_date) {
                         $dt     = new DateTime($r->final_date);
@@ -84,17 +87,19 @@
                   ?>
                   <li class="sr-item<?= $isGroupEnd ? ' sr-item-group-end' : '' ?>">
 
-                    <?php if ($memberUrl): ?>
-                    <a href="<?= esc($memberUrl) ?>" class="sr-photo" title="Fiche de <?= esc($playerName ?? '') ?>">
+                    <?php if ($linkUrl): ?>
+                    <a href="<?= esc($linkUrl) ?>" class="sr-photo" title="<?= $teamUrl ? 'Voir la page de l\'équipe' : 'Fiche de ' . esc($playerName ?? '') ?>">
                     <?php else: ?>
                     <div class="sr-photo">
                     <?php endif; ?>
                       <?php if ($photo): ?>
                         <img src="<?= esc($photo) ?>" alt="<?= esc($playerName ?? '') ?>">
+                      <?php elseif ($teamUrl): ?>
+                        <i class="fas fa-users"></i>
                       <?php else: ?>
                         <i class="fas fa-user"></i>
                       <?php endif; ?>
-                    <?php if ($memberUrl): ?>
+                    <?php if ($linkUrl): ?>
                     </a>
                     <?php else: ?>
                     </div>
