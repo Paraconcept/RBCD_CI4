@@ -19,7 +19,7 @@ body { overflow-x: clip; }
 .news-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
 .news-card-img-wrap { display: block; overflow: hidden; }
 .news-card-img { width: 100%; height: 190px; object-fit: contain; background: #f0f0f0; display: block; transition: transform .3s; }
-.news-card-img-wrap:hover .news-card-img { transform: scale(1.03); }
+.news-card-img-wrap:hover .news-card-img { transform: scale(1.08); }
 .news-card-img-placeholder { height: 190px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 2.5rem; }
 .news-card-body { padding: 20px 22px 22px; display: flex; flex-direction: column; flex: 1; }
 .news-card-date { font-size: .78rem; color: #84252B; font-weight: 600; margin-bottom: 8px; }
