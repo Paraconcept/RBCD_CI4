@@ -345,9 +345,22 @@ $hasCoords = $canSee('phone',      $m->phone)
             ?>
             <li class="sr-item<?= $isGroupEnd ? ' sr-item-group-end' : '' ?>">
 
-              <!-- Photo -->
+              <!-- Photo (cliquable si résultat lié à une équipe) -->
+              <?php
+                $teamUrl = null;
+                if (!empty($r->cdr_team_id))  $teamUrl = base_url('saison/coupe-des-regions/' . $r->cdr_team_id);
+                elseif (!empty($r->intm_team_id)) $teamUrl = base_url('saison/intm/' . $r->intm_team_id);
+              ?>
               <div class="sr-photo">
-                <?php if ($photo): ?>
+                <?php if ($teamUrl): ?>
+                  <a href="<?= $teamUrl ?>" title="Voir la page de l'équipe">
+                    <?php if ($photo): ?>
+                      <img src="<?= esc($photo) ?>" alt="<?= esc($m->last_name . ' ' . $m->first_name) ?>">
+                    <?php else: ?>
+                      <i class="fas fa-user"></i>
+                    <?php endif; ?>
+                  </a>
+                <?php elseif ($photo): ?>
                   <img src="<?= esc($photo) ?>" alt="<?= esc($m->last_name . ' ' . $m->first_name) ?>">
                 <?php else: ?>
                   <i class="fas fa-user"></i>

@@ -220,8 +220,8 @@ class SportResultsController extends BaseController
             'winner_name'      => $winnerName,
             'final_date'       => $this->request->getPost('final_date') ?: null,
             'is_published'     => (int) $this->request->getPost('is_published'),
-            'cdr_team_id'      => $this->request->getPost('cdr_team_id')  ?: null,
-            'intm_team_id'     => $this->request->getPost('intm_team_id') ?: null,
+            'cdr_team_id'      => $this->parseCdrTeamId($this->request->getPost('team_link')),
+            'intm_team_id'     => $this->parseIntmTeamId($this->request->getPost('team_link')),
         ];
     }
 
@@ -295,13 +295,33 @@ class SportResultsController extends BaseController
             ->findAll();
     }
 
+    private function parseCdrTeamId(?string $val): ?int
+    {
+        if ($val && str_starts_with($val, 'cdr_')) {
+            $id = (int) substr($val, 4);
+            return $id ?: null;
+        }
+        return null;
+    }
+
+    private function parseIntmTeamId(?string $val): ?int
+    {
+        if ($val && str_starts_with($val, 'intm_')) {
+            $id = (int) substr($val, 5);
+            return $id ?: null;
+        }
+        return null;
+    }
+
     private function getCdrTeams(): array
     {
-        return (new CdrTeamModel())->orderBy('season', 'DESC')->orderBy('name', 'ASC')->findAll();
+        $season = ANNEE_1 . '-' . ANNEE_2;
+        return (new CdrTeamModel())->where('season', $season)->orderBy('name', 'ASC')->findAll();
     }
 
     private function getIntmTeams(): array
     {
-        return (new IntmTeamModel())->orderBy('season', 'DESC')->orderBy('name', 'ASC')->findAll();
+        $season = ANNEE_1 . '-' . ANNEE_2;
+        return (new IntmTeamModel())->where('season', $season)->orderBy('name', 'ASC')->findAll();
     }
 }

@@ -72,33 +72,35 @@
 
       </div>
 
-      <!-- Équipe liée (CDR ou INTM selon le type) -->
-      <div class="row" id="teamLinkRow">
-        <div class="col-md-6" id="cdrTeamGroup" style="display:none">
+      <!-- Équipe liée (CDR ou INTM) — visible uniquement pour type = coupe -->
+      <?php
+        $currentTeamLink = old('team_link', '');
+        if (!$currentTeamLink && isset($result)) {
+            if ($result->cdr_team_id)  $currentTeamLink = 'cdr_'  . $result->cdr_team_id;
+            elseif ($result->intm_team_id) $currentTeamLink = 'intm_' . $result->intm_team_id;
+        }
+      ?>
+      <div class="row" id="teamLinkRow" style="display:none">
+        <div class="col-md-6">
           <div class="form-group">
-            <label>Équipe CDR associée <small class="text-muted">(optionnel)</small></label>
-            <select name="cdr_team_id" class="form-control">
-              <option value="">— Aucune équipe CDR —</option>
-              <?php foreach ($cdrTeams as $t): ?>
-              <option value="<?= $t->id ?>"
-                <?= old('cdr_team_id', $result->cdr_team_id ?? '') == $t->id ? 'selected' : '' ?>>
-                <?= esc($t->season) ?> — <?= esc($t->name) ?> (<?= esc($t->game_mode) ?>)
-              </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-        </div>
-        <div class="col-md-6" id="intmTeamGroup" style="display:none">
-          <div class="form-group">
-            <label>Équipe INTM associée <small class="text-muted">(optionnel)</small></label>
-            <select name="intm_team_id" class="form-control">
-              <option value="">— Aucune équipe INTM —</option>
-              <?php foreach ($intmTeams as $t): ?>
-              <option value="<?= $t->id ?>"
-                <?= old('intm_team_id', $result->intm_team_id ?? '') == $t->id ? 'selected' : '' ?>>
-                <?= esc($t->season) ?> — <?= esc($t->name) ?> (Div. <?= esc($t->division) ?>)
-              </option>
-              <?php endforeach; ?>
+            <label>Équipe associée <small class="text-muted">(optionnel)</small></label>
+            <select name="team_link" id="team_link" class="form-control">
+              <optgroup label="— CDR (Coupe des Régions)">
+                <option value="">Aucune équipe CDR</option>
+                <?php foreach ($cdrTeams as $t): ?>
+                <option value="cdr_<?= $t->id ?>" <?= $currentTeamLink === 'cdr_' . $t->id ? 'selected' : '' ?>>
+                  <?= esc($t->name) ?> (<?= esc($t->game_mode) ?>)
+                </option>
+                <?php endforeach; ?>
+              </optgroup>
+              <optgroup label="— INTM (Intercommunales)">
+                <option value="intm_0">Aucune équipe INTM</option>
+                <?php foreach ($intmTeams as $t): ?>
+                <option value="intm_<?= $t->id ?>" <?= $currentTeamLink === 'intm_' . $t->id ? 'selected' : '' ?>>
+                  <?= esc($t->name) ?> — Div. <?= esc($t->division) ?>
+                </option>
+                <?php endforeach; ?>
+              </optgroup>
             </select>
           </div>
         </div>
@@ -321,14 +323,12 @@ $(function () {
     $(this).closest('.custom-file').find('.custom-file-label').text(file.name);
   });
 
-  // Afficher le dropdown d'équipe selon le type sélectionné
-  function updateTeamDropdowns() {
-    var type = $('#type').val();
-    $('#cdrTeamGroup').toggle(type === 'coupe');
-    $('#intmTeamGroup').toggle(type === 'championnat');
+  // Afficher le dropdown d'équipe uniquement pour type = coupe
+  function updateTeamDropdown() {
+    $('#teamLinkRow').toggle($('#type').val() === 'coupe');
   }
-  $('#type').on('change', updateTeamDropdowns);
-  updateTeamDropdowns(); // init au chargement
+  $('#type').on('change', updateTeamDropdown);
+  updateTeamDropdown();
 });
 </script>
 <?= $this->endSection() ?>

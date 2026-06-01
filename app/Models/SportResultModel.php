@@ -78,7 +78,7 @@ class SportResultModel extends Model
     public function getByMember(int $memberId, ?string $season = null, bool $publishedOnly = false): array
     {
         $builder = $this->db->table('sport_results')
-            ->select(['season', 'type', 'title', 'place', 'final_date', 'pdf_file'])
+            ->select(['season', 'type', 'title', 'place', 'final_date', 'pdf_file', 'cdr_team_id', 'intm_team_id'])
             ->where('winner_member_id', $memberId);
         if ($season !== null) { $builder->where('season', $season); }
         if ($publishedOnly)   { $builder->where('is_published', 1); }
