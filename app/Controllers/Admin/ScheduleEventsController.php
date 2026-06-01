@@ -74,10 +74,13 @@ class ScheduleEventsController extends BaseController
 
     public function update(int $id)
     {
-        $this->model->find($id);
-        $this->model->update($id, $this->collectPost());
+        $data = $this->collectPost();
+        $this->model->update($id, $data);
 
-        return redirect()->to(base_url('admin/schedule-events'))
+        $week = (int) (new \DateTime($data['event_date']))->format('W');
+        $year = (int) (new \DateTime($data['event_date']))->format('o');
+
+        return redirect()->to(base_url("admin/schedule/{$week}/{$year}"))
                          ->with('success', 'Événement mis à jour.');
     }
 
