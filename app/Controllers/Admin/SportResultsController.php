@@ -213,6 +213,7 @@ class SportResultsController extends BaseController
             'winner_member_id' => $memberId,
             'winner_name'      => $winnerName,
             'final_date'       => $this->request->getPost('final_date') ?: null,
+            'is_published'     => (int) $this->request->getPost('is_published'),
         ];
     }
 
