@@ -234,6 +234,7 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('schedule',                        'Admin\ScheduleController::index');
         $routes->get ('schedule/(:num)/(:num)',          'Admin\ScheduleController::index/$1/$2');
         $routes->get ('schedule/create',                 'Admin\ScheduleController::create');
+        $routes->get ('schedule/(:num)/duplicate',       'Admin\ScheduleController::duplicate/$1');
         $routes->post('schedule',                        'Admin\ScheduleController::store');
         $routes->get ('schedule/(:num)/edit',            'Admin\ScheduleController::edit/$1');
         $routes->post('schedule/(:num)/update',          'Admin\ScheduleController::update/$1');

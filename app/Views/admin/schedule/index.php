@@ -321,6 +321,10 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     <?php endif; ?>
                 </td>
                 <td class="align-middle text-right text-nowrap col-actions">
+                    <a href="<?= base_url("admin/schedule/{$enc->id}/duplicate") ?>"
+                       class="btn btn-xs btn-info mr-1" title="Dupliquer">
+                        <i class="fas fa-copy"></i>
+                    </a>
                     <a href="<?= base_url("admin/schedule/{$enc->id}/edit") ?>"
                        class="btn btn-xs btn-warning" title="Modifier">
                         <i class="fas fa-pencil-alt"></i>

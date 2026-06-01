@@ -139,6 +139,28 @@ class ScheduleController extends BaseController
         ]);
     }
 
+    public function duplicate(int $id): string
+    {
+        $source = $this->encounters->getWithPlayers($id);
+        if (!$source) {
+            return redirect()->to(base_url('admin/schedule'));
+        }
+
+        return view('admin/schedule/form', [
+            'title'       => 'Dupliquer la rencontre',
+            'breadcrumbs' => [
+                ['title' => 'Tableau des rencontres', 'url' => base_url('admin/schedule')],
+                ['title' => 'Dupliquer la rencontre'],
+            ],
+            'encounter'       => null,
+            'prefill'         => $source,
+            'existingPlayers' => $source->players ?? [],
+            'members'         => (new MemberModel())->where('is_active', 1)->orderBy('last_name')->orderBy('first_name')->findAll(),
+            'acOpponents'     => $this->getAutocompleteValues('opponent_name'),
+            'acHomePlayers'   => $this->getAutocompleteValues('player_home_name'),
+        ]);
+    }
+
     public function update(int $id)
     {
         $encounter = $this->encounters->find($id);

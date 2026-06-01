@@ -12,20 +12,21 @@
 
 <?php
 $isEdit        = $encounter !== null;
+$source        = $encounter ?? $prefill ?? null;
 $formUrl       = $isEdit
     ? base_url("admin/schedule/{$encounter->id}/update")
     : base_url('admin/schedule');
-$isHome        = $isEdit ? (int)$encounter->is_home : 1;
-$encType       = $isEdit ? ($encounter->encounter_type ?? 'normal') : 'normal';
+$isHome        = $source ? (int)$source->is_home : 1;
+$encType       = $source ? ($source->encounter_type ?? 'normal') : 'normal';
 $isFinale      = $encType === 'finale';
-$requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
+$requiresArb   = $source ? (int)($source->requires_arbitrage ?? 1) : 1;
 ?>
 
 <div class="card card-outline card-primary">
     <div class="card-header">
         <h3 class="card-title">
-            <i class="fas <?= $isEdit ? 'fa-pencil-alt' : 'fa-plus' ?> mr-2"></i>
-            <?= $isEdit ? 'Modifier la rencontre' : 'Nouvelle rencontre' ?>
+            <i class="fas <?= $isEdit ? 'fa-pencil-alt' : (isset($prefill) ? 'fa-copy' : 'fa-plus') ?> mr-2"></i>
+            <?= esc($title) ?>
         </h3>
     </div>
 
@@ -75,7 +76,7 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
                 <div class="col-md-2 form-group">
                     <label>Heure <span class="text-danger">*</span></label>
                     <input type="time" name="match_time" class="form-control"
-                           value="<?= esc(old('match_time', $isEdit ? substr($encounter->match_time, 0, 5) : '19:30')) ?>" required>
+                           value="<?= esc(old('match_time', $source ? substr($source->match_time, 0, 5) : '19:30')) ?>" required>
                 </div>
 
                 <!-- Domicile / Déplacement -->
@@ -98,7 +99,7 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
                     <label>Lieu de déplacement</label>
                     <input type="text" name="venue" class="form-control"
                            placeholder="ex: BC Herstalien"
-                           value="<?= esc(old('venue', $isEdit ? $encounter->venue ?? '' : '')) ?>">
+                           value="<?= esc(old('venue', $source ? $source->venue ?? '' : '')) ?>">
                 </div>
             </div>
 
@@ -108,7 +109,7 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
                     <label>Compétition</label>
                     <input type="text" name="competition" class="form-control"
                            placeholder="ex: Championnat Régional 3° 3B PF"
-                           value="<?= esc(old('competition', $isEdit ? $encounter->competition ?? '' : '')) ?>">
+                           value="<?= esc(old('competition', $source ? $source->competition ?? '' : '')) ?>">
 
                     <!-- Nombre de tours — visible uniquement en mode Finale -->
                     <div class="col-md-12 form-group" id="roundsCountGroup" <?= !$isFinale ? 'style="display:none"' : '' ?>>
@@ -119,7 +120,7 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
                             </div>
                             <input type="number" name="rounds_count" class="form-control"
                                 min="1" max="8" placeholder="Tours"
-                                value="<?= esc(old('rounds_count', $isEdit ? ($encounter->rounds_count ?? 3) : 3)) ?>"
+                                value="<?= esc(old('rounds_count', $source ? ($source->rounds_count ?? 3) : 3)) ?>"
                                 title="Nombre de tours de la compétition">
                             <div class="input-group-append">
                                 <span class="input-group-text">tour(s) de jeux</span>
@@ -148,7 +149,7 @@ $requiresArb   = $isEdit ? (int)($encounter->requires_arbitrage ?? 1) : 1;
                 <div class="col-md-4 form-group">
                     <label>Notes internes</label>
                     <textarea name="notes" class="form-control" rows="2"
-                              placeholder="Remarques diverses"><?= esc(old('notes', $isEdit ? $encounter->notes ?? '' : '')) ?></textarea>
+                              placeholder="Remarques diverses"><?= esc(old('notes', $source ? $source->notes ?? '' : '')) ?></textarea>
                 </div>
             </div>
 
