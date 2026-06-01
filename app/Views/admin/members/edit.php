@@ -23,12 +23,14 @@
     <div class="col-md-3 col-lg-2">
         <div class="card card-outline card-primary sticky-top" style="top:1rem">
 
-            <?php if ($member->photo): ?>
             <div class="card-header text-center pt-3 pb-2 border-bottom-0">
-                <img src="<?= base_url('uploads/members/' . $member->photo) ?>"
-                     class="img-circle" style="width:72px;height:72px;object-fit:cover">
+                <?php if ($member->photo): ?>
+                    <img src="<?= base_url('uploads/members/' . $member->photo) ?>"
+                         class="img-circle" style="width:72px;height:72px;object-fit:cover">
+                <?php else: ?>
+                    <span class="text-muted"><i class="fas fa-user-circle" style="font-size:72px"></i></span>
+                <?php endif; ?>
             </div>
-            <?php endif; ?>
 
             <div class="card-body p-1">
                 <div class="nav flex-column nav-pills" id="memberTabs" role="tablist">
