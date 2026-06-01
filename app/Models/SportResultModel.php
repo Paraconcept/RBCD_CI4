@@ -77,16 +77,25 @@ class SportResultModel extends Model
 
     public function getByMember(int $memberId, ?string $season = null, bool $publishedOnly = false): array
     {
-        $builder = $this->db->table('sport_results')
-            ->select(['season', 'type', 'title', 'place', 'final_date', 'pdf_file', 'cdr_team_id', 'intm_team_id'])
-            ->where('winner_member_id', $memberId);
-        if ($season !== null) { $builder->where('season', $season); }
-        if ($publishedOnly)   { $builder->where('is_published', 1); }
-        return $builder
-            ->orderBy('final_date', 'DESC')
-            ->orderBy('title', 'ASC')
-            ->orderBy('place', 'ASC')
-            ->get()->getResultObject();
+        $m  = (int) $memberId;
+        $sql = "
+            SELECT sr.season, sr.type, sr.title, sr.place, sr.final_date, sr.pdf_file,
+                   sr.cdr_team_id, sr.intm_team_id
+            FROM sport_results sr
+            LEFT JOIN cdr_teams  ct ON ct.id  = sr.cdr_team_id
+            LEFT JOIN intm_teams it ON it.id  = sr.intm_team_id
+            WHERE (
+                sr.winner_member_id = {$m}
+                OR ct.player1_id = {$m} OR ct.player2_id = {$m} OR ct.player3_id = {$m}
+                OR it.player1_id = {$m} OR it.player2_id = {$m}
+                OR it.player3_id = {$m} OR it.player4_id = {$m}
+            )
+        ";
+        if ($season !== null)  { $sql .= " AND sr.season = " . $this->db->escape($season); }
+        if ($publishedOnly)    { $sql .= " AND sr.is_published = 1"; }
+        $sql .= " GROUP BY sr.id ORDER BY sr.final_date DESC, sr.title ASC, sr.place ASC";
+
+        return $this->db->query($sql)->getResultObject();
     }
 
     public function getAllSeasons(): array
