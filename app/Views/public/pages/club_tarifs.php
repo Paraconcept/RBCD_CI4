@@ -142,15 +142,15 @@
           d'utilisation des installations et de fonctionnement du club.
         </p>
         <div class="docs-links">
-          <a href="<?= base_url('documents/roi') ?>" class="doc-btn" target="_blank">
+          <a href="<?= base_url('documents/roi-reglement-d-ordre-interieur') ?>" class="doc-btn" target="_blank">
             <i class="far fa-file-pdf"></i>
             <span>Règlement d'ordre intérieur</span>
           </a>
-          <a href="<?= base_url('documents/statuts') ?>" class="doc-btn" target="_blank">
+          <a href="<?= base_url('documents/statuts-du-club') ?>" class="doc-btn" target="_blank">
             <i class="far fa-file-pdf"></i>
             <span>Statuts du club</span>
           </a>
-          <a href="<?= base_url('documents/rgpd') ?>" class="doc-btn" target="_blank">
+          <a href="<?= base_url('documents/r-g-p-d') ?>" class="doc-btn" target="_blank">
             <i class="far fa-file-pdf"></i>
             <span>R.G.P.D.</span>
           </a>
