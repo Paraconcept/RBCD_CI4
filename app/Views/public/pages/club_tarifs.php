@@ -146,6 +146,10 @@
             <i class="far fa-file-pdf"></i>
             <span>Règlement d'ordre intérieur</span>
           </a>
+          <a href="<?= base_url('documents/reglement-sportif-2026-2027') ?>" class="doc-btn" target="_blank">
+            <i class="far fa-file-pdf"></i>
+            <span>Règlement Sportif</span>
+          </a>
           <a href="<?= base_url('documents/statuts-du-club') ?>" class="doc-btn" target="_blank">
             <i class="far fa-file-pdf"></i>
             <span>Statuts du club</span>
