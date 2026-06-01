@@ -40,6 +40,9 @@ body { overflow-x: clip; }
 .sb-widget .enc-block.away { border-left:4px solid var(--clr-away); background:#DC656D24; transition:background .15s; }
 .sb-widget .enc-block.home:hover { background:#d0f7d3; }
 .sb-widget .enc-block.away:hover { background:#dc656d47; }
+.sb-ev-block { padding:.4rem .8rem; border-bottom:1px solid #f0f0f0; font-size:.8rem; }
+.sb-widget .day-card-body > *:last-child { border-bottom:none; }
+.sb-widget .day-card + .day-card { margin-top:.6rem; }
 .sb-time { display:inline-block; background:#e9ecef; color:#343a40; border-radius:20px; padding:1px 8px; font-size:.75rem; font-weight:600; white-space:nowrap; }
 .sb-comp { font-size:.72rem; color:#555; font-style:italic; }
 .sb-venue { font-size:.72rem; color:var(--clr-away); }
@@ -283,22 +286,44 @@ body { overflow-x: clip; }
               <i class="fas fa-calendar-alt me-3 text-theme-colored1"></i>Prochains matchs
             </h4>
 
-            <?php if (empty($nextMatches)): ?>
-              <p class="text-center text-muted" style="font-size:.88rem;">Aucun match à venir.</p>
+            <?php if (empty($upcomingDays)): ?>
+              <p class="text-center text-muted" style="font-size:.88rem;">Aucun match ou événement à venir.</p>
             <?php else: ?>
               <?php
                 $frDaysShort = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
                 $frMonthsSb  = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
-                $dt          = new \DateTime($nextMatches['date']);
-                $dateLabel   = $frDaysShort[(int)$dt->format('N')-1] . ' ' . $dt->format('j') . ' ' . $frMonthsSb[(int)$dt->format('n')-1];
+              ?>
+              <?php foreach ($upcomingDays as $dayIdx => $day): ?>
+              <?php
+                $dt        = new \DateTime($day['date']);
+                $dateLabel = $frDaysShort[(int)$dt->format('N')-1] . ' ' . $dt->format('j') . ' ' . $frMonthsSb[(int)$dt->format('n')-1];
               ?>
               <div class="day-card">
                 <div class="day-card-header">
                   <span><i class="fas fa-calendar-day me-1"></i><?= $dateLabel ?></span>
-                  <small class="fw-normal text-muted"><?= $nextMatches['isToday'] ? "Aujourd'hui" : "Prochain jour" ?></small>
+                  <?php if ($day['isToday']): ?>
+                    <small class="fw-normal text-muted">Aujourd'hui</small>
+                  <?php endif; ?>
                 </div>
                 <div class="day-card-body">
-                  <?php foreach ($nextMatches['encounters'] as $enc): ?>
+
+                  <?php foreach ($day['events'] as $ev): ?>
+                    <?php $c = $eventColors[$ev->color] ?? $eventColors['blue']; ?>
+                    <div class="sb-ev-block" style="background:<?= $c['bg'] ?>;border-left:3px solid <?= $c['border'] ?>;">
+                      <div class="d-flex align-items-center gap-1 flex-wrap">
+                        <i class="fas fa-calendar-check" style="color:<?= $c['border'] ?>;font-size:.78rem;flex-shrink:0;"></i>
+                        <?php if ($ev->start_time): ?>
+                          <span class="sb-time"><?= substr($ev->start_time, 0, 5) ?></span>
+                        <?php endif; ?>
+                        <span style="color:<?= $c['text'] ?>;font-weight:600;"><?= esc($ev->title) ?></span>
+                      </div>
+                      <?php if ($ev->description): ?>
+                        <div style="font-size:.76rem;color:<?= $c['text'] ?>;opacity:.85;padding-left:1.2rem;"><?= esc($ev->description) ?></div>
+                      <?php endif; ?>
+                    </div>
+                  <?php endforeach; ?>
+
+                  <?php foreach ($day['encounters'] as $enc): ?>
                   <div class="enc-block <?= $enc->is_home ? 'home' : 'away' ?>">
                     <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
                       <span class="sb-time"><?= substr($enc->match_time, 0, 5) ?></span>
@@ -320,18 +345,24 @@ body { overflow-x: clip; }
                       $rbcdName = $p->member_id
                           ? esc($p->last_name . ' ' . member_initials($p->first_name)) . '.'
                           : esc($p->player_home_name ?? '—');
-                      $oppName  = esc($p->opponent_name ?? '—');
+                      $oppName  = esc($p->opponent_name ?? '');
                     ?>
                     <div class="sb-match">
-                      <span class="<?= $enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $rbcdName : $oppName ?></span>
-                      <?php if (!empty($p->opponent_name)): ?><span class="sb-vs"><i class="fas fa-arrows-alt-h"></i></span><?php endif; ?>
-                      <span class="<?= !$enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $oppName : $rbcdName ?></span>
+                      <?php if (empty($p->opponent_name)): ?>
+                        <span><?= $rbcdName ?></span>
+                      <?php else: ?>
+                        <span class="<?= $enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $rbcdName : $oppName ?></span>
+                        <span class="sb-vs"><i class="fas fa-arrows-alt-h"></i></span>
+                        <span class="<?= !$enc->is_home ? 'fw-bold text-dark' : '' ?>"><?= $enc->is_home ? $oppName : $rbcdName ?></span>
+                      <?php endif; ?>
                     </div>
                     <?php endforeach; ?>
                   </div>
                   <?php endforeach; ?>
+
                 </div>
               </div>
+              <?php endforeach; ?>
             <?php endif; ?>
 
             <a href="<?= base_url('tableau') ?>" class="btn btn-theme-colored2 btn-sm btn-block mt-10">

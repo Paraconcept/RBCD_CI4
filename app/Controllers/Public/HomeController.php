@@ -5,6 +5,7 @@ namespace App\Controllers\Public;
 use App\Controllers\BaseController;
 use App\Models\NewsModel;
 use App\Models\ScheduleEncounterModel;
+use App\Models\ScheduleEventModel;
 use App\Models\SiteSettingModel;
 
 class HomeController extends BaseController
@@ -45,14 +46,61 @@ class HomeController extends BaseController
         }
         usort($birthdays, fn($a, $b) => $a['birthday_day_month'] <=> $b['birthday_day_month']);
 
-        $nextMatches = (new ScheduleEncounterModel())->getNextActiveDay();
+        $today   = date('Y-m-d');
+        $maxDate = date('Y-m-d', strtotime('+60 days'));
+
+        $encRows = (new ScheduleEncounterModel())
+            ->where('match_date >=', $today)
+            ->where('match_date <=', $maxDate)
+            ->orderBy('match_date')->orderBy('match_time')
+            ->findAll();
+
+        $encByDate = [];
+        if (!empty($encRows)) {
+            $ids     = array_map(fn($e) => $e->id, $encRows);
+            $players = $db->table('schedule_encounter_players sep')
+                ->select('sep.encounter_id, sep.member_id, sep.player_home_name, sep.opponent_name, m.last_name, m.first_name')
+                ->join('members m', 'm.id = sep.member_id', 'left')
+                ->whereIn('sep.encounter_id', $ids)
+                ->get()->getResultObject();
+            $byEnc = [];
+            foreach ($players as $p) { $byEnc[$p->encounter_id][] = $p; }
+            foreach ($encRows as $enc) {
+                $enc->players = $byEnc[$enc->id] ?? [];
+                $encByDate[$enc->match_date][] = $enc;
+            }
+        }
+
+        $evRows = (new ScheduleEventModel())
+            ->where('event_date >=', $today)
+            ->where('event_date <=', $maxDate)
+            ->orderBy('event_date')->orderBy('start_time')
+            ->findAll();
+
+        $evByDate = [];
+        foreach ($evRows as $ev) { $evByDate[$ev->event_date][] = $ev; }
+
+        $allDates = array_unique(array_merge(array_keys($encByDate), array_keys($evByDate)));
+        sort($allDates);
+        $allDates = array_slice($allDates, 0, 3);
+
+        $upcomingDays = [];
+        foreach ($allDates as $date) {
+            $upcomingDays[] = [
+                'date'       => $date,
+                'isToday'    => $date === $today,
+                'encounters' => $encByDate[$date] ?? [],
+                'events'     => $evByDate[$date] ?? [],
+            ];
+        }
 
         return view('public/home/index', [
             'title'        => 'RBC Disonais — Club de Billard Carambole à Dison',
             'news'         => $news,
             'pager'        => $model->pager,
             'birthdays'    => $birthdays,
-            'nextMatches'  => $nextMatches,
+            'upcomingDays' => $upcomingDays,
+            'eventColors'  => ScheduleEventModel::$colors,
         ]);
     }
 }
