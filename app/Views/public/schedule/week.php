@@ -55,6 +55,7 @@
 .loc-icon i { margin-top:2px; flex-shrink:0; }
 .loc-home { color:var(--clr-home); }
 .loc-away { color:var(--clr-away); }
+.loc-venue { font-size:.72rem; color:var(--clr-away); line-height:1.3; font-weight:700; }
 
 /* Players */
 .players-col { line-height:1.6; }
@@ -65,6 +66,7 @@
     gap:4px;
     font-size:.88rem;
     margin-bottom:2px;
+    color:#212529;
 }
 .player-home { text-align:right; }
 .player-rbcd { font-weight:600; }
@@ -325,7 +327,7 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
                 <?php else: ?>
                     <i class="fas fa-car-side loc-away me-3" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
                     <?php if ($enc->venue): ?>
-                        <span style="font-size:.72rem;color:var(--clr-away);line-height:1.3"><?= esc($enc->venue) ?></span>
+                        <span class="loc-venue"><?= esc($enc->venue) ?></span>
                     <?php endif; ?>
                 <?php endif; ?>
             </div>
