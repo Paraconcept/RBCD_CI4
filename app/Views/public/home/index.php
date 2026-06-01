@@ -36,8 +36,10 @@ body { overflow-x: clip; }
 .day-card-body { padding:0; }
 .sb-widget .enc-block { display:block; padding:.5rem .8rem; border-bottom:1px solid #f0f0f0; font-size:.8rem; }
 .sb-widget .enc-block:last-child { border-bottom:none; }
-.sb-widget .enc-block.home { border-left:4px solid var(--clr-home); background:#e8f5e9; }
-.sb-widget .enc-block.away { border-left:4px solid var(--clr-away); background:#DC656D24; }
+.sb-widget .enc-block.home { border-left:4px solid var(--clr-home); background:#e8f5e9; transition:background .15s; }
+.sb-widget .enc-block.away { border-left:4px solid var(--clr-away); background:#DC656D24; transition:background .15s; }
+.sb-widget .enc-block.home:hover { background:#d0f7d3; }
+.sb-widget .enc-block.away:hover { background:#dc656d47; }
 .sb-time { display:inline-block; background:#e9ecef; color:#343a40; border-radius:20px; padding:1px 8px; font-size:.75rem; font-weight:600; white-space:nowrap; }
 .sb-comp { font-size:.72rem; color:#555; font-style:italic; }
 .sb-venue { font-size:.72rem; color:var(--clr-away); }
