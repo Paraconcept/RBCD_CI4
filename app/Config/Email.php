@@ -25,20 +25,12 @@ class Email extends BaseConfig
      */
     public string $mailPath = '/usr/sbin/sendmail';
 
-    // ── DEV : Mailtrap (intercepte tous les emails sans les envoyer)
-    // ── PROD : commenter le bloc Mailtrap et décommenter le bloc One.com
-    public string $SMTPHost   = 'sandbox.smtp.mailtrap.io';
-    public string $SMTPUser   = 'bd395758f1e393';
-    public string $SMTPPass   = '51b9255f24759e';
-    public int    $SMTPPort   = 2525;
-    public string $SMTPCrypto = 'tls';
-
-    // ── PROD One.com (décommenter au moment de la mise en ligne)
-    // public string $SMTPHost   = 'send.one.com';
-    // public string $SMTPUser   = 'noreply@rbcdisonais.be';
-    // public string $SMTPPass   = 'MotDePasseEmailOnecom';
-    // public int    $SMTPPort   = 587;
-    // public string $SMTPCrypto = 'tls';
+    // ── Configurer via .env (SMTPHost, SMTPUser, SMTPPass, SMTPPort, SMTPCrypto)
+    public string $SMTPHost   = '';
+    public string $SMTPUser   = '';
+    public string $SMTPPass   = '';
+    public int    $SMTPPort   = 465;
+    public string $SMTPCrypto = 'ssl';
 
     /**
      * Which SMTP authentication method to use: login, plain

@@ -72,7 +72,13 @@ class PasswordResetController extends BaseController
             'isFirst'  => $isFirst,
         ]));
 
-        $emailLib->send();
+        try {
+            $emailLib->send();
+        } catch (\Throwable $e) {
+            log_message('error', 'Email reset failed: ' . $e->getMessage());
+            return redirect()->to(base_url('connexion/mot-de-passe-oublie'))
+                             ->with('error', 'Impossible d\'envoyer l\'email. Contactez l\'administrateur.');
+        }
 
         return redirect()->to(base_url('connexion/mot-de-passe-oublie'))
                          ->with('success', 'Email envoyé ! Vérifiez votre boîte mail (et vos spams). Le lien est valable 5 jours.');
