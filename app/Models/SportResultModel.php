@@ -13,7 +13,7 @@ class SportResultModel extends Model
     protected $allowedFields = [
         'season', 'type', 'title', 'place',
         'winner_member_id', 'winner_name', 'winner_photo',
-        'final_date', 'pdf_file',
+        'final_date', 'pdf_file', 'is_published',
     ];
 
     protected $useTimestamps = true;
@@ -26,13 +26,13 @@ class SportResultModel extends Model
         'autre'       => 'Autre',
     ];
 
-    public function getGroupedBySeasonWithWinner(): array
+    public function getGroupedBySeasonWithWinner(bool $publishedOnly = false): array
     {
-        $rows = $this->db->table('sport_results sr')
+        $builder = $this->db->table('sport_results sr')
             ->select([
                 'sr.id', 'sr.season', 'sr.type', 'sr.title', 'sr.place',
                 'sr.winner_member_id', 'sr.winner_name', 'sr.winner_photo',
-                'sr.final_date', 'sr.pdf_file',
+                'sr.final_date', 'sr.pdf_file', 'sr.is_published',
                 'm.last_name  AS m_last',
                 'm.first_name AS m_first',
                 'm.photo      AS m_photo',
@@ -42,8 +42,9 @@ class SportResultModel extends Model
             ->orderBy('sr.season', 'DESC')
             ->orderBy('sr.final_date', 'DESC')
             ->orderBy('sr.title', 'ASC')
-            ->orderBy('sr.place', 'ASC')
-            ->get()->getResultObject();
+            ->orderBy('sr.place', 'ASC');
+        if ($publishedOnly) { $builder->where('sr.is_published', 1); }
+        $rows = $builder->get()->getResultObject();
 
         $grouped = [];
         foreach ($rows as $r) {
@@ -52,9 +53,9 @@ class SportResultModel extends Model
         return $grouped;
     }
 
-    public function getBySeasonWithWinner(string $season): array
+    public function getBySeasonWithWinner(string $season, bool $publishedOnly = false): array
     {
-        return $this->db->table('sport_results sr')
+        $builder = $this->db->table('sport_results sr')
             ->select([
                 'sr.id', 'sr.season', 'sr.type', 'sr.title', 'sr.place',
                 'sr.winner_member_id', 'sr.winner_name', 'sr.winner_photo',
@@ -68,18 +69,18 @@ class SportResultModel extends Model
             ->where('sr.season', $season)
             ->orderBy('sr.final_date', 'DESC')
             ->orderBy('sr.title', 'ASC')
-            ->orderBy('sr.place', 'ASC')
-            ->get()->getResultObject();
+            ->orderBy('sr.place', 'ASC');
+        if ($publishedOnly) { $builder->where('sr.is_published', 1); }
+        return $builder->get()->getResultObject();
     }
 
-    public function getByMember(int $memberId, ?string $season = null): array
+    public function getByMember(int $memberId, ?string $season = null, bool $publishedOnly = false): array
     {
         $builder = $this->db->table('sport_results')
             ->select(['season', 'type', 'title', 'place', 'final_date', 'pdf_file'])
             ->where('winner_member_id', $memberId);
-        if ($season !== null) {
-            $builder->where('season', $season);
-        }
+        if ($season !== null) { $builder->where('season', $season); }
+        if ($publishedOnly)   { $builder->where('is_published', 1); }
         return $builder
             ->orderBy('final_date', 'DESC')
             ->orderBy('title', 'ASC')

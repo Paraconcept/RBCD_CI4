@@ -66,7 +66,8 @@
               <th>Joueur</th>
               <th>Finale</th>
               <th width="60" class="text-center">PDF</th>
-              <th width="100" class="text-right">Actions</th>
+              <th width="90" class="text-center">Statut</th>
+              <th width="80" class="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -102,6 +103,14 @@
                 <?php else: ?>
                   <i class="fas fa-file-pdf text-muted" title="Pas de PDF"></i>
                 <?php endif; ?>
+              </td>
+              <td class="text-center">
+                <form method="post" action="<?= base_url('admin/sport-results/' . $r->id . '/toggle') ?>" class="d-inline">
+                  <?= csrf_field() ?>
+                  <button type="submit" class="btn btn-xs <?= $r->is_published ? 'btn-success' : 'btn-secondary' ?>">
+                    <?= $r->is_published ? 'Publié' : 'Brouillon' ?>
+                  </button>
+                </form>
               </td>
               <td class="text-right">
                 <a href="<?= base_url('admin/sport-results/' . $r->id . '/edit') ?>"

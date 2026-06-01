@@ -151,6 +151,15 @@ class SportResultsController extends BaseController
                          ->with('success', 'Résultat mis à jour.');
     }
 
+    public function toggle(int $id)
+    {
+        $result = $this->model->find($id);
+        if ($result) {
+            $this->model->update($id, ['is_published' => $result->is_published ? 0 : 1]);
+        }
+        return redirect()->back()->with('success', 'Statut mis à jour.');
+    }
+
     public function delete(int $id)
     {
         $result = $this->model->find($id);

@@ -203,6 +203,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('sport-results',                   'Admin\SportResultsController::store');
         $routes->get ('sport-results/(:num)/edit',       'Admin\SportResultsController::edit/$1');
         $routes->post('sport-results/(:num)/update',     'Admin\SportResultsController::update/$1');
+        $routes->post('sport-results/(:num)/toggle',     'Admin\SportResultsController::toggle/$1');
         $routes->post('sport-results/(:num)/delete',     'Admin\SportResultsController::delete/$1');
 
         // Actualités

@@ -116,7 +116,7 @@ class PagesController extends BaseController
         }
 
         $currentSeason = ANNEE_1 . '-' . ANNEE_2;
-        $sportResults  = (new \App\Models\SportResultModel())->getByMember($id, $currentSeason);
+        $sportResults  = (new \App\Models\SportResultModel())->getByMember($id, $currentSeason, publishedOnly: true);
 
         return view('public/pages/club_membre', [
             'title'       => $name . ' — RBC Disonais',
@@ -226,7 +226,7 @@ class PagesController extends BaseController
     public function saisonResultats(): string
     {
         $season  = ANNEE_1 . '-' . ANNEE_2;
-        $results = (new \App\Models\SportResultModel())->getBySeasonWithWinner($season);
+        $results = (new \App\Models\SportResultModel())->getBySeasonWithWinner($season, publishedOnly: true);
 
         return view('public/pages/saison_resultats', [
             'title'       => 'Résultats sportifs ' . $season . ' — RBC Disonais',
@@ -345,7 +345,7 @@ class PagesController extends BaseController
 
     public function archivesResultats(): string
     {
-        $bySeasonData = (new \App\Models\SportResultModel())->getGroupedBySeasonWithWinner();
+        $bySeasonData = (new \App\Models\SportResultModel())->getGroupedBySeasonWithWinner(publishedOnly: true);
 
         return view('public/pages/archives_resultats', [
             'title'       => 'Résultats sportifs — Archives — RBC Disonais',
