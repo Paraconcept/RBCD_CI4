@@ -231,9 +231,6 @@ $delta = function(float $d) use ($fmt): string {
             <div class="p-3 text-muted">Aucune dépense enregistrée.</div>
         <?php else: ?>
         <table class="table table-sm mb-0">
-            <thead class="thead-rbcd">
-                <tr><th>Catégorie</th><th class="text-right">Montant</th><th class="text-right" style="width:60px">%</th></tr>
-            </thead>
             <tbody>
                 <?php foreach ($expCategories as $key => $label):
                     $m = $expByCatN[$key] ?? 0;
@@ -241,17 +238,19 @@ $delta = function(float $d) use ($fmt): string {
                     $pct = $totalExpN > 0 ? round($m / $totalExpN * 100) : 0;
                 ?>
                 <tr>
-                    <td><?= esc($label) ?></td>
-                    <td class="text-right text-danger font-weight-bold"><?= $fmt($m) ?></td>
-                    <td class="text-right text-muted"><?= $pct ?> %</td>
+                    <td class="font-weight-bold">
+                        <i class="fas fa-tag text-muted mr-2"></i><?= esc($label) ?>
+                    </td>
+                    <td class="text-right font-weight-bold text-danger" style="width:160px"><?= $fmt($m) ?></td>
+                    <td class="text-right text-muted text-nowrap" style="width:90px"><?= $pct ?> %</td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
             <tfoot class="tfoot-total">
                 <tr>
-                    <td class="font-weight-bold">TOTAL</td>
+                    <td class="font-weight-bold">TOTAL DÉPENSES</td>
                     <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
-                    <td></td>
+                    <td class="text-right text-muted text-nowrap">100 %</td>
                 </tr>
             </tfoot>
         </table>
