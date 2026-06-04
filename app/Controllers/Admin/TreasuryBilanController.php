@@ -229,7 +229,7 @@ class TreasuryBilanController extends BaseController
         $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($sectionStyle);
 
         $r++;
-        foreach (['Mois', "Rec. man. $year", "Cotisations $year", "Bar 6% $year", "Bar 12% $year", "Bar 21% $year", "Total rec. $year", "Dépenses $year", "Solde $year"] as $ci => $h) {
+        foreach (['Mois', 'Rec. man.', 'Cotisations', 'Bar 6%', 'Bar 12%', 'Bar 21%', 'Total rec.', 'Dépenses', 'Solde'] as $ci => $h) {
             $sheet->setCellValue(chr(65 + $ci) . $r, $h);
         }
         $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($boldStyle);
