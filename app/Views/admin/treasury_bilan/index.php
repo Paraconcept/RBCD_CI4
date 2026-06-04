@@ -189,18 +189,18 @@ $delta = function(float $d) use ($fmt): string {
         <table class="table table-sm table-hover table-bordered mb-0" style="white-space:nowrap">
             <thead class="thead-rbcd">
                 <tr>
-                    <th rowspan="2">Mois</th>
-                    <th class="text-right" rowspan="2">Rec. man.</th>
-                    <th class="text-right" rowspan="2">Cotisations</th>
-                    <th class="text-center" colspan="3">Bar</th>
-                    <th class="text-right text-success" rowspan="2">Σ Recettes</th>
-                    <th class="text-right text-danger" rowspan="2">Dépenses</th>
-                    <th class="text-right" rowspan="2">Solde</th>
+                    <th rowspan="2" style="width:55px;vertical-align:middle">Mois</th>
+                    <th class="text-right" rowspan="2" style="vertical-align:middle">Rec. man.</th>
+                    <th class="text-right" rowspan="2" style="vertical-align:middle">Cotisations</th>
+                    <th class="text-center" colspan="3" style="border-left:2px solid #adb5bd;border-right:2px solid #adb5bd">Bar</th>
+                    <th class="text-right text-success" rowspan="2" style="vertical-align:middle">Σ Recettes</th>
+                    <th class="text-right text-danger" rowspan="2" style="vertical-align:middle">Dépenses</th>
+                    <th class="text-right" rowspan="2" style="vertical-align:middle">Solde</th>
                 </tr>
                 <tr>
-                    <th class="text-right">6%</th>
+                    <th class="text-right" style="border-left:2px solid #adb5bd">6%</th>
                     <th class="text-right">12%</th>
-                    <th class="text-right">21%</th>
+                    <th class="text-right" style="border-right:2px solid #adb5bd">21%</th>
                 </tr>
             </thead>
             <tbody>
@@ -220,9 +220,9 @@ $delta = function(float $d) use ($fmt): string {
                     <td class="font-weight-bold"><?= $months[$m - 1] ?></td>
                     <td class="text-right text-muted"><?= $rMan > 0 ? $fmt($rMan) : '—' ?></td>
                     <td class="text-right text-muted"><?= $rCot > 0 ? $fmt($rCot) : '—' ?></td>
-                    <td class="text-right text-muted"><?= $r6  > 0 ? $fmt($r6)  : '—' ?></td>
+                    <td class="text-right text-muted" style="border-left:2px solid #adb5bd"><?= $r6  > 0 ? $fmt($r6)  : '—' ?></td>
                     <td class="text-right text-muted"><?= $r12 > 0 ? $fmt($r12) : '—' ?></td>
-                    <td class="text-right text-muted"><?= $r21 > 0 ? $fmt($r21) : '—' ?></td>
+                    <td class="text-right text-muted" style="border-right:2px solid #adb5bd"><?= $r21 > 0 ? $fmt($r21) : '—' ?></td>
                     <td class="text-right <?= $rAll > 0 ? 'text-success font-weight-bold' : 'text-muted' ?>">
                         <?= $rAll > 0 ? $fmt($rAll) : '—' ?>
                     </td>
@@ -240,9 +240,9 @@ $delta = function(float $d) use ($fmt): string {
                     <td class="font-weight-bold">TOTAL</td>
                     <td class="text-right"><?= $fmt($totalRevManualN) ?></td>
                     <td class="text-right"><?= $fmt($totalCotisN) ?></td>
-                    <td class="text-right"><?= array_sum($env6ByMonthN)  > 0 ? $fmt(array_sum($env6ByMonthN))  : '—' ?></td>
+                    <td class="text-right" style="border-left:2px solid #adb5bd"><?= array_sum($env6ByMonthN)  > 0 ? $fmt(array_sum($env6ByMonthN))  : '—' ?></td>
                     <td class="text-right"><?= array_sum($env12ByMonthN) > 0 ? $fmt(array_sum($env12ByMonthN)) : '—' ?></td>
-                    <td class="text-right"><?= $fmt(array_sum($env21ByMonthN)) ?></td>
+                    <td class="text-right" style="border-right:2px solid #adb5bd"><?= $fmt(array_sum($env21ByMonthN)) ?></td>
                     <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevAllN) ?></td>
                     <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
                     <td class="text-right font-weight-bold <?= $soldeN >= 0 ? 'text-success' : 'text-danger' ?>"><?= $fmt($soldeN) ?></td>
