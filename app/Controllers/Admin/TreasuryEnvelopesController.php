@@ -45,12 +45,16 @@ class TreasuryEnvelopesController extends BaseController
                     'label'      => $monthNames[$m] . ' ' . date('Y', strtotime($r->date)),
                     'calculated' => 0.0,
                     'found'      => 0.0,
+                    'pct6'       => 0.0,
+                    'pct12'      => 0.0,
                     'sumup'      => 0.0,
                     'rows'       => [],
                 ];
             }
             $byMonth[$key]['calculated'] += (float) $r->amount_calculated;
             $byMonth[$key]['found']      += (float) $r->amount_found;
+            $byMonth[$key]['pct6']       += (float) ($r->amount_6pct  ?? 0);
+            $byMonth[$key]['pct12']      += (float) ($r->amount_12pct ?? 0);
             $byMonth[$key]['sumup']      += (float) $r->amount_sumup;
             $byMonth[$key]['rows'][]      = $r;
         }
