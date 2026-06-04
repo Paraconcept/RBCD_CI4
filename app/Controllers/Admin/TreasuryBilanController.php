@@ -34,22 +34,20 @@ class TreasuryBilanController extends BaseController
         $prevYear = $year - 1;
 
         // Recettes manuelles
-        $totalRevManualN     = $revModel->getTotalByYear($year);
-        $totalRevManualNm1   = $revModel->getTotalByYear($prevYear);
-        $revManualByMonthN   = $revModel->getMonthlyTotals($year);
-        $revManualByMonthNm1 = $revModel->getMonthlyTotals($prevYear);
+        $totalRevManualN   = $revModel->getTotalByYear($year);
+        $totalRevManualNm1 = $revModel->getTotalByYear($prevYear);
+        $revManualByMonthN = $revModel->getMonthlyTotals($year);
 
         // Cotisations (RBCD + forfaits), classées par mois de paiement
-        $cotisMonthlyN   = $this->getCotisationsByMonth($year);
-        $cotisMonthlyNm1 = $this->getCotisationsByMonth($prevYear);
-        $totalCotisN     = array_sum($cotisMonthlyN);
-        $totalCotisNm1   = array_sum($cotisMonthlyNm1);
+        $cotisMonthlyN = $this->getCotisationsByMonth($year);
+        $totalCotisN   = array_sum($cotisMonthlyN);
+        $totalCotisNm1 = array_sum($this->getCotisationsByMonth($prevYear));
 
-        // Enveloppes de caisse (bar)
-        $envMonthlyN   = $this->getEnvelopesByMonth($year);
-        $envMonthlyNm1 = $this->getEnvelopesByMonth($prevYear);
-        $totalEnvN     = array_sum($envMonthlyN);
-        $totalEnvNm1   = array_sum($envMonthlyNm1);
+        // Enveloppes de caisse (bar) — total + ventilation TVA
+        $envMonthlyN  = $this->getEnvelopesByMonth($year);
+        $envVatN      = $this->getEnvelopesByMonthAndVat($year);
+        $totalEnvN    = array_sum($envMonthlyN);
+        $totalEnvNm1  = array_sum($this->getEnvelopesByMonth($prevYear));
 
         // Totaux globaux recettes
         $totalRevAllN   = $totalRevManualN + $totalCotisN + $totalEnvN;
@@ -58,8 +56,7 @@ class TreasuryBilanController extends BaseController
         // Dépenses
         $totalExpN   = $expModel->getTotalByYear($year);
         $totalExpNm1 = $expModel->getTotalByYear($prevYear);
-        $expByMonthN   = $expModel->getMonthlyTotals($year);
-        $expByMonthNm1 = $expModel->getMonthlyTotals($prevYear);
+        $expByMonthN = $expModel->getMonthlyTotals($year);
 
         return view('admin/treasury_bilan/index', [
             'title'       => 'Bilan financier',
@@ -67,33 +64,32 @@ class TreasuryBilanController extends BaseController
                 ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')],
                 ['title' => 'Bilan'],
             ],
-            'year'               => $year,
-            'prevYear'           => $prevYear,
-            'years'              => $this->getAvailableYears(),
-            'totalRevManualN'    => $totalRevManualN,
-            'totalRevManualNm1'  => $totalRevManualNm1,
-            'totalCotisN'        => $totalCotisN,
-            'totalCotisNm1'      => $totalCotisNm1,
-            'totalEnvN'          => $totalEnvN,
-            'totalEnvNm1'        => $totalEnvNm1,
-            'totalRevAllN'       => $totalRevAllN,
-            'totalRevAllNm1'     => $totalRevAllNm1,
-            'totalExpN'          => $totalExpN,
-            'totalExpNm1'        => $totalExpNm1,
-            'revManualByMonthN'  => $revManualByMonthN,
-            'revManualByMonthNm1'=> $revManualByMonthNm1,
-            'cotisMonthlyN'      => $cotisMonthlyN,
-            'cotisMonthlyNm1'    => $cotisMonthlyNm1,
-            'envMonthlyN'        => $envMonthlyN,
-            'envMonthlyNm1'      => $envMonthlyNm1,
-            'expByMonthN'        => $expByMonthN,
-            'expByMonthNm1'      => $expByMonthNm1,
-            'revByCatN'          => $revModel->getTotalByYearAndCategory($year),
-            'expByCatN'          => $expModel->getTotalByYearAndCategory($year),
-            'expCategories'      => TreasuryExpenseModel::$categories,
-            'revCategories'      => TreasuryRevenueModel::$categories,
-            'cotisAmount'        => $this->cotisAmount,
-            'forfaitAmount'      => $this->forfaitAmount,
+            'year'              => $year,
+            'prevYear'          => $prevYear,
+            'years'             => $this->getAvailableYears(),
+            'totalRevManualN'   => $totalRevManualN,
+            'totalRevManualNm1' => $totalRevManualNm1,
+            'totalCotisN'       => $totalCotisN,
+            'totalCotisNm1'     => $totalCotisNm1,
+            'totalEnvN'         => $totalEnvN,
+            'totalEnvNm1'       => $totalEnvNm1,
+            'totalRevAllN'      => $totalRevAllN,
+            'totalRevAllNm1'    => $totalRevAllNm1,
+            'totalExpN'         => $totalExpN,
+            'totalExpNm1'       => $totalExpNm1,
+            'revManualByMonthN' => $revManualByMonthN,
+            'cotisMonthlyN'     => $cotisMonthlyN,
+            'envMonthlyN'       => $envMonthlyN,
+            'env6ByMonthN'      => $envVatN['6pct'],
+            'env12ByMonthN'     => $envVatN['12pct'],
+            'env21ByMonthN'     => $envVatN['21pct'],
+            'expByMonthN'       => $expByMonthN,
+            'revByCatN'         => $revModel->getTotalByYearAndCategory($year),
+            'expByCatN'         => $expModel->getTotalByYearAndCategory($year),
+            'expCategories'     => TreasuryExpenseModel::$categories,
+            'revCategories'     => TreasuryRevenueModel::$categories,
+            'cotisAmount'       => $this->cotisAmount,
+            'forfaitAmount'     => $this->forfaitAmount,
         ]);
     }
 
@@ -368,6 +364,30 @@ class TreasuryBilanController extends BaseController
             $result[(int) $row['m']] = (float) $row['total'];
         }
         return $result;
+    }
+
+    private function getEnvelopesByMonthAndVat(int $year): array
+    {
+        $pct6  = array_fill(1, 12, 0.0);
+        $pct12 = array_fill(1, 12, 0.0);
+        $pct21 = array_fill(1, 12, 0.0);
+
+        $rows = $this->db->table('treasury_envelopes')
+            ->select('MONTH(date) as m, SUM(amount_found) as total, SUM(IFNULL(amount_6pct, 0)) as s6, SUM(IFNULL(amount_12pct, 0)) as s12')
+            ->where('YEAR(date)', $year)
+            ->groupBy('MONTH(date)')
+            ->get()->getResultArray();
+
+        foreach ($rows as $row) {
+            $m = (int) $row['m'];
+            $s6  = (float) $row['s6'];
+            $s12 = (float) $row['s12'];
+            $pct6[$m]  = $s6;
+            $pct12[$m] = $s12;
+            $pct21[$m] = (float) $row['total'] - $s6 - $s12;
+        }
+
+        return ['6pct' => $pct6, '12pct' => $pct12, '21pct' => $pct21];
     }
 
     private function getAvailableYears(): array

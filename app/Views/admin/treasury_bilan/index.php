@@ -189,37 +189,40 @@ $delta = function(float $d) use ($fmt): string {
         <table class="table table-sm table-hover table-bordered mb-0" style="white-space:nowrap">
             <thead class="thead-rbcd">
                 <tr>
-                    <th>Mois</th>
-                    <th class="text-right">Rec. man.</th>
-                    <th class="text-right">Cotisations</th>
-                    <th class="text-right">Bar</th>
-                    <th class="text-right text-success">Σ Recettes <?= $year ?></th>
-                    <th class="text-right text-danger">Dépenses <?= $year ?></th>
-                    <th class="text-right">Solde <?= $year ?></th>
-                    <th class="text-right text-muted" style="border-left:2px solid #dee2e6">Σ Rec. <?= $prevYear ?></th>
-                    <th class="text-right text-muted">Dép. <?= $prevYear ?></th>
-                    <th class="text-right text-muted">Solde <?= $prevYear ?></th>
+                    <th rowspan="2">Mois</th>
+                    <th class="text-right" rowspan="2">Rec. man.</th>
+                    <th class="text-right" rowspan="2">Cotisations</th>
+                    <th class="text-center" colspan="3">Bar</th>
+                    <th class="text-right text-success" rowspan="2">Σ Recettes</th>
+                    <th class="text-right text-danger" rowspan="2">Dépenses</th>
+                    <th class="text-right" rowspan="2">Solde</th>
+                </tr>
+                <tr>
+                    <th class="text-right">6%</th>
+                    <th class="text-right">12%</th>
+                    <th class="text-right">21%</th>
                 </tr>
             </thead>
             <tbody>
                 <?php for ($m = 1; $m <= 12; $m++):
-                    $rMan = $revManualByMonthN[$m]   ?? 0;
-                    $rCot = $cotisMonthlyN[$m]        ?? 0;
-                    $rEnv = $envMonthlyN[$m]          ?? 0;
-                    $rAll = $rMan + $rCot + $rEnv;
-                    $eN   = $expByMonthN[$m]          ?? 0;
-                    $sN   = $rAll - $eN;
-
-                    $rAllNm1 = ($revManualByMonthNm1[$m] ?? 0) + ($cotisMonthlyNm1[$m] ?? 0) + ($envMonthlyNm1[$m] ?? 0);
-                    $eNm1    = $expByMonthNm1[$m] ?? 0;
-                    $sNm1    = $rAllNm1 - $eNm1;
-                    $emptyN  = ($rAll == 0 && $eN == 0);
+                    $rMan  = $revManualByMonthN[$m] ?? 0;
+                    $rCot  = $cotisMonthlyN[$m]     ?? 0;
+                    $rEnv  = $envMonthlyN[$m]        ?? 0;
+                    $r6    = $env6ByMonthN[$m]       ?? 0;
+                    $r12   = $env12ByMonthN[$m]      ?? 0;
+                    $r21   = $env21ByMonthN[$m]      ?? 0;
+                    $rAll  = $rMan + $rCot + $rEnv;
+                    $eN    = $expByMonthN[$m]         ?? 0;
+                    $sN    = $rAll - $eN;
+                    $emptyN = ($rAll == 0 && $eN == 0);
                 ?>
                 <tr>
                     <td class="font-weight-bold"><?= $months[$m - 1] ?></td>
                     <td class="text-right text-muted"><?= $rMan > 0 ? $fmt($rMan) : '—' ?></td>
                     <td class="text-right text-muted"><?= $rCot > 0 ? $fmt($rCot) : '—' ?></td>
-                    <td class="text-right text-muted"><?= $rEnv > 0 ? $fmt($rEnv) : '—' ?></td>
+                    <td class="text-right text-muted"><?= $r6  > 0 ? $fmt($r6)  : '—' ?></td>
+                    <td class="text-right text-muted"><?= $r12 > 0 ? $fmt($r12) : '—' ?></td>
+                    <td class="text-right text-muted"><?= $r21 > 0 ? $fmt($r21) : '—' ?></td>
                     <td class="text-right <?= $rAll > 0 ? 'text-success font-weight-bold' : 'text-muted' ?>">
                         <?= $rAll > 0 ? $fmt($rAll) : '—' ?>
                     </td>
@@ -229,13 +232,6 @@ $delta = function(float $d) use ($fmt): string {
                     <td class="text-right <?= !$emptyN ? ($sN >= 0 ? 'text-success' : 'text-danger') : 'text-muted' ?>">
                         <?= !$emptyN ? $fmt($sN) : '—' ?>
                     </td>
-                    <td class="text-right text-muted" style="border-left:2px solid #dee2e6">
-                        <?= $rAllNm1 > 0 ? $fmt($rAllNm1) : '—' ?>
-                    </td>
-                    <td class="text-right text-muted"><?= $eNm1 > 0 ? $fmt($eNm1) : '—' ?></td>
-                    <td class="text-right text-muted">
-                        <?= ($rAllNm1 > 0 || $eNm1 > 0) ? $fmt($sNm1) : '—' ?>
-                    </td>
                 </tr>
                 <?php endfor; ?>
             </tbody>
@@ -244,13 +240,12 @@ $delta = function(float $d) use ($fmt): string {
                     <td class="font-weight-bold">TOTAL</td>
                     <td class="text-right"><?= $fmt($totalRevManualN) ?></td>
                     <td class="text-right"><?= $fmt($totalCotisN) ?></td>
-                    <td class="text-right"><?= $fmt($totalEnvN) ?></td>
+                    <td class="text-right"><?= array_sum($env6ByMonthN)  > 0 ? $fmt(array_sum($env6ByMonthN))  : '—' ?></td>
+                    <td class="text-right"><?= array_sum($env12ByMonthN) > 0 ? $fmt(array_sum($env12ByMonthN)) : '—' ?></td>
+                    <td class="text-right"><?= $fmt(array_sum($env21ByMonthN)) ?></td>
                     <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevAllN) ?></td>
                     <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
                     <td class="text-right font-weight-bold <?= $soldeN >= 0 ? 'text-success' : 'text-danger' ?>"><?= $fmt($soldeN) ?></td>
-                    <td class="text-right text-muted" style="border-left:2px solid #dee2e6"><?= $fmt($totalRevAllNm1) ?></td>
-                    <td class="text-right text-muted"><?= $fmt($totalExpNm1) ?></td>
-                    <td class="text-right text-muted"><?= $fmt($soldeNm1) ?></td>
                 </tr>
             </tfoot>
         </table>
