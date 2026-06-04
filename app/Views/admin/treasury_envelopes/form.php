@@ -82,9 +82,9 @@ $todayPrefix = 'E' . date('d.m.');
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row align-items-end">
                     <div class="col">
-                        <div class="form-group">
+                        <div class="form-group mb-0">
                             <label>Montant calculé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
                                 <input type="text" class="form-control text-right"
@@ -100,12 +100,12 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-auto" style="padding-top:34px">
+                    <div class="col-auto pb-1">
                         <strong class="text-black" style="font-size:1.4rem"><i class="fas fa-equals"></i></strong>
                     </div>
                     <div class="col">
-                        <div class="form-group">
-                            <label>Montant trouvé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
+                        <div class="form-group mb-0">
+                            <label>Montant trouvé total (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
                                 <input type="text" class="form-control text-right"
                                        value="<?= number_format((float)$envelope->amount_found, 2, ',', ' ') ?> €" disabled>
@@ -120,11 +120,11 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-auto" style="padding-top:34px">
+                    <div class="col-auto pb-1">
                         <strong class="text-black" style="font-size:1.4rem"><i class="fas fa-plus"></i></strong>
                     </div>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="form-group mb-0">
                             <label>Montant SumUp (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
                             <?php if ($isEdit): ?>
                                 <input type="text" class="form-control text-right"
@@ -140,11 +140,11 @@ $todayPrefix = 'E' . date('d.m.');
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="col-auto" style="padding-top:34px">
+                    <div class="col-auto pb-1">
                         <strong class="text-black" style="font-size:1.4rem"><i class="fas fa-arrows-alt-h"></i></strong>
                     </div>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="form-group mb-0">
                             <label>Écart</label>
                             <div class="pt-0">
                                 <?php if ($isEdit): ?>
@@ -156,6 +156,67 @@ $todayPrefix = 'E' . date('d.m.');
                                         0,00 €
                                     </span>
                                 <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Détail TVA -->
+                <div class="card card-outline card-secondary mt-3 mb-0">
+                    <div class="card-header py-2">
+                        <h6 class="card-title mb-0"><i class="fas fa-percentage mr-1"></i>Détail TVA du montant trouvé <small class="text-muted">(facultatif)</small></h6>
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="row align-items-end">
+                            <div class="col">
+                                <div class="form-group mb-0">
+                                    <label class="small">Montant 6% — gougouilles (€)</label>
+                                    <?php if ($isEdit): ?>
+                                        <input type="text" class="form-control text-right form-control-sm"
+                                               value="<?= $envelope->amount_6pct !== null ? number_format((float)$envelope->amount_6pct, 2, ',', ' ') . ' €' : '—' ?>" disabled>
+                                    <?php else: ?>
+                                        <input type="number" name="amount_6pct" id="amount_6pct"
+                                               class="form-control text-right form-control-sm <?= isset($errors['amount_6pct']) ? 'is-invalid' : '' ?>"
+                                               step="0.01" min="0" placeholder="0,00"
+                                               value="<?= esc($v('amount_6pct', '')) ?>">
+                                        <?php if (isset($errors['amount_6pct'])): ?>
+                                            <div class="invalid-feedback"><?= $errors['amount_6pct'] ?></div>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group mb-0">
+                                    <label class="small">Montant 12% — gougouilles (€)</label>
+                                    <?php if ($isEdit): ?>
+                                        <input type="text" class="form-control text-right form-control-sm"
+                                               value="<?= $envelope->amount_12pct !== null ? number_format((float)$envelope->amount_12pct, 2, ',', ' ') . ' €' : '—' ?>" disabled>
+                                    <?php else: ?>
+                                        <input type="number" name="amount_12pct" id="amount_12pct"
+                                               class="form-control text-right form-control-sm <?= isset($errors['amount_12pct']) ? 'is-invalid' : '' ?>"
+                                               step="0.01" min="0" placeholder="0,00"
+                                               value="<?= esc($v('amount_12pct', '')) ?>">
+                                        <?php if (isset($errors['amount_12pct'])): ?>
+                                            <div class="invalid-feedback"><?= $errors['amount_12pct'] ?></div>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group mb-0">
+                                    <label class="small">Montant 21% — boissons (€) <em class="text-muted">(calculé)</em></label>
+                                    <?php if ($isEdit): ?>
+                                        <?php
+                                        $amt21 = (float)$envelope->amount_found - (float)($envelope->amount_6pct ?? 0) - (float)($envelope->amount_12pct ?? 0);
+                                        ?>
+                                        <input type="text" class="form-control text-right form-control-sm"
+                                               value="<?= number_format($amt21, 2, ',', ' ') ?> €" disabled>
+                                    <?php else: ?>
+                                        <input type="text" id="amount_21pct_display"
+                                               class="form-control text-right form-control-sm bg-light"
+                                               value="0,00 €" readonly>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -247,10 +308,18 @@ $(function () {
     });
     updateNameOptions(false); // page load : respecte la valeur PHP old()
 
-    function calcEcart() {
-        const calc  = parseFloat($('#amount_calculated').val()) || 0;
-        const found = parseFloat($('#amount_found').val()) || 0;
-        const sumup = parseFloat($('#amount_sumup').val()) || 0;
+    function calcAll() {
+        const calc   = parseFloat($('#amount_calculated').val()) || 0;
+        const found  = parseFloat($('#amount_found').val()) || 0;
+        const pct6   = parseFloat($('#amount_6pct').val())  || 0;
+        const pct12  = parseFloat($('#amount_12pct').val()) || 0;
+        const sumup  = parseFloat($('#amount_sumup').val()) || 0;
+
+        const pct21 = found - pct6 - pct12;
+        $('#amount_21pct_display').val(
+            (pct21 < 0 ? '⚠ ' : '') + pct21.toFixed(2).replace('.', ',') + ' €'
+        ).toggleClass('text-danger', pct21 < 0);
+
         const ecart = (found + sumup) - calc;
         const sign  = ecart >= 0 ? '+' : '';
         $('#ecart_badge')
@@ -259,8 +328,8 @@ $(function () {
             .addClass(ecart === 0 ? 'badge-success' : 'badge-danger');
     }
 
-    $('#amount_calculated, #amount_found, #amount_sumup').on('input', calcEcart);
-    calcEcart();
+    $('#amount_calculated, #amount_found, #amount_6pct, #amount_12pct, #amount_sumup').on('input', calcAll);
+    calcAll();
     <?php endif; ?>
 
     $('form').on('submit', function (e) {

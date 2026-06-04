@@ -108,6 +108,8 @@ class TreasuryEnvelopesController extends BaseController
             'name_seq'            => 'required|in_list[01,02,03,04,05]',
             'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
             'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
+            'amount_6pct'         => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'amount_12pct'        => 'permit_empty|decimal|greater_than_equal_to[0]',
             'amount_sumup'        => 'required|decimal|greater_than_equal_to[0]',
             'closed_by_member_id' => 'required|is_natural_no_zero',
         ])) {
@@ -255,6 +257,8 @@ class TreasuryEnvelopesController extends BaseController
             'category'            => 'bar',
             'amount_calculated'   => (float) $post['amount_calculated'],
             'amount_found'        => (float) $post['amount_found'],
+            'amount_6pct'         => ($post['amount_6pct']  !== '' && $post['amount_6pct']  !== null) ? (float) $post['amount_6pct']  : null,
+            'amount_12pct'        => ($post['amount_12pct'] !== '' && $post['amount_12pct'] !== null) ? (float) $post['amount_12pct'] : null,
             'amount_sumup'        => (float) $post['amount_sumup'],
             'closed_by_member_id' => ($post['closed_by_member_id'] ?: null),
             'notes'               => $post['notes'] ?: null,
