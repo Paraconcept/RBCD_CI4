@@ -17,7 +17,7 @@ class TreasuryRevenueModel extends Model
     public static array $categories = [
         'subside'      => 'Subside',
         'sponsor'      => 'Sponsor / Mécénat',
-        'remise_prix'  => 'Primes des finalistes reçues',
+        'remise_prix'  => 'Primes des finalistes données',
         'divers'       => 'Divers',
     ];
 
