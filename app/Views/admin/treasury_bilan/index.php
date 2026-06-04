@@ -10,10 +10,13 @@ $deltaExp   = $totalExpN    - $totalExpNm1;
 $deltaSolde = $soldeN       - $soldeNm1;
 
 $fmt = fn(float $v): string => number_format($v, 2, ',', '.') . ' €';
-$delta = function(float $d) use ($fmt): string {
-    if ($d > 0) return '<span class="text-success"><i class="fas fa-arrow-up mr-1"></i>' . $fmt($d) . '</span>';
-    if ($d < 0) return '<span class="text-danger"><i class="fas fa-arrow-down mr-1"></i>' . $fmt(abs($d)) . '</span>';
-    return '<span class="text-muted">—</span>';
+
+// $arrowPlus / $arrowMinus = icône FontAwesome selon le contexte (recettes, dépenses, solde)
+$delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) use ($fmt, $prevYear): string {
+    if ($d > 0)     $badge = '<span class="text-success"><i class="fas fa-' . $arrowPlus  . ' mr-1"></i>' . $fmt($d)      . '</span>';
+    elseif ($d < 0) $badge = '<span class="text-danger"><i class="fas fa-'  . $arrowMinus . ' mr-1"></i>' . $fmt(abs($d)) . '</span>';
+    else            $badge = '<span class="text-muted">—</span>';
+    return $badge . ' vs ' . $prevYear . ' <span class="text-muted small">(' . $fmt($nm1) . ')</span>';
 };
 ?>
 
@@ -41,7 +44,7 @@ $delta = function(float $d) use ($fmt): string {
                 <span class="info-box-text">Recettes totales <?= $year ?></span>
                 <span class="info-box-number"><?= $fmt($totalRevAllN) ?></span>
                 <div class="progress"><div class="progress-bar bg-success" style="width:100%"></div></div>
-                <span class="progress-description"><?= $delta($deltaRev) ?> vs <?= $prevYear ?></span>
+                <span class="progress-description"><?= $delta($deltaRev, $totalRevAllNm1, 'arrow-up', 'arrow-up') ?></span>
             </div>
         </div>
     </div>
@@ -52,7 +55,7 @@ $delta = function(float $d) use ($fmt): string {
                 <span class="info-box-text">Dépenses <?= $year ?></span>
                 <span class="info-box-number"><?= $fmt($totalExpN) ?></span>
                 <div class="progress"><div class="progress-bar bg-danger" style="width:100%"></div></div>
-                <span class="progress-description"><?= $delta($deltaExp) ?> vs <?= $prevYear ?></span>
+                <span class="progress-description"><?= $delta($deltaExp, $totalExpNm1, 'arrow-down', 'arrow-down') ?></span>
             </div>
         </div>
     </div>
@@ -69,7 +72,7 @@ $delta = function(float $d) use ($fmt): string {
                 <div class="progress">
                     <div class="progress-bar <?= $soldeN >= 0 ? 'bg-success' : 'bg-danger' ?>" style="width:100%"></div>
                 </div>
-                <span class="progress-description"><?= $delta($deltaSolde) ?> vs <?= $prevYear ?></span>
+                <span class="progress-description"><?= $delta($deltaSolde, $soldeNm1, 'arrow-up', 'arrow-down') ?></span>
             </div>
         </div>
     </div>
