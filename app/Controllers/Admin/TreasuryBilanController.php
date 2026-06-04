@@ -117,6 +117,7 @@ class TreasuryBilanController extends BaseController
         $revByMonthN   = $revModel->getMonthlyTotals($year);
         $cotisMonthlyN = $this->getCotisationsByMonth($year);
         $envMonthlyN   = $this->getEnvelopesByMonth($year);
+        $envVatN       = $this->getEnvelopesByMonthAndVat($year);
         $expByMonthN   = $expModel->getMonthlyTotals($year);
 
         $revByCatN  = $revModel->getTotalByYearAndCategory($year);
@@ -223,45 +224,54 @@ class TreasuryBilanController extends BaseController
 
         // ── Évolution mensuelle
         $r += 2;
-        $sheet->mergeCells("A{$r}:G{$r}");
+        $sheet->mergeCells("A{$r}:I{$r}");
         $sheet->setCellValue("A{$r}", 'ÉVOLUTION MENSUELLE');
-        $sheet->getStyle("A{$r}:G{$r}")->applyFromArray($sectionStyle);
+        $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($sectionStyle);
 
         $r++;
-        foreach (['Mois', "Rec. man. $year", "Cotisations $year", "Bar $year", "Total rec. $year", "Dépenses $year", "Solde $year"] as $ci => $h) {
+        foreach (['Mois', "Rec. man. $year", "Cotisations $year", "Bar 6% $year", "Bar 12% $year", "Bar 21% $year", "Total rec. $year", "Dépenses $year", "Solde $year"] as $ci => $h) {
             $sheet->setCellValue(chr(65 + $ci) . $r, $h);
         }
-        $sheet->getStyle("A{$r}:G{$r}")->applyFromArray($boldStyle);
+        $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($boldStyle);
 
+        $total6 = $total12 = $total21 = 0.0;
         for ($m = 1; $m <= 12; $m++) {
             $r++;
+            $r6  = $envVatN['6pct'][$m]  ?? 0;
+            $r12 = $envVatN['12pct'][$m] ?? 0;
+            $r21 = $envVatN['21pct'][$m] ?? 0;
+            $total6  += $r6; $total12 += $r12; $total21 += $r21;
             $rM = ($revByMonthN[$m] ?? 0) + ($cotisMonthlyN[$m] ?? 0) + ($envMonthlyN[$m] ?? 0);
             $eM = $expByMonthN[$m] ?? 0;
             $sM = $rM - $eM;
             $sheet->setCellValue("A{$r}", $months[$m - 1]);
             $sheet->setCellValue("B{$r}", $revByMonthN[$m] > 0 ? $fmt($revByMonthN[$m]) : '—');
             $sheet->setCellValue("C{$r}", $cotisMonthlyN[$m] > 0 ? $fmt($cotisMonthlyN[$m]) : '—');
-            $sheet->setCellValue("D{$r}", $envMonthlyN[$m] > 0 ? $fmt($envMonthlyN[$m]) : '—');
-            $sheet->setCellValue("E{$r}", $rM > 0 ? $fmt($rM) : '—');
-            $sheet->setCellValue("F{$r}", $eM > 0 ? $fmt($eM) : '—');
-            $sheet->setCellValue("G{$r}", ($rM > 0 || $eM > 0) ? $fmt($sM) : '—');
-            if ($rM > 0) $sheet->getStyle("E{$r}")->applyFromArray($greenText);
-            if ($eM > 0) $sheet->getStyle("F{$r}")->applyFromArray($redText);
-            if ($rM > 0 || $eM > 0) $sheet->getStyle("G{$r}")->applyFromArray($sM >= 0 ? $greenText : $redText);
+            $sheet->setCellValue("D{$r}", $r6  > 0 ? $fmt($r6)  : '—');
+            $sheet->setCellValue("E{$r}", $r12 > 0 ? $fmt($r12) : '—');
+            $sheet->setCellValue("F{$r}", $r21 > 0 ? $fmt($r21) : '—');
+            $sheet->setCellValue("G{$r}", $rM > 0 ? $fmt($rM) : '—');
+            $sheet->setCellValue("H{$r}", $eM > 0 ? $fmt($eM) : '—');
+            $sheet->setCellValue("I{$r}", ($rM > 0 || $eM > 0) ? $fmt($sM) : '—');
+            if ($rM > 0) $sheet->getStyle("G{$r}")->applyFromArray($greenText);
+            if ($eM > 0) $sheet->getStyle("H{$r}")->applyFromArray($redText);
+            if ($rM > 0 || $eM > 0) $sheet->getStyle("I{$r}")->applyFromArray($sM >= 0 ? $greenText : $redText);
         }
 
         $r++;
         $sheet->setCellValue("A{$r}", 'TOTAL');
         $sheet->setCellValue("B{$r}", $fmt($totalRevManualN));
         $sheet->setCellValue("C{$r}", $fmt($totalCotisN));
-        $sheet->setCellValue("D{$r}", $fmt($totalEnvN));
-        $sheet->setCellValue("E{$r}", $fmt($totalRevN));
-        $sheet->setCellValue("F{$r}", $fmt($totalExpN));
-        $sheet->setCellValue("G{$r}", $fmt($soldeN));
-        $sheet->getStyle("A{$r}:G{$r}")->applyFromArray($totalRowStyle);
-        $sheet->getStyle("E{$r}")->applyFromArray($greenText);
-        $sheet->getStyle("F{$r}")->applyFromArray($redText);
-        $sheet->getStyle("G{$r}")->applyFromArray($soldeN >= 0 ? $greenText : $redText);
+        $sheet->setCellValue("D{$r}", $total6  > 0 ? $fmt($total6)  : '—');
+        $sheet->setCellValue("E{$r}", $total12 > 0 ? $fmt($total12) : '—');
+        $sheet->setCellValue("F{$r}", $fmt($total21));
+        $sheet->setCellValue("G{$r}", $fmt($totalRevN));
+        $sheet->setCellValue("H{$r}", $fmt($totalExpN));
+        $sheet->setCellValue("I{$r}", $fmt($soldeN));
+        $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($totalRowStyle);
+        $sheet->getStyle("G{$r}")->applyFromArray($greenText);
+        $sheet->getStyle("H{$r}")->applyFromArray($redText);
+        $sheet->getStyle("I{$r}")->applyFromArray($soldeN >= 0 ? $greenText : $redText);
 
         // ── Catégories recettes
         $r += 2;
@@ -308,7 +318,7 @@ class TreasuryBilanController extends BaseController
         }
 
         // Largeurs de colonnes
-        foreach (['A' => 28, 'B' => 18, 'C' => 18, 'D' => 18, 'E' => 18, 'F' => 18, 'G' => 18] as $col => $w) {
+        foreach (['A' => 28, 'B' => 18, 'C' => 18, 'D' => 18, 'E' => 18, 'F' => 18, 'G' => 18, 'H' => 18, 'I' => 18] as $col => $w) {
             $sheet->getColumnDimension($col)->setWidth($w);
         }
 

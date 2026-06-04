@@ -211,26 +211,33 @@ class TreasuryEnvelopesController extends BaseController
         $sheet->setCellValue('B1', 'Date');
         $sheet->setCellValue('C1', 'Catégorie');
         $sheet->setCellValue('D1', 'Montant calculé');
-        $sheet->setCellValue('E1', 'Montant trouvé');
-        $sheet->setCellValue('F1', 'Montant SumUp');
-        $sheet->setCellValue('G1', 'Écart');
-        $sheet->setCellValue('H1', 'Fermé par');
-        $sheet->setCellValue('I1', 'Encodé par');
-        $sheet->setCellValue('J1', 'Notes');
+        $sheet->setCellValue('E1', 'Montant 6%');
+        $sheet->setCellValue('F1', 'Montant 12%');
+        $sheet->setCellValue('G1', 'Montant 21%');
+        $sheet->setCellValue('H1', 'Montant SumUp');
+        $sheet->setCellValue('I1', 'Écart');
+        $sheet->setCellValue('J1', 'Fermé par');
+        $sheet->setCellValue('K1', 'Encodé par');
+        $sheet->setCellValue('L1', 'Notes');
 
         $row = 2;
         foreach ($rows as $r) {
-            $ecart = (float)$r->amount_found + (float)$r->amount_sumup - (float)$r->amount_calculated;
+            $r6    = (float) ($r->amount_6pct  ?? 0);
+            $r12   = (float) ($r->amount_12pct ?? 0);
+            $r21   = (float) $r->amount_found - $r6 - $r12;
+            $ecart = (float) $r->amount_found + (float) $r->amount_sumup - (float) $r->amount_calculated;
             $sheet->setCellValue('A' . $row, $r->name);
             $sheet->setCellValue('B' . $row, $r->date);
             $sheet->setCellValue('C' . $row, $r->category);
             $sheet->setCellValue('D' . $row, $r->amount_calculated);
-            $sheet->setCellValue('E' . $row, $r->amount_found);
-            $sheet->setCellValue('F' . $row, $r->amount_sumup);
-            $sheet->setCellValue('G' . $row, ($ecart >= 0 ? '+' : '') . number_format($ecart, 2, ',', '.') . ' €');
-            $sheet->setCellValue('H' . $row, $r->closer_name ?? '');
-            $sheet->setCellValue('I' . $row, $r->encoder_name ?? '');
-            $sheet->setCellValue('J' . $row, $r->notes ?? '');
+            $sheet->setCellValue('E' . $row, $r6  > 0 ? $r6  : '');
+            $sheet->setCellValue('F' . $row, $r12 > 0 ? $r12 : '');
+            $sheet->setCellValue('G' . $row, $r21);
+            $sheet->setCellValue('H' . $row, $r->amount_sumup);
+            $sheet->setCellValue('I' . $row, ($ecart >= 0 ? '+' : '') . number_format($ecart, 2, ',', '.') . ' €');
+            $sheet->setCellValue('J' . $row, $r->closer_name  ?? '');
+            $sheet->setCellValue('K' . $row, $r->encoder_name ?? '');
+            $sheet->setCellValue('L' . $row, $r->notes ?? '');
             $row++;
         }
 
