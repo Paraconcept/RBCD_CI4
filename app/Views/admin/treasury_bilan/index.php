@@ -2,7 +2,7 @@
 <?= $this->section('content') ?>
 
 <?php
-$months   = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+$months   = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 $soldeN   = $totalRevAllN - $totalExpN;
 $soldeNm1 = $totalRevAllNm1 - $totalExpNm1;
 $deltaRev   = $totalRevAllN - $totalRevAllNm1;
@@ -192,7 +192,7 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
         <table class="table table-sm table-hover table-bordered mb-0" style="white-space:nowrap">
             <thead class="thead-rbcd">
                 <tr>
-                    <th rowspan="2" style="width:55px;vertical-align:middle">Mois</th>
+                    <th rowspan="2" style="width:100px;vertical-align:middle">Mois</th>
                     <th class="text-right" rowspan="2" style="vertical-align:middle">Rec. man.</th>
                     <th class="text-right" rowspan="2" style="vertical-align:middle">Cotisations</th>
                     <th class="text-center" colspan="3" style="border-left:2px solid #adb5bd;border-right:2px solid #adb5bd">Bar</th>

@@ -122,7 +122,7 @@ class TreasuryBilanController extends BaseController
 
         $revByCatN  = $revModel->getTotalByYearAndCategory($year);
         $expByCatN  = $expModel->getTotalByYearAndCategory($year);
-        $months     = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+        $months     = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
         $sp    = new Spreadsheet();
         $sheet = $sp->getActiveSheet();
