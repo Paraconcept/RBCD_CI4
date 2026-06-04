@@ -332,6 +332,134 @@ class TreasuryBilanController extends BaseController
         exit;
     }
 
+    public function exportMonth()
+    {
+        $year  = (int) ($this->request->getGet('year')  ?? date('Y'));
+        $month = (int) ($this->request->getGet('month') ?? date('n'));
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+        $fullMonths = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        $monthName  = $fullMonths[$month - 1];
+
+        $revByDayN   = $this->getRevenuesByDay($year, $month);
+        $cotisByDayN = $this->getCotisationsByDay($year, $month);
+        $envDayN     = $this->getEnvelopesByDayAndVat($year, $month);
+        $expByDayN   = $this->getExpensesByDay($year, $month);
+
+        $totalRevManual = array_sum($revByDayN);
+        $totalCotis     = array_sum($cotisByDayN);
+        $total6         = array_sum($envDayN['6pct']);
+        $total12        = array_sum($envDayN['12pct']);
+        $total21        = array_sum($envDayN['21pct']);
+        $totalEnv       = array_sum($envDayN['total']);
+        $totalRev       = $totalRevManual + $totalCotis + $totalEnv;
+        $totalExp       = array_sum($expByDayN);
+        $solde          = $totalRev - $totalExp;
+
+        $sp    = new Spreadsheet();
+        $sheet = $sp->getActiveSheet();
+        $sheet->setTitle("$monthName $year");
+
+        $headerStyle = [
+            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1F3864']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ];
+        $sectionStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '2E75B6']],
+        ];
+        $boldStyle     = ['font' => ['bold' => true]];
+        $rightAlign    = ['alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT]];
+        $totalRowStyle = [
+            'font' => ['bold' => true],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F2F2F2']],
+        ];
+        $greenText = ['font' => ['color' => ['rgb' => '1E7E34']]];
+        $redText   = ['font' => ['color' => ['rgb' => 'C0392B']]];
+
+        $fmt = fn(float $v): string => number_format($v, 2, ',', '.') . ' €';
+
+        // Titre
+        $sheet->mergeCells('A1:I1');
+        $sheet->setCellValue('A1', 'BILAN JOURNALIER — RBC DISONAIS');
+        $sheet->getStyle('A1')->applyFromArray($headerStyle);
+        $sheet->getRowDimension(1)->setRowHeight(22);
+
+        $sheet->mergeCells('A2:I2');
+        $sheet->setCellValue('A2', "Mois : $monthName $year  |  Exporté le : " . date('d/m/Y'));
+        $sheet->getStyle('A2')->applyFromArray(['font' => ['italic' => true, 'color' => ['rgb' => '555555']]]);
+
+        // En-têtes tableau
+        $r = 4;
+        $sheet->mergeCells("A{$r}:I{$r}");
+        $sheet->setCellValue("A{$r}", 'ÉVOLUTION JOURNALIÈRE');
+        $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($sectionStyle);
+
+        $r++;
+        foreach (['Jour', 'Rec. man.', 'Cotisations', 'Bar 6%', 'Bar 12%', 'Bar 21%', 'Total rec.', 'Dépenses', 'Solde'] as $ci => $h) {
+            $sheet->setCellValue(chr(65 + $ci) . $r, $h);
+        }
+        $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($boldStyle);
+
+        // Lignes journalières
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $r++;
+            $rMan = $revByDayN[$d]        ?? 0;
+            $rCot = $cotisByDayN[$d]      ?? 0;
+            $rEnv = $envDayN['total'][$d] ?? 0;
+            $r6   = $envDayN['6pct'][$d]  ?? 0;
+            $r12  = $envDayN['12pct'][$d] ?? 0;
+            $r21  = $envDayN['21pct'][$d] ?? 0;
+            $rAll = $rMan + $rCot + $rEnv;
+            $eD   = $expByDayN[$d]        ?? 0;
+            $sD   = $rAll - $eD;
+
+            $sheet->setCellValue("A{$r}", $d);
+            $sheet->getStyle("A{$r}")->applyFromArray(['alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT, 'indent' => 2]]);
+            $sheet->setCellValue("B{$r}", $rMan > 0 ? $fmt($rMan) : '—');
+            $sheet->setCellValue("C{$r}", $rCot > 0 ? $fmt($rCot) : '—');
+            $sheet->setCellValue("D{$r}", $r6   > 0 ? $fmt($r6)   : '—');
+            $sheet->setCellValue("E{$r}", $r12  > 0 ? $fmt($r12)  : '—');
+            $sheet->setCellValue("F{$r}", $r21  > 0 ? $fmt($r21)  : '—');
+            $sheet->setCellValue("G{$r}", $rAll > 0 ? $fmt($rAll) : '—');
+            $sheet->setCellValue("H{$r}", $eD   > 0 ? $fmt($eD)   : '—');
+            $sheet->setCellValue("I{$r}", ($rAll > 0 || $eD > 0) ? $fmt($sD) : '—');
+            if ($rAll > 0) $sheet->getStyle("G{$r}")->applyFromArray($greenText);
+            if ($eD   > 0) $sheet->getStyle("H{$r}")->applyFromArray($redText);
+            if ($rAll > 0 || $eD > 0) $sheet->getStyle("I{$r}")->applyFromArray($sD >= 0 ? $greenText : $redText);
+        }
+
+        // Ligne TOTAL
+        $r++;
+        $sheet->setCellValue("A{$r}", 'TOTAL');
+        $sheet->setCellValue("B{$r}", $fmt($totalRevManual));
+        $sheet->setCellValue("C{$r}", $fmt($totalCotis));
+        $sheet->setCellValue("D{$r}", $total6  > 0 ? $fmt($total6)  : '—');
+        $sheet->setCellValue("E{$r}", $total12 > 0 ? $fmt($total12) : '—');
+        $sheet->setCellValue("F{$r}", $fmt($total21));
+        $sheet->setCellValue("G{$r}", $fmt($totalRev));
+        $sheet->setCellValue("H{$r}", $fmt($totalExp));
+        $sheet->setCellValue("I{$r}", $fmt($solde));
+        $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($totalRowStyle);
+        $sheet->getStyle("G{$r}")->applyFromArray($greenText);
+        $sheet->getStyle("H{$r}")->applyFromArray($redText);
+        $sheet->getStyle("I{$r}")->applyFromArray($solde >= 0 ? $greenText : $redText);
+
+        foreach (['A' => 10, 'B' => 18, 'C' => 18, 'D' => 18, 'E' => 18, 'F' => 18, 'G' => 18, 'H' => 18, 'I' => 18] as $col => $w) {
+            $sheet->getColumnDimension($col)->setWidth($w);
+        }
+
+        $monthPad = str_pad($month, 2, '0', STR_PAD_LEFT);
+        $filename = "bilan_journalier_{$year}_{$monthPad}.xlsx";
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        (new Xlsx($sp))->save('php://output');
+        exit;
+    }
+
     // ── Helpers privés
 
     private function getCotisationsByMonth(int $year): array
@@ -399,6 +527,70 @@ class TreasuryBilanController extends BaseController
         }
 
         return ['6pct' => $pct6, '12pct' => $pct12, '21pct' => $pct21];
+    }
+
+    private function getRevenuesByDay(int $year, int $month): array
+    {
+        $result = array_fill(1, cal_days_in_month(CAL_GREGORIAN, $month, $year), 0.0);
+        $rows = $this->db->table('treasury_revenues')
+            ->select('DAY(revenue_date) as d, SUM(amount) as total')
+            ->where('YEAR(revenue_date)', $year)->where('MONTH(revenue_date)', $month)
+            ->groupBy('DAY(revenue_date)')->get()->getResultArray();
+        foreach ($rows as $row) $result[(int)$row['d']] = (float)$row['total'];
+        return $result;
+    }
+
+    private function getCotisationsByDay(int $year, int $month): array
+    {
+        $result = array_fill(1, cal_days_in_month(CAL_GREGORIAN, $month, $year), 0.0);
+        $rows = $this->db->table('member_payments')
+            ->select('DAY(rbcd_paid_date) as d, COUNT(*) as cnt')
+            ->where('rbcd_paid', 1)->where('rbcd_paid_date IS NOT NULL')
+            ->where('YEAR(rbcd_paid_date)', $year)->where('MONTH(rbcd_paid_date)', $month)
+            ->groupBy('DAY(rbcd_paid_date)')->get()->getResultArray();
+        foreach ($rows as $row) $result[(int)$row['d']] += (int)$row['cnt'] * $this->cotisAmount;
+
+        foreach (['forfait_f1_paid_date' => 'forfait_f1_paid', 'forfait_f2_paid_date' => 'forfait_f2_paid'] as $dateCol => $paidCol) {
+            $rows = $this->db->table('member_payments')
+                ->select("DAY($dateCol) as d, COUNT(*) as cnt")
+                ->where($paidCol, 1)->where("$dateCol IS NOT NULL")
+                ->where("YEAR($dateCol)", $year)->where("MONTH($dateCol)", $month)
+                ->groupBy("DAY($dateCol)")->get()->getResultArray();
+            foreach ($rows as $row) $result[(int)$row['d']] += (int)$row['cnt'] * $this->forfaitAmount;
+        }
+        return $result;
+    }
+
+    private function getEnvelopesByDayAndVat(int $year, int $month): array
+    {
+        $n     = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $total = array_fill(1, $n, 0.0);
+        $pct6  = array_fill(1, $n, 0.0);
+        $pct12 = array_fill(1, $n, 0.0);
+        $pct21 = array_fill(1, $n, 0.0);
+
+        $rows = $this->db->table('treasury_envelopes')
+            ->select('DAY(date) as d, SUM(amount_found) as tot, SUM(IFNULL(amount_6pct,0)) as s6, SUM(IFNULL(amount_12pct,0)) as s12')
+            ->where('YEAR(date)', $year)->where('MONTH(date)', $month)
+            ->groupBy('DAY(date)')->get()->getResultArray();
+
+        foreach ($rows as $row) {
+            $d = (int)$row['d'];
+            $s6 = (float)$row['s6']; $s12 = (float)$row['s12']; $tot = (float)$row['tot'];
+            $total[$d] = $tot; $pct6[$d] = $s6; $pct12[$d] = $s12; $pct21[$d] = $tot - $s6 - $s12;
+        }
+        return ['total' => $total, '6pct' => $pct6, '12pct' => $pct12, '21pct' => $pct21];
+    }
+
+    private function getExpensesByDay(int $year, int $month): array
+    {
+        $result = array_fill(1, cal_days_in_month(CAL_GREGORIAN, $month, $year), 0.0);
+        $rows = $this->db->table('treasury_expenses')
+            ->select('DAY(expense_date) as d, SUM(amount) as total')
+            ->where('YEAR(expense_date)', $year)->where('MONTH(expense_date)', $month)
+            ->groupBy('DAY(expense_date)')->get()->getResultArray();
+        foreach ($rows as $row) $result[(int)$row['d']] = (float)$row['total'];
+        return $result;
     }
 
     private function getAvailableYears(): array

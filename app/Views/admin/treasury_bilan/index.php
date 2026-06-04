@@ -199,6 +199,7 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                     <th class="text-right text-success" rowspan="2" style="vertical-align:middle">Σ Recettes</th>
                     <th class="text-right text-danger" rowspan="2" style="vertical-align:middle">Dépenses</th>
                     <th class="text-right" rowspan="2" style="vertical-align:middle">Solde</th>
+                    <th rowspan="2" style="width:40px;vertical-align:middle"></th>
                 </tr>
                 <tr>
                     <th class="text-right" style="border-left:2px solid #adb5bd">6%</th>
@@ -235,6 +236,12 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                     <td class="text-right <?= !$emptyN ? ($sN >= 0 ? 'text-success' : 'text-danger') : 'text-muted' ?>">
                         <?= !$emptyN ? $fmt($sN) : '—' ?>
                     </td>
+                    <td class="text-center">
+                        <a href="<?= base_url("admin/treasury/bilan/export-month?year={$year}&month={$m}") ?>"
+                           class="btn btn-xs btn-outline-success" title="Export journalier <?= $months[$m-1] ?>">
+                            <i class="fas fa-file-excel"></i>
+                        </a>
+                    </td>
                 </tr>
                 <?php endfor; ?>
             </tbody>
@@ -249,6 +256,7 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                     <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevAllN) ?></td>
                     <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
                     <td class="text-right font-weight-bold <?= $soldeN >= 0 ? 'text-success' : 'text-danger' ?>"><?= $fmt($soldeN) ?></td>
+                    <td></td>
                 </tr>
             </tfoot>
         </table>
