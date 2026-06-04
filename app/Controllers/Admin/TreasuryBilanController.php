@@ -245,7 +245,7 @@ class TreasuryBilanController extends BaseController
             $eM = $expByMonthN[$m] ?? 0;
             $sM = $rM - $eM;
             $sheet->setCellValue("A{$r}", $months[$m - 1]);
-            $sheet->getStyle("A{$r}")->applyFromArray(['alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT]]);
+            $sheet->getStyle("A{$r}")->applyFromArray(['alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT, 'indent' => 2]]);
             $sheet->setCellValue("B{$r}", $revByMonthN[$m] > 0 ? $fmt($revByMonthN[$m]) : '—');
             $sheet->setCellValue("C{$r}", $cotisMonthlyN[$m] > 0 ? $fmt($cotisMonthlyN[$m]) : '—');
             $sheet->setCellValue("D{$r}", $r6  > 0 ? $fmt($r6)  : '—');
