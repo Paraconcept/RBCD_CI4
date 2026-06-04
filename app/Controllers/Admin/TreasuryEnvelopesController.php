@@ -204,18 +204,21 @@ class TreasuryEnvelopesController extends BaseController
         $month = (int) ($this->request->getGet('month') ?? date('n'));
         $rows  = $this->model->getWithCloser($year, $month);
 
-        $monthNames = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+        $monthAbbr  = ['','janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+        $monthLabel = $monthAbbr[$month] . '-' . substr((string) $year, 2, 2);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle("Enveloppes $month-$year");
+        $sheet->setTitle("Recettes $monthLabel");
 
-        $fmt = fn(float $v): string => number_format($v, 2, ',', '.') . ' €';
+        $fmt = fn(float $v): string => number_format($v, 2, ',', ' ');
 
-        $headerStyle = [
-            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
-            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1F3864']],
+        $titleStyle = [
+            'font'      => ['bold' => true, 'underline' => true, 'size' => 13],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ];
+        $subtitleStyle = [
+            'font'      => ['bold' => true, 'underline' => true, 'size' => 11],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ];
         $colHeaderStyle = [
@@ -225,86 +228,108 @@ class TreasuryEnvelopesController extends BaseController
         ];
         $totalRowStyle = [
             'font' => ['bold' => true],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F2F2F2']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E8E8E8']],
+        ];
+        $subRowStyle = [
+            'font' => ['italic' => true],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F5F5F5']],
         ];
         $rightAlign = ['alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT]];
-        $greenText  = ['font' => ['color' => ['rgb' => '1E7E34']]];
-        $redText    = ['font' => ['color' => ['rgb' => 'C0392B']]];
 
         // ── Titre
-        $sheet->mergeCells('A1:L1');
-        $sheet->setCellValue('A1', 'ENVELOPPES DE CAISSE — RBC DISONAIS');
-        $sheet->getStyle('A1')->applyFromArray($headerStyle);
-        $sheet->getRowDimension(1)->setRowHeight(22);
+        $sheet->mergeCells('A1:F1');
+        $sheet->setCellValue('A1', 'Recettes caisse');
+        $sheet->getStyle('A1')->applyFromArray($titleStyle);
+        $sheet->getRowDimension(1)->setRowHeight(20);
 
-        // ── Sous-titre
-        $sheet->mergeCells('A2:L2');
-        $sheet->setCellValue('A2', $monthNames[$month] . ' ' . $year . '  |  Exporté le : ' . date('d/m/Y'));
-        $sheet->getStyle('A2')->applyFromArray(['font' => ['italic' => true, 'color' => ['rgb' => '555555']]]);
+        // ── Sous-titre mois
+        $sheet->mergeCells('A2:F2');
+        $sheet->setCellValue('A2', $monthLabel);
+        $sheet->getStyle('A2')->applyFromArray($subtitleStyle);
+        $sheet->getRowDimension(2)->setRowHeight(16);
 
-        // ── En-têtes colonnes (ligne 4)
-        foreach ([
-            'A' => 'Nom', 'B' => 'Date', 'C' => 'Catégorie',
-            'D' => 'Calculé', 'E' => '6%', 'F' => '12%', 'G' => '21%',
-            'H' => 'SumUp', 'I' => 'Écart',
-            'J' => 'Fermé par', 'K' => 'Encodé par', 'L' => 'Notes',
-        ] as $col => $label) {
+        // ── En-têtes (ligne 4)
+        foreach (['A' => 'Date', 'B' => 'LIBELLÉ', 'C' => 'Total', 'D' => '6%', 'E' => '12%', 'F' => '21%'] as $col => $label) {
             $sheet->setCellValue($col . '4', $label);
         }
-        $sheet->getStyle('A4:L4')->applyFromArray($colHeaderStyle);
-        $sheet->getRowDimension(4)->setRowHeight(20);
+        $sheet->getStyle('A4:F4')->applyFromArray($colHeaderStyle);
+        $sheet->getRowDimension(4)->setRowHeight(18);
 
         // ── Données
         $row = 5;
-        $totCalc = $tot6 = $tot12 = $tot21 = $totSumup = $totEcart = 0.0;
+        $sumTotal = $sum6 = $sum12 = $sum21 = 0.0;
 
         foreach ($rows as $r) {
             $r6    = (float) ($r->amount_6pct  ?? 0);
             $r12   = (float) ($r->amount_12pct ?? 0);
             $r21   = (float) $r->amount_found - $r6 - $r12;
-            $ecart = (float) $r->amount_found + (float) $r->amount_sumup - (float) $r->amount_calculated;
-            $totCalc  += (float) $r->amount_calculated;
-            $tot6     += $r6; $tot12 += $r12; $tot21 += $r21;
-            $totSumup += (float) $r->amount_sumup;
-            $totEcart += $ecart;
+            $total = (float) $r->amount_found;
+            $sumTotal += $total; $sum6 += $r6; $sum12 += $r12; $sum21 += $r21;
 
-            $sheet->setCellValue('A' . $row, $r->name);
-            $sheet->setCellValue('B' . $row, $r->date);
-            $sheet->setCellValue('C' . $row, $r->category);
-            $sheet->setCellValue('D' . $row, $fmt((float) $r->amount_calculated));
-            $sheet->setCellValue('E' . $row, $r6  > 0 ? $fmt($r6)  : '');
-            $sheet->setCellValue('F' . $row, $r12 > 0 ? $fmt($r12) : '');
-            $sheet->setCellValue('G' . $row, $fmt($r21));
-            $sheet->setCellValue('H' . $row, $fmt((float) $r->amount_sumup));
-            $sheet->setCellValue('I' . $row, ($ecart >= 0 ? '+' : '') . number_format($ecart, 2, ',', '.') . ' €');
-            $sheet->setCellValue('J' . $row, $r->closer_name  ?? '');
-            $sheet->setCellValue('K' . $row, $r->encoder_name ?? '');
-            $sheet->setCellValue('L' . $row, $r->notes ?? '');
-            $sheet->getStyle("D{$row}:I{$row}")->applyFromArray($rightAlign);
-            $sheet->getStyle("I{$row}")->applyFromArray($ecart >= 0 ? $greenText : $redText);
+            $sheet->setCellValue('A' . $row, date('d/m/Y', strtotime($r->date)));
+            $sheet->setCellValue('B' . $row, $r->name ?? '');
+            $sheet->setCellValue('C' . $row, $fmt($total));
+            $sheet->setCellValue('D' . $row, $r6  > 0 ? $fmt($r6)  : '');
+            $sheet->setCellValue('E' . $row, $r12 > 0 ? $fmt($r12) : '');
+            $sheet->setCellValue('F' . $row, $fmt($r21));
+            $sheet->getStyle("C{$row}:F{$row}")->applyFromArray($rightAlign);
             $row++;
         }
 
-        // ── Total
-        $sheet->setCellValue("A{$row}", 'TOTAL');
-        $sheet->setCellValue("D{$row}", $fmt($totCalc));
-        $sheet->setCellValue("E{$row}", $tot6  > 0 ? $fmt($tot6)  : '—');
-        $sheet->setCellValue("F{$row}", $tot12 > 0 ? $fmt($tot12) : '—');
-        $sheet->setCellValue("G{$row}", $fmt($tot21));
-        $sheet->setCellValue("H{$row}", $fmt($totSumup));
-        $sign = $totEcart >= 0 ? '+' : '';
-        $sheet->setCellValue("I{$row}", $sign . number_format($totEcart, 2, ',', '.') . ' €');
-        $sheet->getStyle("A{$row}:L{$row}")->applyFromArray($totalRowStyle);
-        $sheet->getStyle("D{$row}:I{$row}")->applyFromArray($rightAlign);
-        $sheet->getStyle("I{$row}")->applyFromArray($totEcart >= 0 ? $greenText : $redText);
+        $row++; // ligne vide
+
+        // ── TOTAL TVA C
+        $sheet->setCellValue("A{$row}", 'TOTAL TVA C');
+        $sheet->setCellValue("C{$row}", $fmt($sumTotal));
+        $sheet->setCellValue("D{$row}", $sum6  > 0 ? $fmt($sum6)  : '');
+        $sheet->setCellValue("E{$row}", $sum12 > 0 ? $fmt($sum12) : '');
+        $sheet->setCellValue("F{$row}", $fmt($sum21));
+        $sheet->getStyle("A{$row}:F{$row}")->applyFromArray($totalRowStyle);
+        $sheet->getStyle("C{$row}:F{$row}")->applyFromArray($rightAlign);
+        $row++;
+
+        // ── TOTAL HTVA
+        $htva6     = $sum6  > 0 ? round($sum6  / 1.06, 2) : 0.0;
+        $htva12    = $sum12 > 0 ? round($sum12 / 1.12, 2) : 0.0;
+        $htva21    = round($sum21 / 1.21, 2);
+        $htvaTotal = round($htva6 + $htva12 + $htva21, 2);
+
+        $sheet->setCellValue("A{$row}", 'TOTAL HTVA');
+        $sheet->setCellValue("C{$row}", $fmt($htvaTotal));
+        $sheet->setCellValue("D{$row}", $sum6  > 0 ? $fmt($htva6)  : '');
+        $sheet->setCellValue("E{$row}", $sum12 > 0 ? $fmt($htva12) : '');
+        $sheet->setCellValue("F{$row}", $fmt($htva21));
+        $sheet->getStyle("A{$row}:F{$row}")->applyFromArray($subRowStyle);
+        $sheet->getStyle("C{$row}:F{$row}")->applyFromArray($rightAlign);
+        $row++;
+
+        // ── TVA
+        $tva6     = round($sum6  - $htva6,  2);
+        $tva12    = round($sum12 - $htva12, 2);
+        $tva21    = round($sum21 - $htva21, 2);
+        $tvaTotal = round($tva6 + $tva12 + $tva21, 2);
+
+        $sheet->setCellValue("A{$row}", 'TVA');
+        $sheet->setCellValue("C{$row}", $fmt($tvaTotal));
+        $sheet->setCellValue("D{$row}", $sum6  > 0 ? $fmt($tva6)  : '');
+        $sheet->setCellValue("E{$row}", $sum12 > 0 ? $fmt($tva12) : '');
+        $sheet->setCellValue("F{$row}", $fmt($tva21));
+        $sheet->getStyle("A{$row}:F{$row}")->applyFromArray($subRowStyle);
+        $sheet->getStyle("C{$row}:F{$row}")->applyFromArray($rightAlign);
+        $row += 2; // ligne vide
+
+        // ── Vérification
+        $sheet->setCellValue("A{$row}", 'Vérification');
+        $sheet->setCellValue("C{$row}", $fmt($sumTotal));
+        $sheet->getStyle("A{$row}")->applyFromArray(['font' => ['italic' => true]]);
+        $sheet->getStyle("C{$row}")->applyFromArray($rightAlign);
 
         // ── Largeurs de colonnes
-        foreach (['A' => 14, 'B' => 13, 'C' => 13, 'D' => 15, 'E' => 13, 'F' => 13,
-                  'G' => 15, 'H' => 15, 'I' => 14, 'J' => 22, 'K' => 22, 'L' => 30] as $col => $w) {
+        foreach (['A' => 13, 'B' => 22, 'C' => 14, 'D' => 12, 'E' => 12, 'F' => 14] as $col => $w) {
             $sheet->getColumnDimension($col)->setWidth($w);
         }
 
-        $filename = "enveloppes_{$year}_{$month}.xlsx";
+        $filename = "recettes_caisse_{$year}_{$month}.xlsx";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
