@@ -220,7 +220,7 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                     $emptyN = ($rAll == 0 && $eN == 0);
                 ?>
                 <tr>
-                    <td class="font-weight-bold"><?= $months[$m - 1] ?></td>
+                    <td class="font-weight-bold text-right" style="padding-right:8px"><?= $months[$m - 1] ?></td>
                     <td class="text-right text-muted"><?= $rMan > 0 ? $fmt($rMan) : '—' ?></td>
                     <td class="text-right text-muted"><?= $rCot > 0 ? $fmt($rCot) : '—' ?></td>
                     <td class="text-right text-muted" style="border-left:2px solid #adb5bd"><?= $r6  > 0 ? $fmt($r6)  : '—' ?></td>
