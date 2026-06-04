@@ -10,6 +10,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class TreasuryBilanController extends BaseController
 {
@@ -457,6 +459,250 @@ class TreasuryBilanController extends BaseController
         header('Cache-Control: max-age=0');
 
         (new Xlsx($sp))->save('php://output');
+        exit;
+    }
+
+    public function exportPdf(): void
+    {
+        $expModel = new TreasuryExpenseModel();
+        $revModel = new TreasuryRevenueModel();
+
+        $year     = (int) ($this->request->getGet('year') ?? date('Y'));
+        $prevYear = $year - 1;
+
+        $totalRevManualN   = $revModel->getTotalByYear($year);
+        $totalRevManualNm1 = $revModel->getTotalByYear($prevYear);
+        $cotisMonthlyN     = $this->getCotisationsByMonth($year);
+        $totalCotisN       = array_sum($cotisMonthlyN);
+        $totalCotisNm1     = array_sum($this->getCotisationsByMonth($prevYear));
+        $envMonthlyN       = $this->getEnvelopesByMonth($year);
+        $totalEnvN         = array_sum($envMonthlyN);
+        $totalEnvNm1       = array_sum($this->getEnvelopesByMonth($prevYear));
+        $totalRevN         = $totalRevManualN + $totalCotisN + $totalEnvN;
+        $totalRevNm1       = $totalRevManualNm1 + $totalCotisNm1 + $totalEnvNm1;
+        $totalExpN         = $expModel->getTotalByYear($year);
+        $totalExpNm1       = $expModel->getTotalByYear($prevYear);
+        $soldeN            = $totalRevN - $totalExpN;
+        $soldeNm1          = $totalRevNm1 - $totalExpNm1;
+        $revByMonthN       = $revModel->getMonthlyTotals($year);
+        $envVatN           = $this->getEnvelopesByMonthAndVat($year);
+        $expByMonthN       = $expModel->getMonthlyTotals($year);
+        $revByCatN         = $revModel->getTotalByYearAndCategory($year);
+        $expByCatN         = $expModel->getTotalByYearAndCategory($year);
+        $months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+        $fmt = fn(float $v): string => number_format($v, 2, ',', '.') . ' €';
+        $fmtD = function(float $d) use ($fmt): string {
+            if ($d > 0) return '+' . $fmt($d);
+            if ($d < 0) return $fmt($d);
+            return '=';
+        };
+        $gc = fn(float $v): string => $v >= 0 ? '#1E7E34' : '#C0392B';
+
+        $css = 'body{font-family:DejaVu Sans,sans-serif;font-size:8pt;margin:0;padding:8px;color:#222;}'
+             . 'table{width:100%;border-collapse:collapse;margin-bottom:10px;}'
+             . 'td,th{padding:2px 4px;border:1px solid #ddd;}'
+             . '.hdr{background:#1F3864;color:#fff;font-size:11pt;font-weight:bold;text-align:center;padding:6px;}'
+             . '.sub{color:#555;font-style:italic;font-size:7.5pt;padding:2px 0 8px;}'
+             . '.sec td{background:#2E75B6;color:#fff;font-weight:bold;border:none;padding:3px 6px;}'
+             . '.tot td{background:#F2F2F2;font-weight:bold;}'
+             . '.bld td{font-weight:bold;}'
+             . '.r{text-align:right;}';
+
+        $h = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' . $css . '</style></head><body>';
+        $h .= '<div class="hdr">BILAN FINANCIER — RBC DISONAIS</div>';
+        $h .= '<div class="sub">Année : ' . $year . '  |  Exporté le : ' . date('d/m/Y') . '</div>';
+
+        // Récapitulatif
+        $h .= '<table>';
+        $h .= '<tr class="sec"><td colspan="4">RÉCAPITULATIF</td></tr>';
+        $h .= '<tr class="bld"><td style="width:40%"></td><td class="r" style="width:20%">' . $year . '</td><td class="r" style="width:20%">' . $prevYear . '</td><td class="r" style="width:20%">Variation</td></tr>';
+        $dRev = $totalRevN - $totalRevNm1;
+        $h .= '<tr><td>Recettes totales</td><td class="r" style="color:#1E7E34">' . $fmt($totalRevN) . '</td><td class="r" style="color:#1E7E34">' . $fmt($totalRevNm1) . '</td><td class="r" style="color:' . $gc($dRev) . '">' . $fmtD($dRev) . '</td></tr>';
+        $dExp = $totalExpNm1 - $totalExpN;
+        $h .= '<tr><td>Dépenses totales</td><td class="r" style="color:#C0392B">' . $fmt($totalExpN) . '</td><td class="r" style="color:#C0392B">' . $fmt($totalExpNm1) . '</td><td class="r" style="color:' . $gc($dExp) . '">' . $fmtD($dExp) . '</td></tr>';
+        $dSolde = $soldeN - $soldeNm1;
+        $h .= '<tr class="bld"><td>Solde</td><td class="r" style="color:' . $gc($soldeN) . '">' . $fmt($soldeN) . '</td><td class="r" style="color:' . $gc($soldeNm1) . '">' . $fmt($soldeNm1) . '</td><td class="r" style="color:' . $gc($dSolde) . '">' . $fmtD($dSolde) . '</td></tr>';
+        $h .= '</table>';
+
+        // Sources des recettes
+        $h .= '<table>';
+        $h .= '<tr class="sec"><td colspan="3">SOURCES DES RECETTES — ' . $year . '</td></tr>';
+        $h .= '<tr class="bld"><td style="width:60%">Source</td><td class="r" style="width:25%">Montant</td><td class="r" style="width:15%">%</td></tr>';
+        foreach ([
+            ['Recettes manuelles',         $totalRevManualN],
+            ['Cotisations (RBCD + forfaits)', $totalCotisN],
+            ['Bar / Enveloppes de caisse', $totalEnvN],
+        ] as [$label, $amount]) {
+            $pct = $totalRevN > 0 ? round($amount / $totalRevN * 100) : 0;
+            $h .= '<tr><td>' . $label . '</td><td class="r" style="color:#1E7E34">' . $fmt($amount) . '</td><td class="r">' . $pct . ' %</td></tr>';
+        }
+        $h .= '<tr class="tot"><td>TOTAL RECETTES</td><td class="r" style="color:#1E7E34">' . $fmt($totalRevN) . '</td><td class="r">100 %</td></tr>';
+        $h .= '</table>';
+
+        // Évolution mensuelle
+        $h .= '<table>';
+        $h .= '<tr class="sec"><td colspan="9">ÉVOLUTION MENSUELLE</td></tr>';
+        $h .= '<tr class="bld"><td style="width:12%">Mois</td><td class="r" style="width:11%">Rec. man.</td><td class="r" style="width:11%">Cotisations</td><td class="r" style="width:11%">Bar 6%</td><td class="r" style="width:11%">Bar 12%</td><td class="r" style="width:11%">Bar 21%</td><td class="r" style="width:11%;color:#1E7E34">Σ Recettes</td><td class="r" style="width:11%;color:#C0392B">Dépenses</td><td class="r" style="width:11%">Solde</td></tr>';
+        $t6 = $t12 = $t21 = 0.0;
+        for ($m = 1; $m <= 12; $m++) {
+            $r6  = $envVatN['6pct'][$m]  ?? 0;
+            $r12 = $envVatN['12pct'][$m] ?? 0;
+            $r21 = $envVatN['21pct'][$m] ?? 0;
+            $t6 += $r6; $t12 += $r12; $t21 += $r21;
+            $rM = ($revByMonthN[$m] ?? 0) + ($cotisMonthlyN[$m] ?? 0) + ($envMonthlyN[$m] ?? 0);
+            $eM = $expByMonthN[$m] ?? 0;
+            $sM = $rM - $eM;
+            $h .= '<tr>';
+            $h .= '<td style="text-align:right;padding-right:8px">' . $months[$m - 1] . '</td>';
+            $h .= '<td class="r">' . ($revByMonthN[$m] > 0 ? $fmt($revByMonthN[$m]) : '—') . '</td>';
+            $h .= '<td class="r">' . ($cotisMonthlyN[$m] > 0 ? $fmt($cotisMonthlyN[$m]) : '—') . '</td>';
+            $h .= '<td class="r">' . ($r6  > 0 ? $fmt($r6)  : '—') . '</td>';
+            $h .= '<td class="r">' . ($r12 > 0 ? $fmt($r12) : '—') . '</td>';
+            $h .= '<td class="r">' . ($r21 > 0 ? $fmt($r21) : '—') . '</td>';
+            $h .= '<td class="r"' . ($rM > 0 ? ' style="color:#1E7E34"' : '') . '>' . ($rM > 0 ? $fmt($rM) : '—') . '</td>';
+            $h .= '<td class="r"' . ($eM > 0 ? ' style="color:#C0392B"' : '') . '>' . ($eM > 0 ? $fmt($eM) : '—') . '</td>';
+            $sStyle = ($rM > 0 || $eM > 0) ? ' style="color:' . $gc($sM) . '"' : '';
+            $h .= '<td class="r"' . $sStyle . '>' . (($rM > 0 || $eM > 0) ? $fmt($sM) : '—') . '</td>';
+            $h .= '</tr>';
+        }
+        $h .= '<tr class="tot"><td>TOTAL</td><td class="r">' . $fmt($totalRevManualN) . '</td><td class="r">' . $fmt($totalCotisN) . '</td>';
+        $h .= '<td class="r">' . ($t6  > 0 ? $fmt($t6)  : '—') . '</td>';
+        $h .= '<td class="r">' . ($t12 > 0 ? $fmt($t12) : '—') . '</td>';
+        $h .= '<td class="r">' . $fmt($t21) . '</td>';
+        $h .= '<td class="r" style="color:#1E7E34">' . $fmt($totalRevN) . '</td>';
+        $h .= '<td class="r" style="color:#C0392B">' . $fmt($totalExpN) . '</td>';
+        $h .= '<td class="r" style="color:' . $gc($soldeN) . '">' . $fmt($soldeN) . '</td></tr>';
+        $h .= '</table>';
+
+        // Recettes par catégorie
+        $h .= '<table>';
+        $h .= '<tr class="sec"><td colspan="3">RECETTES PAR CATÉGORIE — ' . $year . '</td></tr>';
+        $h .= '<tr class="bld"><td style="width:60%">Catégorie</td><td class="r" style="width:25%">Montant</td><td class="r" style="width:15%">%</td></tr>';
+        foreach (TreasuryRevenueModel::$categories as $key => $label) {
+            $m = $revByCatN[$key] ?? 0;
+            if ($m <= 0) continue;
+            $pct = $totalRevManualN > 0 ? round($m / $totalRevManualN * 100) : 0;
+            $h .= '<tr><td>' . esc($label) . '</td><td class="r" style="color:#1E7E34">' . $fmt($m) . '</td><td class="r">' . $pct . ' %</td></tr>';
+        }
+        $h .= '</table>';
+
+        // Dépenses par catégorie
+        $h .= '<table>';
+        $h .= '<tr class="sec"><td colspan="3">DÉPENSES PAR CATÉGORIE — ' . $year . '</td></tr>';
+        $h .= '<tr class="bld"><td style="width:60%">Catégorie</td><td class="r" style="width:25%">Montant</td><td class="r" style="width:15%">%</td></tr>';
+        foreach (TreasuryExpenseModel::$categories as $key => $label) {
+            $m = $expByCatN[$key] ?? 0;
+            if ($m <= 0) continue;
+            $pct = $totalExpN > 0 ? round($m / $totalExpN * 100) : 0;
+            $h .= '<tr><td>' . esc($label) . '</td><td class="r" style="color:#C0392B">' . $fmt($m) . '</td><td class="r">' . $pct . ' %</td></tr>';
+        }
+        $h .= '</table></body></html>';
+
+        $options = new Options();
+        $options->set('defaultFont', 'DejaVu Sans');
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($h, 'UTF-8');
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="bilan_rbcd_' . $year . '.pdf"');
+        header('Cache-Control: max-age=0');
+        echo $dompdf->output();
+        exit;
+    }
+
+    public function exportMonthPdf(): void
+    {
+        $year  = (int) ($this->request->getGet('year')  ?? date('Y'));
+        $month = (int) ($this->request->getGet('month') ?? date('n'));
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+        $fullMonths = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        $monthName  = $fullMonths[$month - 1];
+
+        $revByDayN   = $this->getRevenuesByDay($year, $month);
+        $cotisByDayN = $this->getCotisationsByDay($year, $month);
+        $envDayN     = $this->getEnvelopesByDayAndVat($year, $month);
+        $expByDayN   = $this->getExpensesByDay($year, $month);
+
+        $totalRevManual = array_sum($revByDayN);
+        $totalCotis     = array_sum($cotisByDayN);
+        $total6         = array_sum($envDayN['6pct']);
+        $total12        = array_sum($envDayN['12pct']);
+        $total21        = array_sum($envDayN['21pct']);
+        $totalEnv       = array_sum($envDayN['total']);
+        $totalRev       = $totalRevManual + $totalCotis + $totalEnv;
+        $totalExp       = array_sum($expByDayN);
+        $solde          = $totalRev - $totalExp;
+
+        $fmt = fn(float $v): string => number_format($v, 2, ',', '.') . ' €';
+        $gc  = fn(float $v): string => $v >= 0 ? '#1E7E34' : '#C0392B';
+
+        $css = 'body{font-family:DejaVu Sans,sans-serif;font-size:8pt;margin:0;padding:8px;color:#222;}'
+             . 'table{width:100%;border-collapse:collapse;margin-bottom:10px;}'
+             . 'td,th{padding:2px 4px;border:1px solid #ddd;}'
+             . '.hdr{background:#1F3864;color:#fff;font-size:11pt;font-weight:bold;text-align:center;padding:6px;}'
+             . '.sub{color:#555;font-style:italic;font-size:7.5pt;padding:2px 0 8px;}'
+             . '.sec td{background:#2E75B6;color:#fff;font-weight:bold;border:none;padding:3px 6px;}'
+             . '.tot td{background:#F2F2F2;font-weight:bold;}'
+             . '.bld td{font-weight:bold;}'
+             . '.r{text-align:right;}';
+
+        $h = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' . $css . '</style></head><body>';
+        $h .= '<div class="hdr">BILAN JOURNALIER — RBC DISONAIS</div>';
+        $h .= '<div class="sub">Mois : ' . $monthName . ' ' . $year . '  |  Exporté le : ' . date('d/m/Y') . '</div>';
+
+        $h .= '<table>';
+        $h .= '<tr class="sec"><td colspan="9">ÉVOLUTION JOURNALIÈRE — ' . $monthName . ' ' . $year . '</td></tr>';
+        $h .= '<tr class="bld"><td style="width:8%">Jour</td><td class="r" style="width:12%">Rec. man.</td><td class="r" style="width:12%">Cotisations</td><td class="r" style="width:12%">Bar 6%</td><td class="r" style="width:12%">Bar 12%</td><td class="r" style="width:12%">Bar 21%</td><td class="r" style="width:12%;color:#1E7E34">Σ Recettes</td><td class="r" style="width:12%;color:#C0392B">Dépenses</td><td class="r" style="width:8%">Solde</td></tr>';
+
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $rMan = $revByDayN[$d]        ?? 0;
+            $rCot = $cotisByDayN[$d]      ?? 0;
+            $rEnv = $envDayN['total'][$d] ?? 0;
+            $r6   = $envDayN['6pct'][$d]  ?? 0;
+            $r12  = $envDayN['12pct'][$d] ?? 0;
+            $r21  = $envDayN['21pct'][$d] ?? 0;
+            $rAll = $rMan + $rCot + $rEnv;
+            $eD   = $expByDayN[$d]        ?? 0;
+            $sD   = $rAll - $eD;
+            $h .= '<tr>';
+            $h .= '<td class="r">' . $d . '</td>';
+            $h .= '<td class="r">' . ($rMan > 0 ? $fmt($rMan) : '—') . '</td>';
+            $h .= '<td class="r">' . ($rCot > 0 ? $fmt($rCot) : '—') . '</td>';
+            $h .= '<td class="r">' . ($r6   > 0 ? $fmt($r6)   : '—') . '</td>';
+            $h .= '<td class="r">' . ($r12  > 0 ? $fmt($r12)  : '—') . '</td>';
+            $h .= '<td class="r">' . ($r21  > 0 ? $fmt($r21)  : '—') . '</td>';
+            $h .= '<td class="r"' . ($rAll > 0 ? ' style="color:#1E7E34"' : '') . '>' . ($rAll > 0 ? $fmt($rAll) : '—') . '</td>';
+            $h .= '<td class="r"' . ($eD   > 0 ? ' style="color:#C0392B"' : '') . '>' . ($eD > 0 ? $fmt($eD) : '—') . '</td>';
+            $sStyle = ($rAll > 0 || $eD > 0) ? ' style="color:' . $gc($sD) . '"' : '';
+            $h .= '<td class="r"' . $sStyle . '>' . (($rAll > 0 || $eD > 0) ? $fmt($sD) : '—') . '</td>';
+            $h .= '</tr>';
+        }
+
+        $h .= '<tr class="tot"><td>TOTAL</td><td class="r">' . $fmt($totalRevManual) . '</td><td class="r">' . $fmt($totalCotis) . '</td>';
+        $h .= '<td class="r">' . ($total6  > 0 ? $fmt($total6)  : '—') . '</td>';
+        $h .= '<td class="r">' . ($total12 > 0 ? $fmt($total12) : '—') . '</td>';
+        $h .= '<td class="r">' . $fmt($total21) . '</td>';
+        $h .= '<td class="r" style="color:#1E7E34">' . $fmt($totalRev) . '</td>';
+        $h .= '<td class="r" style="color:#C0392B">' . $fmt($totalExp) . '</td>';
+        $h .= '<td class="r" style="color:' . $gc($solde) . '">' . $fmt($solde) . '</td></tr>';
+        $h .= '</table></body></html>';
+
+        $options = new Options();
+        $options->set('defaultFont', 'DejaVu Sans');
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($h, 'UTF-8');
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        $monthPad = str_pad($month, 2, '0', STR_PAD_LEFT);
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="bilan_journalier_' . $year . '_' . $monthPad . '.pdf"');
+        header('Cache-Control: max-age=0');
+        echo $dompdf->output();
         exit;
     }
 
