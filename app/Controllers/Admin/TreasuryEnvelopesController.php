@@ -252,7 +252,7 @@ class TreasuryEnvelopesController extends BaseController
         $sheet->getRowDimension(2)->setRowHeight(16);
 
         // ── En-têtes (ligne 4)
-        foreach (['A' => 'LIBELLÉ', 'B' => 'Date', 'C' => 'Total', 'D' => '6%', 'E' => '12%', 'F' => '21%'] as $col => $label) {
+        foreach (['A' => 'Date', 'B' => 'LIBELLÉ', 'C' => 'Total', 'D' => '6%', 'E' => '12%', 'F' => '21%'] as $col => $label) {
             $sheet->setCellValue($col . '4', $label);
         }
         $sheet->getStyle('A4:F4')->applyFromArray($colHeaderStyle);
@@ -269,8 +269,8 @@ class TreasuryEnvelopesController extends BaseController
             $total = (float) $r->amount_found;
             $sumTotal += $total; $sum6 += $r6; $sum12 += $r12; $sum21 += $r21;
 
-            $sheet->setCellValue('A' . $row, $r->name ?? '');
-            $sheet->setCellValue('B' . $row, date('d-m-Y', strtotime($r->date)));
+            $sheet->setCellValue('A' . $row, date('d-m-Y', strtotime($r->date)));
+            $sheet->setCellValue('B' . $row, $r->name ?? '');
             $sheet->setCellValue('C' . $row, $fmt($total));
             $sheet->setCellValue('D' . $row, $r6  > 0 ? $fmt($r6)  : '');
             $sheet->setCellValue('E' . $row, $r12 > 0 ? $fmt($r12) : '');
@@ -328,7 +328,7 @@ class TreasuryEnvelopesController extends BaseController
         $sheet->getStyle("C{$row}")->applyFromArray($rightAlign);
 
         // ── Largeurs de colonnes
-        foreach (['A' => 18, 'B' => 13, 'C' => 14, 'D' => 12, 'E' => 12, 'F' => 14] as $col => $w) {
+        foreach (['A' => 13, 'B' => 18, 'C' => 14, 'D' => 12, 'E' => 12, 'F' => 14] as $col => $w) {
             $sheet->getColumnDimension($col)->setWidth($w);
         }
 
