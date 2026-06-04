@@ -33,7 +33,7 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
     <a href="<?= base_url("admin/treasury/bilan/export?year={$year}") ?>" class="btn btn-sm btn-outline-success">
         <i class="fas fa-file-excel mr-1"></i> Export Excel
     </a>
-    <a href="<?= base_url("admin/treasury/bilan/export-pdf?year={$year}") ?>" class="btn btn-sm btn-outline-danger">
+    <a href="<?= base_url("admin/treasury/bilan/export-pdf?year={$year}") ?>" class="btn btn-sm btn-outline-danger" target="_blank">
         <i class="fas fa-file-pdf mr-1"></i> Export PDF
     </a>
 </div>
@@ -245,7 +245,7 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                             <i class="fas fa-file-excel"></i>
                         </a>
                         <a href="<?= base_url("admin/treasury/bilan/export-month-pdf?year={$year}&month={$m}") ?>"
-                           class="btn btn-xs btn-outline-danger" title="Export PDF <?= $months[$m-1] ?>">
+                           class="btn btn-xs btn-outline-danger" target="_blank" title="Export PDF <?= $months[$m-1] ?>">
                             <i class="fas fa-file-pdf"></i>
                         </a>
                     </td>

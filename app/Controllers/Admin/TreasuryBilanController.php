@@ -607,7 +607,7 @@ class TreasuryBilanController extends BaseController
         $dompdf->render();
 
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="bilan_rbcd_' . $year . '.pdf"');
+        header('Content-Disposition: inline; filename="bilan_rbcd_' . $year . '.pdf"');
         header('Cache-Control: max-age=0');
         echo $dompdf->output();
         exit;
@@ -700,7 +700,7 @@ class TreasuryBilanController extends BaseController
 
         $monthPad = str_pad($month, 2, '0', STR_PAD_LEFT);
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="bilan_journalier_' . $year . '_' . $monthPad . '.pdf"');
+        header('Content-Disposition: inline; filename="bilan_journalier_' . $year . '_' . $monthPad . '.pdf"');
         header('Cache-Control: max-age=0');
         echo $dompdf->output();
         exit;
