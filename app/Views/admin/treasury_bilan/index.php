@@ -78,7 +78,7 @@ $delta = function(float $d) use ($fmt): string {
 <!-- Sources des recettes -->
 <div class="card card-outline card-success mb-4">
     <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-layer-group mr-2"></i>Sources des recettes <?= $year ?></h3>
+        <h3 class="card-title"><i class="fas fa-arrow-up mr-2 text-success"></i>Sources des recettes <?= $year ?></h3>
     </div>
     <div class="card-body p-0">
         <table class="table table-sm mb-0">
@@ -137,6 +137,45 @@ $delta = function(float $d) use ($fmt): string {
                 </tr>
             </tfoot>
         </table>
+    </div>
+</div>
+
+<!-- Dépenses par catégorie -->
+<div class="card card-outline card-danger mb-4">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-arrow-down mr-2 text-danger"></i>Dépenses par catégorie — <?= $year ?>
+        </h3>
+    </div>
+    <div class="card-body p-0">
+        <?php if (empty($expByCatN)): ?>
+            <div class="p-3 text-muted">Aucune dépense enregistrée.</div>
+        <?php else: ?>
+        <table class="table table-sm mb-0">
+            <tbody>
+                <?php foreach ($expCategories as $key => $label):
+                    $m = $expByCatN[$key] ?? 0;
+                    if ($m <= 0) continue;
+                    $pct = $totalExpN > 0 ? round($m / $totalExpN * 100) : 0;
+                ?>
+                <tr>
+                    <td class="font-weight-bold">
+                        <i class="fas fa-tag text-muted mr-2"></i><?= esc($label) ?>
+                    </td>
+                    <td class="text-right font-weight-bold text-danger" style="width:160px"><?= $fmt($m) ?></td>
+                    <td class="text-right text-muted text-nowrap" style="width:90px"><?= $pct ?> %</td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+            <tfoot class="tfoot-total">
+                <tr>
+                    <td class="font-weight-bold">TOTAL DÉPENSES</td>
+                    <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
+                    <td class="text-right text-muted text-nowrap">100 %</td>
+                </tr>
+            </tfoot>
+        </table>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -216,45 +255,6 @@ $delta = function(float $d) use ($fmt): string {
             </tfoot>
         </table>
         </div>
-    </div>
-</div>
-
-<!-- Dépenses par catégorie -->
-<div class="card card-outline card-danger">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-arrow-down mr-2 text-danger"></i>Dépenses par catégorie — <?= $year ?>
-        </h3>
-    </div>
-    <div class="card-body p-0">
-        <?php if (empty($expByCatN)): ?>
-            <div class="p-3 text-muted">Aucune dépense enregistrée.</div>
-        <?php else: ?>
-        <table class="table table-sm mb-0">
-            <tbody>
-                <?php foreach ($expCategories as $key => $label):
-                    $m = $expByCatN[$key] ?? 0;
-                    if ($m <= 0) continue;
-                    $pct = $totalExpN > 0 ? round($m / $totalExpN * 100) : 0;
-                ?>
-                <tr>
-                    <td class="font-weight-bold">
-                        <i class="fas fa-tag text-muted mr-2"></i><?= esc($label) ?>
-                    </td>
-                    <td class="text-right font-weight-bold text-danger" style="width:160px"><?= $fmt($m) ?></td>
-                    <td class="text-right text-muted text-nowrap" style="width:90px"><?= $pct ?> %</td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-            <tfoot class="tfoot-total">
-                <tr>
-                    <td class="font-weight-bold">TOTAL DÉPENSES</td>
-                    <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
-                    <td class="text-right text-muted text-nowrap">100 %</td>
-                </tr>
-            </tfoot>
-        </table>
-        <?php endif; ?>
     </div>
 </div>
 
