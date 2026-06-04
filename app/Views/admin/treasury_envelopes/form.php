@@ -28,7 +28,7 @@ $todayPrefix = 'E' . date('d.m.');
 <?php endif; ?>
 
 <div class="row">
-    <div class="col-lg-7">
+    <div class="col-lg-8">
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-envelope-open-text mr-2"></i>Enveloppe de caisse</h3>
