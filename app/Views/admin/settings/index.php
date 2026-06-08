@@ -33,6 +33,30 @@
       </div>
 
     </div>
+      <hr>
+
+      <h5 class="mb-3 text-muted text-uppercase" style="font-size:.75rem;letter-spacing:.06em;">
+        <i class="fas fa-newspaper mr-1"></i> Rédaction du Partie Libre
+      </h5>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="journal_editor_member_id">Rédacteur·rice en chef</label>
+            <select name="journal_editor_member_id" id="journal_editor_member_id" class="form-control">
+              <option value="0">— Aucun —</option>
+              <?php foreach ($committeeMembers as $m): ?>
+              <option value="<?= $m->id ?>" <?= $journal_editor_member_id === (int)$m->id ? 'selected' : '' ?>>
+                <?= esc($m->last_name . ' ' . $m->first_name) ?>
+              </option>
+              <?php endforeach; ?>
+            </select>
+            <small class="form-text text-muted">Membre du comité affiché sur la page des archives du journal.</small>
+          </div>
+        </div>
+      </div>
+
+    </div>
     <div class="card-footer">
       <button type="submit" class="btn btn-primary">
         <i class="fas fa-save mr-2"></i>Enregistrer

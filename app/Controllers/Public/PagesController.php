@@ -322,14 +322,16 @@ class PagesController extends BaseController
             ? (new \App\Models\JournalIssueModel())->getPublishedGroupedByYear()
             : [];
 
-        $db     = \Config\Database::connect();
-        $editor = $db->table('members m')
-                     ->select('m.first_name, m.last_name, m.id as member_id, m.photo, m.gender')
-                     ->join('admin_user_roles aur', 'aur.member_id = m.id')
-                     ->where('aur.role', 'PR & Communication')
-                     ->where('m.is_active', 1)
-                     ->limit(1)
-                     ->get()->getRowObject();
+        $editorId = (int) (new \App\Models\SiteSettingModel())->getSetting('journal_editor_member_id', 0);
+        $editor   = null;
+        if ($editorId > 0) {
+            $editor = \Config\Database::connect()
+                ->table('members')
+                ->select('first_name, last_name, id as member_id, photo, gender')
+                ->where('id', $editorId)
+                ->where('is_active', 1)
+                ->get()->getRowObject();
+        }
 
         return view('public/pages/archives_journal', [
             'title'       => 'Journal "Partie Libre" — RBC Disonais',
