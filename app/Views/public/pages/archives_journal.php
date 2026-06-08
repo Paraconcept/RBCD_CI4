@@ -37,7 +37,7 @@
                   <?= esc($editor->last_name) ?><br>
                   <span style="font-weight:400"><?= esc($editor->first_name) ?></span>
                 </div>
-                <div class="member-ranking">PR &amp; Communication</div>
+                <?php // <div class="member-ranking">PR &amp; Communication</div> ?>
               </div>
             </<?= $tag ?>>
           </div>
