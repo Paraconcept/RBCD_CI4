@@ -81,7 +81,7 @@
             <tbody>
                 <?php foreach ($rows as $r): ?>
                 <tr>
-                    <td class="text-nowrap" data-order="<?= esc($r->expense_date) ?>"><?= date('d/m/Y', strtotime($r->expense_date)) ?></td>
+                    <td class="text-nowrap" data-order="<?= strtotime($r->expense_date) ?>"><?= date('d/m/Y', strtotime($r->expense_date)) ?></td>
                     <td><span class="badge badge-secondary"><?= esc($categories[$r->category] ?? $r->category) ?></span></td>
                     <td>
                         <?= esc($r->description) ?>
