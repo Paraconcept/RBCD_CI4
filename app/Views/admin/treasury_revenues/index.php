@@ -81,7 +81,7 @@
             <tbody>
                 <?php foreach ($rows as $r): ?>
                 <tr>
-                    <td class="text-nowrap" data-order="<?= strtotime($r->revenue_date) ?>"><?= date('d/m/Y', strtotime($r->revenue_date)) ?></td>
+                    <td class="text-nowrap"><?= date('d/m/Y', strtotime($r->revenue_date)) ?></td>
                     <td><span class="badge badge-secondary"><?= esc($categories[$r->category] ?? $r->category) ?></span></td>
                     <td>
                         <?= esc($r->description) ?>
@@ -136,7 +136,6 @@
 $('#revenuesTable').DataTable({
     order: [[0, 'desc']],
     pageLength: 25,
-    language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
     columnDefs: [{
         targets: 0,
         render: function(data, type) {
