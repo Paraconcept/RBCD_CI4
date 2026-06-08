@@ -32,7 +32,6 @@
         </div>
       </div>
 
-    </div>
       <hr>
 
       <h5 class="mb-3 text-muted text-uppercase" style="font-size:.75rem;letter-spacing:.06em;">
