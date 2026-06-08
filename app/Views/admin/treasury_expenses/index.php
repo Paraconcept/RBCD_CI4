@@ -137,6 +137,16 @@ $('#expensesTable').DataTable({
     order: [[0, 'desc']],
     pageLength: 25,
     language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
+    columnDefs: [{
+        targets: 0,
+        render: function(data, type) {
+            if (type === 'sort' || type === 'type') {
+                var p = data.split('/');
+                return p.length === 3 ? p[2] + p[1] + p[0] : data;
+            }
+            return data;
+        }
+    }]
 });
 
 document.querySelectorAll('.btn-delete').forEach(btn => {
