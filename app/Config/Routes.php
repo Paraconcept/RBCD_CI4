@@ -173,6 +173,8 @@ $routes->group('admin', static function ($routes) {
         // Clés du club (page centrale)
         $routes->get ('club-keys',                   'Admin\ClubKeysController::index');
         $routes->post('club-keys',                   'Admin\ClubKeysController::store');
+        $routes->get ('club-keys/(:num)/edit',       'Admin\ClubKeysController::edit/$1');
+        $routes->post('club-keys/(:num)/update',     'Admin\ClubKeysController::update/$1');
         $routes->post('club-keys/(:num)/assign',     'Admin\ClubKeysController::assign/$1');
         $routes->post('club-keys/(:num)/return',     'Admin\ClubKeysController::returnKey/$1');
         $routes->post('club-keys/(:num)/delete',     'Admin\ClubKeysController::delete/$1');

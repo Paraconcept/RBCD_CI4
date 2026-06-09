@@ -33,6 +33,52 @@ class ClubKeysController extends BaseController
         ]);
     }
 
+    public function edit(int $id): string
+    {
+        $key = $this->model->find($id);
+        if (!$key) {
+            return redirect()->to(base_url('admin/club-keys'))->with('error', 'Clé introuvable.');
+        }
+
+        $allMembers = (new MemberModel())
+            ->orderBy('last_name')->orderBy('first_name')
+            ->findAll();
+
+        return view('admin/club_keys/form', [
+            'title'       => 'Modifier la clé',
+            'breadcrumbs' => [
+                ['title' => 'Gestion'],
+                ['title' => 'Clés du club', 'url' => base_url('admin/club-keys')],
+                ['title' => 'Modifier'],
+            ],
+            'key'        => $key,
+            'allMembers' => $allMembers,
+            'formAction' => base_url("admin/club-keys/{$id}/update"),
+        ]);
+    }
+
+    public function update(int $id)
+    {
+        $key = $this->model->find($id);
+        if (!$key) {
+            return redirect()->to(base_url('admin/club-keys'))->with('error', 'Clé introuvable.');
+        }
+
+        $memberId     = $this->request->getPost('member_id') ?: null;
+        $givenDate    = $this->request->getPost('given_date')    ?: null;
+        $returnedDate = $this->request->getPost('returned_date') ?: null;
+
+        $this->model->update($id, [
+            'badge_number'  => trim($this->request->getPost('badge_number') ?? '') ?: null,
+            'member_id'     => $memberId ? (int) $memberId : null,
+            'given_date'    => $givenDate,
+            'returned_date' => $returnedDate,
+            'notes'         => trim($this->request->getPost('notes') ?? '') ?: null,
+        ]);
+
+        return redirect()->to(base_url('admin/club-keys'))->with('success', 'Clé mise à jour.');
+    }
+
     public function store()
     {
         $badge = trim($this->request->getPost('badge_number') ?? '');

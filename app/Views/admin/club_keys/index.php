@@ -41,6 +41,12 @@
                         <td class="text-center"><?= $k->returned_date ? date('d/m/Y', strtotime($k->returned_date)) : '<span class="text-muted">—</span>' ?></td>
                         <td><?= $k->notes ? esc($k->notes) : '<span class="text-muted">—</span>' ?></td>
                         <td class="text-center">
+                            <a href="<?= base_url('admin/club-keys/' . $k->id . '/edit') ?>"
+                               class="btn btn-xs btn-warning tt-rbcd"
+                               data-toggle="tooltip" data-placement="top"
+                               title="Modifier la clé <?= $k->badge_number ? '#' . esc($k->badge_number) : 'sans numéro' ?>">
+                                <i class="fas fa-edit"></i>
+                            </a>
                             <?php if (!$assigned): ?>
                                 <button type="button" class="btn btn-xs btn-primary btn-assign tt-rbcd"
                                         data-id="<?= $k->id ?>"
