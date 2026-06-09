@@ -19,6 +19,30 @@ class JournalIssueModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
+    public function getByYear(int $year): array
+    {
+        return $this->db->table('journal_issues')
+            ->where('YEAR(published_date)', $year)
+            ->orderBy('published_date', 'DESC')
+            ->get()->getResultObject();
+    }
+
+    public function getAvailableYears(): array
+    {
+        $rows = $this->db->table('journal_issues')
+            ->select('YEAR(published_date) AS y')
+            ->where('published_date IS NOT NULL')
+            ->distinct()
+            ->orderBy('y', 'DESC')
+            ->get()->getResultArray();
+
+        $years = array_column($rows, 'y');
+        if (!in_array((string) date('Y'), $years)) {
+            array_unshift($years, (string) date('Y'));
+        }
+        return $years;
+    }
+
     public function getPublishedGroupedByYear(): array
     {
         $rows = $this->where('is_published', 1)

@@ -19,12 +19,15 @@ class JournalController extends BaseController
 
     public function index(): string
     {
-        $issues = $this->model->orderBy('published_date', 'DESC')->findAll();
+        $year  = (int) ($this->request->getGet('year') ?? date('Y'));
+        $years = $this->model->getAvailableYears();
 
         return view('admin/journal/index', [
             'title'       => 'Journal "Partie Libre"',
             'breadcrumbs' => [['title' => 'Journal "Partie Libre"']],
-            'issues'      => $issues,
+            'issues'      => $this->model->getByYear($year),
+            'year'        => $year,
+            'years'       => $years,
         ]);
     }
 

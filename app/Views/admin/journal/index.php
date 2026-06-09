@@ -4,9 +4,20 @@
 <div class="card card-outline card-primary">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h3 class="card-title"><i class="fas fa-newspaper mr-2"></i>Journal "Partie Libre"</h3>
-    <a href="<?= base_url('admin/journal/create') ?>" class="btn btn-primary btn-sm">
-      <i class="fas fa-plus mr-1"></i> Ajouter un nouveau numéro
-    </a>
+    <div class="d-flex align-items-center" style="gap:.5rem">
+      <form method="get" class="d-flex align-items-center mr-2">
+        <label class="mr-2 mb-0 font-weight-bold">Année :</label>
+        <select name="year" class="form-control form-control-sm" style="width:100px"
+                onchange="this.form.submit()">
+          <?php foreach ($years as $y): ?>
+            <option value="<?= $y ?>" <?= $y == $year ? 'selected' : '' ?>><?= $y ?></option>
+          <?php endforeach; ?>
+        </select>
+      </form>
+      <a href="<?= base_url('admin/journal/create') ?>" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus mr-1"></i> Ajouter un nouveau numéro
+      </a>
+    </div>
   </div>
   <div class="card-body p-0">
     <table class="table table-hover mb-0" id="journalTable">
@@ -22,7 +33,7 @@
       <tbody>
         <?php if (empty($issues)): ?>
         <tr>
-          <td colspan="5" class="text-center text-muted py-4">Aucun numéro encore ajouté.</td>
+          <td colspan="5" class="text-center text-muted py-4">Aucun numéro pour <?= $year ?>.</td>
         </tr>
         <?php else: ?>
         <?php foreach ($issues as $issue): ?>
