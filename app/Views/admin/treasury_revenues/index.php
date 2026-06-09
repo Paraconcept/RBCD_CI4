@@ -29,6 +29,18 @@
     </a>
 </div>
 
+<!-- Total annuel -->
+<div class="row mb-2">
+    <div class="col-6 col-md-4 col-lg-3">
+        <div class="small-box bg-dark" style="min-height:0">
+            <div class="inner" style="padding:12px 15px">
+                <h5 class="mb-0 text-white" style="font-size:1.1rem"><strong><?= number_format($totalYear, 2, ',', '.') ?> €</strong></h5>
+                <p class="mb-0 text-white" style="font-size:.8rem">TOTAL ANNÉE <?= $year ?></p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Cartes résumé par catégorie -->
 <?php if (!empty($byCategory)): ?>
 <div class="row mb-3">

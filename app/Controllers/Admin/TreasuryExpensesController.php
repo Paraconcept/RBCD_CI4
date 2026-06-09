@@ -32,6 +32,7 @@ class TreasuryExpensesController extends BaseController
 
         $rows       = $this->model->getByYearAndMonth($year, $month);
         $total      = $this->model->getTotalByYearAndMonth($year, $month);
+        $totalYear  = $this->model->getTotalByYear($year);
         $byCategory = $this->model->getTotalByYearAndMonthAndCategory($year, $month);
 
         $years = $this->getAvailableYears();
@@ -44,6 +45,7 @@ class TreasuryExpensesController extends BaseController
             ],
             'rows'           => $rows,
             'total'          => $total,
+            'totalYear'      => $totalYear,
             'byCategory'     => $byCategory,
             'year'           => $year,
             'years'          => $years,
