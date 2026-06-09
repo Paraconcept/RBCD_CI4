@@ -30,7 +30,7 @@
                            value="<?= esc(old('badge_number', $key->badge_number ?? '')) ?>">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label>Titulaire</label>
                     <select name="member_id" id="member_id" class="form-control select2" style="width:100%">
                         <option value="">— Aucun (clé disponible) —</option>
@@ -45,7 +45,7 @@
                     <small id="memberHint" class="text-muted">Laisser vide = clé disponible en stock</small>
                 </div>
 
-                <div class="row mt-3">
+                <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Date d'attribution</label>
