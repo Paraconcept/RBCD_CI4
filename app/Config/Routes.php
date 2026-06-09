@@ -151,9 +151,11 @@ $routes->group('admin', static function ($routes) {
 
         // Trésorerie — bilan
         $routes->get('treasury/bilan',               'Admin\TreasuryBilanController::index');
-        $routes->get('treasury/bilan/export',        'Admin\TreasuryBilanController::export');
-        $routes->get('treasury/bilan/export-month',      'Admin\TreasuryBilanController::exportMonth');
+        $routes->get('treasury/bilan/export',             'Admin\TreasuryBilanController::export');
+        $routes->get('treasury/bilan/export-quarter',     'Admin\TreasuryBilanController::exportQuarter');
+        $routes->get('treasury/bilan/export-month',       'Admin\TreasuryBilanController::exportMonth');
         $routes->get('treasury/bilan/export-pdf',         'Admin\TreasuryBilanController::exportPdf');
+        $routes->get('treasury/bilan/export-quarter-pdf', 'Admin\TreasuryBilanController::exportQuarterPdf');
         $routes->get('treasury/bilan/export-month-pdf',   'Admin\TreasuryBilanController::exportMonthPdf');
 
         // Clés membres (depuis fiche membre)

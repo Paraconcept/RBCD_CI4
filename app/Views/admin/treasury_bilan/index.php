@@ -20,9 +20,9 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
 };
 ?>
 
-<!-- Filtre année + bouton export -->
-<div class="d-flex align-items-center mb-4" style="gap:.75rem">
-    <form method="get" class="d-flex align-items-center">
+<!-- Filtre année + grille exports -->
+<div class="d-flex align-items-start mb-4" style="gap:1.5rem;flex-wrap:wrap">
+    <form method="get" class="d-flex align-items-center mt-1">
         <label class="mr-2 mb-0 font-weight-bold">Année :</label>
         <select name="year" class="form-control form-control-sm" style="width:100px" onchange="this.form.submit()">
             <?php foreach ($years as $y): ?>
@@ -30,12 +30,41 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
             <?php endforeach; ?>
         </select>
     </form>
-    <a href="<?= base_url("admin/treasury/bilan/export?year={$year}") ?>" class="btn btn-sm btn-outline-success">
-        <i class="fas fa-file-excel mr-1"></i> Export Excel
-    </a>
-    <a href="<?= base_url("admin/treasury/bilan/export-pdf?year={$year}") ?>" class="btn btn-sm btn-outline-danger" target="_blank">
-        <i class="fas fa-file-pdf mr-1"></i> Export PDF
-    </a>
+    <table class="table table-sm table-bordered mb-0" style="width:auto">
+        <thead class="thead-light">
+            <tr>
+                <th class="px-3 py-1"></th>
+                <th class="text-center px-3 py-1"><i class="fas fa-file-excel text-success mr-1"></i>Excel</th>
+                <th class="text-center px-3 py-1"><i class="fas fa-file-pdf text-danger mr-1"></i>PDF</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $exports = [
+                ['Annuel',           base_url("admin/treasury/bilan/export?year={$year}"),               base_url("admin/treasury/bilan/export-pdf?year={$year}")],
+                ['T1 (Jan — Mar)',   base_url("admin/treasury/bilan/export-quarter?year={$year}&quarter=1"), base_url("admin/treasury/bilan/export-quarter-pdf?year={$year}&quarter=1")],
+                ['T2 (Avr — Jun)',   base_url("admin/treasury/bilan/export-quarter?year={$year}&quarter=2"), base_url("admin/treasury/bilan/export-quarter-pdf?year={$year}&quarter=2")],
+                ['T3 (Jul — Sep)',   base_url("admin/treasury/bilan/export-quarter?year={$year}&quarter=3"), base_url("admin/treasury/bilan/export-quarter-pdf?year={$year}&quarter=3")],
+                ['T4 (Oct — Déc)',   base_url("admin/treasury/bilan/export-quarter?year={$year}&quarter=4"), base_url("admin/treasury/bilan/export-quarter-pdf?year={$year}&quarter=4")],
+            ];
+            foreach ($exports as [$label, $urlXlsx, $urlPdf]):
+            ?>
+            <tr>
+                <td class="font-weight-bold px-3 py-1"><?= $label ?></td>
+                <td class="text-center px-2 py-1">
+                    <a href="<?= $urlXlsx ?>" class="btn btn-xs btn-outline-success" title="Télécharger Excel <?= $label ?>">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </td>
+                <td class="text-center px-2 py-1">
+                    <a href="<?= $urlPdf ?>" class="btn btn-xs btn-outline-danger" target="_blank" title="Ouvrir PDF <?= $label ?>">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 </div>
 
 <!-- Cartes résumé (toutes sources confondues) -->

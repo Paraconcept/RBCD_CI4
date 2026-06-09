@@ -706,7 +706,372 @@ class TreasuryBilanController extends BaseController
         exit;
     }
 
+    public function exportQuarter(): void
+    {
+        $expModel = new TreasuryExpenseModel();
+        $revModel = new TreasuryRevenueModel();
+
+        $year    = (int) ($this->request->getGet('year')    ?? date('Y'));
+        $quarter = max(1, min(4, (int) ($this->request->getGet('quarter') ?? 1)));
+
+        $qMonths = $this->quarterMonths($quarter);
+        $qLabel  = "T{$quarter}";
+        $qName   = $this->quarterLabel($quarter);
+
+        $revByMonthN   = $revModel->getMonthlyTotals($year);
+        $cotisMonthlyN = $this->getCotisationsByMonth($year);
+        $envMonthlyN   = $this->getEnvelopesByMonth($year);
+        $envVatN       = $this->getEnvelopesByMonthAndVat($year);
+        $expByMonthN   = $expModel->getMonthlyTotals($year);
+
+        $totalRevManualQ = $this->sumMonths($revByMonthN,   $qMonths);
+        $totalCotisQ     = $this->sumMonths($cotisMonthlyN, $qMonths);
+        $totalEnvQ       = $this->sumMonths($envMonthlyN,   $qMonths);
+        $totalRevQ       = $totalRevManualQ + $totalCotisQ + $totalEnvQ;
+        $totalExpQ       = $this->sumMonths($expByMonthN,   $qMonths);
+        $soldeQ          = $totalRevQ - $totalExpQ;
+        $revByCatQ       = $this->getRevCatByMonths($revModel, $year, $qMonths);
+        $expByCatQ       = $this->getExpCatByMonths($expModel, $year, $qMonths);
+
+        $fullMonths = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+        $sp    = new Spreadsheet();
+        $sheet = $sp->getActiveSheet();
+        $sheet->setTitle("Bilan {$qLabel} {$year}");
+
+        $headerStyle  = ['font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11], 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1F3864']], 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]];
+        $sectionStyle = ['font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10], 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '2E75B6']]];
+        $boldStyle    = ['font' => ['bold' => true]];
+        $rightAlign   = ['alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT]];
+        $totalRowStyle = ['font' => ['bold' => true], 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F2F2F2']]];
+        $greenText    = ['font' => ['color' => ['rgb' => '1E7E34']]];
+        $redText      = ['font' => ['color' => ['rgb' => 'C0392B']]];
+
+        $fmt = fn(float $v): string => number_format($v, 2, ',', '.') . ' €';
+
+        $sheet->mergeCells('A1:I1');
+        $sheet->setCellValue('A1', "BILAN FINANCIER — {$qLabel} {$year} — RBC DISONAIS");
+        $sheet->getStyle('A1')->applyFromArray($headerStyle);
+        $sheet->getRowDimension(1)->setRowHeight(22);
+
+        $sheet->mergeCells('A2:I2');
+        $sheet->setCellValue('A2', "{$qName} {$year}  |  Exporté le : " . date('d/m/Y'));
+        $sheet->getStyle('A2')->applyFromArray(['font' => ['italic' => true, 'color' => ['rgb' => '555555']]]);
+
+        // Récapitulatif
+        $r = 4;
+        $sheet->mergeCells("A{$r}:E{$r}");
+        $sheet->setCellValue("A{$r}", "RÉCAPITULATIF — {$qLabel} {$year}");
+        $sheet->getStyle("A{$r}:E{$r}")->applyFromArray($sectionStyle);
+        $r++;
+        $sheet->setCellValue("A{$r}", 'Recettes totales'); $sheet->setCellValue("B{$r}", $fmt($totalRevQ));
+        $sheet->getStyle("B{$r}")->applyFromArray(array_merge($rightAlign, $greenText));
+        $r++;
+        $sheet->setCellValue("A{$r}", 'Dépenses totales'); $sheet->setCellValue("B{$r}", $fmt($totalExpQ));
+        $sheet->getStyle("B{$r}")->applyFromArray(array_merge($rightAlign, $redText));
+        $r++;
+        $sheet->setCellValue("A{$r}", 'Solde'); $sheet->setCellValue("B{$r}", $fmt($soldeQ));
+        $sheet->getStyle("A{$r}:B{$r}")->applyFromArray($boldStyle);
+        $sheet->getStyle("B{$r}")->applyFromArray(array_merge($rightAlign, $soldeQ >= 0 ? $greenText : $redText));
+
+        // Sources recettes
+        $r += 2;
+        $sheet->mergeCells("A{$r}:E{$r}");
+        $sheet->setCellValue("A{$r}", "SOURCES DES RECETTES — {$qLabel} {$year}");
+        $sheet->getStyle("A{$r}:E{$r}")->applyFromArray($sectionStyle);
+        foreach ([['Recettes manuelles', $totalRevManualQ], ['Cotisations', $totalCotisQ], ['Bar / Enveloppes', $totalEnvQ]] as [$label, $amount]) {
+            $r++;
+            $sheet->setCellValue("A{$r}", $label); $sheet->setCellValue("B{$r}", $fmt($amount));
+            $sheet->getStyle("B{$r}")->applyFromArray(array_merge($rightAlign, $greenText));
+        }
+        $r++;
+        $sheet->setCellValue("A{$r}", 'TOTAL'); $sheet->setCellValue("B{$r}", $fmt($totalRevQ));
+        $sheet->getStyle("A{$r}:B{$r}")->applyFromArray(array_merge($totalRowStyle, ['font' => ['bold' => true, 'color' => ['rgb' => '1E7E34']]]));
+        $sheet->getStyle("B{$r}")->applyFromArray($rightAlign);
+
+        // Évolution mensuelle (3 mois)
+        $r += 2;
+        $sheet->mergeCells("A{$r}:I{$r}");
+        $sheet->setCellValue("A{$r}", 'ÉVOLUTION MENSUELLE');
+        $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($sectionStyle);
+        $r++;
+        foreach (['Mois', 'Rec. man.', 'Cotisations', 'Bar 6%', 'Bar 12%', 'Bar 21%', 'Total rec.', 'Dépenses', 'Solde'] as $ci => $h) {
+            $sheet->setCellValue(chr(65 + $ci) . $r, $h);
+        }
+        $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($boldStyle);
+
+        foreach ($qMonths as $m) {
+            $r++;
+            $r6  = $envVatN['6pct'][$m]  ?? 0;
+            $r12 = $envVatN['12pct'][$m] ?? 0;
+            $r21 = $envVatN['21pct'][$m] ?? 0;
+            $rM  = ($revByMonthN[$m] ?? 0) + ($cotisMonthlyN[$m] ?? 0) + ($envMonthlyN[$m] ?? 0);
+            $eM  = $expByMonthN[$m] ?? 0;
+            $sM  = $rM - $eM;
+            $sheet->setCellValue("A{$r}", $fullMonths[$m - 1]);
+            $sheet->setCellValue("B{$r}", $revByMonthN[$m]   > 0 ? $fmt($revByMonthN[$m])   : '—');
+            $sheet->setCellValue("C{$r}", $cotisMonthlyN[$m] > 0 ? $fmt($cotisMonthlyN[$m]) : '—');
+            $sheet->setCellValue("D{$r}", $r6  > 0 ? $fmt($r6)  : '—');
+            $sheet->setCellValue("E{$r}", $r12 > 0 ? $fmt($r12) : '—');
+            $sheet->setCellValue("F{$r}", $r21 > 0 ? $fmt($r21) : '—');
+            $sheet->setCellValue("G{$r}", $rM  > 0 ? $fmt($rM)  : '—');
+            $sheet->setCellValue("H{$r}", $eM  > 0 ? $fmt($eM)  : '—');
+            $sheet->setCellValue("I{$r}", ($rM > 0 || $eM > 0) ? $fmt($sM) : '—');
+            if ($rM > 0) $sheet->getStyle("G{$r}")->applyFromArray($greenText);
+            if ($eM > 0) $sheet->getStyle("H{$r}")->applyFromArray($redText);
+            if ($rM > 0 || $eM > 0) $sheet->getStyle("I{$r}")->applyFromArray($sM >= 0 ? $greenText : $redText);
+        }
+        $r++;
+        $t6 = array_sum(array_intersect_key($envVatN['6pct'],  array_flip($qMonths)));
+        $t12 = array_sum(array_intersect_key($envVatN['12pct'], array_flip($qMonths)));
+        $t21 = array_sum(array_intersect_key($envVatN['21pct'], array_flip($qMonths)));
+        $sheet->setCellValue("A{$r}", 'TOTAL');
+        $sheet->setCellValue("B{$r}", $fmt($totalRevManualQ)); $sheet->setCellValue("C{$r}", $fmt($totalCotisQ));
+        $sheet->setCellValue("D{$r}", $t6  > 0 ? $fmt($t6)  : '—');
+        $sheet->setCellValue("E{$r}", $t12 > 0 ? $fmt($t12) : '—');
+        $sheet->setCellValue("F{$r}", $fmt($t21));
+        $sheet->setCellValue("G{$r}", $fmt($totalRevQ)); $sheet->setCellValue("H{$r}", $fmt($totalExpQ)); $sheet->setCellValue("I{$r}", $fmt($soldeQ));
+        $sheet->getStyle("A{$r}:I{$r}")->applyFromArray($totalRowStyle);
+        $sheet->getStyle("G{$r}")->applyFromArray($greenText); $sheet->getStyle("H{$r}")->applyFromArray($redText);
+        $sheet->getStyle("I{$r}")->applyFromArray($soldeQ >= 0 ? $greenText : $redText);
+
+        // Catégories recettes
+        $r += 2;
+        $sheet->mergeCells("A{$r}:C{$r}");
+        $sheet->setCellValue("A{$r}", "RECETTES PAR CATÉGORIE — {$qLabel} {$year}");
+        $sheet->getStyle("A{$r}:C{$r}")->applyFromArray($sectionStyle);
+        $r++;
+        $sheet->setCellValue("A{$r}", 'Catégorie'); $sheet->setCellValue("B{$r}", 'Montant'); $sheet->setCellValue("C{$r}", '%');
+        $sheet->getStyle("A{$r}:C{$r}")->applyFromArray($boldStyle);
+        foreach (TreasuryRevenueModel::$categories as $key => $label) {
+            $am = $revByCatQ[$key] ?? 0;
+            if ($am <= 0) continue;
+            $r++;
+            $pct = $totalRevManualQ > 0 ? round($am / $totalRevManualQ * 100) : 0;
+            $sheet->setCellValue("A{$r}", $label); $sheet->setCellValue("B{$r}", $fmt($am)); $sheet->setCellValue("C{$r}", $pct . ' %');
+            $sheet->getStyle("B{$r}")->applyFromArray(array_merge($rightAlign, $greenText));
+        }
+
+        // Catégories dépenses
+        $r += 2;
+        $sheet->mergeCells("A{$r}:C{$r}");
+        $sheet->setCellValue("A{$r}", "DÉPENSES PAR CATÉGORIE — {$qLabel} {$year}");
+        $sheet->getStyle("A{$r}:C{$r}")->applyFromArray($sectionStyle);
+        $r++;
+        $sheet->setCellValue("A{$r}", 'Catégorie'); $sheet->setCellValue("B{$r}", 'Montant'); $sheet->setCellValue("C{$r}", '%');
+        $sheet->getStyle("A{$r}:C{$r}")->applyFromArray($boldStyle);
+        foreach (TreasuryExpenseModel::$categories as $key => $label) {
+            $am = $expByCatQ[$key] ?? 0;
+            if ($am <= 0) continue;
+            $r++;
+            $pct = $totalExpQ > 0 ? round($am / $totalExpQ * 100) : 0;
+            $sheet->setCellValue("A{$r}", $label); $sheet->setCellValue("B{$r}", $fmt($am)); $sheet->setCellValue("C{$r}", $pct . ' %');
+            $sheet->getStyle("B{$r}")->applyFromArray(array_merge($rightAlign, $redText));
+        }
+
+        foreach (['A' => 28, 'B' => 18, 'C' => 18, 'D' => 18, 'E' => 18, 'F' => 18, 'G' => 18, 'H' => 18, 'I' => 18] as $col => $w) {
+            $sheet->getColumnDimension($col)->setWidth($w);
+        }
+
+        $filename = "bilan_rbcd_{$year}_{$qLabel}.xlsx";
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        (new Xlsx($sp))->save('php://output');
+        exit;
+    }
+
+    public function exportQuarterPdf(): void
+    {
+        $expModel = new TreasuryExpenseModel();
+        $revModel = new TreasuryRevenueModel();
+
+        $year    = (int) ($this->request->getGet('year')    ?? date('Y'));
+        $quarter = max(1, min(4, (int) ($this->request->getGet('quarter') ?? 1)));
+
+        $qMonths = $this->quarterMonths($quarter);
+        $qLabel  = "T{$quarter}";
+        $qName   = $this->quarterLabel($quarter);
+
+        $revByMonthN   = $revModel->getMonthlyTotals($year);
+        $cotisMonthlyN = $this->getCotisationsByMonth($year);
+        $envMonthlyN   = $this->getEnvelopesByMonth($year);
+        $envVatN       = $this->getEnvelopesByMonthAndVat($year);
+        $expByMonthN   = $expModel->getMonthlyTotals($year);
+
+        $totalRevManualQ = $this->sumMonths($revByMonthN,   $qMonths);
+        $totalCotisQ     = $this->sumMonths($cotisMonthlyN, $qMonths);
+        $totalEnvQ       = $this->sumMonths($envMonthlyN,   $qMonths);
+        $totalRevQ       = $totalRevManualQ + $totalCotisQ + $totalEnvQ;
+        $totalExpQ       = $this->sumMonths($expByMonthN,   $qMonths);
+        $soldeQ          = $totalRevQ - $totalExpQ;
+        $revByCatQ       = $this->getRevCatByMonths($revModel, $year, $qMonths);
+        $expByCatQ       = $this->getExpCatByMonths($expModel, $year, $qMonths);
+
+        $fullMonths = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        $fmt = fn(float $v): string => number_format($v, 2, ',', '.') . ' €';
+        $gc  = fn(float $v): string => $v >= 0 ? '#1E7E34' : '#C0392B';
+
+        $css = 'body{font-family:DejaVu Sans,sans-serif;font-size:8pt;margin:0;padding:8px;color:#222;}'
+             . 'table{width:100%;border-collapse:collapse;margin-bottom:10px;}'
+             . 'td,th{padding:2px 4px;border:1px solid #ddd;}'
+             . '.hdr{background:#1F3864;color:#fff;font-size:11pt;font-weight:bold;text-align:center;padding:6px;}'
+             . '.sub{color:#555;font-style:italic;font-size:7.5pt;padding:2px 0 8px;}'
+             . '.sec td{background:#2E75B6;color:#fff;font-weight:bold;border:none;padding:3px 6px;}'
+             . '.tot td{background:#F2F2F2;font-weight:bold;}'
+             . '.bld td{font-weight:bold;}'
+             . '.r{text-align:right;}';
+
+        $h  = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' . $css . '</style></head><body>';
+        $h .= '<div class="hdr">BILAN FINANCIER — ' . $qLabel . ' ' . $year . ' — RBC DISONAIS</div>';
+        $h .= '<div class="sub">' . $qName . ' ' . $year . '  |  Exporté le : ' . date('d/m/Y') . '</div>';
+
+        // Récapitulatif
+        $h .= '<table><tr class="sec"><td colspan="2">RÉCAPITULATIF — ' . $qLabel . ' ' . $year . '</td></tr>';
+        $h .= '<tr><td style="width:60%">Recettes totales</td><td class="r" style="color:#1E7E34">' . $fmt($totalRevQ) . '</td></tr>';
+        $h .= '<tr><td>Dépenses totales</td><td class="r" style="color:#C0392B">' . $fmt($totalExpQ) . '</td></tr>';
+        $h .= '<tr class="bld"><td>Solde</td><td class="r" style="color:' . $gc($soldeQ) . '">' . $fmt($soldeQ) . '</td></tr>';
+        $h .= '</table>';
+
+        // Sources recettes
+        $h .= '<table><tr class="sec"><td colspan="3">SOURCES DES RECETTES — ' . $qLabel . ' ' . $year . '</td></tr>';
+        $h .= '<tr class="bld"><td style="width:60%">Source</td><td class="r" style="width:25%">Montant</td><td class="r" style="width:15%">%</td></tr>';
+        foreach ([['Recettes manuelles', $totalRevManualQ], ['Cotisations', $totalCotisQ], ['Bar / Enveloppes', $totalEnvQ]] as [$label, $amount]) {
+            $pct = $totalRevQ > 0 ? round($amount / $totalRevQ * 100) : 0;
+            $h .= '<tr><td>' . $label . '</td><td class="r" style="color:#1E7E34">' . $fmt($amount) . '</td><td class="r">' . $pct . ' %</td></tr>';
+        }
+        $h .= '<tr class="tot"><td>TOTAL RECETTES</td><td class="r" style="color:#1E7E34">' . $fmt($totalRevQ) . '</td><td class="r">100 %</td></tr>';
+        $h .= '</table>';
+
+        // Évolution mensuelle
+        $h .= '<table><tr class="sec"><td colspan="9">ÉVOLUTION MENSUELLE — ' . $qLabel . ' ' . $year . '</td></tr>';
+        $h .= '<tr class="bld"><td style="width:12%">Mois</td><td class="r" style="width:11%">Rec. man.</td><td class="r" style="width:11%">Cotisations</td><td class="r" style="width:11%">Bar 6%</td><td class="r" style="width:11%">Bar 12%</td><td class="r" style="width:11%">Bar 21%</td><td class="r" style="width:11%;color:#1E7E34">Σ Recettes</td><td class="r" style="width:11%;color:#C0392B">Dépenses</td><td class="r" style="width:11%">Solde</td></tr>';
+        $tManual = $tCotis = $t6 = $t12 = $t21 = $tRev = $tExp = 0.0;
+        foreach ($qMonths as $m) {
+            $r6  = $envVatN['6pct'][$m]  ?? 0;
+            $r12 = $envVatN['12pct'][$m] ?? 0;
+            $r21 = $envVatN['21pct'][$m] ?? 0;
+            $rM  = ($revByMonthN[$m] ?? 0) + ($cotisMonthlyN[$m] ?? 0) + ($envMonthlyN[$m] ?? 0);
+            $eM  = $expByMonthN[$m] ?? 0;
+            $sM  = $rM - $eM;
+            $tManual += $revByMonthN[$m] ?? 0; $tCotis += $cotisMonthlyN[$m] ?? 0;
+            $t6 += $r6; $t12 += $r12; $t21 += $r21; $tRev += $rM; $tExp += $eM;
+            $h .= '<tr>';
+            $h .= '<td style="text-align:right;padding-right:8px">' . $fullMonths[$m - 1] . '</td>';
+            $h .= '<td class="r">' . ($revByMonthN[$m]   > 0 ? $fmt($revByMonthN[$m])   : '—') . '</td>';
+            $h .= '<td class="r">' . ($cotisMonthlyN[$m] > 0 ? $fmt($cotisMonthlyN[$m]) : '—') . '</td>';
+            $h .= '<td class="r">' . ($r6  > 0 ? $fmt($r6)  : '—') . '</td>';
+            $h .= '<td class="r">' . ($r12 > 0 ? $fmt($r12) : '—') . '</td>';
+            $h .= '<td class="r">' . ($r21 > 0 ? $fmt($r21) : '—') . '</td>';
+            $h .= '<td class="r"' . ($rM > 0 ? ' style="color:#1E7E34"' : '') . '>' . ($rM > 0 ? $fmt($rM) : '—') . '</td>';
+            $h .= '<td class="r"' . ($eM > 0 ? ' style="color:#C0392B"' : '') . '>' . ($eM > 0 ? $fmt($eM) : '—') . '</td>';
+            $h .= '<td class="r"' . (($rM > 0 || $eM > 0) ? ' style="color:' . $gc($sM) . '"' : '') . '>' . (($rM > 0 || $eM > 0) ? $fmt($sM) : '—') . '</td>';
+            $h .= '</tr>';
+        }
+        $tSolde = $tRev - $tExp;
+        $h .= '<tr class="tot"><td>TOTAL</td><td class="r">' . $fmt($tManual) . '</td><td class="r">' . $fmt($tCotis) . '</td>';
+        $h .= '<td class="r">' . ($t6  > 0 ? $fmt($t6)  : '—') . '</td>';
+        $h .= '<td class="r">' . ($t12 > 0 ? $fmt($t12) : '—') . '</td>';
+        $h .= '<td class="r">' . $fmt($t21) . '</td>';
+        $h .= '<td class="r" style="color:#1E7E34">' . $fmt($tRev) . '</td>';
+        $h .= '<td class="r" style="color:#C0392B">' . $fmt($tExp) . '</td>';
+        $h .= '<td class="r" style="color:' . $gc($tSolde) . '">' . $fmt($tSolde) . '</td></tr>';
+        $h .= '</table>';
+
+        // Recettes par catégorie
+        $h .= '<table><tr class="sec"><td colspan="3">RECETTES PAR CATÉGORIE — ' . $qLabel . ' ' . $year . '</td></tr>';
+        $h .= '<tr class="bld"><td style="width:60%">Catégorie</td><td class="r" style="width:25%">Montant</td><td class="r" style="width:15%">%</td></tr>';
+        foreach (TreasuryRevenueModel::$categories as $key => $label) {
+            $am = $revByCatQ[$key] ?? 0;
+            if ($am <= 0) continue;
+            $pct = $totalRevManualQ > 0 ? round($am / $totalRevManualQ * 100) : 0;
+            $h .= '<tr><td>' . esc($label) . '</td><td class="r" style="color:#1E7E34">' . $fmt($am) . '</td><td class="r">' . $pct . ' %</td></tr>';
+        }
+        $h .= '</table>';
+
+        // Dépenses par catégorie
+        $h .= '<table><tr class="sec"><td colspan="3">DÉPENSES PAR CATÉGORIE — ' . $qLabel . ' ' . $year . '</td></tr>';
+        $h .= '<tr class="bld"><td style="width:60%">Catégorie</td><td class="r" style="width:25%">Montant</td><td class="r" style="width:15%">%</td></tr>';
+        foreach (TreasuryExpenseModel::$categories as $key => $label) {
+            $am = $expByCatQ[$key] ?? 0;
+            if ($am <= 0) continue;
+            $pct = $totalExpQ > 0 ? round($am / $totalExpQ * 100) : 0;
+            $h .= '<tr><td>' . esc($label) . '</td><td class="r" style="color:#C0392B">' . $fmt($am) . '</td><td class="r">' . $pct . ' %</td></tr>';
+        }
+        $h .= '</table></body></html>';
+
+        $options = new Options();
+        $options->set('defaultFont', 'DejaVu Sans');
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($h, 'UTF-8');
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="bilan_rbcd_' . $year . '_' . $qLabel . '.pdf"');
+        header('Cache-Control: max-age=0');
+        echo $dompdf->output();
+        exit;
+    }
+
     // ── Helpers privés
+
+    private function quarterMonths(int $quarter): array
+    {
+        return match($quarter) {
+            1 => [1, 2, 3],
+            2 => [4, 5, 6],
+            3 => [7, 8, 9],
+            4 => [10, 11, 12],
+            default => [],
+        };
+    }
+
+    private function quarterLabel(int $quarter): string
+    {
+        return match($quarter) {
+            1 => '1er trimestre (Jan — Mar)',
+            2 => '2e trimestre (Avr — Jun)',
+            3 => '3e trimestre (Jul — Sep)',
+            4 => '4e trimestre (Oct — Déc)',
+            default => '',
+        };
+    }
+
+    private function sumMonths(array $monthly, array $months): float
+    {
+        return (float) array_sum(array_intersect_key($monthly, array_flip($months)));
+    }
+
+    private function getRevCatByMonths(TreasuryRevenueModel $model, int $year, array $months): array
+    {
+        $rows = $model->db->table('treasury_revenues')
+            ->select('category, SUM(amount) as total')
+            ->where('YEAR(revenue_date)', $year)
+            ->whereIn('MONTH(revenue_date)', $months)
+            ->groupBy('category')
+            ->get()->getResultObject();
+        $result = [];
+        foreach ($rows as $r) {
+            $result[$r->category] = (float) $r->total;
+        }
+        return $result;
+    }
+
+    private function getExpCatByMonths(TreasuryExpenseModel $model, int $year, array $months): array
+    {
+        $rows = $model->db->table('treasury_expenses')
+            ->select('category, SUM(amount) as total')
+            ->where('YEAR(expense_date)', $year)
+            ->whereIn('MONTH(expense_date)', $months)
+            ->groupBy('category')
+            ->get()->getResultObject();
+        $result = [];
+        foreach ($rows as $r) {
+            $result[$r->category] = (float) $r->total;
+        }
+        return $result;
+    }
 
     private function getCotisationsByMonth(int $year): array
     {
