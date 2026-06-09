@@ -56,7 +56,7 @@
                                     <i class="fas fa-user-plus"></i>
                                 </button>
                             <?php else: ?>
-                                <button type="button" class="btn btn-xs btn-warning btn-return tt-rbcd"
+                                <button type="button" class="btn btn-xs btn-info btn-return tt-rbcd"
                                         data-id="<?= $k->id ?>"
                                         data-badge="<?= esc($k->badge_number ?? '') ?>"
                                         data-holder="<?= esc($k->holder_name) ?>"
