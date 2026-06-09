@@ -34,7 +34,7 @@ $todayPrefix = 'E' . date('d.m.');
                 <h3 class="card-title"><i class="fas fa-envelope-open-text mr-2"></i>Enveloppe de caisse</h3>
                 <?php if ($isEdit): ?>
                 <div class="card-tools">
-                    <span class="badge badge-secondary"><i class="fas fa-lock mr-1"></i>Montants verrouillés</span>
+                    <span class="badge badge-secondary"><i class="fas fa-lock mr-1"></i>Nom et date verrouillés</span>
                 </div>
                 <?php endif; ?>
             </div>
@@ -86,18 +86,13 @@ $todayPrefix = 'E' . date('d.m.');
                     <div class="col-12 col-lg mb-2 mb-lg-0">
                         <div class="d-flex align-items-end">
                             <div class="form-group mb-0 flex-grow-1">
-                                <label>Montant calculé (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
-                                <?php if ($isEdit): ?>
-                                    <input type="text" class="form-control text-right"
-                                           value="<?= number_format((float)$envelope->amount_calculated, 2, ',', ' ') ?> €" disabled>
-                                <?php else: ?>
-                                    <input type="number" name="amount_calculated" id="amount_calculated"
-                                           class="form-control text-right <?= isset($errors['amount_calculated']) ? 'is-invalid' : '' ?>"
-                                           step="0.01" min="0"
-                                           value="<?= esc($v('amount_calculated', '0.00')) ?>" required>
-                                    <?php if (isset($errors['amount_calculated'])): ?>
-                                        <div class="invalid-feedback"><?= $errors['amount_calculated'] ?></div>
-                                    <?php endif; ?>
+                                <label>Montant calculé (€) <span class="text-danger">*</span></label>
+                                <input type="number" name="amount_calculated" id="amount_calculated"
+                                       class="form-control text-right <?= isset($errors['amount_calculated']) ? 'is-invalid' : '' ?>"
+                                       step="0.01" min="0"
+                                       value="<?= esc($v('amount_calculated', '0.00')) ?>" required>
+                                <?php if (isset($errors['amount_calculated'])): ?>
+                                    <div class="invalid-feedback"><?= $errors['amount_calculated'] ?></div>
                                 <?php endif; ?>
                             </div>
                             <strong class="ml-2 pb-1 text-black" style="font-size:1.4rem"><i class="fas fa-equals"></i></strong>
@@ -106,18 +101,13 @@ $todayPrefix = 'E' . date('d.m.');
                     <div class="col-12 col-lg mb-2 mb-lg-0">
                         <div class="d-flex align-items-end">
                             <div class="form-group mb-0 flex-grow-1">
-                                <label>Montant trouvé total (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
-                                <?php if ($isEdit): ?>
-                                    <input type="text" class="form-control text-right"
-                                           value="<?= number_format((float)$envelope->amount_found, 2, ',', ' ') ?> €" disabled>
-                                <?php else: ?>
-                                    <input type="number" name="amount_found" id="amount_found"
-                                           class="form-control text-right <?= isset($errors['amount_found']) ? 'is-invalid' : '' ?>"
-                                           step="0.01" min="0"
-                                           value="<?= esc($v('amount_found', '0.00')) ?>" required>
-                                    <?php if (isset($errors['amount_found'])): ?>
-                                        <div class="invalid-feedback"><?= $errors['amount_found'] ?></div>
-                                    <?php endif; ?>
+                                <label>Montant trouvé total (€) <span class="text-danger">*</span></label>
+                                <input type="number" name="amount_found" id="amount_found"
+                                       class="form-control text-right <?= isset($errors['amount_found']) ? 'is-invalid' : '' ?>"
+                                       step="0.01" min="0"
+                                       value="<?= esc($v('amount_found', '0.00')) ?>" required>
+                                <?php if (isset($errors['amount_found'])): ?>
+                                    <div class="invalid-feedback"><?= $errors['amount_found'] ?></div>
                                 <?php endif; ?>
                             </div>
                             <strong class="ml-2 pb-1 text-black" style="font-size:1.4rem"><i class="fas fa-plus"></i></strong>
@@ -126,18 +116,13 @@ $todayPrefix = 'E' . date('d.m.');
                     <div class="col-12 col-lg mb-2 mb-lg-0">
                         <div class="d-flex align-items-end">
                             <div class="form-group mb-0 flex-grow-1">
-                                <label>Montant SumUp (€) <?= !$isEdit ? '<span class="text-danger">*</span>' : '' ?></label>
-                                <?php if ($isEdit): ?>
-                                    <input type="text" class="form-control text-right"
-                                           value="<?= number_format((float)$envelope->amount_sumup, 2, ',', ' ') ?> €" disabled>
-                                <?php else: ?>
-                                    <input type="number" name="amount_sumup" id="amount_sumup"
-                                           class="form-control text-right <?= isset($errors['amount_sumup']) ? 'is-invalid' : '' ?>"
-                                           step="0.01" min="0"
-                                           value="<?= esc($v('amount_sumup', '0.00')) ?>" required>
-                                    <?php if (isset($errors['amount_sumup'])): ?>
-                                        <div class="invalid-feedback"><?= $errors['amount_sumup'] ?></div>
-                                    <?php endif; ?>
+                                <label>Montant SumUp (€) <span class="text-danger">*</span></label>
+                                <input type="number" name="amount_sumup" id="amount_sumup"
+                                       class="form-control text-right <?= isset($errors['amount_sumup']) ? 'is-invalid' : '' ?>"
+                                       step="0.01" min="0"
+                                       value="<?= esc($v('amount_sumup', '0.00')) ?>" required>
+                                <?php if (isset($errors['amount_sumup'])): ?>
+                                    <div class="invalid-feedback"><?= $errors['amount_sumup'] ?></div>
                                 <?php endif; ?>
                             </div>
                             <strong class="ml-2 pb-1 text-black" style="font-size:1.4rem"><i class="fas fa-arrows-alt-h"></i></strong>
@@ -147,15 +132,13 @@ $todayPrefix = 'E' . date('d.m.');
                         <div class="form-group mb-0">
                             <label>Écart</label>
                             <div class="pt-0">
-                                <?php if ($isEdit): ?>
-                                    <span class="badge <?= $ecartClass ?>" style="font-size:1rem;padding:.7em;">
+                                <span id="ecart_badge" class="badge badge-secondary" style="font-size:1rem;padding:.7em;">
+                                    <?php if ($isEdit): ?>
                                         <?= $ecartText ?>
-                                    </span>
-                                <?php else: ?>
-                                    <span id="ecart_badge" class="badge badge-secondary" style="font-size:1rem;padding:.7em;">
+                                    <?php else: ?>
                                         0,00 €
-                                    </span>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -171,51 +154,34 @@ $todayPrefix = 'E' . date('d.m.');
                             <div class="col-12 col-lg mb-2 mb-lg-0">
                                 <div class="form-group mb-0">
                                     <label class="small">Montant 6% — gougouilles (€)</label>
-                                    <?php if ($isEdit): ?>
-                                        <input type="text" class="form-control text-right form-control-sm"
-                                               value="<?= $envelope->amount_6pct !== null ? number_format((float)$envelope->amount_6pct, 2, ',', ' ') . ' €' : '—' ?>" disabled>
-                                    <?php else: ?>
-                                        <input type="number" name="amount_6pct" id="amount_6pct"
-                                               class="form-control text-right form-control-sm <?= isset($errors['amount_6pct']) ? 'is-invalid' : '' ?>"
-                                               step="0.01" min="0" placeholder="0,00"
-                                               value="<?= esc($v('amount_6pct', '')) ?>">
-                                        <?php if (isset($errors['amount_6pct'])): ?>
-                                            <div class="invalid-feedback"><?= $errors['amount_6pct'] ?></div>
-                                        <?php endif; ?>
+                                    <input type="number" name="amount_6pct" id="amount_6pct"
+                                           class="form-control text-right form-control-sm <?= isset($errors['amount_6pct']) ? 'is-invalid' : '' ?>"
+                                           step="0.01" min="0" placeholder="0,00"
+                                           value="<?= esc($v('amount_6pct', '')) ?>">
+                                    <?php if (isset($errors['amount_6pct'])): ?>
+                                        <div class="invalid-feedback"><?= $errors['amount_6pct'] ?></div>
                                     <?php endif; ?>
                                 </div>
                             </div>
                             <div class="col-12 col-lg mb-2 mb-lg-0">
                                 <div class="form-group mb-0">
                                     <label class="small">Montant 12% — gougouilles (€)</label>
-                                    <?php if ($isEdit): ?>
-                                        <input type="text" class="form-control text-right form-control-sm"
-                                               value="<?= $envelope->amount_12pct !== null ? number_format((float)$envelope->amount_12pct, 2, ',', ' ') . ' €' : '—' ?>" disabled>
-                                    <?php else: ?>
-                                        <input type="number" name="amount_12pct" id="amount_12pct"
-                                               class="form-control text-right form-control-sm <?= isset($errors['amount_12pct']) ? 'is-invalid' : '' ?>"
-                                               step="0.01" min="0" placeholder="0,00"
-                                               value="<?= esc($v('amount_12pct', '')) ?>">
-                                        <?php if (isset($errors['amount_12pct'])): ?>
-                                            <div class="invalid-feedback"><?= $errors['amount_12pct'] ?></div>
-                                        <?php endif; ?>
+                                    <input type="number" name="amount_12pct" id="amount_12pct"
+                                           class="form-control text-right form-control-sm <?= isset($errors['amount_12pct']) ? 'is-invalid' : '' ?>"
+                                           step="0.01" min="0" placeholder="0,00"
+                                           value="<?= esc($v('amount_12pct', '')) ?>">
+                                    <?php if (isset($errors['amount_12pct'])): ?>
+                                        <div class="invalid-feedback"><?= $errors['amount_12pct'] ?></div>
                                     <?php endif; ?>
                                 </div>
                             </div>
                             <div class="col-12 col-lg">
                                 <div class="form-group mb-0">
                                     <label class="small">Montant 21% — boissons (€) <em class="text-muted">(calculé)</em></label>
-                                    <?php if ($isEdit): ?>
-                                        <?php
-                                        $amt21 = (float)$envelope->amount_found - (float)($envelope->amount_6pct ?? 0) - (float)($envelope->amount_12pct ?? 0);
-                                        ?>
-                                        <input type="text" class="form-control text-right form-control-sm"
-                                               value="<?= number_format($amt21, 2, ',', ' ') ?> €" disabled>
-                                    <?php else: ?>
-                                        <input type="text" id="amount_21pct_display"
-                                               class="form-control text-right form-control-sm bg-light"
-                                               value="0,00 €" readonly>
-                                    <?php endif; ?>
+                                    <input type="text" id="amount_21pct_display"
+                                           class="form-control text-right form-control-sm bg-light"
+                                           value="<?php if ($isEdit): $amt21 = (float)$envelope->amount_found - (float)($envelope->amount_6pct ?? 0) - (float)($envelope->amount_12pct ?? 0); echo number_format($amt21, 2, ',', ' ') . ' €'; else: ?>0,00 €<?php endif; ?>"
+                                           readonly>
                                 </div>
                             </div>
                         </div>
@@ -307,6 +273,7 @@ $(function () {
         $('#namePreview').text($('#namePrefix').text() + $(this).val());
     });
     updateNameOptions(false); // page load : respecte la valeur PHP old()
+    <?php endif; ?>
 
     function calcAll() {
         const calc   = parseFloat($('#amount_calculated').val()) || 0;
@@ -330,7 +297,6 @@ $(function () {
 
     $('#amount_calculated, #amount_found, #amount_6pct, #amount_12pct, #amount_sumup').on('input', calcAll);
     calcAll();
-    <?php endif; ?>
 
     $('form').on('submit', function (e) {
         if (!$('#closed_by_member_id').val()) {
