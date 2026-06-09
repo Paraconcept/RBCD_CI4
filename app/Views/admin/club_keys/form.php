@@ -42,7 +42,7 @@
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <small class="text-muted">Laisser vide = clé disponible en stock</small>
+                    <small id="memberHint" class="text-muted">Laisser vide = clé disponible en stock</small>
                 </div>
 
                 <div class="row">
@@ -90,7 +90,13 @@
 <?= $this->section('scripts') ?>
 <script>
 $(function () {
-    $('.select2').select2({ theme: 'bootstrap4', placeholder: '— Aucun (clé disponible) —', allowClear: true });
+    $('#member_id').select2({ theme: 'bootstrap4', placeholder: '— Aucun (clé disponible) —', allowClear: true });
+
+    function toggleHint() {
+        $('#memberHint').toggle($('#member_id').val() === '');
+    }
+    $('#member_id').on('change', toggleHint);
+    toggleHint();
 });
 </script>
 <?= $this->endSection() ?>
