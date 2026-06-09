@@ -31,7 +31,7 @@
 
 <!-- Cartes résumé par catégorie -->
 <?php if (!empty($byCategory)): ?>
-<div class="row mb-3">
+<div class="row mb-2">
     <?php
     $totalCat = array_sum($byCategory);
     foreach ($categories as $key => $label):
@@ -51,7 +51,13 @@
         </div>
     </div>
     <?php endforeach; ?>
-    <div class="col-6 col-lg-3 mb-2">
+</div>
+<?php endif; ?>
+
+<!-- Totaux : toujours sur leur propre ligne -->
+<div class="row mb-3">
+    <?php if (!empty($byCategory)): ?>
+    <div class="col-6 mb-2">
         <div class="small-box bg-danger" style="min-height:0">
             <div class="inner" style="padding:12px 15px">
                 <h5 class="mb-0 text-white" style="font-size:1.1rem"><strong><?= number_format($total, 2, ',', '.') ?> €</strong></h5>
@@ -59,7 +65,8 @@
             </div>
         </div>
     </div>
-    <div class="col-6 col-lg-3 mb-2">
+    <?php endif; ?>
+    <div class="col-6 mb-2">
         <div class="small-box bg-dark" style="min-height:0">
             <div class="inner" style="padding:12px 15px">
                 <h5 class="mb-0 text-white" style="font-size:1.1rem"><strong><?= number_format($totalYear, 2, ',', '.') ?> €</strong></h5>
@@ -68,18 +75,6 @@
         </div>
     </div>
 </div>
-<?php else: ?>
-<div class="row mb-3">
-    <div class="col-6 col-lg-3 mb-2">
-        <div class="small-box bg-dark" style="min-height:0">
-            <div class="inner" style="padding:12px 15px">
-                <h5 class="mb-0 text-white" style="font-size:1.1rem"><strong><?= number_format($totalYear, 2, ',', '.') ?> €</strong></h5>
-                <p class="mb-0 text-white" style="font-size:.8rem">TOTAL ANNÉE <?= $year ?></p>
-            </div>
-        </div>
-    </div>
-</div>
-<?php endif; ?>
 
 <!-- Tableau -->
 <div class="card card-outline card-primary">
