@@ -10,13 +10,18 @@
 
 <!-- Filtres + bouton -->
 <div class="d-flex align-items-center mb-3 flex-wrap" style="gap:.5rem">
-    <form method="get" class="d-flex align-items-center mr-3">
+    <form method="get" class="d-flex align-items-center mr-3" id="filterForm">
         <label class="mr-2 mb-0 font-weight-bold">Année :</label>
-        <select name="year" class="form-control form-control-sm" style="width:100px"
-                onchange="this.form.submit()">
+        <select name="year" id="yearSelect" class="form-control form-control-sm mr-3" style="width:100px">
             <?php foreach ($years as $y): ?>
                 <option value="<?= $y ?>" <?= $y == $year ? 'selected' : '' ?>><?= $y ?></option>
             <?php endforeach; ?>
+        </select>
+        <label class="mr-2 mb-0 font-weight-bold">Mois :</label>
+        <select name="month" id="monthSelect" class="form-control form-control-sm mr-3" style="width:140px">
+            <?php for ($m = 1; $m <= $maxMonth; $m++): ?>
+                <option value="<?= $m ?>" <?= $m == $month ? 'selected' : '' ?>><?= $monthNames[$m] ?></option>
+            <?php endfor; ?>
         </select>
     </form>
     <a href="<?= base_url('admin/treasury/expenses/create') ?>" class="btn btn-primary btn-sm">
@@ -50,7 +55,7 @@
         <div class="small-box bg-danger" style="min-height:0">
             <div class="inner" style="padding:12px 15px">
                 <h5 class="mb-0 text-white" style="font-size:1.1rem"><strong><?= number_format($total, 2, ',', '.') ?> €</strong></h5>
-                <p class="mb-0 text-white" style="font-size:.8rem">TOTAL <?= $year ?></p>
+                <p class="mb-0 text-white" style="font-size:.8rem">TOTAL <?= $monthNames[$month] ?> <?= $year ?></p>
             </div>
         </div>
     </div>
@@ -60,11 +65,11 @@
 <!-- Tableau -->
 <div class="card card-outline card-primary">
     <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-arrow-down mr-2"></i>Dépenses <?= $year ?></h3>
+        <h3 class="card-title"><i class="fas fa-arrow-down mr-2"></i>Dépenses — <?= $monthNames[$month] ?> <?= $year ?></h3>
     </div>
     <div class="card-body p-0">
         <?php if (empty($rows)): ?>
-            <div class="p-3 text-muted"><i class="fas fa-info-circle mr-1"></i>Aucune dépense enregistrée pour <?= $year ?>.</div>
+            <div class="p-3 text-muted"><i class="fas fa-info-circle mr-1"></i>Aucune dépense enregistrée pour <?= $monthNames[$month] ?> <?= $year ?>.</div>
         <?php else: ?>
         <table class="table table-sm table-hover mb-0" id="expensesTable">
             <thead class="thead-rbcd">
@@ -119,7 +124,7 @@
             </tbody>
             <tfoot class="tfoot-total">
                 <tr>
-                    <td colspan="3" class="font-weight-bold">TOTAL</td>
+                    <td colspan="3" class="font-weight-bold">TOTAL <?= $monthNames[$month] ?></td>
                     <td class="text-right font-weight-bold text-danger"><?= number_format($total, 2, ',', '.') ?> €</td>
                     <td colspan="3"></td>
                 </tr>
@@ -133,34 +138,58 @@
 
 <?= $this->section('scripts') ?>
 <script>
-$('#expensesTable').DataTable({
-    order: [[0, 'desc']],
-    pageLength: 25,
-    columnDefs: [{
-        targets: 0,
-        render: function(data, type) {
-            if (type === 'sort' || type === 'type') {
-                var p = data.split('/');
-                return p.length === 3 ? p[2] + p[1] + p[0] : data;
-            }
-            return data;
-        }
-    }]
-});
+$(function () {
+    const currentYear  = <?= $currentYear ?>;
+    const currentMonth = <?= $currentMonth ?>;
+    const allMonths    = <?= json_encode(array_slice($monthNames, 1, null, true)) ?>;
 
-document.querySelectorAll('.btn-delete').forEach(btn => {
-    btn.addEventListener('click', function () {
-        const id   = this.dataset.id;
-        const desc = this.dataset.desc;
-        Swal.fire({
-            title: 'Supprimer cette dépense ?',
-            html: `<strong>${desc}</strong>`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#84252B',
-            cancelButtonText: 'Annuler',
-            confirmButtonText: 'Oui, supprimer',
-        }).then(r => { if (r.isConfirmed) document.getElementById('del-' + id).submit(); });
+    $('#yearSelect').on('change', function () {
+        const selectedYear = parseInt($(this).val());
+        const max = (selectedYear >= currentYear) ? currentMonth : 12;
+
+        const $ms = $('#monthSelect').empty();
+        for (let m = 1; m <= max; m++) {
+            $ms.append(new Option(allMonths[m], m));
+        }
+        $ms.val(max);
+        $('#filterForm').submit();
+    });
+
+    $('#monthSelect').on('change', function () {
+        $('#filterForm').submit();
+    });
+
+    <?php if (!empty($rows)): ?>
+    $('#expensesTable').DataTable({
+        order: [[0, 'desc']],
+        pageLength: 25,
+        columnDefs: [{
+            targets: 0,
+            render: function(data, type) {
+                if (type === 'sort' || type === 'type') {
+                    var p = data.split('/');
+                    return p.length === 3 ? p[2] + p[1] + p[0] : data;
+                }
+                return data;
+            }
+        }]
+    });
+    <?php endif; ?>
+
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const id   = this.dataset.id;
+            const desc = this.dataset.desc;
+            Swal.fire({
+                title: 'Supprimer cette dépense ?',
+                html: `<strong>${desc}</strong>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#84252B',
+                cancelButtonText: 'Annuler',
+                confirmButtonText: 'Oui, supprimer',
+            }).then(r => { if (r.isConfirmed) document.getElementById('del-' + id).submit(); });
+        });
     });
 });
 </script>

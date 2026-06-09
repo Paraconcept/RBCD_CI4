@@ -16,11 +16,23 @@ class TreasuryRevenuesController extends BaseController
 
     public function index(): string
     {
-        $year = (int) ($this->request->getGet('year') ?? date('Y'));
+        $currentYear  = (int) date('Y');
+        $currentMonth = (int) date('n');
 
-        $rows       = $this->model->getByYear($year);
-        $total      = $this->model->getTotalByYear($year);
-        $byCategory = $this->model->getTotalByYearAndCategory($year);
+        $year  = (int) ($this->request->getGet('year')  ?? $currentYear);
+        $month = (int) ($this->request->getGet('month') ?? $currentMonth);
+
+        $maxMonth = ($year >= $currentYear) ? $currentMonth : 12;
+        if ($month < 1 || $month > $maxMonth) {
+            $month = $maxMonth;
+        }
+
+        $monthNames = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
+        $rows       = $this->model->getByYearAndMonth($year, $month);
+        $total      = $this->model->getTotalByYearAndMonth($year, $month);
+        $byCategory = $this->model->getTotalByYearAndMonthAndCategory($year, $month);
 
         $years = $this->getAvailableYears();
 
@@ -35,6 +47,11 @@ class TreasuryRevenuesController extends BaseController
             'byCategory'     => $byCategory,
             'year'           => $year,
             'years'          => $years,
+            'month'          => $month,
+            'maxMonth'       => $maxMonth,
+            'currentYear'    => $currentYear,
+            'currentMonth'   => $currentMonth,
+            'monthNames'     => $monthNames,
             'categories'     => TreasuryRevenueModel::$categories,
             'paymentMethods' => TreasuryRevenueModel::$paymentMethods,
             'success'        => session()->getFlashdata('success'),
@@ -118,9 +135,11 @@ class TreasuryRevenuesController extends BaseController
             'notes'          => $this->request->getPost('notes') ?: null,
         ]);
 
-        $year = (int) (new \DateTime($this->request->getPost('revenue_date')))->format('Y');
+        $dt    = new \DateTime($this->request->getPost('revenue_date'));
+        $year  = (int) $dt->format('Y');
+        $month = (int) $dt->format('n');
 
-        return redirect()->to(base_url("admin/treasury/revenues?year={$year}"))
+        return redirect()->to(base_url("admin/treasury/revenues?year={$year}&month={$month}"))
                          ->with('success', 'Recette modifiée.');
     }
 
@@ -131,10 +150,12 @@ class TreasuryRevenuesController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $year = (int) (new \DateTime($revenue->revenue_date))->format('Y');
+        $dt    = new \DateTime($revenue->revenue_date);
+        $year  = (int) $dt->format('Y');
+        $month = (int) $dt->format('n');
         $this->model->delete($id);
 
-        return redirect()->to(base_url("admin/treasury/revenues?year={$year}"))
+        return redirect()->to(base_url("admin/treasury/revenues?year={$year}&month={$month}"))
                          ->with('success', 'Recette supprimée.');
     }
 

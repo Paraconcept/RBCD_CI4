@@ -60,6 +60,43 @@ class TreasuryRevenueModel extends Model
         return $result;
     }
 
+    public function getByYearAndMonth(int $year, int $month): array
+    {
+        return $this->db->table('treasury_revenues tr')
+            ->select('tr.*, m.last_name, m.first_name')
+            ->join('members m', 'm.id = tr.member_id', 'left')
+            ->where('YEAR(tr.revenue_date)', $year)
+            ->where('MONTH(tr.revenue_date)', $month)
+            ->orderBy('tr.revenue_date', 'DESC')
+            ->get()->getResultObject();
+    }
+
+    public function getTotalByYearAndMonth(int $year, int $month): float
+    {
+        $result = $this->db->table('treasury_revenues')
+            ->selectSum('amount', 'total')
+            ->where('YEAR(revenue_date)', $year)
+            ->where('MONTH(revenue_date)', $month)
+            ->get()->getRowObject();
+        return (float) ($result->total ?? 0);
+    }
+
+    public function getTotalByYearAndMonthAndCategory(int $year, int $month): array
+    {
+        $rows = $this->db->table('treasury_revenues')
+            ->select('category, SUM(amount) as total')
+            ->where('YEAR(revenue_date)', $year)
+            ->where('MONTH(revenue_date)', $month)
+            ->groupBy('category')
+            ->get()->getResultObject();
+
+        $result = [];
+        foreach ($rows as $r) {
+            $result[$r->category] = (float) $r->total;
+        }
+        return $result;
+    }
+
     public function getMonthlyTotals(int $year): array
     {
         $result = array_fill(1, 12, 0.0);
