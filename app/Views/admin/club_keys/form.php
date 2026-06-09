@@ -45,7 +45,11 @@
                     <small id="memberHint" class="text-muted">Laisser vide = clé disponible en stock</small>
                 </div>
 
-                <div class="row">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                </div>
+
+                <div class="row form-group">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Date d'attribution</label>
