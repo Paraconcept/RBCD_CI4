@@ -7,6 +7,9 @@
 /public/studypress/
 /public/uploads/
 
+# Fichiers Affinity Designer/Publisher
+/Affinity/
+
 # macOS
 .DS_Store
 Icon?
