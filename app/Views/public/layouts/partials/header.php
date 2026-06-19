@@ -16,6 +16,11 @@
 <meta name="msapplication-config" content="<?= base_url('assets/images/favicons/browserconfig.xml') ?>">
 <meta name="theme-color" content="#84252b">
 
+<!-- Google Fonts (preconnect évite le blocage du rendu causé par @import CSS) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&family=Raleway:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
 <!-- Studypress CSS -->
 <link href="<?= base_url('studypress/css/bootstrap.min.css') ?>" rel="stylesheet">
 <link href="<?= base_url('studypress/css/animate.min.css') ?>" rel="stylesheet">
