@@ -235,6 +235,28 @@ class MembersController extends BaseController
         return redirect()->to(base_url('admin/members'))->with('success', 'Membre supprimé.');
     }
 
+    public function loginStatus(): string
+    {
+        $db = \Config\Database::connect();
+
+        $rows = $db->table('members m')
+            ->select('m.id, m.last_name, m.first_name, m.email, m.is_active AS member_active,
+                      ml.is_active AS login_active, ml.password_changed_at, ml.last_login')
+            ->join('members_login ml', 'ml.member_id = m.id', 'left')
+            ->orderBy('m.last_name', 'ASC')
+            ->orderBy('m.first_name', 'ASC')
+            ->get()->getResultObject();
+
+        return view('admin/members/login_status', [
+            'title'       => 'Statut de connexion des membres',
+            'breadcrumbs' => [
+                ['title' => 'Membres', 'url' => base_url('admin/members')],
+                ['title' => 'Statut connexion'],
+            ],
+            'rows' => $rows,
+        ]);
+    }
+
     public function toggle(int $id)
     {
         if (!$this->request->isAJAX()) {

@@ -97,6 +97,7 @@ $routes->group('admin', static function ($routes) {
 
         // Membres
         $routes->get('members',                         'Admin\MembersController::index');
+        $routes->get('members/login-status',            'Admin\MembersController::loginStatus');
         $routes->get('members/create',                  'Admin\MembersController::create');
         $routes->post('members',                        'Admin\MembersController::store');
         $routes->get('members/(:num)/edit',                    'Admin\MembersController::edit/$1');

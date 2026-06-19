@@ -131,6 +131,7 @@ class PasswordResetController extends BaseController
         $loginModel->update($row->id, [
             'password_hash'         => password_hash($password, PASSWORD_BCRYPT),
             'is_active'             => 1,
+            'password_changed_at'   => date('Y-m-d H:i:s'),
             'reset_code'            => null,
             'reset_code_expires_at' => null,
             'login_attempts'        => 0,

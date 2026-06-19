@@ -194,7 +194,8 @@ class AccountController extends BaseController
         }
 
         $loginModel->update($loginId, [
-            'password_hash' => password_hash($new, PASSWORD_BCRYPT),
+            'password_hash'      => password_hash($new, PASSWORD_BCRYPT),
+            'password_changed_at' => date('Y-m-d H:i:s'),
         ]);
 
         return redirect()->to(base_url('mon-compte') . '?tab=mot-de-passe')

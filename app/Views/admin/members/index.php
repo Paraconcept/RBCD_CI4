@@ -5,6 +5,9 @@
     <div class="card-header d-flex align-items-center">
         <h3 class="card-title"><i class="fas fa-users mr-2"></i>Membres</h3>
         <div class="ml-auto">
+            <a href="<?= base_url('admin/members/login-status') ?>" class="btn btn-info btn-sm mr-2">
+                <i class="fas fa-key mr-1"></i> Statut connexion
+            </a>
             <a href="<?= base_url('admin/members/create') ?>" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus mr-1"></i> Nouveau membre
             </a>

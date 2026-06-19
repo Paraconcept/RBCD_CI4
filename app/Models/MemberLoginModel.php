@@ -12,6 +12,7 @@ class MemberLoginModel extends Model
 
     protected $allowedFields = [
         'member_id', 'password_hash', 'is_active',
+        'password_changed_at',
         'last_login', 'login_attempts', 'locked_until',
         'reset_code', 'reset_code_expires_at',
     ];
