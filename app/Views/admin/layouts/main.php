@@ -49,8 +49,8 @@
                     <i class="fas fa-caret-square-down mr-1"></i><?= esc(session()->get('member_name')) ?>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
-                    <a href="<?= base_url() ?>" class="dropdown-item" target="_blank">
-                        <i class="fas fa-external-link-alt mr-2"></i> Voir le site
+                    <a href="<?= base_url() ?>" class="dropdown-item">
+                        <i class="fas fa-globe mr-2"></i> Voir le site
                     </a>
                     <div class="dropdown-divider"></div>
                     <a href="<?= base_url('admin/logout') ?>" class="dropdown-item text-danger">
