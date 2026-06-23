@@ -137,17 +137,14 @@
           <div class="position-relative mr-2 mb-2" style="width:100px;">
             <img src="<?= base_url('uploads/news/' . $gi->filename) ?>"
                  alt="" style="width:100px;height:75px;object-fit:cover;border-radius:4px;border:1px solid #dee2e6;">
-            <form method="post"
-                  action="<?= base_url('admin/news/' . $news->id . '/gallery/' . $gi->id . '/delete') ?>"
-                  onsubmit="return confirm('Supprimer cette photo ?');"
-                  class="position-absolute" style="top:2px;right:2px;">
-              <?= csrf_field() ?>
-              <button type="submit" class="btn btn-danger btn-xs p-0"
-                      style="width:18px;height:18px;line-height:16px;font-size:10px;border-radius:50%;"
-                      title="Supprimer">
-                <i class="fas fa-times"></i>
-              </button>
-            </form>
+            <button type="submit"
+                    form="del-gi-<?= $gi->id ?>"
+                    class="btn btn-danger btn-xs p-0 position-absolute"
+                    style="top:2px;right:2px;width:18px;height:18px;line-height:16px;font-size:10px;border-radius:50%;"
+                    title="Supprimer"
+                    onclick="return confirm('Supprimer cette photo ?');">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <?php endforeach; ?>
         </div>
@@ -182,6 +179,16 @@
       </button>
     </div>
   </form>
+
+  <?php if ($isEdit && !empty($galleryImages)): ?>
+  <?php foreach ($galleryImages as $gi): ?>
+  <form id="del-gi-<?= $gi->id ?>" method="post"
+        action="<?= base_url('admin/news/' . $news->id . '/gallery/' . $gi->id . '/delete') ?>">
+    <?= csrf_field() ?>
+  </form>
+  <?php endforeach; ?>
+  <?php endif; ?>
+
 </div>
 
 <?= $this->endSection() ?>

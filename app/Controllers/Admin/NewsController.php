@@ -164,8 +164,7 @@ class NewsController extends BaseController
 
     private function handleGalleryUploads(int $newsId): void
     {
-        $files    = $this->request->getFiles();
-        $gallery  = $files['gallery'] ?? [];
+        $gallery = $this->request->getFileMultiple('gallery');
 
         if (empty($gallery)) {
             return;
