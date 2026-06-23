@@ -42,7 +42,9 @@
                style="width:20px;opacity:0.7;margin: 0 10px;">
         </div>
         <div class="news-gallery mb-10">
-          <h5 class="news-gallery-title"><i class="fas fa-images me-2"></i>Photos associées</h5>
+          <h3 class="news-gallery-title heading-title mb-4">
+            <i class="fas fa-images me-2"></i>Photos associées
+          </h3>
           <div class="row g-2">
             <?php foreach ($galleryImages as $gi): ?>
             <div class="col-6 col-sm-4 col-md-3">
@@ -126,7 +128,6 @@
 }
 .btn-news-back:hover { color: #6a1d22; }
 .news-gallery-title {
-    font-size: 1rem;
     font-weight: 700;
     color: #444;
     text-transform: uppercase;
