@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\NewsModel;
 use App\Models\NewsImagesModel;
+use App\Models\GalleryModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 class NewsController extends BaseController
@@ -25,7 +26,11 @@ class NewsController extends BaseController
 
     public function create(): string
     {
-        return view('admin/news/form', ['news' => null, 'galleryImages' => []]);
+        return view('admin/news/form', [
+            'news'          => null,
+            'galleryImages' => [],
+            'galleries'     => $this->getGalleriesList(),
+        ]);
     }
 
     public function store()
@@ -42,6 +47,7 @@ class NewsController extends BaseController
             'excerpt'      => $this->request->getPost('excerpt') ?: null,
             'content'      => $this->request->getPost('content'),
             'image'        => $imageName,
+            'gallery_id'   => $this->request->getPost('gallery_id') ?: null,
             'published_at' => $this->request->getPost('published_at') ?: null,
             'is_published' => (int) $this->request->getPost('is_published'),
         ]);
@@ -62,6 +68,7 @@ class NewsController extends BaseController
         return view('admin/news/form', [
             'news'          => $news,
             'galleryImages' => (new NewsImagesModel())->getByNewsId($id),
+            'galleries'     => $this->getGalleriesList(),
         ]);
     }
 
@@ -96,6 +103,7 @@ class NewsController extends BaseController
             'excerpt'      => $this->request->getPost('excerpt') ?: null,
             'content'      => $this->request->getPost('content'),
             'image'        => $imageName,
+            'gallery_id'   => $this->request->getPost('gallery_id') ?: null,
             'published_at' => $this->request->getPost('published_at') ?: null,
             'is_published' => (int) $this->request->getPost('is_published'),
         ]);
@@ -204,6 +212,14 @@ class NewsController extends BaseController
         }
 
         $imgModel->where('news_id', $newsId)->delete();
+    }
+
+    private function getGalleriesList(): array
+    {
+        return (new GalleryModel())
+            ->orderBy('event_date', 'DESC')
+            ->orderBy('title', 'ASC')
+            ->findAll();
     }
 
     private function sanitizeSlug(string $slug): string

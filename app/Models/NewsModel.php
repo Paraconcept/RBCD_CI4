@@ -11,7 +11,7 @@ class NewsModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'title', 'slug', 'excerpt', 'content', 'image', 'published_at', 'is_published',
+        'title', 'slug', 'excerpt', 'content', 'image', 'gallery_id', 'published_at', 'is_published',
     ];
 
     protected $useTimestamps = true;

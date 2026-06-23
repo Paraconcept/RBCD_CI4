@@ -210,6 +210,14 @@ class PagesController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
+        $linkedGallery = null;
+        if (!empty($news->gallery_id)) {
+            $linkedGallery = (new \App\Models\GalleryModel())
+                ->where('id', $news->gallery_id)
+                ->where('is_published', 1)
+                ->first();
+        }
+
         return view('public/pages/news_detail', [
             'title'       => esc($news->title) . ' — RBC Disonais',
             'page_title'  => esc($news->title),
@@ -219,6 +227,7 @@ class PagesController extends BaseController
             ],
             'news'          => $news,
             'galleryImages' => (new \App\Models\NewsImagesModel())->getByNewsId($news->id),
+            'linkedGallery' => $linkedGallery,
         ]);
     }
 

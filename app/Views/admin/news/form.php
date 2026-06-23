@@ -125,7 +125,25 @@
 
       </div>
 
-      <!-- Galerie photos -->
+      <!-- Galerie associée -->
+      <div class="form-group">
+        <label for="gallery_id">
+          <i class="fas fa-images mr-1"></i> Galerie photos associée
+          <small class="text-muted ml-1">(lien affiché en bas de l'article)</small>
+        </label>
+        <select name="gallery_id" id="gallery_id" class="form-control">
+          <option value="">— Aucune galerie associée —</option>
+          <?php foreach ($galleries as $g): ?>
+          <option value="<?= $g->id ?>"
+            <?= old('gallery_id', $news->gallery_id ?? '') == $g->id ? 'selected' : '' ?>>
+            <?= esc($g->title) ?>
+            <?php if ($g->event_date): ?>(<?= date('d/m/Y', strtotime($g->event_date)) ?>)<?php endif; ?>
+          </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <!-- Galerie photos uploadées -->
       <?php if ($isEdit): ?>
       <hr>
       <div class="form-group mb-0">

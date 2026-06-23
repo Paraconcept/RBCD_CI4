@@ -61,6 +61,15 @@
         </div>
         <?php endif; ?>
 
+        <!-- Lien vers la galerie associée -->
+        <?php if (!empty($linkedGallery)): ?>
+        <div class="news-linked-gallery mt-30">
+          <a href="<?= base_url('galeries/' . $linkedGallery->slug) ?>" class="btn btn-outline-secondary btn-sm btn-round">
+            <i class="fas fa-images me-2"></i>Voir les photos associées dans la galerie photos
+          </a>
+        </div>
+        <?php endif; ?>
+
         <!-- Retour -->
         <div class="mt-40 pt-20" style="border-top:1px solid #eee">
           <a href="<?= base_url() ?>#actualites" class="btn btn-theme-colored1 btn-sm btn-round">
