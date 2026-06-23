@@ -36,8 +36,13 @@
 
         <!-- Galerie photos -->
         <?php if (!empty($galleryImages)): ?>
-        <div class="news-gallery mt-40 mb-10">
-          <h5 class="news-gallery-title">Photos associées</h5>
+        <div class="separator text-center my-4">
+          <img src="https://rbcd.be/assets/images/billiard-chalk.png"
+               alt="Séparateur Craie de billard"
+               style="width:20px;opacity:0.7;margin: 0 10px;">
+        </div>
+        <div class="news-gallery mb-10">
+          <h5 class="news-gallery-title"><i class="fas fa-images me-2"></i>Photos associées</h5>
           <div class="row g-2">
             <?php foreach ($galleryImages as $gi): ?>
             <div class="col-6 col-sm-4 col-md-3">
