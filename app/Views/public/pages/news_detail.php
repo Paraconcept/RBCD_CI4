@@ -63,8 +63,12 @@
 
         <!-- Lien vers la galerie associée -->
         <?php if (!empty($linkedGallery)): ?>
-        <div class="news-linked-gallery mt-30">
-          <a href="<?= base_url('galeries/' . $linkedGallery->slug) ?>" class="btn btn-outline-secondary btn-sm btn-round">
+        <div class="separator text-center my-4">
+          <img src="https://rbcd.be/assets/images/billiard-chalk.png"
+               alt="Séparateur" style="width:20px;opacity:0.7;margin: 0 10px;">
+        </div>
+        <div class="news-linked-gallery text-center mb-20">
+          <a href="<?= base_url('galeries/' . $linkedGallery->slug) ?>" class="btn btn-theme-colored1 btn-sm btn-round">
             <i class="fas fa-images me-2"></i>Voir les photos associées dans la galerie photos
           </a>
         </div>

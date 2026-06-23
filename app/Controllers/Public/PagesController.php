@@ -212,10 +212,7 @@ class PagesController extends BaseController
 
         $linkedGallery = null;
         if (!empty($news->gallery_id)) {
-            $linkedGallery = (new \App\Models\GalleryModel())
-                ->where('id', $news->gallery_id)
-                ->where('is_published', 1)
-                ->first();
+            $linkedGallery = (new \App\Models\GalleryModel())->find($news->gallery_id);
         }
 
         return view('public/pages/news_detail', [
