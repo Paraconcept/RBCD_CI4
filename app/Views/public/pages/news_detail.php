@@ -37,7 +37,7 @@
         <!-- Galerie photos -->
         <?php if (!empty($galleryImages)): ?>
         <div class="news-gallery mt-40 mb-10">
-          <h5 class="news-gallery-title">Photos</h5>
+          <h5 class="news-gallery-title">Photos associées</h5>
           <div class="row g-2">
             <?php foreach ($galleryImages as $gi): ?>
             <div class="col-6 col-sm-4 col-md-3">
