@@ -7,6 +7,7 @@ use CodeIgniter\Model;
 class NewsImagesModel extends Model
 {
     protected $table         = 'news_images';
+    protected $returnType    = 'object';
     protected $allowedFields = ['news_id', 'filename', 'sort_order'];
     protected $useTimestamps = false;
 
