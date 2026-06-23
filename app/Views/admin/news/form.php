@@ -128,7 +128,7 @@
       <!-- Galerie associée -->
       <div class="form-group">
         <label for="gallery_id">
-          <i class="fas fa-images mr-1"></i> Photos associées
+          <i class="fas fa-images mr-1"></i> Galerie photos associée
           <small class="text-muted ml-1">(lien affiché en bas de l'article)</small>
         </label>
         <select name="gallery_id" id="gallery_id" class="form-control">
@@ -147,7 +147,7 @@
       <?php if ($isEdit): ?>
       <hr>
       <div class="form-group mb-0">
-        <label><i class="fas fa-images mr-1"></i> Galerie photos <small class="text-muted">(affichées sous l'article)</small></label>
+        <label><i class="fas fa-images mr-1"></i> Photos associées <small class="text-muted">(affichées sous l'article)</small></label>
 
         <?php if (!empty($galleryImages)): ?>
         <div class="d-flex flex-wrap mt-2 mb-3" id="gallery-thumbs">
