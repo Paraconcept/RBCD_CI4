@@ -125,6 +125,51 @@
 
       </div>
 
+      <!-- Galerie photos -->
+      <?php if ($isEdit): ?>
+      <hr>
+      <div class="form-group mb-0">
+        <label><i class="fas fa-images mr-1"></i> Galerie photos <small class="text-muted">(affichées sous l'article)</small></label>
+
+        <?php if (!empty($galleryImages)): ?>
+        <div class="d-flex flex-wrap mt-2 mb-3" id="gallery-thumbs">
+          <?php foreach ($galleryImages as $gi): ?>
+          <div class="position-relative mr-2 mb-2" style="width:100px;">
+            <img src="<?= base_url('uploads/news/' . $gi->filename) ?>"
+                 alt="" style="width:100px;height:75px;object-fit:cover;border-radius:4px;border:1px solid #dee2e6;">
+            <form method="post"
+                  action="<?= base_url('admin/news/' . $news->id . '/gallery/' . $gi->id . '/delete') ?>"
+                  onsubmit="return confirm('Supprimer cette photo ?');"
+                  class="position-absolute" style="top:2px;right:2px;">
+              <?= csrf_field() ?>
+              <button type="submit" class="btn btn-danger btn-xs p-0"
+                      style="width:18px;height:18px;line-height:16px;font-size:10px;border-radius:50%;"
+                      title="Supprimer">
+                <i class="fas fa-times"></i>
+              </button>
+            </form>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <div class="input-group">
+          <div class="custom-file">
+            <input type="file" name="gallery[]" id="gallery" class="custom-file-input"
+                   accept="image/jpeg,image/png,image/webp" multiple>
+            <label class="custom-file-label" for="gallery">Ajouter des photos…</label>
+          </div>
+        </div>
+        <small class="form-text text-muted">JPG, PNG ou WebP · max 3 Mo par photo · sélection multiple possible</small>
+      </div>
+      <?php else: ?>
+      <hr>
+      <p class="text-muted small mb-0">
+        <i class="fas fa-info-circle mr-1"></i>
+        Enregistrez d'abord l'actualité pour pouvoir ajouter des photos à la galerie.
+      </p>
+      <?php endif; ?>
+
     </div><!-- /card-body -->
 
     <div class="card-footer d-flex justify-content-between">
@@ -288,6 +333,13 @@ $(function () {
     $('#slug-preview').text($(this).val());
   });
   <?php endif; ?>
+
+  // Label multi-upload galerie
+  $('#gallery').on('change', function () {
+    var count = this.files.length;
+    $(this).closest('.custom-file').find('.custom-file-label')
+      .text(count === 1 ? this.files[0].name : count + ' photos sélectionnées');
+  });
 
   // Aperçu image
   $('#image').on('change', function () {

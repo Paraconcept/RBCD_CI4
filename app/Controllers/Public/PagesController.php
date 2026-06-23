@@ -217,7 +217,8 @@ class PagesController extends BaseController
                 ['label' => 'Accueil',  'url' => base_url('/')],
                 ['label' => esc($news->title)],
             ],
-            'news' => $news,
+            'news'          => $news,
+            'galleryImages' => (new \App\Models\NewsImagesModel())->getByNewsId($news->id),
         ]);
     }
 

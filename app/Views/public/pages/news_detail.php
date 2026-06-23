@@ -34,6 +34,26 @@
           <?= $news->content ?>
         </div>
 
+        <!-- Galerie photos -->
+        <?php if (!empty($galleryImages)): ?>
+        <div class="news-gallery mt-40 mb-10">
+          <h5 class="news-gallery-title">Photos</h5>
+          <div class="row g-2">
+            <?php foreach ($galleryImages as $gi): ?>
+            <div class="col-6 col-sm-4 col-md-3">
+              <a href="<?= base_url('uploads/news/' . $gi->filename) ?>"
+                 class="glightbox news-gallery-item"
+                 data-gallery="news-gallery"
+                 data-type="image">
+                <img src="<?= base_url('uploads/news/' . $gi->filename) ?>"
+                     alt="" class="news-gallery-thumb">
+              </a>
+            </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Retour -->
         <div class="mt-40 pt-20" style="border-top:1px solid #eee">
           <a href="<?= base_url() ?>#actualites" class="btn btn-theme-colored1 btn-sm btn-round">
@@ -49,6 +69,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('styles') ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
 <style>
 .news-detail-date {
     font-size: .8rem;
@@ -99,5 +120,37 @@
     text-decoration: none;
 }
 .btn-news-back:hover { color: #6a1d22; }
+.news-gallery-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 12px;
+}
+.news-gallery-item {
+    display: block;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    transition: transform .2s, box-shadow .2s;
+}
+.news-gallery-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
+.news-gallery-thumb {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+}
 </style>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<script>
+GLightbox({ selector: '.glightbox', touchNavigation: true, loop: true });
+</script>
 <?= $this->endSection() ?>
