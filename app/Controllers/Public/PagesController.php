@@ -212,7 +212,11 @@ class PagesController extends BaseController
 
         $linkedGallery = null;
         if (!empty($news->gallery_id)) {
-            $linkedGallery = (new \App\Models\GalleryModel())->find($news->gallery_id);
+            $galleryModel  = new \App\Models\GalleryModel();
+            $linkedGallery = $galleryModel->getWithCover((int) $news->gallery_id);
+            if ($linkedGallery) {
+                $linkedGallery->photo_count = $galleryModel->getPhotoCount((int) $news->gallery_id);
+            }
         }
 
         return view('public/pages/news_detail', [
