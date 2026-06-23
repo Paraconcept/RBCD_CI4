@@ -128,7 +128,7 @@
       <!-- Galerie associée -->
       <div class="form-group">
         <label for="gallery_id">
-          <i class="fas fa-images mr-1"></i> Galerie photos associée
+          <i class="fas fa-images mr-1"></i> Photos associées
           <small class="text-muted ml-1">(lien affiché en bas de l'article)</small>
         </label>
         <select name="gallery_id" id="gallery_id" class="form-control">
