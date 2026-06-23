@@ -17,7 +17,13 @@ class NewsImagesModel extends Model
 
     public function getNextSortOrder(int $newsId): int
     {
-        $max = $this->selectMax('sort_order')->where('news_id', $newsId)->first();
-        return $max ? (int) $max->sort_order + 1 : 0;
+        $row = $this->db->table($this->table)
+                        ->selectMax('sort_order')
+                        ->where('news_id', $newsId)
+                        ->get()->getRowArray();
+
+        return isset($row['sort_order']) && $row['sort_order'] !== null
+            ? (int) $row['sort_order'] + 1
+            : 0;
     }
 }
