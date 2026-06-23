@@ -82,13 +82,9 @@
                 </span>
               </div>
               <div class="gal-card-body">
-                <div class="gal-card-title"><?= esc($linkedGallery->title) ?></div>
-                <?php if ($linkedGallery->event_date): ?>
-                <div class="gal-card-date">
-                  <i class="far fa-calendar-alt me-1"></i>
-                  <?= date('d/m/Y', strtotime($linkedGallery->event_date)) ?>
+                <div class="gal-card-title">
+                  <i class="fas fa-images me-2"></i>Voir les photos de la galerie associée
                 </div>
-                <?php endif; ?>
               </div>
             </a>
           </div>
