@@ -20,6 +20,7 @@ $isHome        = $source ? (int)$source->is_home : 1;
 $encType       = $source ? ($source->encounter_type ?? 'normal') : 'normal';
 $isFinale      = $encType === 'finale';
 $requiresArb   = $source ? (int)($source->requires_arbitrage ?? 1) : 1;
+$requiresMrq   = $source ? (int)($source->requires_marquage  ?? 0) : 0;
 ?>
 
 <div class="card card-outline card-primary">
@@ -128,7 +129,7 @@ $requiresArb   = $source ? (int)($source->requires_arbitrage ?? 1) : 1;
                         </div>
                     </div>
 
-                    <!-- Arbitrages requis — visible uniquement en mode Finale -->
+                    <!-- Arbitrages / Marquage requis — visible uniquement en mode Finale -->
                     <div class="col-md-12 form-group mb-0" id="requiresArbGroup" <?= !$isFinale ? 'style="display:none"' : '' ?>>
                         <div class="custom-control custom-switch">
                             <input type="checkbox" name="requires_arbitrage" id="requires_arbitrage"
@@ -139,6 +140,14 @@ $requiresArb   = $source ? (int)($source->requires_arbitrage ?? 1) : 1;
                             </label>
                         </div>
                         <small class="text-muted">Décocher si les arbitres sont fournis par la fédération.</small>
+                        <div class="custom-control custom-switch mt-2">
+                            <input type="checkbox" name="requires_marquage" id="requires_marquage"
+                                   class="custom-control-input" value="1"
+                                   <?= $requiresMrq ? 'checked' : '' ?>>
+                            <label class="custom-control-label" for="requires_marquage">
+                                Marquage requis
+                            </label>
+                        </div>
                     </div>
 
                 </div>
@@ -319,7 +328,10 @@ document.querySelectorAll('input[name="_enc_type"]').forEach(radio => {
         note.style.display = isFinale ? '' : 'none';
         document.getElementById('roundsCountGroup').style.display   = isFinale ? '' : 'none';
         document.getElementById('requiresArbGroup').style.display   = isFinale ? '' : 'none';
-        if (!isFinale) document.getElementById('requires_arbitrage').checked = true;
+        if (!isFinale) {
+            document.getElementById('requires_arbitrage').checked = true;
+            document.getElementById('requires_marquage').checked  = false;
+        }
 
         // Reconstruire toutes les lignes existantes dans le bon mode
         const container = document.getElementById('playersContainer');

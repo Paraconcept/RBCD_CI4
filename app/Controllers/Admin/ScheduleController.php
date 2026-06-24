@@ -100,11 +100,13 @@ class ScheduleController extends BaseController
         $type            = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
         $roundsCount     = $type === 'finale' ? max(1, min(8, (int) $this->request->getPost('rounds_count') ?: 3)) : 3;
         $requiresArb     = $type === 'finale' ? ($this->request->getPost('requires_arbitrage') ? 1 : 0) : 1;
+        $requiresMrq     = $type === 'finale' ? ($this->request->getPost('requires_marquage')  ? 1 : 0) : 0;
 
         $encounterId = $this->encounters->insert([
             'encounter_type'      => $type,
             'rounds_count'        => $roundsCount,
             'requires_arbitrage'  => $requiresArb,
+            'requires_marquage'   => $requiresMrq,
             'match_date'  => $this->request->getPost('match_date'),
             'match_time'  => $this->request->getPost('match_time'),
             'is_home'     => (int) $this->request->getPost('is_home'),
@@ -178,11 +180,13 @@ class ScheduleController extends BaseController
         $type            = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
         $roundsCount     = $type === 'finale' ? max(1, min(8, (int) $this->request->getPost('rounds_count') ?: 3)) : 3;
         $requiresArb     = $type === 'finale' ? ($this->request->getPost('requires_arbitrage') ? 1 : 0) : 1;
+        $requiresMrq     = $type === 'finale' ? ($this->request->getPost('requires_marquage')  ? 1 : 0) : 0;
 
         $this->encounters->update($id, [
             'encounter_type'      => $type,
             'rounds_count'        => $roundsCount,
             'requires_arbitrage'  => $requiresArb,
+            'requires_marquage'   => $requiresMrq,
             'match_date'  => $this->request->getPost('match_date'),
             'match_time'  => $this->request->getPost('match_time'),
             'is_home'     => (int) $this->request->getPost('is_home'),

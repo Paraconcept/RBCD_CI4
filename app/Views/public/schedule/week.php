@@ -372,8 +372,8 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             <div class="arb-col" id="arb-<?= $enc->id ?>">
                 <?php if ($enc->is_home): ?>
 
-                    <?php if ($isFinale && !($enc->requires_arbitrage ?? 1)): ?>
-                        <!-- Finale sans arbitrage fédéral : marqueurs -->
+                    <?php if ($enc->requires_marquage ?? 0): ?>
+                        <!-- Marquage requis -->
                         <div id="mrq-list-<?= $enc->id ?>">
                             <?php foreach ($enc->marqueurRows as $mrq): ?>
                             <?php

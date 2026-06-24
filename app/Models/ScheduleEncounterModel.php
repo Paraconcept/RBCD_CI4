@@ -12,7 +12,7 @@ class ScheduleEncounterModel extends Model
     protected $returnType    = 'object';
 
     protected $allowedFields = [
-        'encounter_type', 'rounds_count', 'requires_arbitrage', 'match_date', 'match_time',
+        'encounter_type', 'rounds_count', 'requires_arbitrage', 'requires_marquage', 'match_date', 'match_time',
         'is_home', 'venue', 'competition', 'notes',
     ];
 

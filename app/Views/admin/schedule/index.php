@@ -261,9 +261,9 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                 </td>
                 <td class="align-middle" id="arb-cell-<?= $enc->id ?>">
                     <?php
-                    $isFinaleEnc  = $enc->encounter_type === 'finale';
-                    $needsMarqueur = $enc->is_home && $isFinaleEnc && !($enc->requires_arbitrage ?? 1);
+                    $isFinaleEnc   = $enc->encounter_type === 'finale';
                     $needsArb      = $enc->is_home && ($enc->requires_arbitrage ?? 1);
+                    $needsMarqueur = $enc->is_home && ($enc->requires_marquage  ?? 0);
                     ?>
                     <?php if ($needsMarqueur): ?>
                         <!-- Finale fédérale : marqueurs -->
