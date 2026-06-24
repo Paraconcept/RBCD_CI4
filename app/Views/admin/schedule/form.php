@@ -57,12 +57,12 @@ $requiresArb   = $source ? (int)($source->requires_arbitrage ?? 1) : 1;
                         </label>
                         <label class="btn btn-outline-warning btn-sm <?= $isFinale ? 'active' : '' ?>">
                             <input type="radio" name="_enc_type" value="finale" <?= $isFinale ? 'checked' : '' ?>>
-                            <i class="fas fa-trophy mr-1"></i> Finale / Tournoi
+                            <i class="fas fa-trophy mr-1"></i> Finales / Tournoi / Open
                         </label>
                     </div>
                 </div>
                 <small class="text-muted d-block mt-1" id="finaleNote" <?= !$isFinale ? 'style="display:none!important"' : '' ?>>
-                    En mode Finale, les joueurs ne sont pas liés à la base membres — aucun impact sur les stats d'arbitrage.
+                    En mode Finales/Tournoi/Open, les joueurs ne sont pas liés à la base membres — aucun impact sur les stats d'arbitrage.
                 </small>
             </div>
 
