@@ -139,7 +139,7 @@ $requiresMrq   = $source ? (int)($source->requires_marquage  ?? 0) : 0;
                                 Arbitrages requis
                             </label>
                         </div>
-                        <small class="text-muted">Décocher si les arbitres sont fournis par la fédération.</small>
+                        <small class="text-muted">Décocher si les arbitres sont fournis par la fédération ou auto-arbitrage.</small>
                         <div class="custom-control custom-switch mt-2">
                             <input type="checkbox" name="requires_marquage" id="requires_marquage"
                                    class="custom-control-input" value="1"
@@ -148,6 +148,7 @@ $requiresMrq   = $source ? (int)($source->requires_marquage  ?? 0) : 0;
                                 Marquage requis
                             </label>
                         </div>
+                        <small class="text-muted">Décocher si des marqueurs ne sont pas nécessaires.</small>
                     </div>
 
                 </div>
