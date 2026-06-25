@@ -76,6 +76,7 @@
               <th>Joueur 1</th>
               <th>Joueur 2</th>
               <th>Joueur 3</th>
+              <th style="width:30px" class="text-center"></th>
               <th style="width:90px" class="text-right">Actions</th>
             </tr>
           </thead>
@@ -87,6 +88,13 @@
               <td><?= esc($team->player1_name) ?></td>
               <td><?= esc($team->player2_name) ?></td>
               <td><?= $team->player3_name ? esc($team->player3_name) : '<span class="text-muted">—</span>' ?></td>
+              <td class="text-center">
+                <?php if ($team->is_published): ?>
+                  <i class="fas fa-eye text-success"></i>
+                <?php else: ?>
+                  <i class="fas fa-eye-slash text-danger"></i>
+                <?php endif; ?>
+              </td>
               <td class="text-right">
                 <a href="<?= base_url('admin/cdr/' . $team->id . '/edit') ?>"
                    class="btn btn-xs btn-warning" title="Modifier">
