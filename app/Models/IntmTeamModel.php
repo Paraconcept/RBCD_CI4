@@ -11,7 +11,7 @@ class IntmTeamModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'name', 'season', 'division', 'player1_id', 'player2_id', 'player3_id', 'player4_id',
+        'name', 'season', 'division', 'player1_id', 'player2_id', 'player3_id', 'player4_id', 'is_published',
     ];
 
     const DIVISIONS = ['1', '2A', '2B', '3A', '3B', '3C', '4A', '4B', '4C'];

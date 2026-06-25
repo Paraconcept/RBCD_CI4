@@ -130,10 +130,17 @@
 
 </div>
 
-    <div class="card-footer d-flex justify-content-between">
+    <div class="card-footer d-flex justify-content-between align-items-center">
       <a href="<?= base_url('admin/intm') ?>" class="btn btn-default">
         <i class="fas fa-arrow-left mr-1"></i> Retour
       </a>
+      <div class="custom-control custom-switch">
+        <input type="hidden" name="is_published" value="0">
+        <input type="checkbox" name="is_published" id="is_published" value="1"
+               class="custom-control-input"
+               <?= old('is_published', $team->is_published ?? 1) ? 'checked' : '' ?>>
+        <label class="custom-control-label" for="is_published">Publié</label>
+      </div>
       <button type="submit" class="btn btn-primary">
         <i class="fas fa-save mr-1"></i>
         <?= $isEdit ? 'Enregistrer les modifications' : 'Créer l\'équipe' ?>

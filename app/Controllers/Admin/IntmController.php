@@ -42,13 +42,14 @@ class IntmController extends BaseController
         }
 
         (new IntmTeamModel())->insert([
-            'name'       => $this->request->getPost('name'),
-            'season'     => $this->request->getPost('season'),
-            'division'   => $this->request->getPost('division') ?: null,
-            'player1_id' => $this->request->getPost('player1_id'),
-            'player2_id' => $this->request->getPost('player2_id'),
-            'player3_id' => $this->request->getPost('player3_id'),
-            'player4_id' => $this->request->getPost('player4_id'),
+            'name'         => $this->request->getPost('name'),
+            'season'       => $this->request->getPost('season'),
+            'division'     => $this->request->getPost('division') ?: null,
+            'player1_id'   => $this->request->getPost('player1_id'),
+            'player2_id'   => $this->request->getPost('player2_id'),
+            'player3_id'   => $this->request->getPost('player3_id'),
+            'player4_id'   => $this->request->getPost('player4_id'),
+            'is_published' => $this->request->getPost('is_published') ? 1 : 0,
         ]);
 
         return redirect()->to(base_url('admin/intm'))
@@ -82,13 +83,14 @@ class IntmController extends BaseController
         }
 
         $model->update($id, [
-            'name'       => $this->request->getPost('name'),
-            'season'     => $this->request->getPost('season'),
-            'division'   => $this->request->getPost('division') ?: null,
-            'player1_id' => $this->request->getPost('player1_id'),
-            'player2_id' => $this->request->getPost('player2_id'),
-            'player3_id' => $this->request->getPost('player3_id'),
-            'player4_id' => $this->request->getPost('player4_id'),
+            'name'         => $this->request->getPost('name'),
+            'season'       => $this->request->getPost('season'),
+            'division'     => $this->request->getPost('division') ?: null,
+            'player1_id'   => $this->request->getPost('player1_id'),
+            'player2_id'   => $this->request->getPost('player2_id'),
+            'player3_id'   => $this->request->getPost('player3_id'),
+            'player4_id'   => $this->request->getPost('player4_id'),
+            'is_published' => $this->request->getPost('is_published') ? 1 : 0,
         ]);
 
         return redirect()->to(base_url('admin/intm'))

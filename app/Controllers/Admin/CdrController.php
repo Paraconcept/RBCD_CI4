@@ -42,12 +42,13 @@ class CdrController extends BaseController
         }
 
         (new CdrTeamModel())->insert([
-            'name'       => $this->request->getPost('name'),
-            'season'     => $this->request->getPost('season'),
-            'game_mode'  => $this->request->getPost('game_mode'),
-            'player1_id' => $this->request->getPost('player1_id'),
-            'player2_id' => $this->request->getPost('player2_id'),
-            'player3_id' => $this->request->getPost('player3_id'),
+            'name'         => $this->request->getPost('name'),
+            'season'       => $this->request->getPost('season'),
+            'game_mode'    => $this->request->getPost('game_mode'),
+            'player1_id'   => $this->request->getPost('player1_id'),
+            'player2_id'   => $this->request->getPost('player2_id'),
+            'player3_id'   => $this->request->getPost('player3_id'),
+            'is_published' => $this->request->getPost('is_published') ? 1 : 0,
         ]);
 
         return redirect()->to(base_url('admin/cdr'))
@@ -81,12 +82,13 @@ class CdrController extends BaseController
         }
 
         $model->update($id, [
-            'name'       => $this->request->getPost('name'),
-            'season'     => $this->request->getPost('season'),
-            'game_mode'  => $this->request->getPost('game_mode'),
-            'player1_id' => $this->request->getPost('player1_id'),
-            'player2_id' => $this->request->getPost('player2_id'),
-            'player3_id' => $this->request->getPost('player3_id'),
+            'name'         => $this->request->getPost('name'),
+            'season'       => $this->request->getPost('season'),
+            'game_mode'    => $this->request->getPost('game_mode'),
+            'player1_id'   => $this->request->getPost('player1_id'),
+            'player2_id'   => $this->request->getPost('player2_id'),
+            'player3_id'   => $this->request->getPost('player3_id'),
+            'is_published' => $this->request->getPost('is_published') ? 1 : 0,
         ]);
 
         return redirect()->to(base_url('admin/cdr'))
