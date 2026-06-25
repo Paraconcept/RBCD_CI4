@@ -109,7 +109,8 @@
                 </li>
 
                 <?php
-                $isTreasuryActive = strpos(uri_string(), 'admin/treasury') === 0;
+                $isTreasuryActive = strpos(uri_string(), 'admin/treasury') === 0
+                                 || strpos(uri_string(), 'admin/members/') !== false && strpos(uri_string(), '/payments') !== false;
                 $isDsActive = (uri_string() === 'admin/schedule' || strpos(uri_string(), 'admin/schedule/') === 0)
                            || strpos(uri_string(), 'admin/schedule-events') === 0
                            || strpos(uri_string(), 'admin/arbitrage-stats') === 0
@@ -127,7 +128,7 @@
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a href="<?= base_url('admin/treasury') ?>"
-                               class="nav-link <?= uri_string() === 'admin/treasury' ? 'active' : '' ?>">
+                               class="nav-link <?= (uri_string() === 'admin/treasury' || (strpos(uri_string(), 'admin/members/') !== false && strpos(uri_string(), '/payments') !== false)) ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Cotisations &amp; Forfaits</p>
                             </a>
