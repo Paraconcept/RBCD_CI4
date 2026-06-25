@@ -97,8 +97,15 @@
                       <li class="has-sub">
                         <a href="#">Coupe des Régions</a>
                         <ul class="dropdown">
-                          <?php foreach ($cdrTeams as $ct): ?>
-                          <li><a href="<?= base_url('saison/coupe-des-regions/' . $ct->id) ?>"><?= esc($ct->name) ?></a></li>
+                          <?php
+                          $modeAbbr = ['Libre PF' => 'PL PF', 'Libre GF' => 'PL GF', '3 Bandes PF' => '3B PF', '3 Bandes GF' => '3B GF'];
+                          foreach ($cdrTeams as $ct):
+                              $abbr = $modeAbbr[$ct->game_mode] ?? '';
+                          ?>
+                          <li><a href="<?= base_url('saison/coupe-des-regions/' . $ct->id) ?>" style="display:flex;justify-content:space-between;gap:.75rem;align-items:center">
+                            <span><?= esc($ct->name) ?></span>
+                            <?php if ($abbr): ?><span style="opacity:.6;font-size:.8em;white-space:nowrap"><?= $abbr ?></span><?php endif; ?>
+                          </a></li>
                           <?php endforeach; ?>
                         </ul>
                       </li>
