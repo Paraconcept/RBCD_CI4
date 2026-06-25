@@ -122,3 +122,13 @@ h2.text-theme-colored2                     { color: #84252B !important; }
     background-repeat: no-repeat;
 }
 
+/* Icône PDF dans la navigation "Documents utiles" */
+#main-nav .fa-file-pdf {
+    color: #e08080;
+    margin-left: .4rem;
+    transition: color .2s;
+}
+#main-nav a:hover .fa-file-pdf {
+    color: #c0392b;
+}
+
