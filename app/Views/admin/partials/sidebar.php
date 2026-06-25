@@ -43,7 +43,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?= base_url('admin/members') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/members') === 0) ? 'active' : '' ?>">
+                    <a href="<?= base_url('admin/members') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/members') === 0 && strpos(uri_string(), '/payments') === false) ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-users"></i>
                         <p>Membres</p>
                     </a>
