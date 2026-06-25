@@ -128,7 +128,8 @@ h2.text-theme-colored2                     { color: #84252B !important; }
     margin-left: .4rem;
     transition: color .2s;
 }
-#main-nav a:hover .fa-file-pdf {
-    color: #c0392b;
+#main-nav a:hover .fa-file-pdf,
+#main-nav li:hover > a .fa-file-pdf {
+    color: #c0392b !important;
 }
 
