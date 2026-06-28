@@ -267,5 +267,27 @@ a.sr-photo:hover { opacity: .8; }
 /* Légende */
 .sr-legend-item { font-size: .82rem; color: #555; }
 .sr-legend-sep  { color: #ccc; margin: 0 10px; }
+
+/* ── Responsive mobile ── */
+@media (max-width: 575px) {
+    .sr-item {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 8px 10px;
+        padding: 12px 14px;
+    }
+    .sr-photo    { order: 1; align-self: center; }
+    .sr-type-col { order: 2; align-self: center; }
+    .sr-info     { order: 3; }
+    .sr-pdf      { order: 4; align-self: center; }
+    .sr-date-col {
+        order: 5;
+        width: 100%;
+        min-width: 0;
+        /* aligne sous le texte : photo 56px + gap 10px + type-col 30px + gap 10px */
+        padding-left: 106px;
+        font-size: .75rem;
+    }
+}
 </style>
 <?= $this->endSection() ?>
