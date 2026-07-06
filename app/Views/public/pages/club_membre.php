@@ -144,21 +144,16 @@
     padding:6px 10px; border-bottom:1px solid #ececec;
     vertical-align:middle; color:#333; font-weight:600;
 }
-.cat-table tbody td:first-child { width:30%; }
-.cat-table tbody td:last-child { width:30%; }
+.cat-table tbody td:first-child { width:40%; }
 .cat-table tbody tr:nth-child(odd)  td { background:#fafafa; }
 .cat-table tbody tr:nth-child(even) td { background:#fff; }
 .cat-table tbody tr:hover td { background:#fdf3f3 !important; }
 .cat-none { color:#ccc; }
 .cat-statut-cell { display:flex; justify-content:space-between; align-items:center; gap:6px; }
-.cat-statut { font-size:.82rem; white-space:nowrap; }
+.cat-statut { font-size:.82rem; white-space:nowrap; color:#84252B; font-weight:700; }
 .cat-col { width:100%; padding-right:.75rem; padding-left:.75rem; }
 @media (min-width:768px) {
     .cat-col { width:50%; }
-}
-@media (max-width:767px) {
-    .cat-table tbody td:first-child { width:35%; }
-    .cat-table tbody td:last-child { width:35%; }
 }
 
 /* Colonne coordonnées : séparation verticale sur desktop, horizontale sur mobile */
@@ -198,6 +193,15 @@ $hasCoords = $canSee('phone',      $m->phone)
            || $canSee('email',      $m->email)
            || $canSee('address',    $m->address || $m->city)
            || $canSee('birth_date', $m->birth_date);
+
+$catRow = function(string $label, string $field) use ($categories) {
+    $value  = $categories->{$field} ?? null;
+    $status = $categories->{"{$field}_st"} ?? null;
+    echo '<tr><td style="text-align:right">' . esc($label) . ' :</td><td><div class="cat-statut-cell"><span>';
+    echo $value ? esc($value) : '<span class="cat-none">—</span>';
+    if ($status) echo '<span class="cat-statut">[ ' . esc($status) . ' ]</span>';
+    echo '</span></div></td></tr>';
+};
 ?>
 
 <div class="container pt-40 pb-60">
@@ -313,37 +317,19 @@ $hasCoords = $canSee('phone',      $m->phone)
         <table class="cat-table">
           <thead>
             <tr>
-              <th colspan="3" class="cat-th-title">
+              <th colspan="2" class="cat-th-title">
                 Petit Billard <span style="font-size:.75rem;font-weight:400;opacity:.75;margin-left:4px">(2m30)</span>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td style="text-align:right">Partie Libre :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
-            <tr>
-              <td style="text-align:right">Bande :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
-            <tr>
-              <td style="text-align:right">Cadre 38/2 :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
-            <tr>
-              <td style="text-align:right">Cadre 57/2 :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
-            <tr>
-              <td style="text-align:right">3 Bandes :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
+            <?php
+              $catRow('Partie Libre', 'PLPF');
+              $catRow('Bande', 'BPF');
+              $catRow('Cadre 38/2', 'C38_2');
+              $catRow('Cadre 57/2', 'C57_2');
+              $catRow('3 Bandes', 'B3PF');
+            ?>
           </tbody>
         </table>
       </div>
@@ -351,42 +337,20 @@ $hasCoords = $canSee('phone',      $m->phone)
         <table class="cat-table">
           <thead>
             <tr>
-              <th colspan="3" class="cat-th-title">
+              <th colspan="2" class="cat-th-title">
                 Grand Billard <span style="font-size:.75rem;font-weight:400;opacity:.75;margin-left:4px">(2m84)</span>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td style="text-align:right">Partie Libre :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
-            <tr>
-              <td style="text-align:right">Bande :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
-            <tr>
-              <td style="text-align:right">Cadre 47/2 :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
-            <tr>
-              <td style="text-align:right">Cadre 47/1 :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
-            <tr>
-              <td style="text-align:right">Cadre 71/2 :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
-            <tr>
-              <td style="text-align:right">3 Bandes :</td>
-              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
-              <td><span class="cat-none">—</span></td>
-            </tr>
+            <?php
+              $catRow('Partie Libre', 'PLGF');
+              $catRow('Bande', 'BGF');
+              $catRow('Cadre 47/2', 'C47_2');
+              $catRow('Cadre 47/1', 'C47_1');
+              $catRow('Cadre 71/2', 'C71_2');
+              $catRow('3 Bandes', 'B3GF');
+            ?>
           </tbody>
         </table>
       </div>

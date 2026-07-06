@@ -117,6 +117,9 @@ class PagesController extends BaseController
 
         $currentSeason = ANNEE_1 . '-' . ANNEE_2;
         $sportResults  = (new \App\Models\SportResultModel())->getByMember($id, $currentSeason, publishedOnly: true);
+        $categories    = $member->is_federated
+            ? (new \App\Models\MemberCategoryModel())->getForMember($id)
+            : null;
 
         return view('public/pages/club_membre', [
             'title'       => $name . ' — RBC Disonais',
@@ -132,6 +135,7 @@ class PagesController extends BaseController
             'backLabel'     => $backLabel,
             'sportResults'  => $sportResults,
             'currentSeason' => $currentSeason,
+            'categories'    => $categories,
         ]);
     }
 
