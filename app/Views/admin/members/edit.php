@@ -685,14 +685,16 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="cat-section-title">
-                                        <i class="fas fa-circle-notch"></i>
+                                        <img src="<?= base_url('assets/images/icon_billard_white_150x150.png') ?>"
+                                             alt="" style="width:16px;height:16px;object-fit:contain">
                                         Petit Billard <small style="font-weight:400;opacity:.85;">(2m30)</small>
                                     </div>
                                     <?php $renderCol($pfModes); ?>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="cat-section-title">
-                                        <i class="fas fa-circle-notch"></i>
+                                        <img src="<?= base_url('assets/images/icon_billard_white_150x150.png') ?>"
+                                             alt="" style="width:16px;height:16px;object-fit:contain">
                                         Grand Billard <small style="font-weight:400;opacity:.85;">(2m84)</small>
                                     </div>
                                     <?php $renderCol($gfModes); ?>

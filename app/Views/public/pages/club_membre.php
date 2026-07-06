@@ -325,6 +325,8 @@ $catRow = function(string $label, string $field) use ($categories, $categoryScal
           <thead>
             <tr>
               <th colspan="3" class="cat-th-title">
+                <img src="<?= base_url('assets/images/icon_billard_white_150x150.png') ?>"
+                     alt="" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;margin-right:6px">
                 Petit Billard <span style="font-size:.75rem;font-weight:400;opacity:.75;margin-left:4px">(2m30)</span>
               </th>
             </tr>
@@ -345,6 +347,8 @@ $catRow = function(string $label, string $field) use ($categories, $categoryScal
           <thead>
             <tr>
               <th colspan="3" class="cat-th-title">
+                <img src="<?= base_url('assets/images/icon_billard_white_150x150.png') ?>"
+                     alt="" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;margin-right:6px">
                 Grand Billard <span style="font-size:.75rem;font-weight:400;opacity:.75;margin-left:4px">(2m84)</span>
               </th>
             </tr>
