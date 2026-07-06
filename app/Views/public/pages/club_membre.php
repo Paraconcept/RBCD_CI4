@@ -203,8 +203,9 @@ $catRow = function(string $label, string $field) use ($categories, $categoryScal
     echo '<tr><td style="text-align:right">' . esc($label) . ' :</td>';
     echo '<td><div class="cat-statut-cell"><span>';
     echo $value ? esc($scale->categories_text ?? $value) : '<span class="cat-none">—</span>';
+    echo '</span>';
     if ($status) echo '<span class="cat-statut">[ ' . esc($status) . ' ]</span>';
-    echo '</span></div></td>';
+    echo '</div></td>';
     echo '<td>' . ($scale ? esc($scale->points) . ' Pts' : '<span class="cat-none">—</span>') . '</td>';
     echo '</tr>';
 };
