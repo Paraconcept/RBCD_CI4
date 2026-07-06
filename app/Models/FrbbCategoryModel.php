@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class FrbbCategoryModel extends Model
 {
-    protected $table      = 'frbb_categories';
+    protected $table      = 'categories_new';
     protected $primaryKey = 'id';
     protected $returnType = 'object';
 
