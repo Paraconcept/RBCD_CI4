@@ -10,6 +10,17 @@
     background-color: rgba(132,37,43,.08);
     color: #84252B;
 }
+.cat-section-title {
+    font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+    color:#fff; background:#84252B; padding:6px 14px; border-radius:3px;
+    margin-bottom:14px; display:flex; align-items:center; gap:8px;
+}
+.cat-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.cat-label { min-width:115px; font-weight:600; font-size:.88rem; flex-shrink:0; }
+.cat-select { flex:1; min-width:0; }
+.cat-select .form-control { font-size:.88rem; }
+.cat-st { flex:0 0 150px; }
+.cat-st .form-control { font-size:.82rem; }
 </style>
 <?= $this->endSection() ?>
 
@@ -601,20 +612,100 @@
             </div>
 
             <!-- ══════════════════════════════════════════════════════
-                 ONGLET — Catégories (placeholder)
+                 ONGLET — Catégories
             ══════════════════════════════════════════════════════ -->
             <div class="tab-pane fade <?= $activeTab === 'categories' ? 'show active' : '' ?>"
                  id="categories" role="tabpanel">
 
-                <div class="card card-outline card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-layer-group mr-2"></i>Catégories</h3>
+                <form action="<?= base_url('admin/members/' . $member->id . '/categories/save') ?>"
+                      method="post" autocomplete="off">
+                    <?= csrf_field() ?>
+
+                    <div class="card card-outline card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-layer-group mr-2"></i>Catégories du joueur</h3>
+                        </div>
+                        <div class="card-body">
+                            <?php
+                            $uc = $memberCategories ? (array) $memberCategories : [];
+
+                            $pfModes = [
+                                'PLPF'  => 'Partie Libre',
+                                'BPF'   => 'Bande',
+                                'C38_2' => 'Cadre 38/2',
+                                'C57_2' => 'Cadre 57/2',
+                                'B3PF'  => '3 Bandes',
+                            ];
+                            $gfModes = [
+                                'PLGF'  => 'Partie Libre',
+                                'BGF'   => 'Bande',
+                                'C47_2' => 'Cadre 47/2',
+                                'C47_1' => 'Cadre 47/1',
+                                'C71_2' => 'Cadre 71/2',
+                                'B3GF'  => '3 Bandes',
+                            ];
+                            $statuts = [
+                                'NJ'  => 'NJ — Nouveau Joueur',
+                                'JR'  => 'JR — Joueur reprenant',
+                                'NJR' => 'NJR — Reprenant cat. inf.',
+                                'REP' => 'REP — Report rétrogradation',
+                            ];
+
+                            $renderCol = function(array $modes) use ($uc, $categoryOptions, $statuts) {
+                                foreach ($modes as $col => $label): ?>
+                                <div class="cat-row">
+                                    <span class="cat-label"><?= esc($label) ?> :</span>
+                                    <div class="cat-select">
+                                        <select name="<?= $col ?>" class="form-control form-control-sm">
+                                            <option value="">— Non classé —</option>
+                                            <?php foreach ($categoryOptions[$col] ?? [] as $o): ?>
+                                                <option value="<?= esc($o['val']) ?>"
+                                                    <?= ($uc[$col] ?? null) === $o['val'] ? 'selected' : '' ?>>
+                                                    <?= esc($o['val']) ?> — <?= esc($o['label']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="cat-st">
+                                        <select name="<?= $col ?>_st" class="form-control form-control-sm">
+                                            <option value="">—</option>
+                                            <?php foreach ($statuts as $sv => $sl): ?>
+                                                <option value="<?= $sv ?>"
+                                                    <?= ($uc[$col . '_st'] ?? null) === $sv ? 'selected' : '' ?>>
+                                                    <?= $sl ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <?php endforeach;
+                            };
+                            ?>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="cat-section-title">
+                                        <i class="fas fa-circle-notch"></i>
+                                        Petit Billard <small style="font-weight:400;opacity:.85;">(2m30)</small>
+                                    </div>
+                                    <?php $renderCol($pfModes); ?>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="cat-section-title">
+                                        <i class="fas fa-circle-notch"></i>
+                                        Grand Billard <small style="font-weight:400;opacity:.85;">(2m84)</small>
+                                    </div>
+                                    <?php $renderCol($gfModes); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-1"></i> Enregistrer les catégories
+                            </button>
+                        </div>
                     </div>
-                    <div class="card-body text-center py-5 text-muted">
-                        <i class="fas fa-layer-group fa-3x mb-3"></i>
-                        <p class="mb-0">Bientôt disponible.</p>
-                    </div>
-                </div>
+                </form>
 
             </div>
 

@@ -107,6 +107,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('members/(:num)/update',                'Admin\MembersController::update/$1');
         $routes->post('members/(:num)/delete',                'Admin\MembersController::delete/$1');
         $routes->post('members/(:num)/toggle',                'Admin\MembersController::toggle/$1');
+        $routes->post('members/(:num)/categories/save',       'Admin\MembersController::saveCategories/$1');
 
         // Paiements membres
         $routes->get('members/(:num)/payments',         'Admin\MemberPaymentsController::index/$1');

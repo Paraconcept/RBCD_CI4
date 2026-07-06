@@ -30,4 +30,16 @@ class MemberCategoryModel extends Model
     {
         return $this->where('member_id', $memberId)->first();
     }
+
+    public function saveForMember(int $memberId, array $data): void
+    {
+        $data['member_id'] = $memberId;
+
+        $existing = $this->where('member_id', $memberId)->first();
+        if ($existing) {
+            $this->update($existing->id, $data);
+        } else {
+            $this->insert($data);
+        }
+    }
 }

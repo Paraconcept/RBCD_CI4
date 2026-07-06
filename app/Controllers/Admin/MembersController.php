@@ -6,6 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\MemberModel;
 use App\Models\MemberPaymentModel;
 use App\Models\MemberKeyModel;
+use App\Models\MemberCategoryModel;
+use App\Models\FrbbCategoryModel;
 
 class MembersController extends BaseController
 {
@@ -102,10 +104,32 @@ class MembersController extends BaseController
             ],
             'member'        => $member,
             'activeTab'     => $activeTab,
-            'memberKeys'    => $keyModel->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
-            'availableKeys' => $keyModel->where('member_id IS NULL')->orderBy('badge_number')->findAll(),
-            'payments'      => $paymentModel->getForMember($id),
+            'memberKeys'      => $keyModel->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
+            'availableKeys'   => $keyModel->where('member_id IS NULL')->orderBy('badge_number')->findAll(),
+            'payments'        => $paymentModel->getForMember($id),
+            'memberCategories'=> (new MemberCategoryModel())->getForMember($id),
+            'categoryOptions' => (new FrbbCategoryModel())->getOptionsByGameMode(),
         ]);
+    }
+
+    public function saveCategories(int $id)
+    {
+        if (!$this->model->find($id)) {
+            return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
+        }
+
+        $cols = ['PLPF', 'BPF', 'C38_2', 'C57_2', 'B3PF', 'PLGF', 'BGF', 'C47_2', 'C47_1', 'C71_2', 'B3GF'];
+
+        $data = [];
+        foreach ($cols as $col) {
+            $data[$col]           = $this->request->getPost($col) ?: null;
+            $data["{$col}_st"]    = $this->request->getPost("{$col}_st") ?: null;
+        }
+
+        (new MemberCategoryModel())->saveForMember($id, $data);
+
+        return redirect()->to(base_url('admin/members/' . $id . '/edit?tab=categories'))
+                         ->with('success', 'Catégories mises à jour.');
     }
 
     public function updateIdentity(int $id)

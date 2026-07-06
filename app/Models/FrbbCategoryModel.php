@@ -32,4 +32,16 @@ class FrbbCategoryModel extends Model
         }
         return $scale;
     }
+
+    /**
+     * Options de sélection groupées par game_mode, pour les <select> du formulaire admin.
+     */
+    public function getOptionsByGameMode(): array
+    {
+        $options = [];
+        foreach ($this->orderBy('id', 'ASC')->findAll() as $row) {
+            $options[$row->game_mode][] = ['val' => $row->categories, 'label' => $row->categories_text];
+        }
+        return $options;
+    }
 }
