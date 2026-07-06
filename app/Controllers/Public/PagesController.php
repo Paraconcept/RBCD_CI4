@@ -117,9 +117,12 @@ class PagesController extends BaseController
 
         $currentSeason = ANNEE_1 . '-' . ANNEE_2;
         $sportResults  = (new \App\Models\SportResultModel())->getByMember($id, $currentSeason, publishedOnly: true);
-        $categories    = $member->is_federated
-            ? (new \App\Models\MemberCategoryModel())->getForMember($id)
-            : null;
+        $categories   = null;
+        $categoryScale = [];
+        if ($member->is_federated) {
+            $categories    = (new \App\Models\MemberCategoryModel())->getForMember($id);
+            $categoryScale = (new \App\Models\FrbbCategoryModel())->getScale();
+        }
 
         return view('public/pages/club_membre', [
             'title'       => $name . ' — RBC Disonais',
@@ -136,6 +139,7 @@ class PagesController extends BaseController
             'sportResults'  => $sportResults,
             'currentSeason' => $currentSeason,
             'categories'    => $categories,
+            'categoryScale' => $categoryScale,
         ]);
     }
 

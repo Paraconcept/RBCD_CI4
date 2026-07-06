@@ -144,7 +144,8 @@
     padding:6px 10px; border-bottom:1px solid #ececec;
     vertical-align:middle; color:#333; font-weight:600;
 }
-.cat-table tbody td:first-child { width:40%; }
+.cat-table tbody td:first-child { width:30%; }
+.cat-table tbody td:last-child { width:30%; }
 .cat-table tbody tr:nth-child(odd)  td { background:#fafafa; }
 .cat-table tbody tr:nth-child(even) td { background:#fff; }
 .cat-table tbody tr:hover td { background:#fdf3f3 !important; }
@@ -194,13 +195,18 @@ $hasCoords = $canSee('phone',      $m->phone)
            || $canSee('address',    $m->address || $m->city)
            || $canSee('birth_date', $m->birth_date);
 
-$catRow = function(string $label, string $field) use ($categories) {
+$catRow = function(string $label, string $field) use ($categories, $categoryScale) {
     $value  = $categories->{$field} ?? null;
     $status = $categories->{"{$field}_st"} ?? null;
-    echo '<tr><td style="text-align:right">' . esc($label) . ' :</td><td><div class="cat-statut-cell"><span>';
-    echo $value ? esc($value) : '<span class="cat-none">—</span>';
+    $scale  = $value ? ($categoryScale["{$field}|{$value}"] ?? null) : null;
+
+    echo '<tr><td style="text-align:right">' . esc($label) . ' :</td>';
+    echo '<td><div class="cat-statut-cell"><span>';
+    echo $value ? esc($scale->categories_text ?? $value) : '<span class="cat-none">—</span>';
     if ($status) echo '<span class="cat-statut">[ ' . esc($status) . ' ]</span>';
-    echo '</span></div></td></tr>';
+    echo '</span></div></td>';
+    echo '<td>' . ($scale ? esc($scale->points) . ' Pts' : '<span class="cat-none">—</span>') . '</td>';
+    echo '</tr>';
 };
 ?>
 
@@ -317,7 +323,7 @@ $catRow = function(string $label, string $field) use ($categories) {
         <table class="cat-table">
           <thead>
             <tr>
-              <th colspan="2" class="cat-th-title">
+              <th colspan="3" class="cat-th-title">
                 Petit Billard <span style="font-size:.75rem;font-weight:400;opacity:.75;margin-left:4px">(2m30)</span>
               </th>
             </tr>
@@ -337,7 +343,7 @@ $catRow = function(string $label, string $field) use ($categories) {
         <table class="cat-table">
           <thead>
             <tr>
-              <th colspan="2" class="cat-th-title">
+              <th colspan="3" class="cat-th-title">
                 Grand Billard <span style="font-size:.75rem;font-weight:400;opacity:.75;margin-left:4px">(2m84)</span>
               </th>
             </tr>
