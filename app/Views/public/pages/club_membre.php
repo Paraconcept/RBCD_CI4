@@ -133,6 +133,34 @@
 .sr-pdf-none i { font-size: 1.8rem; }
 .sr-count { font-size: .8rem; font-weight: 400; opacity: .75; }
 
+/* ── Tableaux catégories du joueur ── */
+.cat-table { width:100%; border-collapse:collapse; font-size:.85rem; color:#333; border:1px solid #e5e5e5; }
+.cat-table thead th {
+    background:#84252B; color:#fff; font-weight:700;
+    padding:7px 10px; text-align:left; border:none;
+}
+.cat-table thead th.cat-th-title { letter-spacing:.5px; text-transform:uppercase; }
+.cat-table tbody td {
+    padding:6px 10px; border-bottom:1px solid #ececec;
+    vertical-align:middle; color:#333; font-weight:600;
+}
+.cat-table tbody td:first-child { width:30%; }
+.cat-table tbody td:last-child { width:30%; }
+.cat-table tbody tr:nth-child(odd)  td { background:#fafafa; }
+.cat-table tbody tr:nth-child(even) td { background:#fff; }
+.cat-table tbody tr:hover td { background:#fdf3f3 !important; }
+.cat-none { color:#ccc; }
+.cat-statut-cell { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+.cat-statut { font-size:.82rem; white-space:nowrap; }
+.cat-col { width:100%; padding-right:.75rem; padding-left:.75rem; }
+@media (min-width:768px) {
+    .cat-col { width:50%; }
+}
+@media (max-width:767px) {
+    .cat-table tbody td:first-child { width:35%; }
+    .cat-table tbody td:last-child { width:35%; }
+}
+
 /* Colonne coordonnées : séparation verticale sur desktop, horizontale sur mobile */
 @media (min-width: 768px) {
     .membre-coords-col {
@@ -275,19 +303,93 @@ $hasCoords = $canSee('phone',      $m->phone)
     </div>
   </div>
 
-  <!-- Catégories : encart d'attente (fédérés uniquement) -->
+  <!-- Catégories du joueur (fédérés uniquement) -->
   <?php if ($m->is_federated): ?>
-  <div class="d-flex align-items-start gap-3 p-3 mb-4 rounded"
-       style="background:#f8f9fa;border:1px solid #dee2e6;font-size:.9rem;color:#555">
-    <i class="fas fa-info-circle mt-1" style="color:#84252B;flex-shrink:0"></i>
-    <div>
-      <p class="mb-2">
-        <strong style="color:#333">Catégories du joueur</strong><br>
-        La FRBB est actuellement en train de revoir le système de classification et de catégories des joueurs.
-        Ce projet, dont la mise en œuvre s'avère complexe à l'échelle des différentes régions, n'est pas encore finalisé.
-        Dès que les nouvelles catégories seront arrêtées, elles apparaîtront sur chaque fiche joueur.
-      </p>
-      <p class="mb-0">Merci de votre compréhension.</p>
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-layer-group me-2"></i>Catégories du joueur</div>
+
+    <div class="row">
+      <div class="cat-col mb-20">
+        <table class="cat-table">
+          <thead>
+            <tr>
+              <th colspan="3" class="cat-th-title">
+                Petit Billard <span style="font-size:.75rem;font-weight:400;opacity:.75;margin-left:4px">(2m30)</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align:right">Partie Libre :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:right">Bande :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:right">Cadre 38/2 :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:right">Cadre 57/2 :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:right">3 Bandes :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cat-col mb-20">
+        <table class="cat-table">
+          <thead>
+            <tr>
+              <th colspan="3" class="cat-th-title">
+                Grand Billard <span style="font-size:.75rem;font-weight:400;opacity:.75;margin-left:4px">(2m84)</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align:right">Partie Libre :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:right">Bande :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:right">Cadre 47/2 :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:right">Cadre 47/1 :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:right">Cadre 71/2 :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:right">3 Bandes :</td>
+              <td><div class="cat-statut-cell"><span><span class="cat-none">—</span></span></div></td>
+              <td><span class="cat-none">—</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   <?php endif; ?>
