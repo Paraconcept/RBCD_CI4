@@ -67,6 +67,9 @@ a.member-card { text-decoration: none; color: inherit; }
     border-radius: 4px;
     padding: 1px 6px;
     letter-spacing: .3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 .badge-junior   { background: #FFD43C; color: #000; font-size: .68rem; font-weight: 600; border-radius: 4px; padding: 1px 6px; }
 .badge-supporter{ background: #6c757d; color: #fff; font-size: .68rem; font-weight: 600; border-radius: 4px; padding: 1px 6px; }
@@ -159,7 +162,7 @@ a.member-card { text-decoration: none; color: inherit; }
           <span style="font-weight:400"><?= esc($m->first_name) ?></span>
         </div>
         <div class="member-badges">
-          <?php if ($m->is_federated): ?><span class="badge-frbb"><img src="<?= base_url('assets/images/frbb_kbbb_logo_100.png') ?>" alt="FRBB" style="width: 18px; height: 25px;"></span><?php endif; ?>
+          <?php if ($m->is_federated): ?><span class="badge-frbb"><img src="<?= base_url('assets/images/frbb_kbbb_logo_100.png') ?>" alt="FRBB" style="width: 18px; height: 25px;"><?php if ($m->frbb_license): ?> <?= esc($m->frbb_license) ?><?php endif; ?></span><?php endif; ?>
           <?php if ($m->is_junior): ?><span class="badge-junior"><i class="fas fa-smile fa-lg me-1"></i> Junior</span><?php endif; ?>
         </div>
       </div>
