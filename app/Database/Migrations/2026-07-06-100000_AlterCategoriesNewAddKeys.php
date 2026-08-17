@@ -13,12 +13,33 @@ class AlterCategoriesNewAddKeys extends Migration
 {
     public function up(): void
     {
-        $this->db->query(
-            'ALTER TABLE `categories_new` '
-            . 'MODIFY `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, '
-            . 'ADD PRIMARY KEY (`id`), '
-            . 'ADD UNIQUE KEY `game_mode_categories` (`game_mode`, `categories`)'
-        );
+        // La table peut avoir été importée avec ces clés déjà en place selon
+        // l'environnement : on vérifie avant d'altérer pour rester idempotent.
+        if (!$this->indexExists('categories_new', 'PRIMARY')) {
+            $this->db->query(
+                'ALTER TABLE `categories_new` '
+                . 'MODIFY `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, '
+                . 'ADD PRIMARY KEY (`id`)'
+            );
+        }
+
+        if (!$this->indexExists('categories_new', 'game_mode_categories')) {
+            $this->db->query(
+                'ALTER TABLE `categories_new` '
+                . 'ADD UNIQUE KEY `game_mode_categories` (`game_mode`, `categories`)'
+            );
+        }
+    }
+
+    private function indexExists(string $table, string $indexName): bool
+    {
+        $row = $this->db->query(
+            'SELECT COUNT(*) AS c FROM information_schema.STATISTICS '
+            . 'WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?',
+            [$table, $indexName]
+        )->getRow();
+
+        return $row && (int) $row->c > 0;
     }
 
     public function down(): void
