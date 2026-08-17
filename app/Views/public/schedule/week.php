@@ -220,7 +220,7 @@ while ($swDt <= $swEnd) {
         <div class="week-title">Semaine <?= $week ?></div>
         <div class="text-muted" style="font-size:.9rem"><?= esc($periodStr) ?></div>
         <div class="mt-2">
-            <select class="form-control form-control-sm week-nav-select"
+            <select class="form-select form-select-sm week-nav-select"
                     onchange="location.href=this.value">
                 <?php foreach ($seasonWeeks as $sw): ?>
                 <option value="<?= base_url("tableau/{$sw['week']}/{$sw['year']}") ?>"
