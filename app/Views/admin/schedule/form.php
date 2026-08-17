@@ -8,9 +8,9 @@
 .btn-outline-purple { color:#6f42c1; border-color:#6f42c1; background:transparent; }
 .btn-outline-purple:hover,
 .btn-outline-purple.active { background:#6f42c1; border-color:#6f42c1; color:#fff; }
-.btn-outline-navy { color:#001f3f; border-color:#001f3f; background:transparent; }
+.btn-outline-navy { color:#0D47A1; border-color:#0D47A1; background:transparent; }
 .btn-outline-navy:hover,
-.btn-outline-navy.active { background:#001f3f; border-color:#001f3f; color:#fff; }
+.btn-outline-navy.active { background:#0D47A1; border-color:#0D47A1; color:#fff; }
 </style>
 <?= $this->endSection() ?>
 

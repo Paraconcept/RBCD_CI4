@@ -85,7 +85,7 @@
                 padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
 .badge-cdr  { display:inline-block; background:#6f42c1; color:#fff; border-radius:10px;
               padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
-.badge-intm { display:inline-block; background:#001f3f; color:#fff; border-radius:10px;
+.badge-intm { display:inline-block; background:#0D47A1; color:#fff; border-radius:10px;
               padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
 
 /* Arbitrage col */

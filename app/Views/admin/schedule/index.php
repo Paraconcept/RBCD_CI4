@@ -28,7 +28,7 @@
 .col-actions { border-left:2px solid rgba(0,0,0,.08); border-right:2px solid rgba(0,0,0,.08); padding:0 .8rem; }
 
 .badge-cdr  { display:inline-block; background:#6f42c1; color:#fff; border-radius:10px; padding:1px 8px; font-size:.72rem; font-weight:600; margin-bottom:2px; }
-.badge-intm { display:inline-block; background:#001f3f; color:#fff; border-radius:10px; padding:1px 8px; font-size:.72rem; font-weight:600; margin-bottom:2px; }
+.badge-intm { display:inline-block; background:#0D47A1; color:#fff; border-radius:10px; padding:1px 8px; font-size:.72rem; font-weight:600; margin-bottom:2px; }
 
 /* Événements */
 .event-admin-row {
