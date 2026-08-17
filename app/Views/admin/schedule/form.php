@@ -5,6 +5,12 @@
 .btn-outline-rbcd { color:#84252B; border-color:#84252B; background:transparent; }
 .btn-outline-rbcd:hover,
 .btn-outline-rbcd.active { background:#84252B; border-color:#84252B; color:#fff; }
+.btn-outline-purple { color:#6f42c1; border-color:#6f42c1; background:transparent; }
+.btn-outline-purple:hover,
+.btn-outline-purple.active { background:#6f42c1; border-color:#6f42c1; color:#fff; }
+.btn-outline-navy { color:#001f3f; border-color:#001f3f; background:transparent; }
+.btn-outline-navy:hover,
+.btn-outline-navy.active { background:#001f3f; border-color:#001f3f; color:#fff; }
 </style>
 <?= $this->endSection() ?>
 
@@ -19,8 +25,11 @@ $formUrl       = $isEdit
 $isHome        = $source ? (int)$source->is_home : 1;
 $encType       = $source ? ($source->encounter_type ?? 'normal') : 'normal';
 $isFinale      = $encType === 'finale';
+$isTeamType    = in_array($encType, ['cdr', 'intm'], true);
 $requiresArb   = $source ? (int)($source->requires_arbitrage ?? 1) : 1;
 $requiresMrq   = $source ? (int)($source->requires_marquage  ?? 0) : 0;
+$teamHome      = $isTeamType && !empty($existingPlayers) ? ($existingPlayers[0]->player_home_name ?? '') : '';
+$teamAway      = $isTeamType && !empty($existingPlayers) ? ($existingPlayers[0]->opponent_name ?? '') : '';
 ?>
 
 <div class="card card-outline card-primary">
@@ -52,18 +61,29 @@ $requiresMrq   = $source ? (int)($source->requires_marquage  ?? 0) : 0;
                 <label class="d-block">Type de rencontre</label>
                 <div class="d-flex align-items-center flex-wrap" style="gap:1rem">
                     <div class="btn-group btn-group-toggle" data-toggle="buttons" id="encounterTypeToggle">
-                        <label class="btn btn-outline-rbcd btn-sm <?= !$isFinale ? 'active' : '' ?>">
-                            <input type="radio" name="_enc_type" value="normal" <?= !$isFinale ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-rbcd btn-sm <?= $encType === 'normal' ? 'active' : '' ?>">
+                            <input type="radio" name="_enc_type" value="normal" <?= $encType === 'normal' ? 'checked' : '' ?>>
                             <i class="fas fa-people-arrows mr-1"></i> Match normal
                         </label>
                         <label class="btn btn-outline-warning btn-sm <?= $isFinale ? 'active' : '' ?>">
                             <input type="radio" name="_enc_type" value="finale" <?= $isFinale ? 'checked' : '' ?>>
                             <i class="fas fa-trophy mr-1"></i> Finales / Tournoi / Open
                         </label>
+                        <label class="btn btn-outline-purple btn-sm <?= $encType === 'cdr' ? 'active' : '' ?>">
+                            <input type="radio" name="_enc_type" value="cdr" <?= $encType === 'cdr' ? 'checked' : '' ?>>
+                            <i class="fas fa-users mr-1"></i> CDR
+                        </label>
+                        <label class="btn btn-outline-navy btn-sm <?= $encType === 'intm' ? 'active' : '' ?>">
+                            <input type="radio" name="_enc_type" value="intm" <?= $encType === 'intm' ? 'checked' : '' ?>>
+                            <i class="fas fa-users mr-1"></i> INTM
+                        </label>
                     </div>
                 </div>
                 <small class="text-muted d-block mt-1" id="finaleNote" <?= !$isFinale ? 'style="display:none!important"' : '' ?>>
                     En mode Finales/Tournoi/Open, les joueurs ne sont pas liés à la base membres — aucun impact sur les stats d'arbitrage.
+                </small>
+                <small class="text-muted d-block mt-1" id="teamTypeNote" <?= !$isTeamType ? 'style="display:none!important"' : '' ?>>
+                    En mode CDR/INTM, la rencontre est encodée par équipes (nom libre), sans liste de joueurs.
                 </small>
             </div>
 
@@ -165,10 +185,29 @@ $requiresMrq   = $source ? (int)($source->requires_marquage  ?? 0) : 0;
 
             <hr>
 
+            <!-- Équipes (CDR / INTM) -->
+            <div id="teamsSection" <?= !$isTeamType ? 'style="display:none"' : '' ?>>
+                <h6 class="font-weight-bold mb-3"><i class="fas fa-users mr-1"></i> Équipes</h6>
+                <div class="form-row align-items-center">
+                    <div class="col-md-5 form-group">
+                        <label>Équipe domicile</label>
+                        <input type="text" name="team_home" class="form-control"
+                               placeholder="ex: RBCD A" value="<?= esc(old('team_home', $teamHome)) ?>">
+                    </div>
+                    <div class="col-md-2 text-center text-muted d-none d-md-block" style="margin-top:1.9rem">vs</div>
+                    <div class="col-md-5 form-group">
+                        <label>Équipe adverse</label>
+                        <input type="text" name="team_away" class="form-control"
+                               placeholder="ex: BC Herstalien" value="<?= esc(old('team_away', $teamAway)) ?>">
+                    </div>
+                </div>
+            </div>
+
             <!-- Joueurs -->
+            <div id="playersSection" <?= $isTeamType ? 'style="display:none"' : '' ?>>
             <h6 class="font-weight-bold mb-3"><i class="fas fa-users mr-1"></i> Joueurs</h6>
             <div id="playersContainer">
-                <?php if (!empty($existingPlayers)): ?>
+                <?php if (!empty($existingPlayers) && !$isTeamType): ?>
                     <?php foreach ($existingPlayers as $p): ?>
                     <?php if ($isFinale): ?>
                     <div class="player-row d-flex align-items-center" style="gap:.5rem">
@@ -246,6 +285,7 @@ $requiresMrq   = $source ? (int)($source->requires_marquage  ?? 0) : 0;
             <button type="button" id="btnAddPlayer" class="btn btn-sm btn-outline-secondary mt-2">
                 <i class="fas fa-plus mr-1"></i> Ajouter un match
             </button>
+            </div>
         </div>
 
         <div class="card-footer">
@@ -324,22 +364,29 @@ document.querySelectorAll('input[name="_enc_type"]').forEach(radio => {
         currentType = this.value;
         document.getElementById('encounterTypeInput').value = currentType;
 
-        const note = document.getElementById('finaleNote');
-        const isFinale = currentType === 'finale';
-        note.style.display = isFinale ? '' : 'none';
-        document.getElementById('roundsCountGroup').style.display   = isFinale ? '' : 'none';
-        document.getElementById('requiresArbGroup').style.display   = isFinale ? '' : 'none';
+        const isFinale   = currentType === 'finale';
+        const isTeamType = currentType === 'cdr' || currentType === 'intm';
+
+        document.getElementById('finaleNote').style.display    = isFinale ? '' : 'none';
+        document.getElementById('teamTypeNote').style.display   = isTeamType ? '' : 'none';
+        document.getElementById('roundsCountGroup').style.display = isFinale ? '' : 'none';
+        document.getElementById('requiresArbGroup').style.display = isFinale ? '' : 'none';
         if (!isFinale) {
             document.getElementById('requires_arbitrage').checked = true;
             document.getElementById('requires_marquage').checked  = false;
         }
 
-        // Reconstruire toutes les lignes existantes dans le bon mode
-        const container = document.getElementById('playersContainer');
-        const count = container.querySelectorAll('.player-row').length || 1;
-        container.innerHTML = '';
-        for (let i = 0; i < count; i++) {
-            addPlayerRow();
+        document.getElementById('teamsSection').style.display   = isTeamType ? '' : 'none';
+        document.getElementById('playersSection').style.display = isTeamType ? 'none' : '';
+
+        if (!isTeamType) {
+            // Reconstruire toutes les lignes existantes dans le bon mode
+            const container = document.getElementById('playersContainer');
+            const count = container.querySelectorAll('.player-row').length || 1;
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                addPlayerRow();
+            }
         }
     });
 });

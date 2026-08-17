@@ -97,7 +97,7 @@ class ScheduleController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $type            = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
+        $type            = $this->resolveEncounterType();
         $roundsCount     = $type === 'finale' ? max(1, min(8, (int) $this->request->getPost('rounds_count') ?: 3)) : 3;
         $requiresArb     = $type === 'finale' ? ($this->request->getPost('requires_arbitrage') ? 1 : 0) : 1;
         $requiresMrq     = $type === 'finale' ? ($this->request->getPost('requires_marquage')  ? 1 : 0) : 0;
@@ -177,7 +177,7 @@ class ScheduleController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $type            = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
+        $type            = $this->resolveEncounterType();
         $roundsCount     = $type === 'finale' ? max(1, min(8, (int) $this->request->getPost('rounds_count') ?: 3)) : 3;
         $requiresArb     = $type === 'finale' ? ($this->request->getPost('requires_arbitrage') ? 1 : 0) : 1;
         $requiresMrq     = $type === 'finale' ? ($this->request->getPost('requires_marquage')  ? 1 : 0) : 0;
@@ -396,11 +396,33 @@ class ScheduleController extends BaseController
         ]);
     }
 
+    private function resolveEncounterType(): string
+    {
+        $type = $this->request->getPost('encounter_type');
+        return in_array($type, ['finale', 'cdr', 'intm'], true) ? $type : 'normal';
+    }
+
     private function savePlayers(int $encounterId): void
     {
-        $type          = $this->request->getPost('encounter_type') === 'finale' ? 'finale' : 'normal';
+        $type = $this->resolveEncounterType();
+        $now  = date('Y-m-d H:i:s');
+
+        if (in_array($type, ['cdr', 'intm'], true)) {
+            $teamHome = trim((string) $this->request->getPost('team_home'));
+            $teamAway = trim((string) $this->request->getPost('team_away'));
+            if ($teamHome !== '' || $teamAway !== '') {
+                $this->players->insert([
+                    'encounter_id'     => $encounterId,
+                    'member_id'        => null,
+                    'player_home_name' => $teamHome,
+                    'opponent_name'    => $teamAway,
+                    'created_at'       => $now,
+                ]);
+            }
+            return;
+        }
+
         $opponentNames = $this->request->getPost('opponent_name') ?? [];
-        $now           = date('Y-m-d H:i:s');
 
         if ($type === 'finale') {
             $homeNames = $this->request->getPost('player_home_name') ?? [];

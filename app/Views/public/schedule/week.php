@@ -83,6 +83,10 @@
 /* Badge Finale */
 .badge-finale { display:inline-block; background:#ffc107; color:#000; border-radius:10px;
                 padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
+.badge-cdr  { display:inline-block; background:#6f42c1; color:#fff; border-radius:10px;
+              padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
+.badge-intm { display:inline-block; background:#001f3f; color:#fff; border-radius:10px;
+              padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
 
 /* Arbitrage col */
 .arb-col   { display:flex; flex-direction:column; gap:4px; font-size:.88rem; }
@@ -361,9 +365,14 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             </div>
 
             <div class="comp-col">
+                <?php if ($enc->encounter_type === 'cdr'): ?>
+                    <span class="badge-cdr d-block" style="width:fit-content">CDR</span>
+                <?php elseif ($enc->encounter_type === 'intm'): ?>
+                    <span class="badge-intm d-block" style="width:fit-content">INTM</span>
+                <?php endif; ?>
                 <?php if ($enc->competition): ?>
                     <span class="comp-label"><?= esc($enc->competition) ?></span>
-                <?php else: ?>
+                <?php elseif (!in_array($enc->encounter_type, ['cdr', 'intm'], true)): ?>
                     <span class="text-muted" style="font-size:.8rem">—</span>
                 <?php endif; ?>
             </div>

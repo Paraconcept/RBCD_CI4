@@ -27,6 +27,9 @@
 
 .col-actions { border-left:2px solid rgba(0,0,0,.08); border-right:2px solid rgba(0,0,0,.08); padding:0 .8rem; }
 
+.badge-cdr  { display:inline-block; background:#6f42c1; color:#fff; border-radius:10px; padding:1px 8px; font-size:.72rem; font-weight:600; margin-bottom:2px; }
+.badge-intm { display:inline-block; background:#001f3f; color:#fff; border-radius:10px; padding:1px 8px; font-size:.72rem; font-weight:600; margin-bottom:2px; }
+
 /* Événements */
 .event-admin-row {
     display: flex;
@@ -253,9 +256,14 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     <?php endif; ?>
                 </td>
                 <td class="align-middle">
+                    <?php if ($enc->encounter_type === 'cdr'): ?>
+                        <span class="badge-cdr d-block" style="width:fit-content">CDR</span>
+                    <?php elseif ($enc->encounter_type === 'intm'): ?>
+                        <span class="badge-intm d-block" style="width:fit-content">INTM</span>
+                    <?php endif; ?>
                     <?php if ($enc->competition): ?>
                         <span style="font-size:.82rem;color:#495057;font-style:italic"><?= esc($enc->competition) ?></span>
-                    <?php else: ?>
+                    <?php elseif (!in_array($enc->encounter_type, ['cdr', 'intm'], true)): ?>
                         <span class="text-muted">—</span>
                     <?php endif; ?>
                 </td>
