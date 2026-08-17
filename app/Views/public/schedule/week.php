@@ -374,14 +374,13 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             </div>
 
             <div class="comp-col">
-                <?php if ($enc->encounter_type === 'cdr'): ?>
-                    <span class="badge-cdr d-block" style="width:fit-content">CDR</span>
-                <?php elseif ($enc->encounter_type === 'intm'): ?>
-                    <span class="badge-intm d-block" style="width:fit-content">INTM</span>
-                <?php endif; ?>
-                <?php if ($enc->competition): ?>
+                <?php if (in_array($enc->encounter_type, ['cdr', 'intm'], true)): ?>
+                    <span class="<?= $enc->encounter_type === 'cdr' ? 'badge-cdr' : 'badge-intm' ?> d-block" style="width:fit-content">
+                        <?= esc($enc->competition ?: strtoupper($enc->encounter_type)) ?>
+                    </span>
+                <?php elseif ($enc->competition): ?>
                     <span class="comp-label"><?= esc($enc->competition) ?></span>
-                <?php elseif (!in_array($enc->encounter_type, ['cdr', 'intm'], true)): ?>
+                <?php else: ?>
                     <span class="text-muted" style="font-size:.8rem">—</span>
                 <?php endif; ?>
             </div>

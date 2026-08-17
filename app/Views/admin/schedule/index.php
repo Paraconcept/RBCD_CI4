@@ -269,14 +269,13 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     <?php endif; ?>
                 </td>
                 <td class="align-middle">
-                    <?php if ($enc->encounter_type === 'cdr'): ?>
-                        <span class="badge-cdr d-block" style="width:fit-content">CDR</span>
-                    <?php elseif ($enc->encounter_type === 'intm'): ?>
-                        <span class="badge-intm d-block" style="width:fit-content">INTM</span>
-                    <?php endif; ?>
-                    <?php if ($enc->competition): ?>
+                    <?php if (in_array($enc->encounter_type, ['cdr', 'intm'], true)): ?>
+                        <span class="<?= $enc->encounter_type === 'cdr' ? 'badge-cdr' : 'badge-intm' ?> d-block" style="width:fit-content">
+                            <?= esc($enc->competition ?: strtoupper($enc->encounter_type)) ?>
+                        </span>
+                    <?php elseif ($enc->competition): ?>
                         <span style="font-size:.82rem;color:#495057;font-style:italic"><?= esc($enc->competition) ?></span>
-                    <?php elseif (!in_array($enc->encounter_type, ['cdr', 'intm'], true)): ?>
+                    <?php else: ?>
                         <span class="text-muted">—</span>
                     <?php endif; ?>
                 </td>
