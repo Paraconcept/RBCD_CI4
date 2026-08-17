@@ -190,17 +190,20 @@ $teamAway      = $isTeamType && !empty($existingPlayers) ? ($existingPlayers[0]-
                 <h6 class="font-weight-bold mb-3"><i class="fas fa-users mr-1"></i> Équipes</h6>
                 <div class="form-row align-items-center">
                     <div class="col-md-5 form-group">
-                        <label>Équipe domicile</label>
+                        <label>Équipe RBCD</label>
                         <input type="text" name="team_home" class="form-control"
-                               placeholder="ex: RBCD A" value="<?= esc(old('team_home', $teamHome)) ?>">
+                               placeholder="ex: DISON 3" value="<?= esc(old('team_home', $teamHome)) ?>">
                     </div>
                     <div class="col-md-2 text-center text-muted d-none d-md-block" style="margin-top:1.9rem">vs</div>
                     <div class="col-md-5 form-group">
                         <label>Équipe adverse</label>
                         <input type="text" name="team_away" class="form-control"
-                               placeholder="ex: BC Herstalien" value="<?= esc(old('team_away', $teamAway)) ?>">
+                               placeholder="ex: RWBC 1" value="<?= esc(old('team_away', $teamAway)) ?>">
                     </div>
                 </div>
+                <small class="text-muted d-block mt-1">
+                    L'équipe RBCD est toujours affichée en gras dans le tableau, que ce soit à domicile ou en déplacement — utilisez le champ « Lieu » ci-dessus pour préciser Domicile/Déplacement.
+                </small>
             </div>
 
             <!-- Joueurs -->

@@ -9,6 +9,12 @@
 .enc-row        { transition:background .15s; }
 .enc-home:hover { background: #d0f7d3; }
 .enc-away:hover { background: #dc656d47; }
+.enc-cdr       { background: rgba(92,23,111,.06); }
+.enc-cdr > td:first-child { border-left: 4px solid #5C176F; }
+.enc-cdr:hover { background: rgba(92,23,111,.12); }
+.enc-intm      { background: rgba(13,71,161,.06); }
+.enc-intm > td:first-child { border-left: 4px solid #0D47A1; }
+.enc-intm:hover { background: rgba(13,71,161,.12); }
 
 .arb-name      { font-weight:600; }
 .day-card      { margin-bottom:1.25rem; overflow:hidden; }
@@ -27,7 +33,7 @@
 
 .col-actions { border-left:2px solid rgba(0,0,0,.08); border-right:2px solid rgba(0,0,0,.08); padding:0 .8rem; }
 
-.badge-cdr  { display:inline-block; background:#6f42c1; color:#fff; border-radius:10px; padding:1px 8px; font-size:.72rem; font-weight:600; margin-bottom:2px; }
+.badge-cdr  { display:inline-block; background:#5C176F; color:#fff; border-radius:10px; padding:1px 8px; font-size:.72rem; font-weight:600; margin-bottom:2px; }
 .badge-intm { display:inline-block; background:#0D47A1; color:#fff; border-radius:10px; padding:1px 8px; font-size:.72rem; font-weight:600; margin-bottom:2px; }
 
 /* Événements */
@@ -217,7 +223,14 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
             </thead>
             <tbody>
             <?php foreach ($dayEncounters as $enc): ?>
-            <tr class="enc-row <?= $enc->is_home ? 'enc-home' : 'enc-away' ?>">
+            <?php
+            $encRowClass = match ($enc->encounter_type) {
+                'cdr'   => 'enc-cdr',
+                'intm'  => 'enc-intm',
+                default => ($enc->is_home ? 'enc-home' : 'enc-away'),
+            };
+            ?>
+            <tr class="enc-row <?= $encRowClass ?>">
                 <td class="align-middle">
                     <span class="time-badge"><?= esc(substr($enc->match_time, 0, 5)) ?></span>
                 </td>

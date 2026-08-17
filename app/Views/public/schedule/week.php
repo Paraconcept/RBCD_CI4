@@ -43,6 +43,10 @@
 .enc-block.away { border-left:4px solid var(--clr-away); background: #DC656D24; transition:background .15s; }
 .enc-block.home:hover { background: #d0f7d3; }
 .enc-block.away:hover { background: #dc656d47; }
+.enc-block.cdr  { border-left:4px solid #5C176F; background:rgba(92,23,111,.06); }
+.enc-block.cdr:hover  { background:rgba(92,23,111,.12); }
+.enc-block.intm { border-left:4px solid #0D47A1; background:rgba(13,71,161,.06); }
+.enc-block.intm:hover { background:rgba(13,71,161,.12); }
 
 /* Time badge */
 .time-pill {
@@ -83,7 +87,7 @@
 /* Badge Finale */
 .badge-finale { display:inline-block; background:#ffc107; color:#000; border-radius:10px;
                 padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
-.badge-cdr  { display:inline-block; background:#6f42c1; color:#fff; border-radius:10px;
+.badge-cdr  { display:inline-block; background:#5C176F; color:#fff; border-radius:10px;
               padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
 .badge-intm { display:inline-block; background:#0D47A1; color:#fff; border-radius:10px;
               padding:1px 8px; font-size:.73rem; font-weight:600; margin-bottom:3px; }
@@ -324,8 +328,13 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
         <?php
         $isFinale = $enc->encounter_type === 'finale';
         $myArb    = $enc->myArb;
+        $encRowClass = match ($enc->encounter_type) {
+            'cdr'   => 'cdr',
+            'intm'  => 'intm',
+            default => ($enc->is_home ? 'home' : 'away'),
+        };
         ?>
-        <div class="enc-block <?= $enc->is_home ? 'home' : 'away' ?>" data-encounter="<?= $enc->id ?>">
+        <div class="enc-block <?= $encRowClass ?>" data-encounter="<?= $enc->id ?>">
 
             <div><span class="time-pill"><?= esc(substr($enc->match_time, 0, 5)) ?></span></div>
 
