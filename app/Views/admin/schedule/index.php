@@ -103,6 +103,25 @@ $periodStr = $monday->format('j') . ' ' . $frMonths[(int)$monday->format('n')-1]
 
 $nowDt = new \DateTime();
 $isCurrentWeek = ($week == (int)$nowDt->format('W') && $year == (int)$nowDt->format('o'));
+
+// Saison août → juillet : générer toutes les semaines
+$seasonStartYear = (int)$nowDt->format('n') >= 8 ? (int)$nowDt->format('Y') : (int)$nowDt->format('Y') - 1;
+$aug1  = new \DateTime($seasonStartYear       . '-08-01');
+$jul31 = new \DateTime(($seasonStartYear + 1) . '-07-31');
+$seasonWeeks = [];
+$swDt  = (new \DateTime())->setISODate((int)$aug1->format('o'),  (int)$aug1->format('W'),  1);
+$swEnd = (new \DateTime())->setISODate((int)$jul31->format('o'), (int)$jul31->format('W'), 1);
+while ($swDt <= $swEnd) {
+    $sw    = (int)$swDt->format('W');
+    $sy    = (int)$swDt->format('o');
+    $swSun = (clone $swDt)->modify('+6 days');
+    $seasonWeeks[] = [
+        'week'  => $sw,
+        'year'  => $sy,
+        'label' => "Semaine {$sw} — du " . $swDt->format('d-m-Y') . ' au ' . $swSun->format('d-m-Y'),
+    ];
+    $swDt->modify('+1 week');
+}
 ?>
 
 <!-- Navigation semaine -->
@@ -125,9 +144,19 @@ $isCurrentWeek = ($week == (int)$nowDt->format('W') && $year == (int)$nowDt->for
         </a>
     </div>
     <div class="text-center">
-        <span class="badge badge-primary" style="font-size:1rem;padding:.5rem 1rem;">
-            Semaine <?= $week ?> — <?= esc($periodStr) ?>
-        </span>
+        <div style="font-size:1.1rem;font-weight:700;">Semaine <?= $week ?></div>
+        <div class="text-muted" style="font-size:.9rem"><?= esc($periodStr) ?></div>
+        <div class="mt-2">
+            <select class="custom-select custom-select-sm" style="width:auto;display:inline-block"
+                    onchange="location.href=this.value">
+                <?php foreach ($seasonWeeks as $sw): ?>
+                <option value="<?= base_url("admin/schedule/{$sw['week']}/{$sw['year']}") ?>"
+                        <?= ($sw['week'] == $week && $sw['year'] == $year) ? 'selected' : '' ?>>
+                    <?= esc($sw['label']) ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
     </div>
 </div>
 
