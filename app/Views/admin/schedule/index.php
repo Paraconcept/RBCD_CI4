@@ -6,6 +6,8 @@
 .enc-home > td:first-child { border-left: 4px solid #28a745; }
 .enc-away > td:first-child { border-left: 4px solid #c6000d; }
 .text-away     { color: #c6000d; }
+.text-away-cdr  { color: #5C176F; }
+.text-away-intm { color: #0D47A1; }
 .enc-row        { transition:background .15s; }
 .enc-home:hover { background: #d0f7d3; }
 .enc-away:hover { background: #dc656d47; }
@@ -21,7 +23,7 @@
 .time-badge    { font-size:.82rem; background:#e9ecef; color:#343a40; border-radius:4px; padding:2px 7px; white-space:nowrap; }
 .loc-cell      { display:flex; align-items:flex-start; gap:5px; }
 .loc-cell i    { margin-top:2px; flex-shrink:0; }
-.loc-venue     { font-size:.72rem; color:#c6000d; line-height:1.3; }
+.loc-venue     { font-size:.72rem; line-height:1.3; }
 .match-line    { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:4px; font-size:.88rem; margin-bottom:2px; }
 .player-home   { text-align:right; }
 .player-away   { text-align:left; }
@@ -234,14 +236,21 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                 <td class="align-middle">
                     <span class="time-badge"><?= esc(substr($enc->match_time, 0, 5)) ?></span>
                 </td>
+                <?php
+                $locAwayClass = match ($enc->encounter_type) {
+                    'cdr'   => 'text-away-cdr',
+                    'intm'  => 'text-away-intm',
+                    default => 'text-away',
+                };
+                ?>
                 <td class="align-middle">
                     <div class="loc-cell">
                         <?php if ($enc->is_home): ?>
                             <i class="fas fa-home text-success" title="À domicile"></i>
                         <?php else: ?>
-                            <i class="fas fa-car-side text-away mr-3" title="En déplacement"></i>
+                            <i class="fas fa-car-side <?= $locAwayClass ?> mr-3" title="En déplacement"></i>
                             <?php if ($enc->venue): ?>
-                                <span class="loc-venue"><?= esc($enc->venue) ?></span>
+                                <span class="loc-venue <?= $locAwayClass ?>"><?= esc($enc->venue) ?></span>
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>

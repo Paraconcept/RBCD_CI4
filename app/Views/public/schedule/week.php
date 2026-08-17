@@ -62,6 +62,8 @@
 .loc-home { color:var(--clr-home); }
 .loc-away { color:var(--clr-away); }
 .loc-venue { font-size:.72rem; color:var(--clr-away); line-height:1.3; font-weight:700; }
+.loc-away-cdr  { color:#5C176F; }
+.loc-away-intm { color:#0D47A1; }
 
 /* Players */
 .players-col { line-height:1.6; }
@@ -338,13 +340,20 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
 
             <div><span class="time-pill"><?= esc(substr($enc->match_time, 0, 5)) ?></span></div>
 
+            <?php
+            $locAwayClass = match ($enc->encounter_type) {
+                'cdr'   => 'loc-away-cdr',
+                'intm'  => 'loc-away-intm',
+                default => 'loc-away',
+            };
+            ?>
             <div class="loc-icon">
                 <?php if ($enc->is_home): ?>
                     <i class="fas fa-home loc-home" title="À domicile"></i>
                 <?php else: ?>
-                    <i class="fas fa-car-side loc-away me-3" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
+                    <i class="fas fa-car-side <?= $locAwayClass ?> me-3" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
                     <?php if ($enc->venue): ?>
-                        <span class="loc-venue"><?= esc($enc->venue) ?></span>
+                        <span class="loc-venue <?= $locAwayClass ?>"><?= esc($enc->venue) ?></span>
                     <?php endif; ?>
                 <?php endif; ?>
             </div>
