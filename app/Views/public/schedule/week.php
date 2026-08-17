@@ -64,6 +64,8 @@
 .loc-venue { font-size:.72rem; color:var(--clr-away); line-height:1.3; font-weight:700; }
 .loc-away-cdr  { color:#5C176F; }
 .loc-away-intm { color:#0D47A1; }
+.loc-home-cdr  { color:#5C176F; }
+.loc-home-intm { color:#0D47A1; }
 
 /* Players */
 .players-col { line-height:1.6; }
@@ -341,6 +343,12 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             <div><span class="time-pill"><?= esc(substr($enc->match_time, 0, 5)) ?></span></div>
 
             <?php
+            $isTeamType   = in_array($enc->encounter_type, ['cdr', 'intm'], true);
+            $locHomeClass = match ($enc->encounter_type) {
+                'cdr'   => 'loc-home-cdr',
+                'intm'  => 'loc-home-intm',
+                default => 'loc-home',
+            };
             $locAwayClass = match ($enc->encounter_type) {
                 'cdr'   => 'loc-away-cdr',
                 'intm'  => 'loc-away-intm',
@@ -349,7 +357,10 @@ $barAmLabel   = $isSunday ? 'Bar matin' : 'Bar après-midi';
             ?>
             <div class="loc-icon">
                 <?php if ($enc->is_home): ?>
-                    <i class="fas fa-home loc-home" title="À domicile"></i>
+                    <i class="fas fa-home <?= $locHomeClass ?> me-3" title="À domicile"></i>
+                    <?php if ($isTeamType): ?>
+                        <span class="loc-venue <?= $locHomeClass ?>">Dison</span>
+                    <?php endif; ?>
                 <?php else: ?>
                     <i class="fas fa-car-side <?= $locAwayClass ?> me-3" title="<?= esc($enc->venue ?? 'En déplacement') ?>"></i>
                     <?php if ($enc->venue): ?>

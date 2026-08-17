@@ -8,6 +8,8 @@
 .text-away     { color: #c6000d; }
 .text-away-cdr  { color: #5C176F; }
 .text-away-intm { color: #0D47A1; }
+.text-home-cdr  { color: #5C176F; }
+.text-home-intm { color: #0D47A1; }
 .enc-row        { transition:background .15s; }
 .enc-home:hover { background: #d0f7d3; }
 .enc-away:hover { background: #dc656d47; }
@@ -237,6 +239,12 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                     <span class="time-badge"><?= esc(substr($enc->match_time, 0, 5)) ?></span>
                 </td>
                 <?php
+                $isTeamType   = in_array($enc->encounter_type, ['cdr', 'intm'], true);
+                $locHomeClass = match ($enc->encounter_type) {
+                    'cdr'   => 'text-home-cdr',
+                    'intm'  => 'text-home-intm',
+                    default => 'text-success',
+                };
                 $locAwayClass = match ($enc->encounter_type) {
                     'cdr'   => 'text-away-cdr',
                     'intm'  => 'text-away-intm',
@@ -246,7 +254,10 @@ $hasContent = !empty($dayEncounters) || $barAm || $barSoir;
                 <td class="align-middle">
                     <div class="loc-cell">
                         <?php if ($enc->is_home): ?>
-                            <i class="fas fa-home text-success" title="À domicile"></i>
+                            <i class="fas fa-home <?= $locHomeClass ?> mr-3" title="À domicile"></i>
+                            <?php if ($isTeamType): ?>
+                                <span class="loc-venue <?= $locHomeClass ?>">Dison</span>
+                            <?php endif; ?>
                         <?php else: ?>
                             <i class="fas fa-car-side <?= $locAwayClass ?> mr-3" title="En déplacement"></i>
                             <?php if ($enc->venue): ?>
