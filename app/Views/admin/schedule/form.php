@@ -188,21 +188,22 @@ $teamAway      = $isTeamType && !empty($existingPlayers) ? ($existingPlayers[0]-
             <!-- Équipes (CDR / INTM) -->
             <div id="teamsSection" <?= !$isTeamType ? 'style="display:none"' : '' ?>>
                 <h6 class="font-weight-bold mb-3"><i class="fas fa-users mr-1"></i> Équipes</h6>
-                <div class="form-row align-items-center">
-                    <div class="col-md-5 form-group">
+                <div class="form-row align-items-center" id="teamsRow">
+                    <div class="col-md-5 form-group" id="teamHomeCol">
                         <label>Équipe RBCD</label>
                         <input type="text" name="team_home" class="form-control"
                                placeholder="ex: DISON 3" value="<?= esc(old('team_home', $teamHome)) ?>">
                     </div>
-                    <div class="col-md-2 text-center text-muted d-none d-md-block" style="margin-top:1.9rem">vs</div>
-                    <div class="col-md-5 form-group">
+                    <div class="col-md-2 text-center text-muted d-none d-md-block" style="margin-top:1.9rem;order:2">vs</div>
+                    <div class="col-md-5 form-group" id="teamAwayCol">
                         <label>Équipe adverse</label>
                         <input type="text" name="team_away" class="form-control"
                                placeholder="ex: RWBC 1" value="<?= esc(old('team_away', $teamAway)) ?>">
                     </div>
                 </div>
                 <small class="text-muted d-block mt-1">
-                    L'équipe RBCD est toujours affichée en gras dans le tableau, que ce soit à domicile ou en déplacement — utilisez le champ « Lieu » ci-dessus pour préciser Domicile/Déplacement.
+                    L'équipe RBCD est toujours affichée en gras dans le tableau. Sa position (gauche/droite)
+                    suit le lieu choisi ci-dessus — Domicile ou Déplacement — comme dans le tableau des rencontres.
                 </small>
             </div>
 
@@ -356,8 +357,18 @@ $teamAway      = $isTeamType && !empty($existingPlayers) ? ($existingPlayers[0]-
 document.querySelectorAll('input[name="is_home"]').forEach(radio => {
     radio.addEventListener('change', function() {
         document.getElementById('venueGroup').style.display = this.value === '0' ? '' : 'none';
+        updateTeamOrder();
     });
 });
+
+// ── Équipes CDR/INTM : l'équipe RBCD suit le lieu (gauche = domicile, droite = déplacement) ──
+function updateTeamOrder() {
+    const isHomeRadio = document.querySelector('input[name="is_home"]:checked');
+    const isHome = !isHomeRadio || isHomeRadio.value === '1';
+    document.getElementById('teamHomeCol').style.order = isHome ? '1' : '3';
+    document.getElementById('teamAwayCol').style.order = isHome ? '3' : '1';
+}
+updateTeamOrder();
 
 // ── Toggle Normal / Finale ──
 let currentType = '<?= $encType ?>';
