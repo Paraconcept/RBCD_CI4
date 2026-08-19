@@ -42,7 +42,7 @@ class TreasuryExpenseModel extends Model
             ->select('te.*, m.last_name, m.first_name')
             ->join('members m', 'm.id = te.member_id', 'left')
             ->where('YEAR(te.expense_date)', $year)
-            ->orderBy('te.expense_date', 'DESC')
+            ->orderBy('te.expense_date', 'ASC')
             ->get()->getResultObject();
     }
 
@@ -77,7 +77,7 @@ class TreasuryExpenseModel extends Model
             ->join('members m', 'm.id = te.member_id', 'left')
             ->where('YEAR(te.expense_date)', $year)
             ->where('MONTH(te.expense_date)', $month)
-            ->orderBy('te.expense_date', 'DESC')
+            ->orderBy('te.expense_date', 'ASC')
             ->get()->getResultObject();
     }
 

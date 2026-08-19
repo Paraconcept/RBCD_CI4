@@ -36,6 +36,6 @@ class TreasuryEnvelopeModel extends Model
         if ($year)  { $builder->where('YEAR(te.date)',  $year);  }
         if ($month) { $builder->where('MONTH(te.date)', $month); }
 
-        return $builder->orderBy('te.date', 'DESC')->get()->getResultObject();
+        return $builder->orderBy('te.date', 'ASC')->get()->getResultObject();
     }
 }

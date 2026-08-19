@@ -32,7 +32,7 @@ class TreasuryRevenueModel extends Model
             ->select('tr.*, m.last_name, m.first_name')
             ->join('members m', 'm.id = tr.member_id', 'left')
             ->where('YEAR(tr.revenue_date)', $year)
-            ->orderBy('tr.revenue_date', 'DESC')
+            ->orderBy('tr.revenue_date', 'ASC')
             ->get()->getResultObject();
     }
 
@@ -67,7 +67,7 @@ class TreasuryRevenueModel extends Model
             ->join('members m', 'm.id = tr.member_id', 'left')
             ->where('YEAR(tr.revenue_date)', $year)
             ->where('MONTH(tr.revenue_date)', $month)
-            ->orderBy('tr.revenue_date', 'DESC')
+            ->orderBy('tr.revenue_date', 'ASC')
             ->get()->getResultObject();
     }
 
