@@ -175,7 +175,7 @@ $(function () {
 
     <?php if (!empty($rows)): ?>
     $('#revenuesTable').DataTable({
-        order: [[0, 'desc']],
+        order: [[0, 'asc']],
         pageLength: 25,
         columnDefs: [{
             targets: 0,
