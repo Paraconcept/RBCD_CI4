@@ -12,9 +12,12 @@ class TreasuryEnvelopeModel extends Model
 
     protected $allowedFields = [
         'name', 'date', 'category', 'amount_calculated', 'amount_found',
-        'amount_6pct', 'amount_12pct', 'amount_sumup',
+        'amount_6pct', 'amount_12pct', 'amount_21pct_g', 'amount_sumup',
         'closed_by_member_id', 'encoded_by_member_id', 'modified_by_member_id', 'notes',
     ];
+
+    // TVA : ventilation 6%/12%/21% (boissons) jusqu'au 30/06/2026, puis G (gougouilles) / B (bar) à 21% depuis le 01/07/2026.
+    public const VAT_CUTOFF = '2026-07-01';
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

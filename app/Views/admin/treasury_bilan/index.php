@@ -227,16 +227,15 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                     <th rowspan="2" style="width:100px;vertical-align:middle">Mois</th>
                     <th class="text-right" rowspan="2" style="vertical-align:middle">Rec. man.</th>
                     <th class="text-right" rowspan="2" style="vertical-align:middle">Cotisations</th>
-                    <th class="text-center" colspan="3" style="border-left:2px solid #adb5bd;border-right:2px solid #adb5bd">Bar</th>
+                    <th class="text-center" colspan="2" style="border-left:2px solid #adb5bd;border-right:2px solid #adb5bd">Bar</th>
                     <th class="text-right text-success" rowspan="2" style="vertical-align:middle">Σ Recettes</th>
                     <th class="text-right text-danger" rowspan="2" style="vertical-align:middle">Dépenses</th>
                     <th class="text-right" rowspan="2" style="vertical-align:middle">Solde</th>
                     <th rowspan="2" style="width:40px;vertical-align:middle"></th>
                 </tr>
                 <tr>
-                    <th class="text-right" style="border-left:2px solid #adb5bd">6%</th>
-                    <th class="text-right">12%</th>
-                    <th class="text-right" style="border-right:2px solid #adb5bd">21%</th>
+                    <th class="text-right" style="border-left:2px solid #adb5bd">21%-G</th>
+                    <th class="text-right" style="border-right:2px solid #adb5bd">21%-B</th>
                 </tr>
             </thead>
             <tbody>
@@ -244,9 +243,8 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                     $rMan  = $revManualByMonthN[$m] ?? 0;
                     $rCot  = $cotisMonthlyN[$m]     ?? 0;
                     $rEnv  = $envMonthlyN[$m]        ?? 0;
-                    $r6    = $env6ByMonthN[$m]       ?? 0;
-                    $r12   = $env12ByMonthN[$m]      ?? 0;
-                    $r21   = $env21ByMonthN[$m]      ?? 0;
+                    $rG    = $envGByMonthN[$m]       ?? 0;
+                    $rB    = $envBByMonthN[$m]       ?? 0;
                     $rAll  = $rMan + $rCot + $rEnv;
                     $eN    = $expByMonthN[$m]         ?? 0;
                     $sN    = $rAll - $eN;
@@ -256,9 +254,8 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                     <td class="font-weight-bold text-right" style="padding-right:8px"><?= $months[$m - 1] ?></td>
                     <td class="text-right text-muted"><?= $rMan > 0 ? $fmt($rMan) : '—' ?></td>
                     <td class="text-right text-muted"><?= $rCot > 0 ? $fmt($rCot) : '—' ?></td>
-                    <td class="text-right text-muted" style="border-left:2px solid #adb5bd"><?= $r6  > 0 ? $fmt($r6)  : '—' ?></td>
-                    <td class="text-right text-muted"><?= $r12 > 0 ? $fmt($r12) : '—' ?></td>
-                    <td class="text-right text-muted" style="border-right:2px solid #adb5bd"><?= $r21 > 0 ? $fmt($r21) : '—' ?></td>
+                    <td class="text-right text-muted" style="border-left:2px solid #adb5bd"><?= $rG > 0 ? $fmt($rG) : '—' ?></td>
+                    <td class="text-right text-muted" style="border-right:2px solid #adb5bd"><?= $rB > 0 ? $fmt($rB) : '—' ?></td>
                     <td class="text-right <?= $rAll > 0 ? 'text-success font-weight-bold' : 'text-muted' ?>">
                         <?= $rAll > 0 ? $fmt($rAll) : '—' ?>
                     </td>
@@ -286,9 +283,8 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                     <td class="font-weight-bold">TOTAL</td>
                     <td class="text-right"><?= $fmt($totalRevManualN) ?></td>
                     <td class="text-right"><?= $fmt($totalCotisN) ?></td>
-                    <td class="text-right" style="border-left:2px solid #adb5bd"><?= array_sum($env6ByMonthN)  > 0 ? $fmt(array_sum($env6ByMonthN))  : '—' ?></td>
-                    <td class="text-right"><?= array_sum($env12ByMonthN) > 0 ? $fmt(array_sum($env12ByMonthN)) : '—' ?></td>
-                    <td class="text-right" style="border-right:2px solid #adb5bd"><?= $fmt(array_sum($env21ByMonthN)) ?></td>
+                    <td class="text-right" style="border-left:2px solid #adb5bd"><?= array_sum($envGByMonthN) > 0 ? $fmt(array_sum($envGByMonthN)) : '—' ?></td>
+                    <td class="text-right" style="border-right:2px solid #adb5bd"><?= array_sum($envBByMonthN) > 0 ? $fmt(array_sum($envBByMonthN)) : '—' ?></td>
                     <td class="text-right font-weight-bold text-success"><?= $fmt($totalRevAllN) ?></td>
                     <td class="text-right font-weight-bold text-danger"><?= $fmt($totalExpN) ?></td>
                     <td class="text-right font-weight-bold <?= $soldeN >= 0 ? 'text-success' : 'text-danger' ?>"><?= $fmt($soldeN) ?></td>

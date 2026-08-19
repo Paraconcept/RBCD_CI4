@@ -2,9 +2,10 @@
 <?= $this->section('content') ?>
 
 <?php
-$isEdit = $envelope !== null;
-$errors = session()->getFlashdata('errors') ?? [];
-$v      = fn($f, $default = '') => old($f, $isEdit ? ($envelope->$f ?? $default) : $default);
+$isEdit      = $envelope !== null;
+$isLegacyVat = $isEdit && ($isLegacyVat ?? false);
+$errors      = session()->getFlashdata('errors') ?? [];
+$v           = fn($f, $default = '') => old($f, $isEdit ? ($envelope->$f ?? $default) : $default);
 
 if ($isEdit) {
     $ecartVal   = (float)$envelope->amount_found + (float)$envelope->amount_sumup - (float)$envelope->amount_calculated;
@@ -150,6 +151,7 @@ $todayPrefix = 'E' . date('d.m.');
                         <h6 class="card-title mb-0"><i class="fas fa-percentage mr-1"></i>Détail TVA du montant trouvé <small class="text-muted">(facultatif)</small></h6>
                     </div>
                     <div class="card-body py-2">
+                        <?php if ($isLegacyVat): ?>
                         <div class="row align-items-end">
                             <div class="col-12 col-lg mb-2 mb-lg-0">
                                 <div class="form-group mb-0">
@@ -185,6 +187,31 @@ $todayPrefix = 'E' . date('d.m.');
                                 </div>
                             </div>
                         </div>
+                        <?php else: ?>
+                        <div class="row align-items-end">
+                            <div class="col-12 col-lg mb-2 mb-lg-0">
+                                <div class="form-group mb-0">
+                                    <label class="small">Montant 21% — G (Gougouilles) (€)</label>
+                                    <input type="number" name="amount_21pct_g" id="amount_21pct_g"
+                                           class="form-control text-right form-control-sm <?= isset($errors['amount_21pct_g']) ? 'is-invalid' : '' ?>"
+                                           step="0.01" min="0" placeholder="0,00"
+                                           value="<?= esc($v('amount_21pct_g', '')) ?>">
+                                    <?php if (isset($errors['amount_21pct_g'])): ?>
+                                        <div class="invalid-feedback"><?= $errors['amount_21pct_g'] ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg">
+                                <div class="form-group mb-0">
+                                    <label class="small">Montant 21% — B (Bar) (€) <em class="text-muted">(calculé)</em></label>
+                                    <input type="text" id="amount_21pct_display"
+                                           class="form-control text-right form-control-sm bg-light"
+                                           value="<?php if ($isEdit): $amtB = (float)$envelope->amount_found - (float)($envelope->amount_21pct_g ?? 0); echo number_format($amtB, 2, ',', ' ') . ' €'; else: ?>0,00 €<?php endif; ?>"
+                                           readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -275,17 +302,25 @@ $(function () {
     updateNameOptions(false); // page load : respecte la valeur PHP old()
     <?php endif; ?>
 
+    const isLegacyVat = <?= $isLegacyVat ? 'true' : 'false' ?>;
+
     function calcAll() {
         const calc   = parseFloat($('#amount_calculated').val()) || 0;
         const found  = parseFloat($('#amount_found').val()) || 0;
-        const pct6   = parseFloat($('#amount_6pct').val())  || 0;
-        const pct12  = parseFloat($('#amount_12pct').val()) || 0;
         const sumup  = parseFloat($('#amount_sumup').val()) || 0;
 
-        const pct21 = found - pct6 - pct12;
+        let remainder;
+        if (isLegacyVat) {
+            const pct6  = parseFloat($('#amount_6pct').val())  || 0;
+            const pct12 = parseFloat($('#amount_12pct').val()) || 0;
+            remainder = found - pct6 - pct12;
+        } else {
+            const pctG = parseFloat($('#amount_21pct_g').val()) || 0;
+            remainder = found - pctG;
+        }
         $('#amount_21pct_display').val(
-            (pct21 < 0 ? '⚠ ' : '') + pct21.toFixed(2).replace('.', ',') + ' €'
-        ).toggleClass('text-danger', pct21 < 0);
+            (remainder < 0 ? '⚠ ' : '') + remainder.toFixed(2).replace('.', ',') + ' €'
+        ).toggleClass('text-danger', remainder < 0);
 
         const ecart = (found + sumup) - calc;
         const sign  = ecart >= 0 ? '+' : '';
@@ -295,7 +330,8 @@ $(function () {
             .addClass(ecart === 0 ? 'badge-success' : 'badge-danger');
     }
 
-    $('#amount_calculated, #amount_found, #amount_6pct, #amount_12pct, #amount_sumup').on('input', calcAll);
+    const vatFields = isLegacyVat ? '#amount_6pct, #amount_12pct' : '#amount_21pct_g';
+    $('#amount_calculated, #amount_found, #amount_sumup').add(vatFields).on('input', calcAll);
     calcAll();
 
     $('form').on('submit', function (e) {

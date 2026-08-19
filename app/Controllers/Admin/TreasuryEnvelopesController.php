@@ -47,16 +47,18 @@ class TreasuryEnvelopesController extends BaseController
                     'label'      => $monthNames[$m] . ' ' . date('Y', strtotime($r->date)),
                     'calculated' => 0.0,
                     'found'      => 0.0,
-                    'pct6'       => 0.0,
-                    'pct12'      => 0.0,
+                    'pctG'       => 0.0,
                     'sumup'      => 0.0,
                     'rows'       => [],
                 ];
             }
+            $rG = $r->date < TreasuryEnvelopeModel::VAT_CUTOFF
+                ? (float) ($r->amount_6pct ?? 0) + (float) ($r->amount_12pct ?? 0)
+                : (float) ($r->amount_21pct_g ?? 0);
+
             $byMonth[$key]['calculated'] += (float) $r->amount_calculated;
             $byMonth[$key]['found']      += (float) $r->amount_found;
-            $byMonth[$key]['pct6']       += (float) ($r->amount_6pct  ?? 0);
-            $byMonth[$key]['pct12']      += (float) ($r->amount_12pct ?? 0);
+            $byMonth[$key]['pctG']       += $rG;
             $byMonth[$key]['sumup']      += (float) $r->amount_sumup;
             $byMonth[$key]['rows'][]      = $r;
         }
@@ -100,10 +102,11 @@ class TreasuryEnvelopesController extends BaseController
                 ['title' => 'Enveloppes', 'url' => base_url('admin/treasury/envelopes')],
                 ['title' => 'Nouvelle'],
             ],
-            'envelope'   => null,
-            'keyHolders' => $this->keyModel->getActiveKeyHolders(),
-            'formAction' => base_url('admin/treasury/envelopes'),
-            'usedNames'  => $this->getUsedNames(),
+            'envelope'    => null,
+            'isLegacyVat' => false,
+            'keyHolders'  => $this->keyModel->getActiveKeyHolders(),
+            'formAction'  => base_url('admin/treasury/envelopes'),
+            'usedNames'   => $this->getUsedNames(),
         ]);
     }
 
@@ -114,8 +117,7 @@ class TreasuryEnvelopesController extends BaseController
             'name_seq'            => 'required|in_list[01,02,03,04,05]',
             'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
             'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
-            'amount_6pct'         => 'permit_empty|decimal|greater_than_equal_to[0]',
-            'amount_12pct'        => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'amount_21pct_g'      => 'permit_empty|decimal|greater_than_equal_to[0]',
             'amount_sumup'        => 'required|decimal|greater_than_equal_to[0]',
             'closed_by_member_id' => 'required|is_natural_no_zero',
         ])) {
@@ -153,40 +155,54 @@ class TreasuryEnvelopesController extends BaseController
                 ['title' => 'Enveloppes', 'url' => base_url('admin/treasury/envelopes')],
                 ['title' => 'Modifier'],
             ],
-            'envelope'   => $envelope,
-            'keyHolders' => $this->keyModel->getActiveKeyHolders(),
-            'formAction' => base_url('admin/treasury/envelopes/' . $id . '/update'),
+            'envelope'    => $envelope,
+            'isLegacyVat' => $envelope->date < TreasuryEnvelopeModel::VAT_CUTOFF,
+            'keyHolders'  => $this->keyModel->getActiveKeyHolders(),
+            'formAction'  => base_url('admin/treasury/envelopes/' . $id . '/update'),
         ]);
     }
 
     public function update(int $id)
     {
-        if (!$this->model->find($id)) {
+        $envelope = $this->model->find($id);
+        if (!$envelope) {
             return redirect()->to(base_url('admin/treasury/envelopes'))->with('error', 'Enveloppe introuvable.');
         }
 
-        if (!$this->validate([
+        $isLegacyVat = $envelope->date < TreasuryEnvelopeModel::VAT_CUTOFF;
+
+        if (!$this->validate(array_merge([
             'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
             'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
-            'amount_6pct'         => 'permit_empty|decimal|greater_than_equal_to[0]',
-            'amount_12pct'        => 'permit_empty|decimal|greater_than_equal_to[0]',
             'amount_sumup'        => 'required|decimal|greater_than_equal_to[0]',
             'closed_by_member_id' => 'required|is_natural_no_zero',
-        ])) {
+        ], $isLegacyVat ? [
+            'amount_6pct'  => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'amount_12pct' => 'permit_empty|decimal|greater_than_equal_to[0]',
+        ] : [
+            'amount_21pct_g' => 'permit_empty|decimal|greater_than_equal_to[0]',
+        ]))) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
         $post = $this->request->getPost();
-        $this->model->update($id, [
+        $data = [
             'amount_calculated'     => (float) $post['amount_calculated'],
             'amount_found'          => (float) $post['amount_found'],
-            'amount_6pct'           => ($post['amount_6pct']  !== '' && $post['amount_6pct']  !== null) ? (float) $post['amount_6pct']  : null,
-            'amount_12pct'          => ($post['amount_12pct'] !== '' && $post['amount_12pct'] !== null) ? (float) $post['amount_12pct'] : null,
             'amount_sumup'          => (float) $post['amount_sumup'],
             'closed_by_member_id'   => $post['closed_by_member_id'] ?: null,
             'notes'                 => $post['notes'] ?: null,
             'modified_by_member_id' => (int) session()->get('member_id') ?: null,
-        ]);
+        ];
+
+        if ($isLegacyVat) {
+            $data['amount_6pct']  = ($post['amount_6pct']  !== '' && $post['amount_6pct']  !== null) ? (float) $post['amount_6pct']  : null;
+            $data['amount_12pct'] = ($post['amount_12pct'] !== '' && $post['amount_12pct'] !== null) ? (float) $post['amount_12pct'] : null;
+        } else {
+            $data['amount_21pct_g'] = ($post['amount_21pct_g'] !== '' && $post['amount_21pct_g'] !== null) ? (float) $post['amount_21pct_g'] : null;
+        }
+
+        $this->model->update($id, $data);
 
         return redirect()->to(base_url('admin/treasury/envelopes'))->with('success', 'Enveloppe mise à jour.');
     }
@@ -217,8 +233,9 @@ class TreasuryEnvelopesController extends BaseController
             ? strcmp($a->date, $b->date)
             : strcmp($a->name ?? '', $b->name ?? ''));
 
-        $monthAbbr  = ['','janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
-        $monthLabel = $monthAbbr[$month] . '-' . substr((string) $year, 2, 2);
+        $monthAbbr   = ['','janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+        $monthLabel  = $monthAbbr[$month] . '-' . substr((string) $year, 2, 2);
+        $isLegacyVat = ($year < 2026) || ($year === 2026 && $month < 7);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -262,30 +279,44 @@ class TreasuryEnvelopesController extends BaseController
         $sheet->getRowDimension(2)->setRowHeight(16);
 
         // ── En-têtes (ligne 4)
-        foreach (['A' => 'Date', 'B' => 'LIBELLÉ', 'C' => 'Total', 'D' => '6%', 'E' => '12%', 'F' => '21%'] as $col => $label) {
+        $vatCols  = $isLegacyVat
+            ? ['D' => '6%', 'E' => '12%', 'F' => '21%']
+            : ['D' => '21%-G', 'E' => '21%-B'];
+        $lastCol  = $isLegacyVat ? 'F' : 'E';
+        foreach (array_merge(['A' => 'Date', 'B' => 'LIBELLÉ', 'C' => 'Total'], $vatCols) as $col => $label) {
             $sheet->setCellValue($col . '4', $label);
         }
-        $sheet->getStyle('A4:F4')->applyFromArray($colHeaderStyle);
+        $sheet->getStyle("A4:{$lastCol}4")->applyFromArray($colHeaderStyle);
         $sheet->getRowDimension(4)->setRowHeight(18);
 
         // ── Données
         $row = 5;
-        $sumTotal = $sum6 = $sum12 = $sum21 = 0.0;
+        $sumTotal = $sum6 = $sum12 = $sum21 = $sumG = $sumB = 0.0;
 
         foreach ($rows as $r) {
-            $r6    = (float) ($r->amount_6pct  ?? 0);
-            $r12   = (float) ($r->amount_12pct ?? 0);
-            $r21   = (float) $r->amount_found - $r6 - $r12;
             $total = (float) $r->amount_found;
-            $sumTotal += $total; $sum6 += $r6; $sum12 += $r12; $sum21 += $r21;
+            $sumTotal += $total;
 
             $sheet->setCellValue('A' . $row, date('d-m-Y', strtotime($r->date)));
             $sheet->setCellValue('B' . $row, $r->name ?? '');
             $sheet->setCellValue('C' . $row, $fmt($total));
-            $sheet->setCellValue('D' . $row, $r6  > 0 ? $fmt($r6)  : '');
-            $sheet->setCellValue('E' . $row, $r12 > 0 ? $fmt($r12) : '');
-            $sheet->setCellValue('F' . $row, $fmt($r21));
-            $sheet->getStyle("C{$row}:F{$row}")->applyFromArray($rightAlign);
+
+            if ($isLegacyVat) {
+                $r6  = (float) ($r->amount_6pct  ?? 0);
+                $r12 = (float) ($r->amount_12pct ?? 0);
+                $r21 = $total - $r6 - $r12;
+                $sum6 += $r6; $sum12 += $r12; $sum21 += $r21;
+                $sheet->setCellValue('D' . $row, $r6  > 0 ? $fmt($r6)  : '');
+                $sheet->setCellValue('E' . $row, $r12 > 0 ? $fmt($r12) : '');
+                $sheet->setCellValue('F' . $row, $fmt($r21));
+            } else {
+                $rG = (float) ($r->amount_21pct_g ?? 0);
+                $rB = $total - $rG;
+                $sumG += $rG; $sumB += $rB;
+                $sheet->setCellValue('D' . $row, $rG > 0 ? $fmt($rG) : '');
+                $sheet->setCellValue('E' . $row, $fmt($rB));
+            }
+            $sheet->getStyle("C{$row}:{$lastCol}{$row}")->applyFromArray($rightAlign);
             $row++;
         }
 
@@ -294,41 +325,68 @@ class TreasuryEnvelopesController extends BaseController
         // ── TOTAL TVA C
         $sheet->setCellValue("A{$row}", 'TOTAL TVA C');
         $sheet->setCellValue("C{$row}", $fmt($sumTotal));
-        $sheet->setCellValue("D{$row}", $sum6  > 0 ? $fmt($sum6)  : '');
-        $sheet->setCellValue("E{$row}", $sum12 > 0 ? $fmt($sum12) : '');
-        $sheet->setCellValue("F{$row}", $fmt($sum21));
-        $sheet->getStyle("A{$row}:F{$row}")->applyFromArray($totalRowStyle);
-        $sheet->getStyle("C{$row}:F{$row}")->applyFromArray($rightAlign);
+        if ($isLegacyVat) {
+            $sheet->setCellValue("D{$row}", $sum6  > 0 ? $fmt($sum6)  : '');
+            $sheet->setCellValue("E{$row}", $sum12 > 0 ? $fmt($sum12) : '');
+            $sheet->setCellValue("F{$row}", $fmt($sum21));
+        } else {
+            $sheet->setCellValue("D{$row}", $sumG > 0 ? $fmt($sumG) : '');
+            $sheet->setCellValue("E{$row}", $fmt($sumB));
+        }
+        $sheet->getStyle("A{$row}:{$lastCol}{$row}")->applyFromArray($totalRowStyle);
+        $sheet->getStyle("C{$row}:{$lastCol}{$row}")->applyFromArray($rightAlign);
         $row++;
 
         // ── TOTAL HTVA
-        $htva6     = $sum6  > 0 ? round($sum6  / 1.06, 2) : 0.0;
-        $htva12    = $sum12 > 0 ? round($sum12 / 1.12, 2) : 0.0;
-        $htva21    = round($sum21 / 1.21, 2);
-        $htvaTotal = round($htva6 + $htva12 + $htva21, 2);
+        if ($isLegacyVat) {
+            $htva6     = $sum6  > 0 ? round($sum6  / 1.06, 2) : 0.0;
+            $htva12    = $sum12 > 0 ? round($sum12 / 1.12, 2) : 0.0;
+            $htva21    = round($sum21 / 1.21, 2);
+            $htvaTotal = round($htva6 + $htva12 + $htva21, 2);
+        } else {
+            $htvaG     = $sumG > 0 ? round($sumG / 1.21, 2) : 0.0;
+            $htvaB     = round($sumB / 1.21, 2);
+            $htvaTotal = round($htvaG + $htvaB, 2);
+        }
 
         $sheet->setCellValue("A{$row}", 'TOTAL HTVA');
         $sheet->setCellValue("C{$row}", $fmt($htvaTotal));
-        $sheet->setCellValue("D{$row}", $sum6  > 0 ? $fmt($htva6)  : '');
-        $sheet->setCellValue("E{$row}", $sum12 > 0 ? $fmt($htva12) : '');
-        $sheet->setCellValue("F{$row}", $fmt($htva21));
-        $sheet->getStyle("A{$row}:F{$row}")->applyFromArray($subRowStyle);
-        $sheet->getStyle("C{$row}:F{$row}")->applyFromArray($rightAlign);
+        if ($isLegacyVat) {
+            $sheet->setCellValue("D{$row}", $sum6  > 0 ? $fmt($htva6)  : '');
+            $sheet->setCellValue("E{$row}", $sum12 > 0 ? $fmt($htva12) : '');
+            $sheet->setCellValue("F{$row}", $fmt($htva21));
+        } else {
+            $sheet->setCellValue("D{$row}", $sumG > 0 ? $fmt($htvaG) : '');
+            $sheet->setCellValue("E{$row}", $fmt($htvaB));
+        }
+        $sheet->getStyle("A{$row}:{$lastCol}{$row}")->applyFromArray($subRowStyle);
+        $sheet->getStyle("C{$row}:{$lastCol}{$row}")->applyFromArray($rightAlign);
         $row++;
 
         // ── TVA
-        $tva6     = round($sum6  - $htva6,  2);
-        $tva12    = round($sum12 - $htva12, 2);
-        $tva21    = round($sum21 - $htva21, 2);
-        $tvaTotal = round($tva6 + $tva12 + $tva21, 2);
+        if ($isLegacyVat) {
+            $tva6     = round($sum6  - $htva6,  2);
+            $tva12    = round($sum12 - $htva12, 2);
+            $tva21    = round($sum21 - $htva21, 2);
+            $tvaTotal = round($tva6 + $tva12 + $tva21, 2);
+        } else {
+            $tvaG     = round($sumG - $htvaG, 2);
+            $tvaB     = round($sumB - $htvaB, 2);
+            $tvaTotal = round($tvaG + $tvaB, 2);
+        }
 
         $sheet->setCellValue("A{$row}", 'TVA');
         $sheet->setCellValue("C{$row}", $fmt($tvaTotal));
-        $sheet->setCellValue("D{$row}", $sum6  > 0 ? $fmt($tva6)  : '');
-        $sheet->setCellValue("E{$row}", $sum12 > 0 ? $fmt($tva12) : '');
-        $sheet->setCellValue("F{$row}", $fmt($tva21));
-        $sheet->getStyle("A{$row}:F{$row}")->applyFromArray($subRowStyle);
-        $sheet->getStyle("C{$row}:F{$row}")->applyFromArray($rightAlign);
+        if ($isLegacyVat) {
+            $sheet->setCellValue("D{$row}", $sum6  > 0 ? $fmt($tva6)  : '');
+            $sheet->setCellValue("E{$row}", $sum12 > 0 ? $fmt($tva12) : '');
+            $sheet->setCellValue("F{$row}", $fmt($tva21));
+        } else {
+            $sheet->setCellValue("D{$row}", $sumG > 0 ? $fmt($tvaG) : '');
+            $sheet->setCellValue("E{$row}", $fmt($tvaB));
+        }
+        $sheet->getStyle("A{$row}:{$lastCol}{$row}")->applyFromArray($subRowStyle);
+        $sheet->getStyle("C{$row}:{$lastCol}{$row}")->applyFromArray($rightAlign);
         $row += 2; // ligne vide
 
         // ── Vérification
@@ -338,7 +396,10 @@ class TreasuryEnvelopesController extends BaseController
         $sheet->getStyle("C{$row}")->applyFromArray($rightAlign);
 
         // ── Largeurs de colonnes
-        foreach (['A' => 13, 'B' => 18, 'C' => 14, 'D' => 12, 'E' => 12, 'F' => 14] as $col => $w) {
+        $widths = $isLegacyVat
+            ? ['A' => 13, 'B' => 18, 'C' => 14, 'D' => 12, 'E' => 12, 'F' => 14]
+            : ['A' => 13, 'B' => 18, 'C' => 14, 'D' => 14, 'E' => 14];
+        foreach ($widths as $col => $w) {
             $sheet->getColumnDimension($col)->setWidth($w);
         }
 
@@ -367,8 +428,7 @@ class TreasuryEnvelopesController extends BaseController
             'category'            => 'bar',
             'amount_calculated'   => (float) $post['amount_calculated'],
             'amount_found'        => (float) $post['amount_found'],
-            'amount_6pct'         => ($post['amount_6pct']  !== '' && $post['amount_6pct']  !== null) ? (float) $post['amount_6pct']  : null,
-            'amount_12pct'        => ($post['amount_12pct'] !== '' && $post['amount_12pct'] !== null) ? (float) $post['amount_12pct'] : null,
+            'amount_21pct_g'      => ($post['amount_21pct_g'] !== '' && $post['amount_21pct_g'] !== null) ? (float) $post['amount_21pct_g'] : null,
             'amount_sumup'        => (float) $post['amount_sumup'],
             'closed_by_member_id' => ($post['closed_by_member_id'] ?: null),
             'notes'               => $post['notes'] ?: null,

@@ -32,8 +32,8 @@
 <?php else: ?>
     <?php foreach ($byMonth as $month): ?>
     <?php
-        $ecartMois  = $month['found'] + $month['sumup'] - $month['calculated'];
-        $pct21Mois  = $month['found'] - $month['pct6'] - $month['pct12'];
+        $ecartMois = $month['found'] + $month['sumup'] - $month['calculated'];
+        $pctBMois  = $month['found'] - $month['pctG'];
     ?>
     <div class="card card-outline card-primary">
         <div class="card-header">
@@ -44,18 +44,13 @@
                 <span class="badge badge-light border mr-1">
                     Calculé : <strong><?= number_format($month['calculated'], 2, ',', '.') ?> €</strong>
                 </span>
-                <?php if ($month['pct6'] > 0): ?>
+                <?php if ($month['pctG'] > 0): ?>
                 <span class="badge badge-light border mr-1">
-                    6% : <strong><?= number_format($month['pct6'], 2, ',', '.') ?> €</strong>
-                </span>
-                <?php endif; ?>
-                <?php if ($month['pct12'] > 0): ?>
-                <span class="badge badge-light border mr-1">
-                    12% : <strong><?= number_format($month['pct12'], 2, ',', '.') ?> €</strong>
+                    21%-G : <strong><?= number_format($month['pctG'], 2, ',', '.') ?> €</strong>
                 </span>
                 <?php endif; ?>
                 <span class="badge badge-light border mr-1">
-                    21% : <strong><?= number_format($pct21Mois, 2, ',', '.') ?> €</strong>
+                    21%-B : <strong><?= number_format($pctBMois, 2, ',', '.') ?> €</strong>
                 </span>
                 <span class="badge <?= $ecartMois == 0 ? 'badge-success' : 'badge-danger' ?>">
                     Écart : <?= ($ecartMois >= 0 ? '+' : '') . number_format($ecartMois, 2, ',', '.') ?> €
@@ -70,9 +65,8 @@
                             <th style="width:110px">Date</th>
                             <th style="width:110px">Nom</th>
                             <th class="text-right" style="width:110px">Calculé</th>
-                            <th class="text-right" style="width:90px">6%</th>
-                            <th class="text-right" style="width:90px">12%</th>
-                            <th class="text-right" style="width:110px">21%</th>
+                            <th class="text-right" style="width:100px">21%-G</th>
+                            <th class="text-right" style="width:100px">21%-B</th>
                             <th class="text-right" style="width:110px">SumUp</th>
                             <th class="text-right" style="width:110px">Écart</th>
                             <th>Clôturé par</th>
@@ -84,18 +78,18 @@
                     <tbody>
                     <?php foreach ($month['rows'] as $r): ?>
                     <?php
-                        $ecart  = (float)$r->amount_found + (float)$r->amount_sumup - (float)$r->amount_calculated;
-                        $r6     = (float)($r->amount_6pct  ?? 0);
-                        $r12    = (float)($r->amount_12pct ?? 0);
-                        $r21    = (float)$r->amount_found - $r6 - $r12;
+                        $ecart = (float)$r->amount_found + (float)$r->amount_sumup - (float)$r->amount_calculated;
+                        $rG    = $r->date < \App\Models\TreasuryEnvelopeModel::VAT_CUTOFF
+                                    ? (float)($r->amount_6pct ?? 0) + (float)($r->amount_12pct ?? 0)
+                                    : (float)($r->amount_21pct_g ?? 0);
+                        $rB    = (float)$r->amount_found - $rG;
                     ?>
                     <tr>
                         <td><?= date('d/m/Y', strtotime($r->date)) ?></td>
                         <td><strong><?= esc($r->name ?: '—') ?></strong></td>
                         <td class="text-right"><?= number_format((float)$r->amount_calculated, 2, ',', '.') ?> €</td>
-                        <td class="text-right text-muted"><?= $r6 > 0 ? number_format($r6, 2, ',', '.') . ' €' : '—' ?></td>
-                        <td class="text-right text-muted"><?= $r12 > 0 ? number_format($r12, 2, ',', '.') . ' €' : '—' ?></td>
-                        <td class="text-right"><?= number_format($r21, 2, ',', '.') ?> €</td>
+                        <td class="text-right text-muted"><?= $rG > 0 ? number_format($rG, 2, ',', '.') . ' €' : '—' ?></td>
+                        <td class="text-right"><?= number_format($rB, 2, ',', '.') ?> €</td>
                         <td class="text-right"><?= number_format((float)$r->amount_sumup, 2, ',', '.') ?> €</td>
                         <td class="text-right">
                             <span class="badge <?= $ecart == 0 ? 'badge-success' : 'badge-danger' ?>">
@@ -128,9 +122,8 @@
                         <tr class="font-weight-bold tfoot-total">
                             <td colspan="2">Total <?= $month['label'] ?></td>
                             <td class="text-right"><?= number_format($month['calculated'], 2, ',', '.') ?> €</td>
-                            <td class="text-right"><?= $month['pct6'] > 0 ? number_format($month['pct6'], 2, ',', '.') . ' €' : '—' ?></td>
-                            <td class="text-right"><?= $month['pct12'] > 0 ? number_format($month['pct12'], 2, ',', '.') . ' €' : '—' ?></td>
-                            <td class="text-right"><?= number_format($pct21Mois, 2, ',', '.') ?> €</td>
+                            <td class="text-right"><?= $month['pctG'] > 0 ? number_format($month['pctG'], 2, ',', '.') . ' €' : '—' ?></td>
+                            <td class="text-right"><?= number_format($pctBMois, 2, ',', '.') ?> €</td>
                             <td class="text-right"><?= number_format($month['sumup'], 2, ',', '.') ?> €</td>
                             <td class="text-right">
                                 <span class="badge <?= $ecartMois == 0 ? 'badge-success' : 'badge-danger' ?>">
