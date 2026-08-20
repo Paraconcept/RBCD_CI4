@@ -28,7 +28,7 @@
         <?php
           $teacherName = $teacher
               ? esc($teacher->first_name . ' ' . $teacher->last_name)
-              : 'notre instructeur';
+              : '&nbsp;';
           $freq        = $school->frequency_per_month ?? 4;
           $schedule    = $school->schedule ?? 'Samedi, 10h00 — 12h00';
           $price       = $treasury ? number_format((float)$treasury->annual_cotisation, 0, ',', '') : '50';
@@ -91,6 +91,7 @@
                     <span class="me-2 ms-2">+</span>
                     <?= $lessonPrice ?> € / cours
                   </h5>
+                  <p class="mb-0">Un tarif très avantageux pour permettre à chacun de découvrir ce sport à moindre coût.</p>
                   <p class="mb-0">Cotisation annuelle tout compris : cours du samedi <em>et</em> accès libre au club.</p>
                 </div>
                 <div class="clearfix"></div>
@@ -106,7 +107,8 @@
                 </a>
                 <div class="icon-text">
                   <h5 class="icon-box-title text-uppercase mb-5">Accès illimité</h5>
-                  <p class="mb-0">En dehors des cours, profitez librement du club et de toutes ses tables.</p>
+                  <p class="mb-0">MATÉRIEL EN PRÊT. Inutile de faire des frais pour commencer, des queues de billard de qualité sont
+                      mises à votre disposition gratuitement.</p>
                 </div>
                 <div class="clearfix"></div>
               </div>
@@ -121,7 +123,10 @@
                 </a>
                 <div class="icon-text">
                   <h5 class="icon-box-title text-uppercase mb-5"><?= $teacherName ?></h5>
-                  <p class="mb-0">Instructeur expérimenté, il adapte chaque cours au niveau et au style de jeu de l'élève.</p>
+                  <p class="mb-0">UN COURS ÉVOLUTIF. Quoi de mieux pour évoluer à
+                    son rythme que des cours « à la demande » et une entraide permanente. C’est ce
+                    que nous vous proposons au RBC Disonais ! Avec quelques surprises en cours
+                    d’année</p>
                 </div>
                 <div class="clearfix"></div>
               </div>
@@ -202,7 +207,7 @@
     <!-- Mutuelles -->
     <div class="row">
       <div class="col-12 text-center">
-        <h4 class="font-weight-700 mt-0 mb-10">Votre mutuelle vous rembourse pour l'affiliation à un club sportif :</h4>
+        <h4 class="font-weight-700 mt-0 mb-10">Votre mutuelle vous rembourse l'affiliation à un club sportif :</h4>
         <p class="mb-25 text-muted">Cliquez sur le logo de votre mutuelle pour télécharger le document à remplir :</p>
         <div class="mutuelles-logos">
           <a href="<?= base_url('uploads/mutuelles/MC-ClubSportif.pdf') ?>" title="Mutuelle Chrétienne" class="mutuelle-link" target="_blank">
