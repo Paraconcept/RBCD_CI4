@@ -129,13 +129,27 @@ $todayPrefix = 'E' . date('d.m.');
                             <strong class="ml-2 pb-1 text-black" style="font-size:1.4rem"><i class="fas fa-arrows-alt-h"></i></strong>
                         </div>
                     </div>
-                    <div class="col-12 col-lg">
+                    <div class="col-12 col-lg mb-2 mb-lg-0">
                         <div class="form-group mb-0">
                             <label>Écart</label>
                             <div class="pt-0">
                                 <span id="ecart_badge" class="badge badge-secondary" style="font-size:1rem;padding:.7em;">
                                     <?php if ($isEdit): ?>
                                         <?= $ecartText ?>
+                                    <?php else: ?>
+                                        0,00 €
+                                    <?php endif; ?>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg">
+                        <div class="form-group mb-0">
+                            <label>Total</label>
+                            <div class="pt-0">
+                                <span id="total_badge" class="badge badge-success" style="font-size:1rem;padding:.7em;">
+                                    <?php if ($isEdit): ?>
+                                        <?= number_format((float) $envelope->amount_found + (float) $envelope->amount_sumup, 2, ',', ' ') ?> €
                                     <?php else: ?>
                                         0,00 €
                                     <?php endif; ?>
@@ -328,6 +342,9 @@ $(function () {
             .text(sign + ecart.toFixed(2).replace('.', ',') + ' €')
             .removeClass('badge-secondary badge-success badge-danger')
             .addClass(ecart === 0 ? 'badge-success' : 'badge-danger');
+
+        const total = found + sumup;
+        $('#total_badge').text(total.toFixed(2).replace('.', ',') + ' €');
     }
 
     const vatFields = isLegacyVat ? '#amount_6pct, #amount_12pct' : '#amount_21pct_g';
