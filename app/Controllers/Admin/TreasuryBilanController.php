@@ -1105,19 +1105,18 @@ class TreasuryBilanController extends BaseController
         $b = array_fill(1, 12, 0.0);
 
         $rows = $this->db->table('treasury_envelopes')
-            ->select('MONTH(date) as m, SUM(amount_found) as total, SUM(IFNULL(amount_6pct, 0)) as s6, SUM(IFNULL(amount_12pct, 0)) as s12, SUM(IFNULL(amount_21pct_g, 0)) as sg')
+            ->select('MONTH(date) as m, SUM(amount_found) as total, SUM(IFNULL(amount_6pct, 0)) as s6, SUM(IFNULL(amount_12pct, 0)) as s12, SUM(IFNULL(amount_21pct_g, 0)) as sg, SUM(IFNULL(amount_21pct_b, 0)) as sb')
             ->where('YEAR(date)', $year)
             ->groupBy('MONTH(date)')
             ->get()->getResultArray();
 
         foreach ($rows as $row) {
-            $m     = (int) $row['m'];
-            $total = (float) $row['total'];
-            $sg    = $this->isLegacyVat($year, $m)
-                ? (float) $row['s6'] + (float) $row['s12']
-                : (float) $row['sg'];
-            $g[$m] = $sg;
-            $b[$m] = $total - $sg;
+            $m        = (int) $row['m'];
+            $total    = (float) $row['total'];
+            $isLegacy = $this->isLegacyVat($year, $m);
+            $sg       = $isLegacy ? (float) $row['s6'] + (float) $row['s12'] : (float) $row['sg'];
+            $g[$m]    = $sg;
+            $b[$m]    = $isLegacy ? $total - $sg : (float) $row['sb'];
         }
 
         return ['g' => $g, 'b' => $b];
@@ -1164,7 +1163,7 @@ class TreasuryBilanController extends BaseController
         $legacy = $this->isLegacyVat($year, $month);
 
         $rows = $this->db->table('treasury_envelopes')
-            ->select('DAY(date) as d, SUM(amount_found) as tot, SUM(IFNULL(amount_6pct,0)) as s6, SUM(IFNULL(amount_12pct,0)) as s12, SUM(IFNULL(amount_21pct_g,0)) as sg')
+            ->select('DAY(date) as d, SUM(amount_found) as tot, SUM(IFNULL(amount_6pct,0)) as s6, SUM(IFNULL(amount_12pct,0)) as s12, SUM(IFNULL(amount_21pct_g,0)) as sg, SUM(IFNULL(amount_21pct_b,0)) as sb')
             ->where('YEAR(date)', $year)->where('MONTH(date)', $month)
             ->groupBy('DAY(date)')->get()->getResultArray();
 
@@ -1172,7 +1171,7 @@ class TreasuryBilanController extends BaseController
             $d   = (int) $row['d'];
             $tot = (float) $row['tot'];
             $sg  = $legacy ? (float) $row['s6'] + (float) $row['s12'] : (float) $row['sg'];
-            $total[$d] = $tot; $g[$d] = $sg; $b[$d] = $tot - $sg;
+            $total[$d] = $tot; $g[$d] = $sg; $b[$d] = $legacy ? $tot - $sg : (float) $row['sb'];
         }
         return ['total' => $total, 'g' => $g, 'b' => $b];
     }

@@ -33,7 +33,7 @@
     <?php foreach ($byMonth as $month): ?>
     <?php
         $ecartMois = $month['found'] + $month['sumup'] - $month['calculated'];
-        $pctBMois  = $month['found'] - $month['pctG'];
+        $pctBMois  = $month['pctB'];
     ?>
     <div class="card card-outline card-primary">
         <div class="card-header">
@@ -78,11 +78,14 @@
                     <tbody>
                     <?php foreach ($month['rows'] as $r): ?>
                     <?php
-                        $ecart = (float)$r->amount_found + (float)$r->amount_sumup - (float)$r->amount_calculated;
-                        $rG    = $r->date < \App\Models\TreasuryEnvelopeModel::VAT_CUTOFF
+                        $ecart    = (float)$r->amount_found + (float)$r->amount_sumup - (float)$r->amount_calculated;
+                        $isLegacy = $r->date < \App\Models\TreasuryEnvelopeModel::VAT_CUTOFF;
+                        $rG       = $isLegacy
                                     ? (float)($r->amount_6pct ?? 0) + (float)($r->amount_12pct ?? 0)
                                     : (float)($r->amount_21pct_g ?? 0);
-                        $rB    = (float)$r->amount_found - $rG;
+                        $rB       = $isLegacy
+                                    ? (float)$r->amount_found - $rG
+                                    : (float)($r->amount_21pct_b ?? 0);
                     ?>
                     <tr>
                         <td><?= date('d/m/Y', strtotime($r->date)) ?></td>

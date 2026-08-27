@@ -48,17 +48,23 @@ class TreasuryEnvelopesController extends BaseController
                     'calculated' => 0.0,
                     'found'      => 0.0,
                     'pctG'       => 0.0,
+                    'pctB'       => 0.0,
                     'sumup'      => 0.0,
                     'rows'       => [],
                 ];
             }
-            $rG = $r->date < TreasuryEnvelopeModel::VAT_CUTOFF
+            $isLegacy = $r->date < TreasuryEnvelopeModel::VAT_CUTOFF;
+            $rG = $isLegacy
                 ? (float) ($r->amount_6pct ?? 0) + (float) ($r->amount_12pct ?? 0)
                 : (float) ($r->amount_21pct_g ?? 0);
+            $rB = $isLegacy
+                ? (float) $r->amount_found - $rG
+                : (float) ($r->amount_21pct_b ?? 0);
 
             $byMonth[$key]['calculated'] += (float) $r->amount_calculated;
             $byMonth[$key]['found']      += (float) $r->amount_found;
             $byMonth[$key]['pctG']       += $rG;
+            $byMonth[$key]['pctB']       += $rB;
             $byMonth[$key]['sumup']      += (float) $r->amount_sumup;
             $byMonth[$key]['rows'][]      = $r;
         }
@@ -118,6 +124,7 @@ class TreasuryEnvelopesController extends BaseController
             'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
             'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
             'amount_21pct_g'      => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'amount_21pct_b'      => 'permit_empty|decimal|greater_than_equal_to[0]',
             'amount_sumup'        => 'required|decimal|greater_than_equal_to[0]',
             'closed_by_member_id' => 'required|is_natural_no_zero',
         ])) {
@@ -181,6 +188,7 @@ class TreasuryEnvelopesController extends BaseController
             'amount_12pct' => 'permit_empty|decimal|greater_than_equal_to[0]',
         ] : [
             'amount_21pct_g' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'amount_21pct_b' => 'permit_empty|decimal|greater_than_equal_to[0]',
         ]))) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -200,6 +208,7 @@ class TreasuryEnvelopesController extends BaseController
             $data['amount_12pct'] = ($post['amount_12pct'] !== '' && $post['amount_12pct'] !== null) ? (float) $post['amount_12pct'] : null;
         } else {
             $data['amount_21pct_g'] = ($post['amount_21pct_g'] !== '' && $post['amount_21pct_g'] !== null) ? (float) $post['amount_21pct_g'] : null;
+            $data['amount_21pct_b'] = ($post['amount_21pct_b'] !== '' && $post['amount_21pct_b'] !== null) ? (float) $post['amount_21pct_b'] : null;
         }
 
         $this->model->update($id, $data);
@@ -311,7 +320,7 @@ class TreasuryEnvelopesController extends BaseController
                 $sheet->setCellValue('F' . $row, $fmt($r21));
             } else {
                 $rG = (float) ($r->amount_21pct_g ?? 0);
-                $rB = $total - $rG;
+                $rB = (float) ($r->amount_21pct_b ?? 0);
                 $sumG += $rG; $sumB += $rB;
                 $sheet->setCellValue('D' . $row, $rG > 0 ? $fmt($rG) : '');
                 $sheet->setCellValue('E' . $row, $fmt($rB));
@@ -429,6 +438,7 @@ class TreasuryEnvelopesController extends BaseController
             'amount_calculated'   => (float) $post['amount_calculated'],
             'amount_found'        => (float) $post['amount_found'],
             'amount_21pct_g'      => ($post['amount_21pct_g'] !== '' && $post['amount_21pct_g'] !== null) ? (float) $post['amount_21pct_g'] : null,
+            'amount_21pct_b'      => ($post['amount_21pct_b'] !== '' && $post['amount_21pct_b'] !== null) ? (float) $post['amount_21pct_b'] : null,
             'amount_sumup'        => (float) $post['amount_sumup'],
             'closed_by_member_id' => ($post['closed_by_member_id'] ?: null),
             'notes'               => $post['notes'] ?: null,

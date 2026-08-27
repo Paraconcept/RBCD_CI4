@@ -217,11 +217,14 @@ $todayPrefix = 'E' . date('d.m.');
                             </div>
                             <div class="col-12 col-lg">
                                 <div class="form-group mb-0">
-                                    <label class="small">Montant 21% — B (Bar) (€) <em class="text-muted">(calculé)</em></label>
-                                    <input type="text" id="amount_21pct_display"
-                                           class="form-control text-right form-control-sm bg-light"
-                                           value="<?php if ($isEdit): $amtB = (float)$envelope->amount_found - (float)($envelope->amount_21pct_g ?? 0); echo number_format($amtB, 2, ',', ' ') . ' €'; else: ?>0,00 €<?php endif; ?>"
-                                           readonly>
+                                    <label class="small">Montant 21% — B (Bar) (€)</label>
+                                    <input type="number" name="amount_21pct_b" id="amount_21pct_b"
+                                           class="form-control text-right form-control-sm <?= isset($errors['amount_21pct_b']) ? 'is-invalid' : '' ?>"
+                                           step="0.01" min="0" placeholder="0,00"
+                                           value="<?= esc($v('amount_21pct_b', '')) ?>">
+                                    <?php if (isset($errors['amount_21pct_b'])): ?>
+                                        <div class="invalid-feedback"><?= $errors['amount_21pct_b'] ?></div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -323,18 +326,14 @@ $(function () {
         const found  = parseFloat($('#amount_found').val()) || 0;
         const sumup  = parseFloat($('#amount_sumup').val()) || 0;
 
-        let remainder;
         if (isLegacyVat) {
-            const pct6  = parseFloat($('#amount_6pct').val())  || 0;
-            const pct12 = parseFloat($('#amount_12pct').val()) || 0;
-            remainder = found - pct6 - pct12;
-        } else {
-            const pctG = parseFloat($('#amount_21pct_g').val()) || 0;
-            remainder = found - pctG;
+            const pct6      = parseFloat($('#amount_6pct').val())  || 0;
+            const pct12     = parseFloat($('#amount_12pct').val()) || 0;
+            const remainder = found - pct6 - pct12;
+            $('#amount_21pct_display').val(
+                (remainder < 0 ? '⚠ ' : '') + remainder.toFixed(2).replace('.', ',') + ' €'
+            ).toggleClass('text-danger', remainder < 0);
         }
-        $('#amount_21pct_display').val(
-            (remainder < 0 ? '⚠ ' : '') + remainder.toFixed(2).replace('.', ',') + ' €'
-        ).toggleClass('text-danger', remainder < 0);
 
         const ecart = (found + sumup) - calc;
         const sign  = ecart >= 0 ? '+' : '';
@@ -347,8 +346,9 @@ $(function () {
         $('#total_badge').text(total.toFixed(2).replace('.', ',') + ' €');
     }
 
-    const vatFields = isLegacyVat ? '#amount_6pct, #amount_12pct' : '#amount_21pct_g';
-    $('#amount_calculated, #amount_found, #amount_sumup').add(vatFields).on('input', calcAll);
+    let inputs = $('#amount_calculated, #amount_found, #amount_sumup');
+    if (isLegacyVat) { inputs = inputs.add('#amount_6pct, #amount_12pct'); }
+    inputs.on('input', calcAll);
     calcAll();
 
     $('form').on('submit', function (e) {
