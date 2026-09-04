@@ -3,15 +3,17 @@
 
 <?php
 $isEdit      = $envelope !== null;
-$isLegacyVat = $isEdit && ($isLegacyVat ?? false);
 $errors      = session()->getFlashdata('errors') ?? [];
 $v           = fn($f, $default = '') => old($f, $isEdit ? ($envelope->$f ?? $default) : $default);
 
 if ($isEdit) {
-    $ecartVal   = (float)$envelope->amount_found + (float)$envelope->amount_sumup - (float)$envelope->amount_calculated;
-    $ecartSign  = $ecartVal >= 0 ? '+' : '';
-    $ecartClass = $ecartVal == 0 ? 'badge-success' : 'badge-danger';
-    $ecartText  = $ecartSign . number_format($ecartVal, 2, ',', ' ') . ' €';
+    $withdrawalVal = (float) ($envelope->amount_cash_withdrawal ?? 0);
+    $additionVal   = (float) ($envelope->amount_cash_addition ?? 0);
+    $totalVal      = (float) $envelope->amount_found + (float) $envelope->amount_sumup + $additionVal - $withdrawalVal;
+    $ecartVal      = $totalVal - (float) $envelope->amount_calculated;
+    $ecartSign     = $ecartVal >= 0 ? '+' : '';
+    $ecartClass    = $ecartVal == 0 ? 'badge-success' : 'badge-danger';
+    $ecartText     = $ecartSign . number_format($ecartVal, 2, ',', ' ') . ' €';
 }
 $todayPrefix = 'E' . date('d.m.');
 ?>
@@ -129,7 +131,7 @@ $todayPrefix = 'E' . date('d.m.');
                             <strong class="ml-2 pb-1 text-black" style="font-size:1.4rem"><i class="fas fa-arrows-alt-h"></i></strong>
                         </div>
                     </div>
-                    <div class="col-12 col-lg mb-2 mb-lg-0">
+                    <div class="col-12 col-lg">
                         <div class="form-group mb-0">
                             <label>Écart</label>
                             <div class="pt-0">
@@ -143,13 +145,51 @@ $todayPrefix = 'E' . date('d.m.');
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-lg">
+                </div>
+
+                <!-- Mouvements de caisse -->
+                <div class="card card-outline card-secondary mt-3 mb-0">
+                    <div class="card-header py-2">
+                        <h6 class="card-title mb-0"><i class="fas fa-hand-holding-usd mr-1"></i>Mouvements de caisse <small class="text-muted">(facultatif)</small></h6>
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="row align-items-end">
+                            <div class="col-12 col-lg mb-2 mb-lg-0">
+                                <div class="form-group mb-0">
+                                    <label class="small">Retrait liquide (€)</label>
+                                    <input type="number" name="amount_cash_withdrawal" id="amount_cash_withdrawal"
+                                           class="form-control text-right form-control-sm <?= isset($errors['amount_cash_withdrawal']) ? 'is-invalid' : '' ?>"
+                                           step="0.01" min="0" placeholder="0,00"
+                                           value="<?= esc($v('amount_cash_withdrawal', '')) ?>">
+                                    <?php if (isset($errors['amount_cash_withdrawal'])): ?>
+                                        <div class="invalid-feedback"><?= $errors['amount_cash_withdrawal'] ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg">
+                                <div class="form-group mb-0">
+                                    <label class="small">Ajout liquide (€)</label>
+                                    <input type="number" name="amount_cash_addition" id="amount_cash_addition"
+                                           class="form-control text-right form-control-sm <?= isset($errors['amount_cash_addition']) ? 'is-invalid' : '' ?>"
+                                           step="0.01" min="0" placeholder="0,00"
+                                           value="<?= esc($v('amount_cash_addition', '')) ?>">
+                                    <?php if (isset($errors['amount_cash_addition'])): ?>
+                                        <div class="invalid-feedback"><?= $errors['amount_cash_addition'] ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12 col-lg-4">
                         <div class="form-group mb-0">
                             <label>Total</label>
                             <div class="pt-0">
                                 <span id="total_badge" class="badge badge-success" style="font-size:1rem;padding:.7em;">
                                     <?php if ($isEdit): ?>
-                                        <?= number_format((float) $envelope->amount_found + (float) $envelope->amount_sumup, 2, ',', ' ') ?> €
+                                        <?= number_format($totalVal, 2, ',', ' ') ?> €
                                     <?php else: ?>
                                         0,00 €
                                     <?php endif; ?>
@@ -159,80 +199,7 @@ $todayPrefix = 'E' . date('d.m.');
                     </div>
                 </div>
 
-                <!-- Détail TVA -->
-                <div class="card card-outline card-secondary mt-3 mb-0">
-                    <div class="card-header py-2">
-                        <h6 class="card-title mb-0"><i class="fas fa-percentage mr-1"></i>Détail TVA du montant trouvé <small class="text-muted">(facultatif)</small></h6>
-                    </div>
-                    <div class="card-body py-2">
-                        <?php if ($isLegacyVat): ?>
-                        <div class="row align-items-end">
-                            <div class="col-12 col-lg mb-2 mb-lg-0">
-                                <div class="form-group mb-0">
-                                    <label class="small">Montant 6% — gougouilles (€)</label>
-                                    <input type="number" name="amount_6pct" id="amount_6pct"
-                                           class="form-control text-right form-control-sm <?= isset($errors['amount_6pct']) ? 'is-invalid' : '' ?>"
-                                           step="0.01" min="0" placeholder="0,00"
-                                           value="<?= esc($v('amount_6pct', '')) ?>">
-                                    <?php if (isset($errors['amount_6pct'])): ?>
-                                        <div class="invalid-feedback"><?= $errors['amount_6pct'] ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg mb-2 mb-lg-0">
-                                <div class="form-group mb-0">
-                                    <label class="small">Montant 12% — gougouilles (€)</label>
-                                    <input type="number" name="amount_12pct" id="amount_12pct"
-                                           class="form-control text-right form-control-sm <?= isset($errors['amount_12pct']) ? 'is-invalid' : '' ?>"
-                                           step="0.01" min="0" placeholder="0,00"
-                                           value="<?= esc($v('amount_12pct', '')) ?>">
-                                    <?php if (isset($errors['amount_12pct'])): ?>
-                                        <div class="invalid-feedback"><?= $errors['amount_12pct'] ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg">
-                                <div class="form-group mb-0">
-                                    <label class="small">Montant 21% — boissons (€) <em class="text-muted">(calculé)</em></label>
-                                    <input type="text" id="amount_21pct_display"
-                                           class="form-control text-right form-control-sm bg-light"
-                                           value="<?php if ($isEdit): $amt21 = (float)$envelope->amount_found - (float)($envelope->amount_6pct ?? 0) - (float)($envelope->amount_12pct ?? 0); echo number_format($amt21, 2, ',', ' ') . ' €'; else: ?>0,00 €<?php endif; ?>"
-                                           readonly>
-                                </div>
-                            </div>
-                        </div>
-                        <?php else: ?>
-                        <div class="row align-items-end">
-                            <div class="col-12 col-lg mb-2 mb-lg-0">
-                                <div class="form-group mb-0">
-                                    <label class="small">Montant 21% — G (Gougouilles) (€)</label>
-                                    <input type="number" name="amount_21pct_g" id="amount_21pct_g"
-                                           class="form-control text-right form-control-sm <?= isset($errors['amount_21pct_g']) ? 'is-invalid' : '' ?>"
-                                           step="0.01" min="0" placeholder="0,00"
-                                           value="<?= esc($v('amount_21pct_g', '')) ?>">
-                                    <?php if (isset($errors['amount_21pct_g'])): ?>
-                                        <div class="invalid-feedback"><?= $errors['amount_21pct_g'] ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg">
-                                <div class="form-group mb-0">
-                                    <label class="small">Montant 21% — B (Bar) (€)</label>
-                                    <input type="number" name="amount_21pct_b" id="amount_21pct_b"
-                                           class="form-control text-right form-control-sm <?= isset($errors['amount_21pct_b']) ? 'is-invalid' : '' ?>"
-                                           step="0.01" min="0" placeholder="0,00"
-                                           value="<?= esc($v('amount_21pct_b', '')) ?>">
-                                    <?php if (isset($errors['amount_21pct_b'])): ?>
-                                        <div class="invalid-feedback"><?= $errors['amount_21pct_b'] ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div class="form-group">
+                <div class="form-group mt-3">
                     <label>Clôturé par <span class="text-danger">*</span></label>
                     <select name="closed_by_member_id" id="closed_by_member_id"
                             class="form-control select2 <?= isset($errors['closed_by_member_id']) ? 'is-invalid' : '' ?>"
@@ -319,36 +286,26 @@ $(function () {
     updateNameOptions(false); // page load : respecte la valeur PHP old()
     <?php endif; ?>
 
-    const isLegacyVat = <?= $isLegacyVat ? 'true' : 'false' ?>;
-
     function calcAll() {
-        const calc   = parseFloat($('#amount_calculated').val()) || 0;
-        const found  = parseFloat($('#amount_found').val()) || 0;
-        const sumup  = parseFloat($('#amount_sumup').val()) || 0;
+        const calc       = parseFloat($('#amount_calculated').val()) || 0;
+        const found      = parseFloat($('#amount_found').val()) || 0;
+        const sumup      = parseFloat($('#amount_sumup').val()) || 0;
+        const withdrawal = parseFloat($('#amount_cash_withdrawal').val()) || 0;
+        const addition   = parseFloat($('#amount_cash_addition').val()) || 0;
 
-        if (isLegacyVat) {
-            const pct6      = parseFloat($('#amount_6pct').val())  || 0;
-            const pct12     = parseFloat($('#amount_12pct').val()) || 0;
-            const remainder = found - pct6 - pct12;
-            $('#amount_21pct_display').val(
-                (remainder < 0 ? '⚠ ' : '') + remainder.toFixed(2).replace('.', ',') + ' €'
-            ).toggleClass('text-danger', remainder < 0);
-        }
+        const total = found + sumup + addition - withdrawal;
+        $('#total_badge').text(total.toFixed(2).replace('.', ',') + ' €');
 
-        const ecart = (found + sumup) - calc;
+        const ecart = total - calc;
         const sign  = ecart >= 0 ? '+' : '';
         $('#ecart_badge')
             .text(sign + ecart.toFixed(2).replace('.', ',') + ' €')
             .removeClass('badge-secondary badge-success badge-danger')
             .addClass(ecart === 0 ? 'badge-success' : 'badge-danger');
-
-        const total = found + sumup;
-        $('#total_badge').text(total.toFixed(2).replace('.', ',') + ' €');
     }
 
-    let inputs = $('#amount_calculated, #amount_found, #amount_sumup');
-    if (isLegacyVat) { inputs = inputs.add('#amount_6pct, #amount_12pct'); }
-    inputs.on('input', calcAll);
+    $('#amount_calculated, #amount_found, #amount_sumup, #amount_cash_withdrawal, #amount_cash_addition')
+        .on('input', calcAll);
     calcAll();
 
     $('form').on('submit', function (e) {

@@ -109,7 +109,6 @@ class TreasuryEnvelopesController extends BaseController
                 ['title' => 'Nouvelle'],
             ],
             'envelope'    => null,
-            'isLegacyVat' => false,
             'keyHolders'  => $this->keyModel->getActiveKeyHolders(),
             'formAction'  => base_url('admin/treasury/envelopes'),
             'usedNames'   => $this->getUsedNames(),
@@ -121,12 +120,12 @@ class TreasuryEnvelopesController extends BaseController
         if (!$this->validate([
             'date'                => 'required|valid_date',
             'name_seq'            => 'required|in_list[01,02,03,04,05]',
-            'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
-            'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
-            'amount_21pct_g'      => 'permit_empty|decimal|greater_than_equal_to[0]',
-            'amount_21pct_b'      => 'permit_empty|decimal|greater_than_equal_to[0]',
-            'amount_sumup'        => 'required|decimal|greater_than_equal_to[0]',
-            'closed_by_member_id' => 'required|is_natural_no_zero',
+            'amount_calculated'      => 'required|decimal|greater_than_equal_to[0]',
+            'amount_found'           => 'required|decimal|greater_than_equal_to[0]',
+            'amount_cash_withdrawal' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'amount_cash_addition'   => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'amount_sumup'           => 'required|decimal|greater_than_equal_to[0]',
+            'closed_by_member_id'    => 'required|is_natural_no_zero',
         ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -163,7 +162,6 @@ class TreasuryEnvelopesController extends BaseController
                 ['title' => 'Modifier'],
             ],
             'envelope'    => $envelope,
-            'isLegacyVat' => $envelope->date < TreasuryEnvelopeModel::VAT_CUTOFF,
             'keyHolders'  => $this->keyModel->getActiveKeyHolders(),
             'formAction'  => base_url('admin/treasury/envelopes/' . $id . '/update'),
         ]);
@@ -176,40 +174,28 @@ class TreasuryEnvelopesController extends BaseController
             return redirect()->to(base_url('admin/treasury/envelopes'))->with('error', 'Enveloppe introuvable.');
         }
 
-        $isLegacyVat = $envelope->date < TreasuryEnvelopeModel::VAT_CUTOFF;
-
-        if (!$this->validate(array_merge([
-            'amount_calculated'   => 'required|decimal|greater_than_equal_to[0]',
-            'amount_found'        => 'required|decimal|greater_than_equal_to[0]',
-            'amount_sumup'        => 'required|decimal|greater_than_equal_to[0]',
-            'closed_by_member_id' => 'required|is_natural_no_zero',
-        ], $isLegacyVat ? [
-            'amount_6pct'  => 'permit_empty|decimal|greater_than_equal_to[0]',
-            'amount_12pct' => 'permit_empty|decimal|greater_than_equal_to[0]',
-        ] : [
-            'amount_21pct_g' => 'permit_empty|decimal|greater_than_equal_to[0]',
-            'amount_21pct_b' => 'permit_empty|decimal|greater_than_equal_to[0]',
-        ]))) {
+        if (!$this->validate([
+            'amount_calculated'      => 'required|decimal|greater_than_equal_to[0]',
+            'amount_found'           => 'required|decimal|greater_than_equal_to[0]',
+            'amount_cash_withdrawal' => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'amount_cash_addition'   => 'permit_empty|decimal|greater_than_equal_to[0]',
+            'amount_sumup'           => 'required|decimal|greater_than_equal_to[0]',
+            'closed_by_member_id'    => 'required|is_natural_no_zero',
+        ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
         $post = $this->request->getPost();
         $data = [
-            'amount_calculated'     => (float) $post['amount_calculated'],
-            'amount_found'          => (float) $post['amount_found'],
-            'amount_sumup'          => (float) $post['amount_sumup'],
-            'closed_by_member_id'   => $post['closed_by_member_id'] ?: null,
-            'notes'                 => $post['notes'] ?: null,
-            'modified_by_member_id' => (int) session()->get('member_id') ?: null,
+            'amount_calculated'      => (float) $post['amount_calculated'],
+            'amount_found'           => (float) $post['amount_found'],
+            'amount_cash_withdrawal' => ($post['amount_cash_withdrawal'] !== '' && $post['amount_cash_withdrawal'] !== null) ? (float) $post['amount_cash_withdrawal'] : null,
+            'amount_cash_addition'   => ($post['amount_cash_addition']   !== '' && $post['amount_cash_addition']   !== null) ? (float) $post['amount_cash_addition']   : null,
+            'amount_sumup'           => (float) $post['amount_sumup'],
+            'closed_by_member_id'    => $post['closed_by_member_id'] ?: null,
+            'notes'                  => $post['notes'] ?: null,
+            'modified_by_member_id'  => (int) session()->get('member_id') ?: null,
         ];
-
-        if ($isLegacyVat) {
-            $data['amount_6pct']  = ($post['amount_6pct']  !== '' && $post['amount_6pct']  !== null) ? (float) $post['amount_6pct']  : null;
-            $data['amount_12pct'] = ($post['amount_12pct'] !== '' && $post['amount_12pct'] !== null) ? (float) $post['amount_12pct'] : null;
-        } else {
-            $data['amount_21pct_g'] = ($post['amount_21pct_g'] !== '' && $post['amount_21pct_g'] !== null) ? (float) $post['amount_21pct_g'] : null;
-            $data['amount_21pct_b'] = ($post['amount_21pct_b'] !== '' && $post['amount_21pct_b'] !== null) ? (float) $post['amount_21pct_b'] : null;
-        }
 
         $this->model->update($id, $data);
 
@@ -435,13 +421,13 @@ class TreasuryEnvelopesController extends BaseController
         return [
             'date'                => $post['date'],
             'category'            => 'bar',
-            'amount_calculated'   => (float) $post['amount_calculated'],
-            'amount_found'        => (float) $post['amount_found'],
-            'amount_21pct_g'      => ($post['amount_21pct_g'] !== '' && $post['amount_21pct_g'] !== null) ? (float) $post['amount_21pct_g'] : null,
-            'amount_21pct_b'      => ($post['amount_21pct_b'] !== '' && $post['amount_21pct_b'] !== null) ? (float) $post['amount_21pct_b'] : null,
-            'amount_sumup'        => (float) $post['amount_sumup'],
-            'closed_by_member_id' => ($post['closed_by_member_id'] ?: null),
-            'notes'               => $post['notes'] ?: null,
+            'amount_calculated'      => (float) $post['amount_calculated'],
+            'amount_found'           => (float) $post['amount_found'],
+            'amount_cash_withdrawal' => ($post['amount_cash_withdrawal'] !== '' && $post['amount_cash_withdrawal'] !== null) ? (float) $post['amount_cash_withdrawal'] : null,
+            'amount_cash_addition'   => ($post['amount_cash_addition']   !== '' && $post['amount_cash_addition']   !== null) ? (float) $post['amount_cash_addition']   : null,
+            'amount_sumup'           => (float) $post['amount_sumup'],
+            'closed_by_member_id'    => ($post['closed_by_member_id'] ?: null),
+            'notes'                  => $post['notes'] ?: null,
         ];
     }
 }
