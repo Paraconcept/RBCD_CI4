@@ -153,30 +153,30 @@ $todayPrefix = 'E' . date('d.m.');
                         <h6 class="card-title mb-0"><i class="fas fa-hand-holding-usd mr-1"></i>Mouvements de caisse <small class="text-muted">(facultatif)</small></h6>
                     </div>
                     <div class="card-body py-2">
-                        <div class="row align-items-end">
-                            <div class="col-12 col-lg mb-2 mb-lg-0">
-                                <div class="form-group mb-0">
-                                    <label class="small">Retrait liquide (€)</label>
-                                    <input type="number" name="amount_cash_withdrawal" id="amount_cash_withdrawal"
-                                           class="form-control text-right form-control-sm <?= isset($errors['amount_cash_withdrawal']) ? 'is-invalid' : '' ?>"
-                                           step="0.01" min="0" placeholder="0,00"
-                                           value="<?= esc($v('amount_cash_withdrawal', '')) ?>">
-                                    <?php if (isset($errors['amount_cash_withdrawal'])): ?>
-                                        <div class="invalid-feedback"><?= $errors['amount_cash_withdrawal'] ?></div>
-                                    <?php endif; ?>
-                                </div>
+                        <div class="d-flex align-items-end mb-2">
+                            <strong class="mr-2 pb-1 text-black" style="font-size:1.4rem;width:1.1rem" title="Retrait"><i class="fas fa-minus"></i></strong>
+                            <div class="form-group mb-0" style="max-width:200px">
+                                <label class="small">Retrait liquide (€)</label>
+                                <input type="number" name="amount_cash_withdrawal" id="amount_cash_withdrawal"
+                                       class="form-control text-right form-control-sm <?= isset($errors['amount_cash_withdrawal']) ? 'is-invalid' : '' ?>"
+                                       step="0.01" min="0" placeholder="0,00"
+                                       value="<?= esc($v('amount_cash_withdrawal', '')) ?>">
+                                <?php if (isset($errors['amount_cash_withdrawal'])): ?>
+                                    <div class="invalid-feedback"><?= $errors['amount_cash_withdrawal'] ?></div>
+                                <?php endif; ?>
                             </div>
-                            <div class="col-12 col-lg">
-                                <div class="form-group mb-0">
-                                    <label class="small">Ajout liquide (€)</label>
-                                    <input type="number" name="amount_cash_addition" id="amount_cash_addition"
-                                           class="form-control text-right form-control-sm <?= isset($errors['amount_cash_addition']) ? 'is-invalid' : '' ?>"
-                                           step="0.01" min="0" placeholder="0,00"
-                                           value="<?= esc($v('amount_cash_addition', '')) ?>">
-                                    <?php if (isset($errors['amount_cash_addition'])): ?>
-                                        <div class="invalid-feedback"><?= $errors['amount_cash_addition'] ?></div>
-                                    <?php endif; ?>
-                                </div>
+                        </div>
+                        <div class="d-flex align-items-end">
+                            <strong class="mr-2 pb-1 text-black" style="font-size:1.4rem;width:1.1rem" title="Ajout"><i class="fas fa-plus"></i></strong>
+                            <div class="form-group mb-0" style="max-width:200px">
+                                <label class="small">Ajout liquide (€)</label>
+                                <input type="number" name="amount_cash_addition" id="amount_cash_addition"
+                                       class="form-control text-right form-control-sm <?= isset($errors['amount_cash_addition']) ? 'is-invalid' : '' ?>"
+                                       step="0.01" min="0" placeholder="0,00"
+                                       value="<?= esc($v('amount_cash_addition', '')) ?>">
+                                <?php if (isset($errors['amount_cash_addition'])): ?>
+                                    <div class="invalid-feedback"><?= $errors['amount_cash_addition'] ?></div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
