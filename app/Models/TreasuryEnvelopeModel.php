@@ -13,7 +13,8 @@ class TreasuryEnvelopeModel extends Model
     protected $allowedFields = [
         'name', 'date', 'category', 'amount_calculated', 'amount_found',
         'amount_6pct', 'amount_12pct', 'amount_21pct_g', 'amount_21pct_b',
-        'amount_cash_withdrawal', 'amount_cash_addition', 'amount_sumup',
+        'amount_cash_withdrawal', 'amount_cash_withdrawal_comment',
+        'amount_cash_addition', 'amount_cash_addition_comment', 'amount_sumup',
         'closed_by_member_id', 'encoded_by_member_id', 'modified_by_member_id', 'notes',
     ];
 

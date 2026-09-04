@@ -16,6 +16,8 @@ if ($isEdit) {
     $ecartText     = $ecartSign . number_format($ecartVal, 2, ',', ' ') . ' €';
 }
 $todayPrefix = 'E' . date('d.m.');
+$withdrawalHasAmount = (float) $v('amount_cash_withdrawal', 0) > 0;
+$additionHasAmount   = (float) $v('amount_cash_addition', 0) > 0;
 ?>
 
 <form action="<?= $formAction ?>" method="post" autocomplete="off">
@@ -155,7 +157,7 @@ $todayPrefix = 'E' . date('d.m.');
                     <div class="card-body py-2">
                         <div class="d-flex align-items-end mb-2">
                             <strong class="mr-2 pb-1 text-black" style="font-size:1.4rem;width:1.1rem" title="Retrait"><i class="fas fa-minus"></i></strong>
-                            <div class="form-group mb-0" style="max-width:200px">
+                            <div class="form-group mb-0 mr-2" style="max-width:200px">
                                 <label class="small">Retrait liquide (€)</label>
                                 <input type="number" name="amount_cash_withdrawal" id="amount_cash_withdrawal"
                                        class="form-control text-right form-control-sm <?= isset($errors['amount_cash_withdrawal']) ? 'is-invalid' : '' ?>"
@@ -165,10 +167,21 @@ $todayPrefix = 'E' . date('d.m.');
                                     <div class="invalid-feedback"><?= $errors['amount_cash_withdrawal'] ?></div>
                                 <?php endif; ?>
                             </div>
+                            <div class="form-group mb-0 flex-grow-1">
+                                <label class="small">Commentaire <span id="withdrawalCommentRequired" class="text-danger" style="display:<?= $withdrawalHasAmount ? 'inline' : 'none' ?>">*</span></label>
+                                <input type="text" name="amount_cash_withdrawal_comment" id="amount_cash_withdrawal_comment"
+                                       class="form-control form-control-sm <?= isset($errors['amount_cash_withdrawal_comment']) ? 'is-invalid' : '' ?>"
+                                       maxlength="255" placeholder="Motif du retrait…"
+                                       <?= $withdrawalHasAmount ? 'required' : '' ?>
+                                       value="<?= esc($v('amount_cash_withdrawal_comment', '')) ?>">
+                                <?php if (isset($errors['amount_cash_withdrawal_comment'])): ?>
+                                    <div class="invalid-feedback"><?= $errors['amount_cash_withdrawal_comment'] ?></div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <div class="d-flex align-items-end">
                             <strong class="mr-2 pb-1 text-black" style="font-size:1.4rem;width:1.1rem" title="Ajout"><i class="fas fa-plus"></i></strong>
-                            <div class="form-group mb-0" style="max-width:200px">
+                            <div class="form-group mb-0 mr-2" style="max-width:200px">
                                 <label class="small">Ajout liquide (€)</label>
                                 <input type="number" name="amount_cash_addition" id="amount_cash_addition"
                                        class="form-control text-right form-control-sm <?= isset($errors['amount_cash_addition']) ? 'is-invalid' : '' ?>"
@@ -176,6 +189,17 @@ $todayPrefix = 'E' . date('d.m.');
                                        value="<?= esc($v('amount_cash_addition', '')) ?>">
                                 <?php if (isset($errors['amount_cash_addition'])): ?>
                                     <div class="invalid-feedback"><?= $errors['amount_cash_addition'] ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="form-group mb-0 flex-grow-1">
+                                <label class="small">Commentaire <span id="additionCommentRequired" class="text-danger" style="display:<?= $additionHasAmount ? 'inline' : 'none' ?>">*</span></label>
+                                <input type="text" name="amount_cash_addition_comment" id="amount_cash_addition_comment"
+                                       class="form-control form-control-sm <?= isset($errors['amount_cash_addition_comment']) ? 'is-invalid' : '' ?>"
+                                       maxlength="255" placeholder="Motif de l'ajout…"
+                                       <?= $additionHasAmount ? 'required' : '' ?>
+                                       value="<?= esc($v('amount_cash_addition_comment', '')) ?>">
+                                <?php if (isset($errors['amount_cash_addition_comment'])): ?>
+                                    <div class="invalid-feedback"><?= $errors['amount_cash_addition_comment'] ?></div>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -284,6 +308,15 @@ $(function () {
     updateNameOptions(false); // page load : respecte la valeur PHP old()
     <?php endif; ?>
 
+    function toggleCashComments() {
+        const withdrawal = parseFloat($('#amount_cash_withdrawal').val()) || 0;
+        const addition    = parseFloat($('#amount_cash_addition').val()) || 0;
+        $('#amount_cash_withdrawal_comment').prop('required', withdrawal > 0);
+        $('#withdrawalCommentRequired').toggle(withdrawal > 0);
+        $('#amount_cash_addition_comment').prop('required', addition > 0);
+        $('#additionCommentRequired').toggle(addition > 0);
+    }
+
     function calcAll() {
         const calc       = parseFloat($('#amount_calculated').val()) || 0;
         const found      = parseFloat($('#amount_found').val()) || 0;
@@ -300,6 +333,8 @@ $(function () {
             .text(sign + ecart.toFixed(2).replace('.', ',') + ' €')
             .removeClass('badge-secondary badge-success badge-danger')
             .addClass(ecart === 0 ? 'badge-success' : 'badge-danger');
+
+        toggleCashComments();
     }
 
     $('#amount_calculated, #amount_found, #amount_sumup, #amount_cash_withdrawal, #amount_cash_addition')
@@ -313,6 +348,31 @@ $(function () {
                 icon: 'warning',
                 title: 'Champ obligatoire',
                 text: 'Renseignez la personne qui a clôturé !',
+                confirmButtonColor: '#84252B',
+            });
+            return;
+        }
+
+        const withdrawal = parseFloat($('#amount_cash_withdrawal').val()) || 0;
+        const addition    = parseFloat($('#amount_cash_addition').val()) || 0;
+
+        if (withdrawal > 0 && !$('#amount_cash_withdrawal_comment').val().trim()) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Champ obligatoire',
+                text: 'Indiquez un commentaire pour le retrait liquide !',
+                confirmButtonColor: '#84252B',
+            });
+            return;
+        }
+
+        if (addition > 0 && !$('#amount_cash_addition_comment').val().trim()) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Champ obligatoire',
+                text: 'Indiquez un commentaire pour l\'ajout liquide !',
                 confirmButtonColor: '#84252B',
             });
         }

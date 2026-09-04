@@ -131,6 +131,11 @@ class TreasuryEnvelopesController extends BaseController
         }
 
         $post = $this->request->getPost();
+
+        if ($cashErrors = $this->validateCashComments($post)) {
+            return redirect()->back()->withInput()->with('errors', $cashErrors);
+        }
+
         $name = 'E' . date('d.m.', strtotime($post['date'])) . $post['name_seq'];
 
         if ($this->model->where('name', $name)->countAllResults() > 0) {
@@ -186,15 +191,22 @@ class TreasuryEnvelopesController extends BaseController
         }
 
         $post = $this->request->getPost();
+
+        if ($cashErrors = $this->validateCashComments($post)) {
+            return redirect()->back()->withInput()->with('errors', $cashErrors);
+        }
+
         $data = [
-            'amount_calculated'      => (float) $post['amount_calculated'],
-            'amount_found'           => (float) $post['amount_found'],
-            'amount_cash_withdrawal' => ($post['amount_cash_withdrawal'] !== '' && $post['amount_cash_withdrawal'] !== null) ? (float) $post['amount_cash_withdrawal'] : null,
-            'amount_cash_addition'   => ($post['amount_cash_addition']   !== '' && $post['amount_cash_addition']   !== null) ? (float) $post['amount_cash_addition']   : null,
-            'amount_sumup'           => (float) $post['amount_sumup'],
-            'closed_by_member_id'    => $post['closed_by_member_id'] ?: null,
-            'notes'                  => $post['notes'] ?: null,
-            'modified_by_member_id'  => (int) session()->get('member_id') ?: null,
+            'amount_calculated'              => (float) $post['amount_calculated'],
+            'amount_found'                   => (float) $post['amount_found'],
+            'amount_cash_withdrawal'         => ($post['amount_cash_withdrawal'] !== '' && $post['amount_cash_withdrawal'] !== null) ? (float) $post['amount_cash_withdrawal'] : null,
+            'amount_cash_withdrawal_comment' => trim((string) ($post['amount_cash_withdrawal_comment'] ?? '')) ?: null,
+            'amount_cash_addition'           => ($post['amount_cash_addition']   !== '' && $post['amount_cash_addition']   !== null) ? (float) $post['amount_cash_addition']   : null,
+            'amount_cash_addition_comment'   => trim((string) ($post['amount_cash_addition_comment'] ?? '')) ?: null,
+            'amount_sumup'                   => (float) $post['amount_sumup'],
+            'closed_by_member_id'            => $post['closed_by_member_id'] ?: null,
+            'notes'                          => $post['notes'] ?: null,
+            'modified_by_member_id'          => (int) session()->get('member_id') ?: null,
         ];
 
         $this->model->update($id, $data);
@@ -419,15 +431,32 @@ class TreasuryEnvelopesController extends BaseController
     {
         $post = $this->request->getPost();
         return [
-            'date'                => $post['date'],
-            'category'            => 'bar',
-            'amount_calculated'      => (float) $post['amount_calculated'],
-            'amount_found'           => (float) $post['amount_found'],
-            'amount_cash_withdrawal' => ($post['amount_cash_withdrawal'] !== '' && $post['amount_cash_withdrawal'] !== null) ? (float) $post['amount_cash_withdrawal'] : null,
-            'amount_cash_addition'   => ($post['amount_cash_addition']   !== '' && $post['amount_cash_addition']   !== null) ? (float) $post['amount_cash_addition']   : null,
-            'amount_sumup'           => (float) $post['amount_sumup'],
-            'closed_by_member_id'    => ($post['closed_by_member_id'] ?: null),
-            'notes'                  => $post['notes'] ?: null,
+            'date'                            => $post['date'],
+            'category'                        => 'bar',
+            'amount_calculated'               => (float) $post['amount_calculated'],
+            'amount_found'                    => (float) $post['amount_found'],
+            'amount_cash_withdrawal'          => ($post['amount_cash_withdrawal'] !== '' && $post['amount_cash_withdrawal'] !== null) ? (float) $post['amount_cash_withdrawal'] : null,
+            'amount_cash_withdrawal_comment'  => trim((string) ($post['amount_cash_withdrawal_comment'] ?? '')) ?: null,
+            'amount_cash_addition'            => ($post['amount_cash_addition']   !== '' && $post['amount_cash_addition']   !== null) ? (float) $post['amount_cash_addition']   : null,
+            'amount_cash_addition_comment'    => trim((string) ($post['amount_cash_addition_comment'] ?? '')) ?: null,
+            'amount_sumup'                    => (float) $post['amount_sumup'],
+            'closed_by_member_id'             => ($post['closed_by_member_id'] ?: null),
+            'notes'                           => $post['notes'] ?: null,
         ];
+    }
+
+    private function validateCashComments(array $post): array
+    {
+        $errors = [];
+
+        if ((float) ($post['amount_cash_withdrawal'] ?? 0) > 0 && trim((string) ($post['amount_cash_withdrawal_comment'] ?? '')) === '') {
+            $errors['amount_cash_withdrawal_comment'] = 'Le commentaire est obligatoire si un retrait liquide est indiqué.';
+        }
+
+        if ((float) ($post['amount_cash_addition'] ?? 0) > 0 && trim((string) ($post['amount_cash_addition_comment'] ?? '')) === '') {
+            $errors['amount_cash_addition_comment'] = "Le commentaire est obligatoire si un ajout liquide est indiqué.";
+        }
+
+        return $errors;
     }
 }
