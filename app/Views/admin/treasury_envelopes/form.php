@@ -182,20 +182,18 @@ $todayPrefix = 'E' . date('d.m.');
                     </div>
                 </div>
 
-                <div class="row mt-3">
-                    <div class="col-12 col-lg-4">
-                        <div class="form-group mb-0">
-                            <label>Total</label>
-                            <div class="pt-0">
-                                <span id="total_badge" class="badge badge-success" style="font-size:1rem;padding:.7em;">
-                                    <?php if ($isEdit): ?>
-                                        <?= number_format($totalVal, 2, ',', ' ') ?> €
-                                    <?php else: ?>
-                                        0,00 €
-                                    <?php endif; ?>
-                                </span>
-                            </div>
-                        </div>
+                <div class="card card-outline card-secondary mt-3 mb-0">
+                    <div class="card-header py-2">
+                        <h6 class="card-title mb-0"><i class="fas fa-coins mr-1"></i>TOTAL</h6>
+                    </div>
+                    <div class="card-body py-2">
+                        <span id="total_badge" class="badge badge-success" style="font-size:1rem;padding:.7em;">
+                            <?php if ($isEdit): ?>
+                                <?= number_format($totalVal, 2, ',', ' ') ?> €
+                            <?php else: ?>
+                                0,00 €
+                            <?php endif; ?>
+                        </span>
                     </div>
                 </div>
 
