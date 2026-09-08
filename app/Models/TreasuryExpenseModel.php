@@ -27,6 +27,7 @@ class TreasuryExpenseModel extends Model
         'bnp'              => 'BNP Paribas Fortis',
         'nicolay'          => 'Pierre Nicolay - vin',
         'gv_compta'        => 'GV Compta',
+        'frais_sumup'      => 'Frais SumUp',
         'divers'           => 'Divers',
     ];
 
