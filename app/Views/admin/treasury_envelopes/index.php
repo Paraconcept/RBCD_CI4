@@ -69,6 +69,7 @@
                             <th class="text-right" style="width:100px">21%-B</th>
                             <th class="text-right" style="width:110px">SumUp</th>
                             <th class="text-right" style="width:110px">Écart</th>
+                            <th class="text-right" style="width:110px">Mouvements</th>
                             <th>Clôturé par</th>
                             <th>Encodé par</th>
                             <th>Modifié par</th>
@@ -86,6 +87,7 @@
                         $rB       = $isLegacy
                                     ? (float)$r->amount_found - $rG
                                     : (float)($r->amount_21pct_b ?? 0);
+                        $mvt      = (float)($r->amount_cash_withdrawal ?? 0) - (float)($r->amount_cash_addition ?? 0);
                     ?>
                     <tr>
                         <td><?= date('d/m/Y', strtotime($r->date)) ?></td>
@@ -99,6 +101,7 @@
                                 <?= ($ecart >= 0 ? '+' : '') . number_format($ecart, 2, ',', '.') ?> €
                             </span>
                         </td>
+                        <td class="text-right"><?= $mvt != 0 ? ($mvt >= 0 ? '+' : '') . number_format($mvt, 2, ',', '.') . ' €' : '—' ?></td>
                         <td><?= esc($r->closer_name ?: '—') ?></td>
                         <td><?= esc($r->encoder_name ?: '—') ?></td>
                         <td><?= esc($r->modifier_name ?: '—') ?></td>
@@ -133,6 +136,7 @@
                                     <?= ($ecartMois >= 0 ? '+' : '') . number_format($ecartMois, 2, ',', '.') ?> €
                                 </span>
                             </td>
+                            <td class="text-right"><?= $month['movements'] != 0 ? ($month['movements'] >= 0 ? '+' : '') . number_format($month['movements'], 2, ',', '.') . ' €' : '—' ?></td>
                             <td colspan="4"></td>
                         </tr>
                     </tfoot>
