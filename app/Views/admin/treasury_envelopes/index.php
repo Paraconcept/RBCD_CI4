@@ -87,7 +87,7 @@
                         $rB       = $isLegacy
                                     ? (float)$r->amount_found - $rG
                                     : (float)($r->amount_21pct_b ?? 0);
-                        $mvt      = (float)($r->amount_cash_withdrawal ?? 0) - (float)($r->amount_cash_addition ?? 0);
+                        $mvt      = (float)($r->amount_cash_addition ?? 0) - (float)($r->amount_cash_withdrawal ?? 0);
                     ?>
                     <tr>
                         <td><?= date('d/m/Y', strtotime($r->date)) ?></td>

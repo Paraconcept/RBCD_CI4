@@ -67,7 +67,7 @@ class TreasuryEnvelopesController extends BaseController
             $byMonth[$key]['pctG']       += $rG;
             $byMonth[$key]['pctB']       += $rB;
             $byMonth[$key]['sumup']      += (float) $r->amount_sumup;
-            $byMonth[$key]['movements']  += (float) ($r->amount_cash_withdrawal ?? 0) - (float) ($r->amount_cash_addition ?? 0);
+            $byMonth[$key]['movements']  += (float) ($r->amount_cash_addition ?? 0) - (float) ($r->amount_cash_withdrawal ?? 0);
             $byMonth[$key]['rows'][]      = $r;
         }
 
