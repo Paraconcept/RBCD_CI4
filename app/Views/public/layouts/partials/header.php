@@ -7,6 +7,13 @@
 <meta name="csrf-token" content="<?= csrf_hash() ?>">
 <title><?= esc($title ?? 'RBC Disonais') ?></title>
 
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RBC Disonais">
+<meta property="og:title" content="<?= esc($og_title ?? $title ?? 'RBC Disonais') ?>">
+<meta property="og:description" content="<?= esc($og_description ?? 'Club de billard carambole à Dison, Belgique.') ?>">
+<meta property="og:image" content="<?= esc($og_image ?? base_url('assets/images/favicons/apple-touch-icon.png')) ?>">
+<meta property="og:url" content="<?= esc($og_url ?? current_url()) ?>">
+
 <link rel="shortcut icon" href="<?= base_url('assets/images/favicons/favicon.ico') ?>">
 <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/images/favicons/favicon-32x32.png') ?>">
 <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/images/favicons/favicon-16x16.png') ?>">

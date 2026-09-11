@@ -234,9 +234,12 @@ class PagesController extends BaseController
                 ['label' => 'Accueil',  'url' => base_url('/')],
                 ['label' => esc($news->title)],
             ],
-            'news'          => $news,
-            'galleryImages' => (new \App\Models\NewsImagesModel())->getByNewsId($news->id),
-            'linkedGallery' => $linkedGallery,
+            'news'            => $news,
+            'galleryImages'   => (new \App\Models\NewsImagesModel())->getByNewsId($news->id),
+            'linkedGallery'   => $linkedGallery,
+            'og_title'        => esc($news->title),
+            'og_description'  => esc($news->excerpt ?? ''),
+            'og_image'        => $news->image ? base_url('uploads/news/' . $news->image) : null,
         ]);
     }
 

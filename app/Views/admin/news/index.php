@@ -24,7 +24,7 @@
           <th>Extrait</th>
           <th style="width:110px">Date</th>
           <th style="width:90px">Statut</th>
-          <th style="width:90px"></th>
+          <th style="width:120px"></th>
         </tr>
       </thead>
       <tbody>
@@ -54,6 +54,14 @@
             </form>
           </td>
           <td class="text-right">
+            <?php if ($n->is_published): ?>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode(base_url('actualites/' . $n->slug)) ?>"
+               target="_blank" rel="noopener"
+               onclick="window.open(this.href,'fbshare','width=600,height=500');return false;"
+               class="btn btn-xs btn-info" title="Partager sur Facebook">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <?php endif; ?>
             <a href="<?= base_url('admin/news/' . $n->id . '/edit') ?>"
                class="btn btn-xs btn-warning" title="Modifier">
               <i class="fas fa-edit"></i>
