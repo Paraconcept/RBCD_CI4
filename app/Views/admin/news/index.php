@@ -59,7 +59,7 @@
                   class="d-inline" onsubmit="return confirm('Publier cette actualité sur la page Facebook du club ?');">
               <?= csrf_field() ?>
               <button type="submit" class="btn btn-xs btn-info" title="Partager sur la page Facebook du club">
-                <i class="fab fa-facebook-f"></i>
+                <i class="fas fa-share"></i> <i class="fab fa-facebook-f"></i>
               </button>
             </form>
             <?php endif; ?>
