@@ -141,6 +141,51 @@ class NewsController extends BaseController
         return redirect()->back()->with('success', 'Statut mis à jour.');
     }
 
+    public function shareToFacebook(int $id)
+    {
+        $news = (new NewsModel())->find($id);
+        if (!$news) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+
+        if (!$news->is_published) {
+            return redirect()->back()->with('error', 'Seule une actualité publiée peut être partagée.');
+        }
+
+        $pageId = env('FACEBOOK_PAGE_ID');
+        $token  = env('FACEBOOK_PAGE_ACCESS_TOKEN');
+
+        if (!$pageId || !$token) {
+            return redirect()->back()->with('error', 'Partage Facebook non configuré (FACEBOOK_PAGE_ID / FACEBOOK_PAGE_ACCESS_TOKEN manquants dans .env).');
+        }
+
+        $message = $news->title . ($news->excerpt ? "\n\n" . $news->excerpt : '');
+
+        $ch = curl_init("https://graph.facebook.com/v19.0/{$pageId}/feed");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            'message'      => $message,
+            'link'         => base_url('actualites/' . $news->slug),
+            'access_token' => $token,
+        ]));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        $data = json_decode((string) $response, true);
+
+        if ($httpCode === 200 && isset($data['id'])) {
+            return redirect()->back()->with('success', 'Actualité partagée sur la page Facebook du club.');
+        }
+
+        log_message('error', 'Échec partage Facebook (news #' . $id . ') : ' . ($curlError ?: $response));
+
+        return redirect()->back()->with('error', 'Échec du partage Facebook : ' . ($data['error']['message'] ?? $curlError ?? 'erreur inconnue'));
+    }
+
     public function deleteGalleryImage(int $newsId, int $imageId)
     {
         $imgModel = new NewsImagesModel();

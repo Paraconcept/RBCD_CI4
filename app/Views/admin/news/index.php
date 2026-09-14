@@ -55,12 +55,13 @@
           </td>
           <td class="text-right">
             <?php if ($n->is_published): ?>
-            <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode(base_url('actualites/' . $n->slug)) ?>"
-               target="_blank" rel="noopener"
-               onclick="window.open(this.href,'fbshare','width=600,height=500');return false;"
-               class="btn btn-xs btn-info" title="Partager sur Facebook">
-              <i class="fab fa-facebook-f"></i>
-            </a>
+            <form method="post" action="<?= base_url('admin/news/' . $n->id . '/share-facebook') ?>"
+                  class="d-inline" onsubmit="return confirm('Publier cette actualité sur la page Facebook du club ?');">
+              <?= csrf_field() ?>
+              <button type="submit" class="btn btn-xs btn-info" title="Partager sur la page Facebook du club">
+                <i class="fab fa-facebook-f"></i>
+              </button>
+            </form>
             <?php endif; ?>
             <a href="<?= base_url('admin/news/' . $n->id . '/edit') ?>"
                class="btn btn-xs btn-warning" title="Modifier">

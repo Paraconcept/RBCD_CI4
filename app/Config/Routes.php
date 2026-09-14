@@ -226,6 +226,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('news/(:num)/update',     'Admin\NewsController::update/$1');
         $routes->post('news/(:num)/delete',                         'Admin\NewsController::delete/$1');
         $routes->post('news/(:num)/toggle',                         'Admin\NewsController::toggle/$1');
+        $routes->post('news/(:num)/share-facebook',                 'Admin\NewsController::shareToFacebook/$1');
         $routes->post('news/(:num)/gallery/(:num)/delete',          'Admin\NewsController::deleteGalleryImage/$1/$2');
 
         // Coupe des Régions (CDR)
