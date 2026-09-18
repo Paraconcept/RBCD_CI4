@@ -88,6 +88,128 @@
       </div>
     </div>
 
+    <?php if ($team->frbb_team_id): ?>
+    <!-- Séparateur -->
+    <div class="row mt-20 mb-10">
+      <div class="separator">
+        <img src="<?= base_url('assets/images/billiard-chalk.png') ?>"
+             alt="Séparateur Craie de billard"
+             style="width:20px;opacity:0.7;margin: 0 10px;">
+      </div>
+    </div>
+
+    <!-- Calendrier des rencontres (via l'API frbb-liege-lux.be) -->
+    <div class="row">
+      <div class="col-lg-10 mx-auto">
+        <h4 class="font-weight-700 mb-20 text-center">Calendrier des rencontres</h4>
+
+        <?php if ($frbbCalendar === null): ?>
+          <div class="alert alert-info text-center mb-0">
+            <i class="fas fa-info-circle fa-2x mb-2 d-block"></i>
+            Calendrier temporairement indisponible.
+          </div>
+        <?php elseif (empty($frbbCalendar['calendar'])): ?>
+          <div class="alert alert-info text-center mb-0">
+            <i class="fas fa-info-circle fa-2x mb-2 d-block"></i>
+            Aucune rencontre programmée pour cette saison.
+          </div>
+        <?php else: ?>
+          <?php foreach (['aller' => 'Match aller', 'retour' => 'Match retour'] as $phaseKey => $phaseLabel): ?>
+            <?php foreach (($frbbCalendar['calendar'][$phaseKey] ?? []) as $tourNum => $tourMatchs): ?>
+            <h5 class="cdr-tour-heading">
+              <i class="fas fa-dot-circle me-2"></i>Tour <?= (int) $tourNum ?>
+              <span class="cdr-tour-phase"><?= $phaseLabel ?></span>
+            </h5>
+            <ul class="comp-accordion">
+              <?php foreach ($tourMatchs as $m): ?>
+              <?php
+                $accId = 'cdr-match-' . $m['id'];
+                $homeOutcomeClass = $awayOutcomeClass = '';
+                if ($m['has_result']) {
+                    if ($m['home_score'] > $m['away_score'])      { $homeOutcomeClass = 'cdr-duel-win';  $awayOutcomeClass = 'cdr-duel-lose'; }
+                    elseif ($m['home_score'] < $m['away_score'])  { $homeOutcomeClass = 'cdr-duel-lose'; $awayOutcomeClass = 'cdr-duel-win';  }
+                    else                                          { $homeOutcomeClass = $awayOutcomeClass = 'cdr-duel-draw'; }
+                }
+              ?>
+              <li class="accordion block">
+                <button class="comp-accordion-btn" data-id="<?= $accId ?>">
+                  <span class="cdr-match-date">
+                    <?= $m['match_date'] ? date('d/m/Y', strtotime($m['match_date'])) : 'Date à définir' ?>
+                  </span>
+                  <span class="cdr-match-composition">
+                    <span class="cdr-match-home <?= $homeOutcomeClass ?> <?= $m['is_home'] ? 'cdr-match-us' : '' ?>"><?= esc($m['home_name'] ?? '?') ?></span>
+                    <span class="cdr-match-score">
+                      <?= $m['has_result'] ? ((int) $m['home_score'] . ' - ' . (int) $m['away_score']) : '—' ?>
+                    </span>
+                    <span class="cdr-match-away <?= $awayOutcomeClass ?> <?= !$m['is_home'] ? 'cdr-match-us' : '' ?>"><?= esc($m['away_name'] ?? '?') ?></span>
+                  </span>
+                  <?php if ($m['has_result']): ?>
+                  <i class="fas fa-chart-bar" style="color:#84252B;"></i>
+                  <?php endif; ?>
+                  <i class="fas fa-chevron-down comp-chevron"></i>
+                </button>
+                <div class="comp-accordion-body" id="<?= $accId ?>">
+                  <?php if (empty($m['duels'])): ?>
+                    <p class="text-muted mb-0">Résultats pas encore encodés.</p>
+                  <?php else: ?>
+                  <div class="table-responsive">
+                  <table class="cdr-duel-table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Domicile</th>
+                        <th>Score</th>
+                        <th></th>
+                        <th>Score</th>
+                        <th>Extérieur</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      $resClass = fn(?string $r) => $r === 'V' ? 'cdr-duel-win' : ($r === 'D' ? 'cdr-duel-lose' : ($r === 'N' ? 'cdr-duel-draw' : ($r === 'F' ? 'cdr-duel-forfait' : '')));
+                      $realise  = fn(?int $car, ?int $rep, ?float $moy, ?string $res) => ($car === null && $rep === null)
+                          ? ($res === 'F' ? 'FF' : '-')
+                          : ($car ?? '-') . ' / ' . ($rep ?? '-') . ' = ' . ($moy !== null ? number_format($moy, 3, ',', ' ') : '-');
+                      $ptsLabel = function (?int $pts, ?int $orig, bool $forced): string {
+                          if ($pts === null) return '';
+                          return $forced ? "($orig->$pts)" : "($pts)";
+                      };
+                      ?>
+                      <?php foreach ($m['duels'] as $d): ?>
+                      <tr>
+                        <td class="text-center"><?= $d['position'] ?></td>
+                        <td class="<?= $resClass($d['home_res']) ?>">
+                          <div class="cdr-duel-home-name">
+                            <span><?= esc($d['home_name']) ?></span>
+                            <span class="cdr-duel-pts"><?= $ptsLabel($d['home_pts'], $d['home_pts_orig'], $d['home_forced']) ?></span>
+                          </div>
+                        </td>
+                        <td class="text-center"><?= $realise($d['home_car'], $d['home_rep'], $d['home_moy'], $d['home_res']) ?></td>
+                        <td class="text-center">vs</td>
+                        <td class="text-center"><?= $realise($d['away_car'], $d['away_rep'], $d['away_moy'], $d['away_res']) ?></td>
+                        <td class="<?= $resClass($d['away_res']) ?>">
+                          <div class="cdr-duel-away-name">
+                            <span class="cdr-duel-pts"><?= $ptsLabel($d['away_pts'], $d['away_pts_orig'], $d['away_forced']) ?></span>
+                            <span><?= esc($d['away_name']) ?></span>
+                          </div>
+                        </td>
+                      </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                  </div>
+                  <?php endif; ?>
+                </div>
+              </li>
+              <?php endforeach; ?>
+            </ul>
+            <?php endforeach; ?>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <?php if (!empty($sportResults)): ?>
     <!-- Séparateur -->
     <div class="row mt-20 mb-10">
@@ -209,5 +331,92 @@
         margin: 0 auto;
     }
 }
+
+/* ── Calendrier des rencontres — accordéon (repris de frbb-liege-lux.be, couleurs RBCD) ── */
+.cdr-tour-heading {
+    font-size: .95rem; font-weight: 700; color: #fff;
+    background: #84252B; margin: 22px 0 8px; padding: 8px 14px;
+    border-radius: 4px;
+}
+.cdr-tour-heading:first-child { margin-top: 0; }
+.cdr-tour-heading .cdr-tour-phase {
+    margin-left: 10px; font-weight: 400; font-size: .78em;
+    text-transform: uppercase; letter-spacing: .4px; color: rgba(255,255,255,.8);
+}
+.comp-accordion { list-style: none; padding: 0; margin: 0; }
+.comp-accordion li {
+    border: 1px solid #e5e5e5; border-radius: 4px;
+    margin-bottom: 4px; overflow: hidden;
+    transition: box-shadow .15s;
+}
+.comp-accordion li:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.comp-accordion-btn {
+    width: 100%; text-align: left; background: #fff;
+    border: none; padding: 10px 14px; font-size: 1rem;
+    font-weight: 600; color: #333; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: background .15s;
+}
+.comp-accordion-btn:hover { background: #fdf3f4; }
+.comp-accordion-btn .comp-chevron {
+    margin-left: auto; font-size: .7rem; color: #84252B;
+    transition: transform .2s; flex-shrink: 0;
+}
+.comp-accordion-btn.open { background: #fdf3f4; }
+.comp-accordion-btn.open .comp-chevron { transform: rotate(180deg); }
+.comp-accordion-body {
+    display: none; padding: 14px 16px 16px;
+    background: #fafafa; border-top: 1px solid #f0f0f0;
+    font-size: .82rem; color: #555;
+}
+.cdr-match-date { flex-shrink: 0; font-weight: 400; font-size: .82em; color: #888; }
+.cdr-match-composition {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    gap: 12px; flex: 1; margin: 0 24px; min-width: 0;
+    font-weight: 600; color: #333;
+}
+.cdr-match-composition .cdr-match-home {
+    text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cdr-match-composition .cdr-match-away {
+    text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cdr-match-composition .cdr-match-us { color: #84252B; }
+.cdr-match-score { font-weight: 700; color: #171717; min-width: 42px; text-align: center; }
+
+.cdr-duel-table { width: 100%; font-size: .9rem; border-collapse: collapse; white-space: nowrap; }
+.cdr-duel-table th {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .4px;
+    background: #84252B; color: #fff; padding: 6px 8px; text-align: center;
+}
+.cdr-duel-table td { padding: 6px 8px; border-top: 1px solid #f0f0f0; }
+.cdr-duel-table td.text-center { color: #333; }
+.cdr-duel-table .cdr-duel-home-name,
+.cdr-duel-table .cdr-duel-away-name {
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+}
+.cdr-duel-pts { color: #888; font-weight: 400; font-size: .9em; }
+.cdr-duel-win  { color: #198754; font-weight: 700; }
+.cdr-duel-lose { color: #dc3545; font-weight: 700; }
+.cdr-duel-draw { color: #0d6efd; font-weight: 700; }
+.cdr-duel-forfait { color: #fd7e14; font-weight: 700; }
 </style>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+document.querySelectorAll('.comp-accordion-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var isOpen = this.classList.contains('open');
+        document.querySelectorAll('.comp-accordion-btn').forEach(function(b) {
+            b.classList.remove('open');
+            document.getElementById(b.dataset.id).style.display = 'none';
+        });
+        if (!isOpen) {
+            this.classList.add('open');
+            document.getElementById(this.dataset.id).style.display = 'block';
+        }
+    });
+});
+</script>
 <?= $this->endSection() ?>

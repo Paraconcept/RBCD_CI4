@@ -70,6 +70,21 @@
       <div class="row">
         <div class="col-md-4">
           <div class="form-group">
+            <label for="frbb_team_id">ID équipe sur frbb-liege-lux.be</label>
+            <input type="number" name="frbb_team_id" id="frbb_team_id" class="form-control"
+                   value="<?= esc(old('frbb_team_id', $team->frbb_team_id ?? '')) ?>"
+                   placeholder="Ex : 40">
+            <small class="form-text text-muted">
+              Identifiant de cette équipe dans <code>cdr_teams</code> côté FRBB-LL — permet d'afficher
+              son calendrier de rencontres sur sa page publique. Laisser vide si non applicable.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-group">
             <label for="player1_id">Joueur 1 <span class="text-danger">*</span></label>
             <select name="player1_id" id="player1_id" class="form-control" required>
               <option value="">— Choisir —</option>

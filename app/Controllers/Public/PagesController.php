@@ -301,6 +301,9 @@ class PagesController extends BaseController
             ],
             'team'         => $team,
             'sportResults' => (new \App\Models\SportResultModel())->getByCdrTeam($id, publishedOnly: true),
+            'frbbCalendar' => $team->frbb_team_id
+                ? (new \App\Libraries\FrbbCdrClient())->getTeamCalendar((int) $team->frbb_team_id)
+                : null,
         ]);
     }
 
