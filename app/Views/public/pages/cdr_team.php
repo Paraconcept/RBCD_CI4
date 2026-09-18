@@ -3,10 +3,10 @@
 <?= $this->section('content') ?>
 
 <!-- Suggestion mode paysage (smartphone) -->
-<div id="cdrLandscapeHint" class="cdr-landscape-hint" role="alert">
-  <i class="fas fa-mobile-alt cdr-landscape-hint-icon"></i>
-  <span>Pour un meilleur affichage, tournez votre écran en mode paysage.</span>
-  <button type="button" class="cdr-landscape-hint-close" aria-label="Fermer">&times;</button>
+<div class="cdr-rotate-hint" id="cdrRotateHint" role="alert">
+  <button type="button" class="cdr-rotate-hint-close" aria-label="Fermer" onclick="document.getElementById('cdrRotateHint').remove()">&times;</button>
+  <i class="fas fa-mobile-alt fa-rotate-90"></i>
+  <p>Pour un meilleur confort de lecture, tournez votre téléphone en mode paysage.</p>
 </div>
 
 <section class="section-padding">
@@ -398,38 +398,25 @@
 .cdr-duel-draw { color: #0d6efd; font-weight: 700; }
 .cdr-duel-forfait { color: #fd7e14; font-weight: 700; }
 
-/* ── Suggestion mode paysage (smartphone en portrait) ── */
-.cdr-landscape-hint {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 1050;
-    background: #84252B;
-    color: #fff;
-    padding: 10px 40px 10px 16px;
-    font-size: .85rem;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.2);
-}
-.cdr-landscape-hint-icon {
-    font-size: 1.2rem;
-    animation: cdr-rotate-hint 1.6s ease-in-out infinite;
-}
-@keyframes cdr-rotate-hint {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(-90deg); }
-}
-.cdr-landscape-hint-close {
-    position: absolute; top: 6px; right: 10px;
-    background: none; border: none; color: #fff;
-    font-size: 1.3rem; line-height: 1; cursor: pointer;
-    padding: 4px 8px;
-}
-@media (max-width: 767px) and (orientation: portrait) {
-    .cdr-landscape-hint.show { display: flex; }
+/* ── Suggestion de rotation (repris à l'identique du site FRBB-LL) : n'apparaît
+   qu'en portrait sur petit écran, aucun effet sur PC/tablette ni en paysage réel.
+   Fermable, pas de fond assombri : le reste de la page reste cliquable derrière. */
+.cdr-rotate-hint { display: none; }
+@media (max-width: 767.98px) and (orientation: portrait) {
+    .cdr-rotate-hint {
+        display: block; position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%); z-index: 2000;
+        background: rgba(23,23,23,.96); color: #fff;
+        padding: 26px 24px 22px; border-radius: 10px;
+        box-shadow: 0 6px 24px rgba(0,0,0,.35); max-width: 85%; text-align: center;
+    }
+    .cdr-rotate-hint i { display: block; font-size: 2rem; margin-bottom: 10px; color: #84252B; }
+    .cdr-rotate-hint p { margin: 0; font-size: 1rem; font-weight: 600; color: #fff; }
+    .cdr-rotate-hint-close {
+        position: absolute; top: 4px; right: 10px; background: none; border: none;
+        color: #fff; font-size: 1.5rem; line-height: 1; opacity: .8; cursor: pointer;
+    }
+    .cdr-rotate-hint-close:hover { opacity: 1; }
 }
 
 /* ── Calendrier / Résultats en pleine largeur sur smartphone ── */
@@ -464,27 +451,5 @@ document.querySelectorAll('.comp-accordion-btn').forEach(function(btn) {
         }
     });
 });
-
-(function() {
-    var hint = document.getElementById('cdrLandscapeHint');
-    if (!hint) return;
-    var closeBtn = hint.querySelector('.cdr-landscape-hint-close');
-    var dismissed = false;
-
-    function update() {
-        if (dismissed) { hint.classList.remove('show'); return; }
-        var isPortraitSmartphone = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
-        hint.classList.toggle('show', isPortraitSmartphone);
-    }
-
-    closeBtn.addEventListener('click', function() {
-        dismissed = true;
-        hint.classList.remove('show');
-    });
-
-    window.addEventListener('resize', update);
-    window.addEventListener('orientationchange', update);
-    update();
-})();
 </script>
 <?= $this->endSection() ?>
