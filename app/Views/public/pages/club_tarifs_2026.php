@@ -40,7 +40,8 @@
           <h5 class="tarif-title">Cotisation RBCD</h5>
           <p class="tarif-desc">
             Obligatoire pour tout membre, quel que soit son statut (effectif ou sympathisant).<br>
-            Scindée en deux paiements de <strong><?= $cotisationDemi ?> €</strong> : 1<sup>er</sup>–5 janvier (S1) et 1<sup>er</sup>–5 juillet (S2).
+            Scindée en deux paiements de <strong><?= $cotisationDemi ?> €</strong> : <br>
+            -> 1<sup>er</sup> – 5 janvier (S1) <br>-> 1<sup>er</sup> – 5 juillet (S2).&nbsp;
           </p>
         </div>
       </div>

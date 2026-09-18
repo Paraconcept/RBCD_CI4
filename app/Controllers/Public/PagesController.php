@@ -172,20 +172,9 @@ class PagesController extends BaseController
         ]);
     }
 
-    public function clubTarifs(): string
+    public function clubTarifs()
     {
-        $treasury = (new \App\Models\TreasurySettingModel())->first();
-
-        return view('public/pages/club_tarifs', [
-            'title'       => 'Tarifs & Fonctionnement — RBC Disonais',
-            'page_title'  => 'Tarifs & Fonctionnement',
-            'breadcrumbs' => [
-                ['label' => 'Accueil', 'url' => base_url('/')],
-                ['label' => 'Le Club', 'url' => '#'],
-                ['label' => 'Tarifs & Fonctionnement'],
-            ],
-            'treasury' => $treasury,
-        ]);
+        return redirect()->to(base_url('club/tarifs-2026'));
     }
 
     public function clubTarifs2026(): string
@@ -193,12 +182,12 @@ class PagesController extends BaseController
         $treasury = (new \App\Models\TreasurySettingModel())->first();
 
         return view('public/pages/club_tarifs_2026', [
-            'title'       => 'Tarifs & Fonctionnement 2026 — RBC Disonais',
-            'page_title'  => 'Tarifs & Fonctionnement 2026',
+            'title'       => 'Tarifs & Fonctionnement — RBC Disonais',
+            'page_title'  => 'Tarifs & Fonctionnement',
             'breadcrumbs' => [
                 ['label' => 'Accueil', 'url' => base_url('/')],
                 ['label' => 'Le Club', 'url' => '#'],
-                ['label' => 'Tarifs & Fonctionnement 2026'],
+                ['label' => 'Tarifs & Fonctionnement'],
             ],
             'treasury' => $treasury,
         ]);
