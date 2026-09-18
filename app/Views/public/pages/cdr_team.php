@@ -116,10 +116,6 @@
         <?php else: ?>
           <?php foreach (['aller' => 'Match aller', 'retour' => 'Match retour'] as $phaseKey => $phaseLabel): ?>
             <?php foreach (($frbbCalendar['calendar'][$phaseKey] ?? []) as $tourNum => $tourMatchs): ?>
-            <h5 class="cdr-tour-heading">
-              <i class="fas fa-dot-circle me-2"></i>Tour <?= (int) $tourNum ?>
-              <span class="cdr-tour-phase"><?= $phaseLabel ?></span>
-            </h5>
             <ul class="comp-accordion">
               <?php foreach ($tourMatchs as $m): ?>
               <?php
@@ -133,6 +129,7 @@
               ?>
               <li class="accordion block">
                 <button class="comp-accordion-btn" data-id="<?= $accId ?>">
+                  <span class="cdr-match-tour">T<?= (int) $tourNum ?></span>
                   <span class="cdr-match-date">
                     <?= $m['match_date'] ? date('d/m/Y', strtotime($m['match_date'])) : 'Date à définir' ?>
                   </span>
@@ -333,16 +330,7 @@
 }
 
 /* ── Calendrier des rencontres — accordéon (repris de frbb-liege-lux.be, couleurs RBCD) ── */
-.cdr-tour-heading {
-    font-size: .95rem; font-weight: 700; color: #fff;
-    background: #84252B; margin: 22px 0 8px; padding: 8px 14px;
-    border-radius: 4px;
-}
-.cdr-tour-heading:first-child { margin-top: 0; }
-.cdr-tour-heading .cdr-tour-phase {
-    margin-left: 10px; font-weight: 400; font-size: .78em;
-    text-transform: uppercase; letter-spacing: .4px; color: rgba(255,255,255,.8);
-}
+.cdr-match-tour { flex-shrink: 0; font-weight: 700; color: #84252B; font-size: .9em; }
 .comp-accordion { list-style: none; padding: 0; margin: 0; }
 .comp-accordion li {
     border: 1px solid #e5e5e5; border-radius: 4px;
