@@ -106,7 +106,7 @@
     </div>
 
     <!-- Calendrier des rencontres (via l'API frbb-liege-lux.be) -->
-    <div class="row">
+    <div class="row cdr-fullwidth-mobile">
       <div class="col-lg-10 mx-auto">
         <h4 class="font-weight-700 mb-20 text-center">Calendrier des rencontres / Résultats</h4>
 
@@ -225,7 +225,9 @@
     </div>
 
     <!-- Palmarès de l'équipe -->
-    <?= view('public/pages/_sport_results_block', ['sportResults' => $sportResults, 'teamName' => $team->name, 'season' => $team->season]) ?>
+    <div class="cdr-fullwidth-mobile cdr-fullwidth-mobile-pad">
+      <?= view('public/pages/_sport_results_block', ['sportResults' => $sportResults, 'teamName' => $team->name, 'season' => $team->season]) ?>
+    </div>
     <?php endif; ?>
 
     <!-- Séparateur -->
@@ -428,6 +430,21 @@
 }
 @media (max-width: 767px) and (orientation: portrait) {
     .cdr-landscape-hint.show { display: flex; }
+}
+
+/* ── Calendrier / Résultats en pleine largeur sur smartphone ── */
+@media (max-width: 767px) {
+    .cdr-fullwidth-mobile {
+        width: 100vw;
+        max-width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+    }
+    .cdr-fullwidth-mobile-pad {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        box-sizing: border-box;
+    }
 }
 </style>
 <?= $this->endSection() ?>
