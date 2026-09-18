@@ -101,7 +101,7 @@
     <!-- Calendrier des rencontres (via l'API frbb-liege-lux.be) -->
     <div class="row">
       <div class="col-lg-10 mx-auto">
-        <h4 class="font-weight-700 mb-20 text-center">Calendrier des rencontres</h4>
+        <h4 class="font-weight-700 mb-20 text-center">Calendrier des rencontres / Résultats</h4>
 
         <?php if ($frbbCalendar === null): ?>
           <div class="alert alert-info text-center mb-0">
