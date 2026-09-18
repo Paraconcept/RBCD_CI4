@@ -12,6 +12,7 @@ class SchoolSettingModel extends Model
 
     protected $allowedFields = [
         'teacher_member_id',
+        'teacher_name',
         'contact_member_id',
         'schedule',
         'frequency_per_month',

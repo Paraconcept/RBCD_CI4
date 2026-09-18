@@ -19,7 +19,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label for="teacher_member_id">Professeur</label>
+            <label for="teacher_member_id">Professeur (membre du club)</label>
             <select name="teacher_member_id" id="teacher_member_id" class="form-control">
               <option value="">— Aucun —</option>
               <?php foreach ($members as $m): ?>
@@ -29,6 +29,16 @@
               </option>
               <?php endforeach; ?>
             </select>
+          </div>
+          <div class="form-group">
+            <label for="teacher_name">Ou : professeur externe (non membre)</label>
+            <input type="text" name="teacher_name" id="teacher_name" class="form-control"
+                   value="<?= esc($settings->teacher_name ?? '') ?>"
+                   placeholder="Ex : Jean Dupont">
+            <small class="form-text text-muted">
+              Si le professeur n'est pas membre du club, laissez la liste ci-dessus sur « Aucun » et indiquez son nom ici.
+              Ce champ est ignoré si un membre est sélectionné au-dessus.
+            </small>
           </div>
         </div>
         <div class="col-md-6">

@@ -28,7 +28,7 @@
         <?php
           $teacherName = $teacher
               ? esc($teacher->first_name . ' ' . $teacher->last_name)
-              : '&nbsp;';
+              : (($school->teacher_name ?? null) ? esc($school->teacher_name) : '&nbsp;');
           $freq        = $school->frequency_per_month ?? 4;
           $schedule    = $school->schedule ?? 'Samedi, 10h00 — 12h00';
           $price       = $treasury ? number_format((float)$treasury->annual_cotisation, 0, ',', '') : '50';

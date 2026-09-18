@@ -32,8 +32,11 @@ class SchoolController extends BaseController
         $model    = new SchoolSettingModel();
         $settings = $model->first();
 
+        $teacherMemberId = $this->request->getPost('teacher_member_id') ?: null;
+
         $data = [
-            'teacher_member_id'   => $this->request->getPost('teacher_member_id') ?: null,
+            'teacher_member_id'   => $teacherMemberId,
+            'teacher_name'        => $teacherMemberId ? null : ($this->request->getPost('teacher_name') ?: null),
             'contact_member_id'   => $this->request->getPost('contact_member_id') ?: null,
             'schedule'            => $this->request->getPost('schedule'),
             'frequency_per_month' => (int) $this->request->getPost('frequency_per_month'),
