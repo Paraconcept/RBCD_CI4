@@ -53,6 +53,7 @@ $routes->get('club/membres',          'Public\PagesController::clubMembres');
 $routes->get('club/membres/(:num)',   'Public\PagesController::clubMembre/$1');
 $routes->get('club/ecole-de-billard', 'Public\PagesController::ecoleBillard');
 $routes->get('club/tarifs',           'Public\PagesController::clubTarifs');
+$routes->get('club/tarifs-2026',      'Public\PagesController::clubTarifs2026');
 $routes->get('contact',               'Public\PagesController::contact');
 
 // Actualités (publiques)
