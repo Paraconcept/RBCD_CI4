@@ -79,14 +79,6 @@
     <!-- ── Contenu à droite ──────────────────────────────────── -->
     <div class="col-md-9 col-lg-10">
 
-        <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <i class="fas fa-check-circle mr-1"></i>
-            <?= session()->getFlashdata('success') ?>
-        </div>
-        <?php endif; ?>
-
         <div class="tab-content" id="memberTabsContent">
 
             <!-- ══════════════════════════════════════════════════════

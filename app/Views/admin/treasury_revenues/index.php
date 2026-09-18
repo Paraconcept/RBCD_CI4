@@ -1,13 +1,6 @@
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('content') ?>
 
-<?php if ($success = session()->getFlashdata('success')): ?>
-    <div class="alert alert-success alert-dismissible flash-msg">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <i class="fas fa-check-circle mr-1"></i> <?= esc($success) ?>
-    </div>
-<?php endif; ?>
-
 <!-- Filtres + bouton -->
 <div class="d-flex align-items-center mb-3 flex-wrap" style="gap:.5rem">
     <form method="get" class="d-flex align-items-center mr-3" id="filterForm">

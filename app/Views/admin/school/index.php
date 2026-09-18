@@ -1,13 +1,6 @@
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('content') ?>
 
-<?php if (session()->getFlashdata('success')): ?>
-  <div class="alert alert-success alert-dismissible fade show">
-    <?= session()->getFlashdata('success') ?>
-    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-  </div>
-<?php endif; ?>
-
 <div class="card card-outline card-primary">
   <div class="card-header">
     <h3 class="card-title"><i class="fas fa-users-cog mr-2"></i>Paramètres de l'École de Billard</h3>

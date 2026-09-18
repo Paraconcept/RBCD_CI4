@@ -1,13 +1,6 @@
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('content') ?>
 
-<?php if (session()->getFlashdata('success')): ?>
-  <div class="alert alert-success alert-dismissible fade show">
-    <?= session()->getFlashdata('success') ?>
-    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-  </div>
-<?php endif; ?>
-
 <div class="card card-outline card-primary">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h3 class="card-title mb-0"><i class="fas fa-trophy mr-2"></i>Coupe des Régions — Équipes</h3>

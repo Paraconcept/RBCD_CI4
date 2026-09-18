@@ -1,13 +1,6 @@
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('content') ?>
 
-<?php if ($msg = session()->getFlashdata('success')): ?>
-  <div class="alert alert-success"><?= esc($msg) ?></div>
-<?php endif; ?>
-<?php if ($msg = session()->getFlashdata('error')): ?>
-  <div class="alert alert-danger"><?= esc($msg) ?></div>
-<?php endif; ?>
-
 <div class="card card-outline card-primary">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h3 class="card-title"><i class="fas fa-file-pdf mr-2"></i>Documents PDF</h3>

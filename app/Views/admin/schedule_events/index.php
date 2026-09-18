@@ -12,12 +12,6 @@
     </div>
     <div class="card-body p-0">
 
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success m-3 mb-0">
-                <?= esc(session()->getFlashdata('success')) ?>
-            </div>
-        <?php endif; ?>
-
         <?php if (empty($events)): ?>
             <p class="text-muted p-3 mb-0">Aucun événement enregistré.</p>
         <?php else: ?>
