@@ -11,7 +11,7 @@ namespace App\Libraries;
  */
 class FrbbCdrClient
 {
-    private const CACHE_TTL = 900; // 15 min
+    private const CACHE_TTL = 300; // 5 min
 
     public function getTeamCalendar(int $frbbTeamId): ?array
     {
