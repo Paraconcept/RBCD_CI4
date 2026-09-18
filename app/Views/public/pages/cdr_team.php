@@ -330,7 +330,7 @@
 }
 
 /* ── Calendrier des rencontres — accordéon (repris de frbb-liege-lux.be, couleurs RBCD) ── */
-.cdr-match-tour { flex-shrink: 0; font-weight: 700; color: #84252B; font-size: .9em; }
+.cdr-match-tour { flex-shrink: 0; font-weight: 700; color: #84252B; font-size: .9em; margin-right: 14px; }
 .comp-accordion { list-style: none; padding: 0; margin: 0; }
 .comp-accordion li {
     border: 1px solid #e5e5e5; border-radius: 4px;
