@@ -53,7 +53,7 @@
           <h5 class="tarif-title">Membre sympathisant</h5>
           <p class="tarif-desc">
             Cotisation de <?= $membreSympathisant ?> € par semestre (janvier-juin / juillet-décembre) permettant un accès aux locaux.<br>
-            L'utilisation des billards est conditionnée à l'achat d'une carte prépayée de 5 séances d'entraînement (max. 4h consécutives), valable 6 mois.<br>
+            L'utilisation des billards est conditionnée à l'achat d'une carte prépayée d'une valeur de 30 € donnant droit à 5 séances d'entraînement (max. 4h consécutives), valable 6 mois.<br>
             Carte nominative semestrielle de membre sympathisant.
           </p>
         </div>
