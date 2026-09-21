@@ -32,8 +32,8 @@
 
       <!-- Membre effectif -->
       <div class="col-md-6 mb-30">
-        <div class="tarif-card h-100">
-          <div class="tarif-badge" style="background:#84252B;color:#fff;">Membre effectif</div>
+        <div class="tarif-card tarif-card-red h-100">
+          <div class="tarif-badge">Membre effectif</div>
           <div class="tarif-icon"><i class="fas fa-infinity"></i></div>
           <div class="tarif-amount"><?= $membreEffectif ?> <span class="tarif-unit">€ / semestre</span></div>
           <h5 class="tarif-title">Membre effectif</h5>
@@ -149,6 +149,18 @@
     transition: box-shadow .2s;
 }
 .tarif-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+
+.tarif-card-red {
+    border-top-color: #84252B;
+    background: #84252B;
+    color: #fff;
+}
+.tarif-card-red .tarif-desc,
+.tarif-card-red .tarif-title { color: #fff; }
+.tarif-card-red .tarif-icon  { color: rgba(255,255,255,.8); }
+.tarif-card-red .tarif-amount { color: #fff; }
+.tarif-card-red .tarif-unit   { color: rgba(255,255,255,.75); }
+.tarif-card-red .tarif-link  { color: #ffc107; }
 
 .tarif-card-blue {
     border-top-color: #1B4F72;
