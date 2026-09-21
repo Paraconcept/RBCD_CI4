@@ -20,142 +20,75 @@
     </div>
 
     <?php
-      $cotisation   = $treasury ? number_format((float)$treasury->annual_cotisation, 0, ',', '') : '60';
-      $cotisationDemi = number_format((float)$cotisation / 2, 0, ',', '');
-      $forfait      = $treasury ? number_format((float)($treasury->forfait_price  ?? 75),  2, ',', '') : '75,00';
-      $horaire      = $treasury ? number_format((float)($treasury->hourly_price   ?? 2.5), 2, ',', '') : '2,50';
-      $cours        = $treasury ? number_format((float)($treasury->lesson_price   ?? 5),   2, ',', '') : '5,00';
-      $carte        = '30,00';
-      $carteSeances = 5;
+      $forfaitBillard      = $treasury ? (float)($treasury->forfait_price ?? 75) : 75;
+      $cotisationSemestre  = 30;
+      $membreEffectif      = number_format($forfaitBillard + $cotisationSemestre, 2, ',', '');
+      $membreSympathisant  = number_format($cotisationSemestre, 2, ',', '');
+      $cours               = $treasury ? number_format((float)($treasury->lesson_price ?? 5), 2, ',', '') : '5,00';
     ?>
 
-    <!-- ── Tarifs de base ── -->
-    <div class="row mb-30">
-
-      <!-- Cotisation annuelle -->
-      <div class="col-md-4 mb-30">
-        <div class="tarif-card h-100">
-          <div class="tarif-icon"><i class="fas fa-id-card"></i></div>
-          <div class="tarif-amount"><?= $cotisation ?> <span class="tarif-unit">€ / an</span></div>
-          <h5 class="tarif-title">Cotisation RBCD</h5>
-          <p class="tarif-desc">
-            Obligatoire pour tout membre, quel que soit son statut (effectif ou sympathisant).<br>
-            Scindée en deux paiements de <strong><?= $cotisationDemi ?> €</strong> : <br>
-            -> 1<sup>er</sup> – 5 janvier (S1) <br>-> 1<sup>er</sup> – 5 juillet (S2).&nbsp;
-          </p>
-        </div>
-      </div>
-
-      <!-- École -->
-      <div class="col-md-4 mb-30">
-        <div class="tarif-card h-100">
-          <div class="tarif-icon"><i class="fas fa-graduation-cap"></i></div>
-          <div class="tarif-amount"><?= $cours ?> <span class="tarif-unit">€ / séance</span></div>
-          <h5 class="tarif-title">École de billard</h5>
-          <p class="tarif-desc">
-            Même cotisation annuelle que le club, <strong>+ <?= $cours ?> €</strong> par séance de cours.
-            <a href="<?= base_url('club/ecole-de-billard') ?>" class="tarif-link">En savoir plus →</a>
-          </p>
-        </div>
-      </div>
-
-      <!-- Tarif horaire -->
-      <div class="col-md-4 mb-30">
-        <div class="tarif-card h-100">
-          <div class="tarif-icon"><i class="fas fa-clock"></i></div>
-          <div class="tarif-amount"><?= $horaire ?> <span class="tarif-unit">€ / h</span></div>
-          <h5 class="tarif-title">Billard à l'heure</h5>
-          <p class="tarif-desc">
-            Pour les membres sans forfait ni carte prépayée, l'utilisation des tables est facturée à l'heure.
-          </p>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ── Accès aux billards : deux statuts ── -->
-    <div class="row">
-      <div class="col-lg-10 mx-auto text-center mb-20">
-        <h4 class="font-weight-700">Accès aux billards : membre effectif ou sympathisant</h4>
-        <p class="text-muted">
-          L'utilisation des billards est conditionnée au paiement de l'une de ces deux formules, en plus de la cotisation club.
-        </p>
-      </div>
-    </div>
-
+    <!-- ── Membre effectif / sympathisant ── -->
     <div class="row mb-50">
 
-      <!-- Forfait -->
+      <!-- Membre effectif -->
       <div class="col-md-6 mb-30">
-        <div class="tarif-card tarif-card-featured h-100">
-          <div class="tarif-badge">Membre effectif</div>
+        <div class="tarif-card h-100">
+          <div class="tarif-badge" style="background:#84252B;color:#fff;">Membre effectif</div>
           <div class="tarif-icon"><i class="fas fa-infinity"></i></div>
-          <div class="tarif-amount"><?= $forfait ?> <span class="tarif-unit">€ / semestre</span></div>
-          <h5 class="tarif-title">Forfait billard</h5>
+          <div class="tarif-amount"><?= $membreEffectif ?> <span class="tarif-unit">€ / semestre</span></div>
+          <h5 class="tarif-title">Membre effectif</h5>
           <p class="tarif-desc">
-            Accès illimité aux tables pour un semestre entier.<br>
-            Deux périodes : <strong>H1</strong> (jan–jun) et <strong>H2</strong> (jul–déc).<br>
+            Cotisation de <?= $membreEffectif ?> € par semestre (janvier-juin / juillet-décembre) permettant un accès aux locaux et un usage illimité des tables de billard.<br>
             Carte nominative semestrielle de membre effectif.
           </p>
         </div>
       </div>
 
-      <!-- Carte prépayée -->
+      <!-- Membre sympathisant -->
       <div class="col-md-6 mb-30">
-        <div class="tarif-card h-100">
-          <div class="tarif-badge" style="background:#84252B;color:#fff;">Membre sympathisant</div>
-          <div class="tarif-icon"><i class="fas fa-credit-card"></i></div>
-          <div class="tarif-amount"><?= $carte ?> <span class="tarif-unit">€ / carte</span></div>
-          <h5 class="tarif-title">Carte prépayée</h5>
+        <div class="tarif-card tarif-card-blue h-100">
+          <div class="tarif-badge">Membre sympathisant</div>
+          <div class="tarif-icon"><i class="fas fa-door-open"></i></div>
+          <div class="tarif-amount"><?= $membreSympathisant ?> <span class="tarif-unit">€ / semestre</span></div>
+          <h5 class="tarif-title">Membre sympathisant</h5>
           <p class="tarif-desc">
-            <?= $carteSeances ?> séances d'entraînement (max. 4h consécutives), valable 6 mois.<br>
-            Carte nominative, non liée au forfait.
+            Cotisation de <?= $membreSympathisant ?> € par semestre (janvier-juin / juillet-décembre) permettant un accès aux locaux.<br>
+            L'utilisation des billards est conditionnée à l'achat d'une carte prépayée de 5 séances d'entraînement (max. 4h consécutives), valables 6 mois.<br>
+            Carte nominative semestrielle de membre sympathisant.
           </p>
         </div>
       </div>
 
     </div>
 
-    <!-- Séparateur -->
-    <div class="row mt-10 mb-40">
-      <div class="separator">
-        <img src="<?= base_url('assets/images/billiard-chalk.png') ?>"
-             alt="Séparateur"
-             style="width:20px;opacity:0.7;margin:0 10px;">
-      </div>
-    </div>
-
-    <!-- ── Forfait : comment ça marche ── -->
+    <!-- ── École de billard / Mutuelle ── -->
     <div class="row mb-50">
-      <div class="col-lg-10 mx-auto">
-        <h4 class="font-weight-700 mb-20 text-center">Comment fonctionne le forfait billard ?</h4>
-        <div class="row">
-          <div class="col-md-6 mb-20">
-            <div class="forfait-block forfait-h1">
-              <div class="forfait-label">H1 — 1<sup style="text-transform:lowercase">er</sup> semestre</div>
-              <div class="forfait-dates"><i class="fas fa-calendar-alt me-2"></i>1<sup>er</sup> janvier — 30 juin</div>
-              <div class="forfait-price"><?= $forfait ?> €</div>
-              <p class="forfait-note">Paiement entre le 1<sup>er</sup> et le 5 janvier, en même temps que la cotisation club.</p>
-            </div>
-          </div>
-          <div class="col-md-6 mb-20">
-            <div class="forfait-block forfait-h2">
-              <div class="forfait-label">H2 — 2<sup style="text-transform:lowercase">ème</sup> semestre</div>
-              <div class="forfait-dates"><i class="fas fa-calendar-alt me-2"></i>1<sup>er</sup> juillet — 31 décembre</div>
-              <div class="forfait-price"><?= $forfait ?> €</div>
-              <p class="forfait-note">Paiement entre le 1<sup>er</sup> et le 5 juillet, en même temps que la cotisation club.</p>
-            </div>
-          </div>
-        </div>
-        <div class="alert-tarif mt-10">
-          <i class="fas fa-info-circle fa-2x me-2" style="color:#2980b9;flex-shrink:0;margin-top:2px;"></i>
-          <div>
-            Le forfait s'applique à l'utilisation libre des tables en dehors des heures de compétition.<br>
-            Il est souscrit par semestre civil et n'est pas proratisé en cas d'inscription en cours de période.<br>
-            La cotisation club (<?= $cotisation ?> €, en 2 × <?= $cotisationDemi ?> €) suit le même calendrier de paiement que le forfait.
-          </div>
+
+      <!-- École -->
+      <div class="col-md-6 mb-30">
+        <div class="tarif-card h-100">
+          <div class="tarif-icon"><i class="fas fa-graduation-cap"></i></div>
+          <div class="tarif-amount"><?= $cours ?> <span class="tarif-unit">€ / séance</span></div>
+          <h5 class="tarif-title">École de billard</h5>
+          <p class="tarif-desc">
+            Carte de membre sympathisant ou effectif, <strong>+ <?= $cours ?> €</strong> par séance de cours.
+            <a href="<?= base_url('club/ecole-de-billard') ?>" class="tarif-link">En savoir plus →</a>
+          </p>
         </div>
       </div>
+
+      <!-- Mutuelle -->
+      <div class="col-md-6 mb-30">
+        <div class="tarif-card h-100">
+          <div class="tarif-icon"><i class="fas fa-hand-holding-medical"></i></div>
+          <h5 class="tarif-title">Intervention mutuelle</h5>
+          <p class="tarif-desc">
+            Possibilité d'intervention de votre mutuelle.<br>
+            Fournissez le document complété à un membre du comité.
+          </p>
+        </div>
+      </div>
+
     </div>
 
     <!-- Séparateur -->
@@ -217,16 +150,16 @@
 }
 .tarif-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
 
-.tarif-card-featured {
-    border-top-color: #84252B;
-    background: #84252B;
+.tarif-card-blue {
+    border-top-color: #1B4F72;
+    background: #1B4F72;
     color: #fff;
 }
-.tarif-card-featured .tarif-desc,
-.tarif-card-featured .tarif-title { color: #fff; }
-.tarif-card-featured .tarif-icon  { color: rgba(255,255,255,.8); }
-.tarif-card-featured .tarif-amount { color: #fff; }
-.tarif-card-featured .tarif-unit   { color: rgba(255,255,255,.75); }
+.tarif-card-blue .tarif-desc,
+.tarif-card-blue .tarif-title { color: #fff; }
+.tarif-card-blue .tarif-icon  { color: rgba(255,255,255,.8); }
+.tarif-card-blue .tarif-amount { color: #fff; }
+.tarif-card-blue .tarif-unit   { color: rgba(255,255,255,.75); }
 
 .tarif-badge {
     position: absolute;
@@ -266,42 +199,7 @@
 .tarif-desc { font-size: .88rem; color: #555; line-height: 1.55; margin: 0; }
 .tarif-link { display: block; margin-top: 8px; font-size: .83rem; color: #84252B; font-weight: 600; }
 .tarif-link:hover { text-decoration: underline; }
-.tarif-card-featured .tarif-link { color: #ffc107; }
-
-/* ── Blocs forfait ── */
-.forfait-block {
-    border-radius: 6px;
-    padding: 22px 24px;
-    text-align: center;
-}
-.forfait-h1 { background: #fdf3e8; border: 1px solid #eaceb6; }
-/* .forfait-h1 { background: #e8f4fd; border: 1px solid #b6d4ea; } */
-.forfait-h2 { background: #e8f5e9; border: 1px solid #93C37D; }
-.forfait-label {
-    font-size: .78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: #555;
-    margin-bottom: 6px;
-}
-.forfait-dates { font-size: .88rem; color: #333; margin-bottom: 10px; }
-.forfait-price { font-size: 2rem; font-weight: 800; color: #84252B; margin-bottom: 8px; }
-.forfait-note  { font-size: .83rem; color: #333; margin: 0; }
-
-/* ── Alerte info ── */
-.alert-tarif {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    background: #e8f4fd;
-    border: 1px solid #b6d4ea;
-    border-radius: 6px;
-    padding: 14px 18px;
-    font-size: .88rem;
-    color: #31708f;
-    line-height: 1.6;
-}
+.tarif-card-blue .tarif-link { color: #ffc107; }
 
 /* ── Boutons documents ── */
 .docs-links {
