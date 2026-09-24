@@ -111,12 +111,11 @@ $routes->group('admin', static function ($routes) {
         $routes->post('members/(:num)/categories/save',       'Admin\MembersController::saveCategories/$1');
 
         // Paiements membres
-        $routes->get('members/(:num)/payments',         'Admin\MemberPaymentsController::index/$1');
-        $routes->get('members/(:num)/payments/add',              'Admin\MemberPaymentsController::create/$1');
-        $routes->post('members/(:num)/payments',                 'Admin\MemberPaymentsController::store/$1');
-        $routes->get('members/(:num)/payments/(:num)/edit',      'Admin\MemberPaymentsController::edit/$1/$2');
-        $routes->post('members/(:num)/payments/(:num)/update',   'Admin\MemberPaymentsController::update/$1/$2');
-        $routes->post('members/(:num)/payments/(:num)/delete',   'Admin\MemberPaymentsController::delete/$1/$2');
+        $routes->get ('members/(:num)/payments',                       'Admin\MemberPaymentsController::index/$1');
+        $routes->get ('members/(:num)/payments/(:num)',                'Admin\MemberPaymentsController::edit/$1/$2');
+        $routes->post('members/(:num)/payments/(:num)',                'Admin\MemberPaymentsController::save/$1/$2');
+        $routes->post('members/(:num)/payments/(:num)/delete-club',    'Admin\MemberPaymentsController::deleteClub/$1/$2');
+        $routes->post('members/(:num)/payments/season/(:num)/delete',  'Admin\MemberPaymentsController::deleteSeason/$1/$2');
 
         // Trésorerie — paiements
         $routes->get ('settings',      'Admin\SettingsController::index');

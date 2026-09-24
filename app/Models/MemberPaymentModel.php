@@ -14,16 +14,8 @@ class MemberPaymentModel extends Model
     protected $allowedFields = [
         'member_id',
         'year',
-        'rbcd_paid',
-        'rbcd_paid_date',
         'frbb_paid',
         'frbb_paid_date',
-        'forfait_f1_choice',
-        'forfait_f1_paid',
-        'forfait_f1_paid_date',
-        'forfait_f2_choice',
-        'forfait_f2_paid',
-        'forfait_f2_paid_date',
     ];
 
     public function createForMember(int $memberId, ?int $startYear = null): void
@@ -32,6 +24,11 @@ class MemberPaymentModel extends Model
             'member_id' => $memberId,
             'year'      => $startYear ?? ANNEE_1,
         ]);
+    }
+
+    public function findForSeason(int $memberId, int $seasonYear): ?object
+    {
+        return $this->where('member_id', $memberId)->where('year', $seasonYear)->first();
     }
 
     public function getForMember(int $memberId): array

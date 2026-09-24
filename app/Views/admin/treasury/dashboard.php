@@ -2,19 +2,39 @@
 <?= $this->section('content') ?>
 
 <?php
-$saison = $year . '-' . ($year + 1);
+$saison = $season . '-' . ($season + 1);
 $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
+$fmt = fn(?string $d) => $d ? date('d/m/Y', strtotime($d)) : 'Payé';
+
+$paidCell = function (bool $paid, ?string $date, bool $pending = false) use ($fmt): string {
+    if ($paid) {
+        return '<span class="badge badge-success"><i class="fas fa-check"></i> ' . $fmt($date) . '</span>';
+    }
+    return $pending
+        ? '<span class="badge badge-warning text-dark"><i class="fas fa-clock"></i> En attente</span>'
+        : '<span class="badge badge-danger"><i class="fas fa-times"></i> Non payé</span>';
+};
+
+$cards = [
+    ['n' => $stats['frbbPaid'],   't' => $stats['frbbTotal'], 'label' => "FRBB {$saison}",   'unit' => 'des fédérés',  'bar' => 'bg-warning', 'img' => 'Ecusson_FRBB-LL.png', 'h' => 70],
+    ['n' => $stats['rbcdH1Paid'], 't' => $stats['total'],     'label' => 'RBCD 1 (jan–juin)', 'unit' => 'des membres',  'bar' => 'bg-rbcd',    'img' => 'Ecusson_RBCD.png',    'h' => 70],
+    ['n' => $stats['rbcdH2Paid'], 't' => $stats['total'],     'label' => 'RBCD 2 (juil–déc)', 'unit' => 'des membres',  'bar' => 'bg-rbcd',    'img' => 'Ecusson_RBCD.png',    'h' => 70],
+    ['n' => $stats['f1Paid'],     't' => $stats['f1Total'],   'label' => 'Effectif 1',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'img' => '75euros.gif',         'h' => 80],
+    ['n' => $stats['f2Paid'],     't' => $stats['f2Total'],   'label' => 'Effectif 2',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'img' => '75euros.gif',         'h' => 80],
+];
 ?>
 
-<!-- Sélecteur de saison -->
+<style>
+    .bg-rbcd { background-color: #84252B; }
+</style>
+
+<!-- Sélecteur d'année -->
 <div class="d-flex align-items-center mb-3">
     <form method="get" class="d-flex align-items-center">
-        <label class="mr-2 mb-0 font-weight-bold">Saison :</label>
-        <select name="year" class="form-control form-control-sm mr-2" style="width:140px" onchange="this.form.submit()">
+        <label class="mr-2 mb-0 font-weight-bold">Année :</label>
+        <select name="year" class="form-control form-control-sm mr-2" style="width:110px" onchange="this.form.submit()">
             <?php foreach ($years as $y): ?>
-                <option value="<?= $y ?>" <?= $y == $year ? 'selected' : '' ?>>
-                    <?= $y ?>&ndash;<?= $y + 1 ?>
-                </option>
+                <option value="<?= $y ?>" <?= $y == $year ? 'selected' : '' ?>><?= $y ?></option>
             <?php endforeach; ?>
         </select>
     </form>
@@ -26,128 +46,57 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
 
 <!-- ── Cartes de stats ───────────────────────────────────────────── -->
 <div class="row">
-
-    <!-- RBCD -->
-    <div class="col-lg-3 col-sm-6">
+    <?php foreach ($cards as $c): ?>
+    <div class="col-lg col-sm-6">
         <div class="small-box bg-white border">
             <div class="inner">
-                <h3><?= $stats['rbcdPaid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['total'] ?></sup></h3>
-                <p>Cotisations RBCD payées</p>
+                <h3><?= $c['n'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $c['t'] ?></sup></h3>
+                <p><?= esc($c['label']) ?></p>
                 <div class="progress progress-sm mt-2">
-                    <div class="progress-bar" style="width:<?= $pct($stats['rbcdPaid'], $stats['total']) ?>%;background-color:#84252B"></div>
+                    <div class="progress-bar <?= $c['bar'] ?>" style="width:<?= $pct($c['n'], $c['t']) ?>%"></div>
                 </div>
-                <small class="text-muted"><?= $pct($stats['rbcdPaid'], $stats['total']) ?> % des membres</small>
+                <small class="text-muted"><?= $pct($c['n'], $c['t']) ?> % <?= $c['unit'] ?></small>
             </div>
             <div class="icon" style="position:absolute;right:10px;bottom:60px;z-index:0;">
-                <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>"
-                     style="height:70px;width:auto;opacity:1;object-fit:contain;">
+                <img src="<?= base_url('assets/images/' . $c['img']) ?>"
+                     style="height:<?= $c['h'] ?>px;width:auto;opacity:1;object-fit:contain;">
             </div>
         </div>
     </div>
-
-    <!-- FRBB -->
-    <div class="col-lg-3 col-sm-6">
-        <div class="small-box bg-white border">
-            <div class="inner">
-                <h3><?= $stats['frbbPaid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['frbbTotal'] ?></sup></h3>
-                <p>Cotisations FRBB payées</p>
-                <div class="progress progress-sm mt-2">
-                    <div class="progress-bar bg-warning" style="width:<?= $pct($stats['frbbPaid'], $stats['frbbTotal']) ?>%"></div>
-                </div>
-                <small class="text-muted"><?= $pct($stats['frbbPaid'], $stats['frbbTotal']) ?> % des fédérés</small>
-            </div>
-            <div class="icon" style="position:absolute;right:10px;bottom:60px;z-index:0;">
-                <img src="<?= base_url('assets/images/Ecusson_FRBB-LL.png') ?>"
-                     style="height:70px;width:auto;opacity:1;object-fit:contain;">
-            </div>
-        </div>
-    </div>
-
-    <!-- Forfait F1 -->
-    <div class="col-lg-3 col-sm-6">
-        <div class="small-box bg-white border">
-            <div class="inner">
-                <h3><?= $stats['f1Paid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['f1Total'] ?></sup></h3>
-                <p>Forfaits F1 payés</p>
-                <div class="progress progress-sm mt-2">
-                    <div class="progress-bar bg-success" style="width:<?= $pct($stats['f1Paid'], $stats['f1Total']) ?>%"></div>
-                </div>
-                <small class="text-muted"><?= $pct($stats['f1Paid'], $stats['f1Total']) ?> % des souscrits</small>
-            </div>
-            <div class="icon" style="position:absolute;right:10px;bottom:55px;z-index:0;">
-                <img src="<?= base_url('assets/images/75euros.gif') ?>"
-                     style="height:80px;width:auto;opacity:1;object-fit:contain;">
-            </div>
-        </div>
-    </div>
-
-    <!-- Forfait F2 -->
-    <div class="col-lg-3 col-sm-6">
-        <div class="small-box bg-white border">
-            <div class="inner">
-                <h3><?= $stats['f2Paid'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $stats['f2Total'] ?></sup></h3>
-                <p>Forfaits F2 payés</p>
-                <div class="progress progress-sm mt-2">
-                    <div class="progress-bar bg-success" style="width:<?= $pct($stats['f2Paid'], $stats['f2Total']) ?>%"></div>
-                </div>
-                <small class="text-muted"><?= $pct($stats['f2Paid'], $stats['f2Total']) ?> % des souscrits</small>
-            </div>
-            <div class="icon" style="position:absolute;right:10px;bottom:55px;z-index:0;">
-                <img src="<?= base_url('assets/images/75euros.gif') ?>"
-                     style="height:80px;width:auto;opacity:1;object-fit:contain;">
-            </div>
-        </div>
-    </div>
-
+    <?php endforeach; ?>
 </div>
 
 <!-- ── Tableau ───────────────────────────────────────────────────── -->
 <div class="card card-outline card-primary">
     <div class="card-header">
         <h3 class="card-title">
-            <i class="fas fa-list mr-2"></i>État des paiements — Saison <?= esc($saison) ?>
+            <i class="fas fa-list mr-2"></i>État des paiements — Année <?= $year ?>
+            <small class="text-muted ml-1">(FRBB : saison <?= esc($saison) ?>)</small>
         </h3>
     </div>
     <div class="card-body p-0">
-        <div class="table-responsive">
+        <div class="table-responsive table-sticky-head">
             <table id="treasuryTable" class="table table-bordered table-hover table-striped table-sm mb-0">
                 <thead class="thead-rbcd">
                     <tr>
                         <th>Membre</th>
-                        <th class="text-center">RBCD</th>
                         <th class="text-center no-sort" style="width:20px"></th>
-                        <th class="text-center">FRBB</th>
-                        <th class="text-center">Forfait F1</th>
-                        <th class="text-center">Forfait F2</th>
+                        <th class="text-center">FRBB<br><small><?= esc($saison) ?></small></th>
+                        <th class="text-center">RBCD 1<br><small>jan–juin</small></th>
+                        <th class="text-center">RBCD 2<br><small>juil–déc</small></th>
+                        <th class="text-center">Effectif 1<br><small>jan–juin</small></th>
+                        <th class="text-center">Effectif 2<br><small>juil–déc</small></th>
                         <th class="text-center no-sort">Fiche</th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($rows as $r): ?>
-                <?php
-                    $editUrl = $r->payment_id
-                        ? base_url("admin/members/{$r->id}/payments/{$r->payment_id}/edit") . '?ref=treasury'
-                        : base_url("admin/members/{$r->id}/payments/add") . '?ref=treasury';
-                ?>
+                <?php $editUrl = base_url("admin/members/{$r->id}/payments/{$year}") . '?ref=treasury'; ?>
                 <tr>
                     <td>
                         <a href="<?= $editUrl ?>">
                             <?= esc($r->last_name . ' ' . $r->first_name) ?>
                         </a>
-                    </td>
-
-                    <!-- RBCD -->
-                    <td class="text-center">
-                        <?php if ($r->payment_id === null): ?>
-                            <span class="badge badge-secondary">—</span>
-                        <?php elseif ($r->rbcd_paid): ?>
-                            <span class="badge badge-success" title="<?= $r->rbcd_paid_date ? date('d/m/Y', strtotime($r->rbcd_paid_date)) : '' ?>">
-                                <i class="fas fa-check"></i>
-                                <?= $r->rbcd_paid_date ? date('d/m/Y', strtotime($r->rbcd_paid_date)) : 'Payé' ?>
-                            </span>
-                        <?php else: ?>
-                            <span class="badge badge-danger"><i class="fas fa-times"></i> Non payé</span>
-                        <?php endif; ?>
                     </td>
 
                     <!-- Logo FRBB -->
@@ -162,45 +111,25 @@ $pct = fn(int $n, int $t) => $t > 0 ? round($n / $t * 100) : 0;
                     <td class="text-center">
                         <?php if (!$r->is_federated): ?>
                             <span class="text-muted">—</span>
-                        <?php elseif ($r->payment_id === null): ?>
-                            <span class="badge badge-secondary">—</span>
-                        <?php elseif ($r->frbb_paid): ?>
-                            <span class="badge badge-success" title="<?= $r->frbb_paid_date ? date('d/m/Y', strtotime($r->frbb_paid_date)) : '' ?>">
-                                <i class="fas fa-check"></i>
-                                <?= $r->frbb_paid_date ? date('d/m/Y', strtotime($r->frbb_paid_date)) : 'Payé' ?>
-                            </span>
                         <?php else: ?>
-                            <span class="badge badge-danger"><i class="fas fa-times"></i> Non payé</span>
+                            <?= $paidCell((bool) $r->frbb_paid, $r->frbb_paid_date) ?>
                         <?php endif; ?>
                     </td>
 
-                    <!-- Forfait F1 -->
-                    <td class="text-center">
-                        <?php if (!$r->payment_id || !$r->forfait_f1_choice): ?>
-                            <span class="text-muted">—</span>
-                        <?php elseif ($r->forfait_f1_paid): ?>
-                            <span class="badge badge-success" title="<?= $r->forfait_f1_paid_date ? date('d/m/Y', strtotime($r->forfait_f1_paid_date)) : '' ?>">
-                                <i class="fas fa-check"></i>
-                                <?= $r->forfait_f1_paid_date ? date('d/m/Y', strtotime($r->forfait_f1_paid_date)) : 'Payé' ?>
-                            </span>
-                        <?php else: ?>
-                            <span class="badge badge-warning text-dark"><i class="fas fa-clock"></i> En attente</span>
-                        <?php endif; ?>
-                    </td>
+                    <!-- RBCD 1 / RBCD 2 -->
+                    <td class="text-center"><?= $paidCell((bool) $r->rbcd_h1_paid, $r->rbcd_h1_paid_date) ?></td>
+                    <td class="text-center"><?= $paidCell((bool) $r->rbcd_h2_paid, $r->rbcd_h2_paid_date) ?></td>
 
-                    <!-- Forfait F2 -->
+                    <!-- Effectif 1 / Effectif 2 -->
+                    <?php foreach (['h1', 'h2'] as $h): ?>
                     <td class="text-center">
-                        <?php if (!$r->payment_id || !$r->forfait_f2_choice): ?>
+                        <?php if (!$r->{"forfait_{$h}_choice"}): ?>
                             <span class="text-muted">—</span>
-                        <?php elseif ($r->forfait_f2_paid): ?>
-                            <span class="badge badge-success" title="<?= $r->forfait_f2_paid_date ? date('d/m/Y', strtotime($r->forfait_f2_paid_date)) : '' ?>">
-                                <i class="fas fa-check"></i>
-                                <?= $r->forfait_f2_paid_date ? date('d/m/Y', strtotime($r->forfait_f2_paid_date)) : 'Payé' ?>
-                            </span>
                         <?php else: ?>
-                            <span class="badge badge-warning text-dark"><i class="fas fa-clock"></i> En attente</span>
+                            <?= $paidCell((bool) $r->{"forfait_{$h}_paid"}, $r->{"forfait_{$h}_paid_date"}, true) ?>
                         <?php endif; ?>
                     </td>
+                    <?php endforeach; ?>
 
                     <!-- Lien fiche -->
                     <td class="text-center">

@@ -3,196 +3,175 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\MemberClubFeeModel;
 use App\Models\MemberModel;
 use App\Models\MemberPaymentModel;
+use App\Models\TreasurySettingModel;
 
 class MemberPaymentsController extends BaseController
 {
     private MemberModel        $memberModel;
     private MemberPaymentModel $paymentModel;
+    private MemberClubFeeModel $clubFeeModel;
 
     public function __construct()
     {
         $this->memberModel  = new MemberModel();
         $this->paymentModel = new MemberPaymentModel();
+        $this->clubFeeModel = new MemberClubFeeModel();
     }
 
-    public function index(int $memberId): string
+    public function index(int $memberId)
     {
         $member = $this->memberModel->find($memberId);
         if (!$member) {
             return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
         }
 
-        $ref  = $this->request->getGet('ref') ?? '';
-        $first = $ref === 'treasury'
-            ? ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')]
-            : ['title' => 'Membres',    'url' => base_url('admin/members')];
+        $ref = $this->request->getGet('ref') ?? '';
 
         return view('admin/member_payments/index', [
             'title'       => 'Cotisations — ' . esc($member->first_name . ' ' . $member->last_name),
             'breadcrumbs' => [
-                $first,
+                $this->firstCrumb($ref),
                 ['title' => esc($member->first_name . ' ' . $member->last_name)],
                 ['title' => 'Cotisations'],
             ],
             'member'   => $member,
+            'clubFees' => $this->clubFeeModel->getForMember($memberId),
             'payments' => $this->paymentModel->getForMember($memberId),
+            'ref'      => $ref,
         ]);
     }
 
-    public function create(int $memberId): string
+    public function edit(int $memberId, int $year)
     {
         $member = $this->memberModel->find($memberId);
         if (!$member) {
             return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
         }
-
-        $ref         = $this->request->getGet('ref') ?? '';
-        $first       = $ref === 'treasury'
-            ? ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')]
-            : ['title' => 'Membres',    'url' => base_url('admin/members')];
-        $paymentsUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
-
-        return view('admin/member_payments/form', [
-            'title'       => 'Nouvelle année — ' . esc($member->first_name . ' ' . $member->last_name),
-            'breadcrumbs' => [
-                $first,
-                ['title' => esc($member->first_name . ' ' . $member->last_name)],
-                ['title' => 'Cotisations', 'url' => $paymentsUrl],
-                ['title' => 'Nouvelle année'],
-            ],
-            'member'  => $member,
-            'payment' => null,
-            'ref'     => $ref,
-        ]);
-    }
-
-    public function edit(int $memberId, int $paymentId): string
-    {
-        $member  = $this->memberModel->find($memberId);
-        $payment = $this->paymentModel->find($paymentId);
-        if (!$member || !$payment || $payment->member_id != $memberId) {
-            return redirect()->to(base_url("admin/members/{$memberId}/payments"))->with('error', 'Enregistrement introuvable.');
-        }
-
-        $ref         = $this->request->getGet('ref') ?? '';
-        $first       = $ref === 'treasury'
-            ? ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')]
-            : ['title' => 'Membres',    'url' => base_url('admin/members')];
-        $paymentsUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
-
-        return view('admin/member_payments/form', [
-            'title'       => "Cotisations {$payment->year} — " . esc($member->first_name . ' ' . $member->last_name),
-            'breadcrumbs' => [
-                $first,
-                ['title' => esc($member->first_name . ' ' . $member->last_name)],
-                ['title' => 'Cotisations', 'url' => $paymentsUrl],
-                ['title' => "Année {$payment->year}"],
-            ],
-            'member'  => $member,
-            'payment' => $payment,
-            'ref'     => $ref,
-        ]);
-    }
-
-    public function store(int $memberId)
-    {
-        $member = $this->memberModel->find($memberId);
-        if (!$member) {
-            return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
-        }
-
-        $year = (int) $this->request->getPost('year');
         if ($year < 2000 || $year > 2100) {
-            return redirect()->back()->withInput()->with('errors', ['year' => 'Année invalide.']);
+            return redirect()->to(base_url("admin/members/{$memberId}/payments"))->with('error', 'Année invalide.');
         }
 
-        $season = $year . '-' . ($year + 1);
+        $ref    = $this->request->getGet('ref') ?? '';
+        $season = MemberClubFeeModel::frbbSeasonFor($year);
 
-        // Vérifier unicité member + year
-        $existing = $this->paymentModel->where('member_id', $memberId)->where('year', $year)->first();
-        if ($existing) {
-            return redirect()->back()->withInput()->with('errors', ['year' => "Une ligne existe déjà pour la saison {$season}."]);
-        }
-
-        $this->paymentModel->insert($this->collectData($memberId, $year));
-
-        if ($this->request->getPost('_back') === 'member_edit') {
-            return redirect()->to(base_url("admin/members/{$memberId}/edit?tab=cotisations"))
-                             ->with('success', "Saison {$season} ajoutée.");
-        }
-        $ref         = $this->request->getGet('ref') ?? '';
-        $redirectUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
-        return redirect()->to($redirectUrl)->with('success', "Saison {$season} ajoutée.");
+        return view('admin/member_payments/form', [
+            'title'       => "Cotisations {$year} — " . esc($member->first_name . ' ' . $member->last_name),
+            'breadcrumbs' => [
+                $this->firstCrumb($ref),
+                ['title' => esc($member->first_name . ' ' . $member->last_name)],
+                ['title' => 'Cotisations', 'url' => base_url("admin/members/{$memberId}/payments")],
+                ['title' => "Année {$year}"],
+            ],
+            'member'  => $member,
+            'year'    => $year,
+            'season'  => $season,
+            'clubFee' => $this->clubFeeModel->findForYear($memberId, $year),
+            'payment' => $this->paymentModel->findForSeason($memberId, $season),
+            'ref'     => $ref,
+        ]);
     }
 
-    public function update(int $memberId, int $paymentId)
+    public function save(int $memberId, int $year)
     {
-        $payment = $this->paymentModel->find($paymentId);
-        if (!$payment || $payment->member_id != $memberId) {
-            return redirect()->to(base_url("admin/members/{$memberId}/payments"))->with('error', 'Enregistrement introuvable.');
+        $member = $this->memberModel->find($memberId);
+        if (!$member) {
+            return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
+        }
+        if ($year < 2000 || $year > 2100) {
+            return redirect()->to(base_url("admin/members/{$memberId}/payments"))->with('error', 'Année invalide.');
         }
 
-        $this->paymentModel->update($paymentId, $this->collectData($memberId, (int) $payment->year));
+        $post    = $this->request->getPost();
+        $on      = fn(string $f) => ($post[$f] ?? '0') == '1' ? 1 : 0;
+        $dateFor = fn(bool $paid, string $f) => $paid && !empty($post[$f]) ? $post[$f] : null;
 
-        $season = $payment->year . '-' . ($payment->year + 1);
+        $clubFee  = $this->clubFeeModel->findForYear($memberId, $year);
+        $settings = (new TreasurySettingModel())->first();
+        $semester = (float) ($settings->semester_cotisation ?? 30);
 
-        if ($this->request->getPost('_back') === 'member_edit') {
-            return redirect()->to(base_url("admin/members/{$memberId}/edit?tab=cotisations"))
-                             ->with('success', "Saison {$season} mise à jour.");
+        $club = ['member_id' => $memberId, 'year' => $year];
+        foreach (['h1', 'h2'] as $h) {
+            $paid = $on("rbcd_{$h}_paid");
+            // Montant figé au moment du paiement : un changement de tarif ne réécrit pas le passé
+            $wasPaid = $clubFee && $clubFee->{"rbcd_{$h}_paid"};
+            $club["rbcd_{$h}_paid"]      = $paid;
+            $club["rbcd_{$h}_paid_date"] = $dateFor((bool) $paid, "rbcd_{$h}_paid_date");
+            $club["rbcd_{$h}_amount"]    = $paid ? ($wasPaid ? $clubFee->{"rbcd_{$h}_amount"} : $semester) : null;
+
+            $choice = $on("forfait_{$h}_choice");
+            $fPaid  = $choice && $on("forfait_{$h}_paid");
+            $club["forfait_{$h}_choice"]    = $choice;
+            $club["forfait_{$h}_paid"]      = $fPaid ? 1 : 0;
+            $club["forfait_{$h}_paid_date"] = $dateFor($fPaid, "forfait_{$h}_paid_date");
         }
-        $ref         = $this->request->getGet('ref') ?? '';
-        $redirectUrl = base_url("admin/members/{$memberId}/payments") . ($ref ? "?ref={$ref}" : '');
-        return redirect()->to($redirectUrl)->with('success', "Saison {$season} mise à jour.");
+
+        if ($clubFee) {
+            $this->clubFeeModel->update($clubFee->id, $club);
+        } else {
+            $this->clubFeeModel->insert($club);
+        }
+
+        $season   = MemberClubFeeModel::frbbSeasonFor($year);
+        $payment  = $this->paymentModel->findForSeason($memberId, $season);
+        $frbbPaid = $on('frbb_paid');
+        $frbb     = [
+            'member_id'      => $memberId,
+            'year'           => $season,
+            'frbb_paid'      => $frbbPaid,
+            'frbb_paid_date' => $dateFor((bool) $frbbPaid, 'frbb_paid_date'),
+        ];
+        if ($payment) {
+            $this->paymentModel->update($payment->id, $frbb);
+        } elseif ($frbbPaid || $member->is_federated) {
+            $this->paymentModel->insert($frbb);
+        }
+
+        return redirect()->to($this->backUrl($memberId, $year))
+                         ->with('success', "Cotisations {$year} mises à jour.");
     }
 
-    public function delete(int $memberId, int $paymentId)
+    public function deleteClub(int $memberId, int $year)
     {
-        $payment = $this->paymentModel->find($paymentId);
-        if (!$payment || $payment->member_id != $memberId) {
-            return redirect()->to(base_url("admin/members/{$memberId}/payments"))->with('error', 'Enregistrement introuvable.');
+        $clubFee = $this->clubFeeModel->findForYear($memberId, $year);
+        if (!$clubFee) {
+            return redirect()->to($this->backUrl($memberId, $year))->with('error', 'Enregistrement introuvable.');
         }
+        $this->clubFeeModel->delete($clubFee->id);
 
-        $this->paymentModel->delete($paymentId);
+        return redirect()->to($this->backUrl($memberId, $year))
+                         ->with('success', "Cotisations club {$year} supprimées.");
+    }
 
-        $season = $payment->year . '-' . ($payment->year + 1);
-
-        if ($this->request->getPost('_back') === 'member_edit') {
-            return redirect()->to(base_url("admin/members/{$memberId}/edit?tab=cotisations"))
-                             ->with('success', "Saison {$season} supprimée.");
+    public function deleteSeason(int $memberId, int $seasonYear)
+    {
+        $payment = $this->paymentModel->findForSeason($memberId, $seasonYear);
+        if (!$payment) {
+            return redirect()->to($this->backUrl($memberId, $seasonYear))->with('error', 'Enregistrement introuvable.');
         }
-        return redirect()->to(base_url("admin/members/{$memberId}/payments"))
-                         ->with('success', "Saison {$season} supprimée.");
+        $this->paymentModel->delete($payment->id);
+
+        return redirect()->to($this->backUrl($memberId, $seasonYear))
+                         ->with('success', 'Saison FRBB ' . $seasonYear . '-' . ($seasonYear + 1) . ' supprimée.');
     }
 
     // ----------------------------------------------------------------
 
-    private function collectData(int $memberId, int $year): array
+    private function firstCrumb(string $ref): array
     {
-        $post = $this->request->getPost();
+        return $ref === 'treasury'
+            ? ['title' => 'Trésorerie', 'url' => base_url('admin/treasury')]
+            : ['title' => 'Membres',    'url' => base_url('admin/members')];
+    }
 
-        // Les champs hidden envoient toujours "0", donc on vérifie la valeur (== '1'), pas l'existence
-        $f1Choice = ($post['forfait_f1_choice'] ?? '0') == '1' ? 1 : 0;
-        $f2Choice = ($post['forfait_f2_choice'] ?? '0') == '1' ? 1 : 0;
-        $rbcdPaid = ($post['rbcd_paid']         ?? '0') == '1' ? 1 : 0;
-        $frbbPaid = ($post['frbb_paid']          ?? '0') == '1' ? 1 : 0;
-        $f1Paid   = ($post['forfait_f1_paid']    ?? '0') == '1' ? 1 : 0;
-        $f2Paid   = ($post['forfait_f2_paid']    ?? '0') == '1' ? 1 : 0;
-
-        return [
-            'member_id'            => $memberId,
-            'year'                 => $year,
-            'rbcd_paid'            => $rbcdPaid,
-            'rbcd_paid_date'       => $rbcdPaid && !empty($post['rbcd_paid_date']) ? $post['rbcd_paid_date'] : null,
-            'frbb_paid'            => $frbbPaid,
-            'frbb_paid_date'       => $frbbPaid && !empty($post['frbb_paid_date']) ? $post['frbb_paid_date'] : null,
-            'forfait_f1_choice'    => $f1Choice,
-            'forfait_f1_paid'      => $f1Choice && $f1Paid ? 1 : 0,
-            'forfait_f1_paid_date' => $f1Choice && $f1Paid && !empty($post['forfait_f1_paid_date']) ? $post['forfait_f1_paid_date'] : null,
-            'forfait_f2_choice'    => $f2Choice,
-            'forfait_f2_paid'      => $f2Choice && $f2Paid ? 1 : 0,
-            'forfait_f2_paid_date' => $f2Choice && $f2Paid && !empty($post['forfait_f2_paid_date']) ? $post['forfait_f2_paid_date'] : null,
-        ];
+    private function backUrl(int $memberId, int $year): string
+    {
+        return match ($this->request->getGet('ref') ?? $this->request->getPost('_back') ?? '') {
+            'treasury'    => base_url("admin/treasury?year={$year}"),
+            'member_edit' => base_url("admin/members/{$memberId}/edit?tab=cotisations"),
+            default       => base_url("admin/members/{$memberId}/payments"),
+        };
     }
 }

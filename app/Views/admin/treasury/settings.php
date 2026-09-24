@@ -26,6 +26,20 @@
         </div>
         <div class="col-md-4">
           <div class="form-group">
+            <label for="semester_cotisation">Cotisation RBCD (par semestre)</label>
+            <div class="input-group">
+              <input type="number" name="semester_cotisation" id="semester_cotisation"
+                     class="form-control" step="0.01" min="0"
+                     value="<?= number_format((float)($settings->semester_cotisation ?? 30), 2, '.', '') ?>">
+              <div class="input-group-append">
+                <span class="input-group-text">€</span>
+              </div>
+            </div>
+            <small class="form-text text-muted">RBCD 1 (jan–juin) et RBCD 2 (juil–déc), comptée dans le bilan.</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
             <label for="forfait_price">Forfait billard (par semestre)</label>
             <div class="input-group">
               <input type="number" name="forfait_price" id="forfait_price"

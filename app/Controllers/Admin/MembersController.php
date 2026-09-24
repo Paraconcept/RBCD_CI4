@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\MemberModel;
+use App\Models\MemberClubFeeModel;
 use App\Models\MemberPaymentModel;
 use App\Models\MemberKeyModel;
 use App\Models\MemberCategoryModel;
@@ -107,6 +108,8 @@ class MembersController extends BaseController
             'memberKeys'      => $keyModel->where('member_id', $id)->orderBy('given_date', 'DESC')->findAll(),
             'availableKeys'   => $keyModel->where('member_id IS NULL')->orderBy('badge_number')->findAll(),
             'payments'        => $paymentModel->getForMember($id),
+            'clubFees'        => (new MemberClubFeeModel())->getForMember($id),
+            'ref'             => 'member_edit',
             'memberCategories'=> (new MemberCategoryModel())->getForMember($id),
             'categoryOptions' => (new FrbbCategoryModel())->getOptionsByGameMode(),
         ]);

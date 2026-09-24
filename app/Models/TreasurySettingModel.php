@@ -12,6 +12,7 @@ class TreasurySettingModel extends Model
 
     protected $allowedFields = [
         'annual_cotisation',
+        'semester_cotisation',
         'forfait_price',
         'lesson_price',
         'hourly_price',

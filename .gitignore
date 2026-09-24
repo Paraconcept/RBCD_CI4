@@ -25,3 +25,6 @@ Icon?
 
 # Node (si assets build)
 node_modules/
+
+# Documents et sauvegardes locales (données personnelles)
+DOC/

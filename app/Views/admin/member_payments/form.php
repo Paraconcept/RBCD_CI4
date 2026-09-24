@@ -2,182 +2,129 @@
 <?= $this->section('content') ?>
 
 <?php
-$isEdit    = $payment !== null;
-$errors    = session()->getFlashdata('errors') ?? [];
-$ref       = $ref ?? '';
-$refParam  = $ref ? '?ref=' . $ref : '';
-$formAction = $isEdit
-    ? base_url('admin/members/' . $member->id . '/payments/' . $payment->id . '/update') . $refParam
-    : base_url('admin/members/' . $member->id . '/payments') . $refParam;
+$refParam   = $ref ? '?ref=' . $ref : '';
+$formAction = base_url("admin/members/{$member->id}/payments/{$year}") . $refParam;
+$backUrl    = match ($ref) {
+    'treasury'    => base_url("admin/treasury?year={$year}"),
+    'member_edit' => base_url("admin/members/{$member->id}/edit?tab=cotisations"),
+    default       => base_url("admin/members/{$member->id}/payments"),
+};
 
-// Helpers de valeur
-$v   = fn($f, $default = '')  => old($f, $isEdit ? ($payment->$f ?? $default) : $default);
-$chk = fn($f, $default = 0)   => (bool)(old($f) !== null ? old($f) : ($isEdit ? ($payment->$f ?? $default) : $default));
+$v   = fn(?object $row, string $f) => old($f, $row->$f ?? '');
+$chk = fn(?object $row, string $f) => (bool) (old($f) !== null ? old($f) : ($row->$f ?? 0));
 
-$y1 = $isEdit ? (int)$payment->year     : ANNEE_1;
-$y2 = $isEdit ? (int)$payment->year + 1 : ANNEE_2;
+$rbcdBlocks = [
+    'h1' => ['label' => 'RBCD 1', 'period' => "janvier – juin {$year}"],
+    'h2' => ['label' => 'RBCD 2', 'period' => "juillet – décembre {$year}"],
+];
+$forfaitBlocks = [
+    'h1' => ['label' => 'Effectif 1', 'period' => "janvier – juin {$year}"],
+    'h2' => ['label' => 'Effectif 2', 'period' => "juillet – décembre {$year}"],
+];
 ?>
 
 <form action="<?= $formAction ?>" method="post" autocomplete="off">
 <?= csrf_field() ?>
 
-<?php if (!empty($errors)): ?>
-<div class="alert alert-danger alert-dismissible">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <ul class="mb-0">
-        <?php foreach ($errors as $e): ?><li><?= esc($e) ?></li><?php endforeach; ?>
-    </ul>
-</div>
-<?php endif; ?>
-
 <div class="row">
 
-    <!-- ── Colonne gauche ───────────────────────────────────── -->
-    <div class="col-lg-6">
-
-        <!-- Saison (création seulement) -->
-        <?php if (!$isEdit): ?>
-        <div class="card card-outline card-primary">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>Saison</h3>
-            </div>
-            <div class="card-body">
-                <div class="form-group mb-0">
-                    <label>Année de début <span class="text-danger">*</span>
-                        <small class="text-muted">(ex : <?= ANNEE_1 ?> pour la saison <?= SAISON_EN_COURS ?>)</small>
-                    </label>
-                    <input type="number" name="year" class="form-control <?= isset($errors['year']) ? 'is-invalid' : '' ?>"
-                           value="<?= old('year', ANNEE_1) ?>" min="2000" max="2100" required style="max-width:120px">
-                    <?php if (isset($errors['year'])): ?>
-                        <div class="invalid-feedback"><?= $errors['year'] ?></div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Cotisation RBCD -->
+    <!-- ── Fédération (saison) ──────────────────────────────── -->
+    <div class="col-lg-4">
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title">
-                    <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Cotisation RBCD <small class="text-muted">(janvier–décembre <?= $y2 ?>)</small>
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="custom-control custom-switch mb-3">
-                    <input type="hidden" name="rbcd_paid" value="0">
-                    <input type="checkbox" class="custom-control-input" id="rbcd_paid"
-                           name="rbcd_paid" value="1" <?= $chk('rbcd_paid') ? 'checked' : '' ?>>
-                    <label class="custom-control-label" for="rbcd_paid">Cotisation payée</label>
-                </div>
-                <div class="form-group mb-0" id="rbcd_date_wrap" <?= !$chk('rbcd_paid') ? 'style="display:none"' : '' ?>>
-                    <label>Date de paiement</label>
-                    <input type="date" name="rbcd_paid_date" class="form-control" style="max-width:180px"
-                           value="<?= esc($v('rbcd_paid_date')) ?>">
-                </div>
-            </div>
-        </div>
-
-        <!-- Cotisation FRBB -->
-        <div class="card card-outline card-primary">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <img src="<?= base_url('assets/images/Ecusson_FRBB-LL.png') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Cotisation FRBB <small class="text-muted">(septembre <?= $y1 ?> – juin <?= $y2 ?>)</small>
+                    <img src="<?= base_url('assets/images/Ecusson_FRBB-LL.png') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Cotisation FRBB <small class="text-muted">(septembre <?= $season ?> – juin <?= $season + 1 ?>)</small>
                 </h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
                     <input type="hidden" name="frbb_paid" value="0">
-                    <input type="checkbox" class="custom-control-input" id="frbb_paid"
-                           name="frbb_paid" value="1" <?= $chk('frbb_paid') ? 'checked' : '' ?>>
+                    <input type="checkbox" class="custom-control-input paid-toggle" id="frbb_paid"
+                           name="frbb_paid" value="1" data-target="#frbb_date_wrap"
+                           <?= $chk($payment, 'frbb_paid') ? 'checked' : '' ?>>
                     <label class="custom-control-label" for="frbb_paid">Cotisation payée</label>
                 </div>
-                <div class="form-group mb-0" id="frbb_date_wrap" <?= !$chk('frbb_paid') ? 'style="display:none"' : '' ?>>
+                <div class="form-group mb-0" id="frbb_date_wrap" <?= !$chk($payment, 'frbb_paid') ? 'style="display:none"' : '' ?>>
                     <label>Date de paiement</label>
                     <input type="date" name="frbb_paid_date" class="form-control" style="max-width:180px"
-                           value="<?= esc($v('frbb_paid_date')) ?>">
+                           value="<?= esc($v($payment, 'frbb_paid_date')) ?>">
                 </div>
             </div>
         </div>
-
     </div>
 
-    <!-- ── Colonne droite ────────────────────────────────────── -->
-    <div class="col-lg-6">
-
-        <!-- Forfait F1 -->
+    <!-- ── Club RBCD (année civile) ─────────────────────────── -->
+    <div class="col-lg-4">
+        <?php foreach ($rbcdBlocks as $h => $b): ?>
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title">
-                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait billard F1 <small class="text-muted">(janvier – juin &mdash; 75 €)</small>
+                    <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Cotisation <?= $b['label'] ?> <small class="text-muted">(<?= $b['period'] ?>)</small>
                 </h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
-                    <input type="hidden" name="forfait_f1_choice" value="0">
-                    <input type="checkbox" class="custom-control-input choice-toggle"
-                           id="forfait_f1_choice" name="forfait_f1_choice" value="1"
-                           data-target="#f1_details"
-                           <?= $chk('forfait_f1_choice') ? 'checked' : '' ?>>
-                    <label class="custom-control-label" for="forfait_f1_choice">Le membre a souscrit au forfait F1</label>
+                    <input type="hidden" name="rbcd_<?= $h ?>_paid" value="0">
+                    <input type="checkbox" class="custom-control-input paid-toggle" id="rbcd_<?= $h ?>_paid"
+                           name="rbcd_<?= $h ?>_paid" value="1" data-target="#rbcd_<?= $h ?>_date_wrap"
+                           <?= $chk($clubFee, "rbcd_{$h}_paid") ? 'checked' : '' ?>>
+                    <label class="custom-control-label" for="rbcd_<?= $h ?>_paid">Cotisation payée</label>
                 </div>
-                <div id="f1_details" <?= !$chk('forfait_f1_choice') ? 'style="display:none"' : '' ?>>
-                    <div class="custom-control custom-switch mb-3">
-                        <input type="hidden" name="forfait_f1_paid" value="0">
-                        <input type="checkbox" class="custom-control-input" id="forfait_f1_paid"
-                               name="forfait_f1_paid" value="1" <?= $chk('forfait_f1_paid') ? 'checked' : '' ?>>
-                        <label class="custom-control-label" for="forfait_f1_paid">Forfait F1 payé</label>
-                    </div>
-                    <div class="form-group mb-0" id="f1_date_wrap" <?= !$chk('forfait_f1_paid') ? 'style="display:none"' : '' ?>>
-                        <label>Date de paiement</label>
-                        <input type="date" name="forfait_f1_paid_date" class="form-control" style="max-width:180px"
-                               value="<?= esc($v('forfait_f1_paid_date')) ?>">
-                    </div>
+                <div class="form-group mb-0" id="rbcd_<?= $h ?>_date_wrap" <?= !$chk($clubFee, "rbcd_{$h}_paid") ? 'style="display:none"' : '' ?>>
+                    <label>Date de paiement</label>
+                    <input type="date" name="rbcd_<?= $h ?>_paid_date" class="form-control" style="max-width:180px"
+                           value="<?= esc($v($clubFee, "rbcd_{$h}_paid_date")) ?>">
                 </div>
             </div>
         </div>
+        <?php endforeach; ?>
+    </div>
 
-        <!-- Forfait F2 -->
+    <!-- ── Forfaits billard (année civile) ──────────────────── -->
+    <div class="col-lg-4">
+        <?php foreach ($forfaitBlocks as $h => $b): ?>
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title">
-                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait billard F2 <small class="text-muted">(jullet – décembre &mdash; 75 €)</small>
+                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait <?= $b['label'] ?> <small class="text-muted">(<?= $b['period'] ?>)</small>
                 </h3>
             </div>
             <div class="card-body">
                 <div class="custom-control custom-switch mb-3">
-                    <input type="hidden" name="forfait_f2_choice" value="0">
+                    <input type="hidden" name="forfait_<?= $h ?>_choice" value="0">
                     <input type="checkbox" class="custom-control-input choice-toggle"
-                           id="forfait_f2_choice" name="forfait_f2_choice" value="1"
-                           data-target="#f2_details"
-                           <?= $chk('forfait_f2_choice') ? 'checked' : '' ?>>
-                    <label class="custom-control-label" for="forfait_f2_choice">Le membre a souscrit au forfait F2</label>
+                           id="forfait_<?= $h ?>_choice" name="forfait_<?= $h ?>_choice" value="1"
+                           data-target="#forfait_<?= $h ?>_details"
+                           <?= $chk($clubFee, "forfait_{$h}_choice") ? 'checked' : '' ?>>
+                    <label class="custom-control-label" for="forfait_<?= $h ?>_choice">Le membre a souscrit au forfait</label>
                 </div>
-                <div id="f2_details" <?= !$chk('forfait_f2_choice') ? 'style="display:none"' : '' ?>>
+                <div id="forfait_<?= $h ?>_details" <?= !$chk($clubFee, "forfait_{$h}_choice") ? 'style="display:none"' : '' ?>>
                     <div class="custom-control custom-switch mb-3">
-                        <input type="hidden" name="forfait_f2_paid" value="0">
-                        <input type="checkbox" class="custom-control-input" id="forfait_f2_paid"
-                               name="forfait_f2_paid" value="1" <?= $chk('forfait_f2_paid') ? 'checked' : '' ?>>
-                        <label class="custom-control-label" for="forfait_f2_paid">Forfait F2 payé</label>
+                        <input type="hidden" name="forfait_<?= $h ?>_paid" value="0">
+                        <input type="checkbox" class="custom-control-input paid-toggle" id="forfait_<?= $h ?>_paid"
+                               name="forfait_<?= $h ?>_paid" value="1" data-target="#forfait_<?= $h ?>_date_wrap"
+                               <?= $chk($clubFee, "forfait_{$h}_paid") ? 'checked' : '' ?>>
+                        <label class="custom-control-label" for="forfait_<?= $h ?>_paid">Forfait payé</label>
                     </div>
-                    <div class="form-group mb-0" id="f2_date_wrap" <?= !$chk('forfait_f2_paid') ? 'style="display:none"' : '' ?>>
+                    <div class="form-group mb-0" id="forfait_<?= $h ?>_date_wrap" <?= !$chk($clubFee, "forfait_{$h}_paid") ? 'style="display:none"' : '' ?>>
                         <label>Date de paiement</label>
-                        <input type="date" name="forfait_f2_paid_date" class="form-control" style="max-width:180px"
-                               value="<?= esc($v('forfait_f2_paid_date')) ?>">
+                        <input type="date" name="forfait_<?= $h ?>_paid_date" class="form-control" style="max-width:180px"
+                               value="<?= esc($v($clubFee, "forfait_{$h}_paid_date")) ?>">
                     </div>
                 </div>
             </div>
         </div>
-
+        <?php endforeach; ?>
     </div>
+
 </div>
 
 <div class="row mb-4">
     <div class="col-12">
         <button type="submit" class="btn btn-primary mr-2">
-            <i class="fas fa-save mr-1"></i> <?= $isEdit ? 'Mettre à jour' : 'Créer' ?>
+            <i class="fas fa-save mr-1"></i> Enregistrer
         </button>
-        <a href="<?= base_url('admin/members/' . $member->id . '/payments') . $refParam ?>" class="btn btn-secondary">
+        <a href="<?= $backUrl ?>" class="btn btn-secondary">
             <i class="fas fa-times mr-1"></i> Annuler
         </a>
     </div>
@@ -190,23 +137,15 @@ $y2 = $isEdit ? (int)$payment->year + 1 : ANNEE_2;
 <?= $this->section('scripts') ?>
 <script>
 $(function () {
-    // Affiche/cache la date quand on coche "payé"
-    function toggleDate(switchId, wrapId) {
-        $('#' + switchId).on('change', function () {
-            $(wrapId).toggle(this.checked);
-        });
-    }
-    toggleDate('rbcd_paid',        '#rbcd_date_wrap');
-    toggleDate('frbb_paid',        '#frbb_date_wrap');
-    toggleDate('forfait_f1_paid',  '#f1_date_wrap');
-    toggleDate('forfait_f2_paid',  '#f2_date_wrap');
-
-    // Affiche/cache le bloc détail forfait quand on coche "a souscrit"
-    $('.choice-toggle').on('change', function () {
+    $('.paid-toggle').on('change', function () {
         $($(this).data('target')).toggle(this.checked);
+    });
+
+    $('.choice-toggle').on('change', function () {
+        const $target = $($(this).data('target'));
+        $target.toggle(this.checked);
         if (!this.checked) {
-            // Décocher "payé" si on retire la souscription
-            $($(this).data('target')).find('input[type=checkbox]').prop('checked', false).trigger('change');
+            $target.find('input[type=checkbox]').prop('checked', false).trigger('change');
         }
     });
 });

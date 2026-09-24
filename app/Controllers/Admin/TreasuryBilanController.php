@@ -23,7 +23,7 @@ class TreasuryBilanController extends BaseController
     {
         $this->db = \Config\Database::connect();
         $settings = $this->db->table('treasury_settings')->get()->getRowObject();
-        $this->cotisAmount   = (float) ($settings->annual_cotisation ?? 50);
+        $this->cotisAmount   = (float) ($settings->semester_cotisation ?? 30);
         $this->forfaitAmount = (float) ($settings->forfait_price ?? 75);
     }
 
@@ -1055,22 +1055,22 @@ class TreasuryBilanController extends BaseController
     {
         $result = array_fill(1, 12, 0.0);
 
-        $rows = $this->db->table('member_payments')
-            ->select('MONTH(rbcd_paid_date) as m, COUNT(*) as cnt')
-            ->where('rbcd_paid', 1)->where('rbcd_paid_date IS NOT NULL')
-            ->where('YEAR(rbcd_paid_date)', $year)
-            ->groupBy('MONTH(rbcd_paid_date)')
-            ->get()->getResultArray();
-        foreach ($rows as $row) {
-            $result[(int) $row['m']] += (int) $row['cnt'] * $this->cotisAmount;
-        }
+        foreach (['h1', 'h2'] as $h) {
+            $rows = $this->db->table('member_club_fees')
+                ->select("MONTH(rbcd_{$h}_paid_date) as m, SUM(COALESCE(rbcd_{$h}_amount, 0)) as total")
+                ->where("rbcd_{$h}_paid", 1)->where("rbcd_{$h}_paid_date IS NOT NULL")
+                ->where("YEAR(rbcd_{$h}_paid_date)", $year)
+                ->groupBy("MONTH(rbcd_{$h}_paid_date)")
+                ->get()->getResultArray();
+            foreach ($rows as $row) {
+                $result[(int) $row['m']] += (float) $row['total'];
+            }
 
-        foreach (['forfait_f1_paid_date' => 'forfait_f1_paid', 'forfait_f2_paid_date' => 'forfait_f2_paid'] as $dateCol => $paidCol) {
-            $rows = $this->db->table('member_payments')
-                ->select("MONTH($dateCol) as m, COUNT(*) as cnt")
-                ->where($paidCol, 1)->where("$dateCol IS NOT NULL")
-                ->where("YEAR($dateCol)", $year)
-                ->groupBy("MONTH($dateCol)")
+            $rows = $this->db->table('member_club_fees')
+                ->select("MONTH(forfait_{$h}_paid_date) as m, COUNT(*) as cnt")
+                ->where("forfait_{$h}_paid", 1)->where("forfait_{$h}_paid_date IS NOT NULL")
+                ->where("YEAR(forfait_{$h}_paid_date)", $year)
+                ->groupBy("MONTH(forfait_{$h}_paid_date)")
                 ->get()->getResultArray();
             foreach ($rows as $row) {
                 $result[(int) $row['m']] += (int) $row['cnt'] * $this->forfaitAmount;
@@ -1136,19 +1136,19 @@ class TreasuryBilanController extends BaseController
     private function getCotisationsByDay(int $year, int $month): array
     {
         $result = array_fill(1, cal_days_in_month(CAL_GREGORIAN, $month, $year), 0.0);
-        $rows = $this->db->table('member_payments')
-            ->select('DAY(rbcd_paid_date) as d, COUNT(*) as cnt')
-            ->where('rbcd_paid', 1)->where('rbcd_paid_date IS NOT NULL')
-            ->where('YEAR(rbcd_paid_date)', $year)->where('MONTH(rbcd_paid_date)', $month)
-            ->groupBy('DAY(rbcd_paid_date)')->get()->getResultArray();
-        foreach ($rows as $row) $result[(int)$row['d']] += (int)$row['cnt'] * $this->cotisAmount;
+        foreach (['h1', 'h2'] as $h) {
+            $rows = $this->db->table('member_club_fees')
+                ->select("DAY(rbcd_{$h}_paid_date) as d, SUM(COALESCE(rbcd_{$h}_amount, 0)) as total")
+                ->where("rbcd_{$h}_paid", 1)->where("rbcd_{$h}_paid_date IS NOT NULL")
+                ->where("YEAR(rbcd_{$h}_paid_date)", $year)->where("MONTH(rbcd_{$h}_paid_date)", $month)
+                ->groupBy("DAY(rbcd_{$h}_paid_date)")->get()->getResultArray();
+            foreach ($rows as $row) $result[(int)$row['d']] += (float)$row['total'];
 
-        foreach (['forfait_f1_paid_date' => 'forfait_f1_paid', 'forfait_f2_paid_date' => 'forfait_f2_paid'] as $dateCol => $paidCol) {
-            $rows = $this->db->table('member_payments')
-                ->select("DAY($dateCol) as d, COUNT(*) as cnt")
-                ->where($paidCol, 1)->where("$dateCol IS NOT NULL")
-                ->where("YEAR($dateCol)", $year)->where("MONTH($dateCol)", $month)
-                ->groupBy("DAY($dateCol)")->get()->getResultArray();
+            $rows = $this->db->table('member_club_fees')
+                ->select("DAY(forfait_{$h}_paid_date) as d, COUNT(*) as cnt")
+                ->where("forfait_{$h}_paid", 1)->where("forfait_{$h}_paid_date IS NOT NULL")
+                ->where("YEAR(forfait_{$h}_paid_date)", $year)->where("MONTH(forfait_{$h}_paid_date)", $month)
+                ->groupBy("DAY(forfait_{$h}_paid_date)")->get()->getResultArray();
             foreach ($rows as $row) $result[(int)$row['d']] += (int)$row['cnt'] * $this->forfaitAmount;
         }
         return $result;
@@ -1191,7 +1191,7 @@ class TreasuryBilanController extends BaseController
     {
         $a = array_column($this->db->table('treasury_revenues')->select('YEAR(revenue_date) as y')->distinct()->get()->getResultArray(), 'y');
         $b = array_column($this->db->table('treasury_expenses')->select('YEAR(expense_date) as y')->distinct()->get()->getResultArray(), 'y');
-        $c = array_column($this->db->table('member_payments')->select('year as y')->distinct()->get()->getResultArray(), 'y');
+        $c = array_column($this->db->table('member_club_fees')->select('year as y')->distinct()->get()->getResultArray(), 'y');
 
         $years = array_unique(array_merge($a, $b, $c));
         rsort($years);

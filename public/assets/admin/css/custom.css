@@ -117,6 +117,20 @@ a:hover { color: var(--rbcd-primary-dark); }
     color: #fff !important;
     border-color: var(--rbcd-primary-dark) !important;
 }
+/* En-tête figé pendant le défilement, activé page par page via .table-sticky-head.
+   .table-responsive (overflow-x) bloquerait le sticky : neutralisé sur grand écran. */
+/* !important : DataTables impose position:relative sur les th triables (.sorting),
+   sticky reste un contexte positionné donc les flèches de tri restent en place. */
+.table-sticky-head .thead-rbcd th {
+    position: sticky !important;
+    top: 0;
+    z-index: 2;
+}
+@media (min-width: 992px) {
+    .table-sticky-head {
+        overflow: visible;
+    }
+}
 
 /* ----------------------------------------------------------------
    PAGINATION & DATATABLES
