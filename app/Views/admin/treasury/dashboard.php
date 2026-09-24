@@ -16,9 +16,9 @@ $paidCell = function (bool $paid, ?string $date, bool $pending = false) use ($fm
 };
 
 $cards = [
-    ['n' => $stats['frbbPaid'],   't' => $stats['frbbTotal'], 'label' => "FRBB {$saison}",   'unit' => 'des fédérés',  'bar' => 'bg-warning', 'img' => 'Ecusson_FRBB-LL.png', 'h' => 70],
-    ['n' => $stats['rbcdH1Paid'], 't' => $stats['total'],     'label' => 'RBCD 1 (jan–juin)', 'unit' => 'des membres',  'bar' => 'bg-rbcd',    'img' => 'Ecusson_RBCD.png',    'h' => 70],
-    ['n' => $stats['rbcdH2Paid'], 't' => $stats['total'],     'label' => 'RBCD 2 (juil–déc)', 'unit' => 'des membres',  'bar' => 'bg-rbcd',    'img' => 'Ecusson_RBCD.png',    'h' => 70],
+    ['n' => $stats['frbbPaid'],   't' => $stats['frbbTotal'], 'label' => "FRBB {$saison}",   'unit' => 'des fédérés',  'bar' => 'bg-warning', 'img' => 'Ecusson_FRBB-LL.png'],
+    ['n' => $stats['rbcdH1Paid'], 't' => $stats['total'],     'label' => 'RBCD 1 (jan–juin)', 'unit' => 'des membres',  'bar' => 'bg-rbcd',    'img' => 'Ecusson_RBCD.png'],
+    ['n' => $stats['rbcdH2Paid'], 't' => $stats['total'],     'label' => 'RBCD 2 (juil–déc)', 'unit' => 'des membres',  'bar' => 'bg-rbcd',    'img' => 'Ecusson_RBCD.png'],
     ['n' => $stats['f1Paid'],     't' => $stats['f1Total'],   'label' => 'Effectif 1',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'icon' => 'fa-id-card', 'color' => '#84252B'],
     ['n' => $stats['f2Paid'],     't' => $stats['f2Total'],   'label' => 'Effectif 2',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'icon' => 'fa-id-card', 'color' => '#84252B'],
     ['n' => $stats['supportersActive'], 't' => $stats['supporters'], 'label' => 'Cartes sympathisant actives', 'unit' => "des sympathisants · {$stats['cardsSold']} vendue" . ($stats['cardsSold'] > 1 ? 's' : '') . " en {$year}", 'bar' => 'bg-info', 'icon' => 'fa-id-card', 'color' => '#17a2b8'],
@@ -57,24 +57,21 @@ $cardBadge = [
     <div class="col-lg col-sm-6">
         <div class="small-box bg-white border">
             <div class="inner">
-                <h3><?= $c['n'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $c['t'] ?></sup></h3>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h3 class="mb-0"><?= $c['n'] ?> <sup class="text-muted" style="font-size:.5em">/ <?= $c['t'] ?></sup></h3>
+                    <?php if (isset($c['img'])): ?>
+                        <img src="<?= base_url('assets/images/' . $c['img']) ?>" alt=""
+                             style="height:60px;width:auto;object-fit:contain;">
+                    <?php else: ?>
+                        <i class="fas <?= $c['icon'] ?>" style="font-size:52px;color:<?= $c['color'] ?>;"></i>
+                    <?php endif; ?>
+                </div>
                 <p><?= esc($c['label']) ?></p>
                 <div class="progress progress-sm mt-2">
                     <div class="progress-bar <?= $c['bar'] ?>" style="width:<?= $pct($c['n'], $c['t']) ?>%"></div>
                 </div>
                 <small class="text-muted"><?= $pct($c['n'], $c['t']) ?> % <?= $c['unit'] ?></small>
             </div>
-            <?php if (isset($c['img'])): ?>
-            <div class="icon" style="position:absolute;right:10px;bottom:60px;z-index:0;">
-                <img src="<?= base_url('assets/images/' . $c['img']) ?>"
-                     style="height:<?= $c['h'] ?>px;width:auto;opacity:1;object-fit:contain;">
-            </div>
-            <?php else: ?>
-            <!-- Positionnement AdminLTE natif : en haut à droite de la carte -->
-            <div class="icon">
-                <i class="fas <?= $c['icon'] ?>" style="font-size:60px;color:<?= $c['color'] ?>;"></i>
-            </div>
-            <?php endif; ?>
         </div>
     </div>
     <?php endforeach; ?>
