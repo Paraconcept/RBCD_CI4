@@ -132,6 +132,8 @@ $forfaitBlocks = [
 
 </form>
 
+<?= $this->include('admin/member_payments/_supporter_cards') ?>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
@@ -150,4 +152,5 @@ $(function () {
     });
 });
 </script>
+<?= $this->include('admin/member_payments/_history_js') ?>
 <?= $this->endSection() ?>

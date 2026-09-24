@@ -6,7 +6,12 @@
  */
 use App\Models\SupporterCardModel;
 
-$back       = $ref === 'member_edit' ? 'member_edit' : 'payments';
+// Page de retour après chaque action : fiche membre, historique, ou page cotisations d'une année
+$backFields = isset($cardsBackYear)
+    ? '<input type="hidden" name="_back" value="fees">'
+      . '<input type="hidden" name="_year" value="' . (int) $cardsBackYear . '">'
+      . '<input type="hidden" name="_ref" value="' . esc($ref) . '">'
+    : '<input type="hidden" name="_back" value="' . ($ref === 'member_edit' ? 'member_edit' : 'payments') . '">';
 $cardsUrl   = base_url("admin/members/{$member->id}/supporter-cards");
 $hasActive  = (bool) array_filter($supporterCards, fn($c) => $c->status === 'active');
 $maxSess    = SupporterCardModel::SESSIONS_PER_CARD;
@@ -23,22 +28,46 @@ $d = fn(string $date) => date('d/m/Y', strtotime($date));
         <h3 class="card-title"><i class="fas fa-id-card mr-2"></i>Cartes sympathisant
             <small class="text-muted">(<?= $maxSess ?> séances, valable <?= SupporterCardModel::VALIDITY_MONTHS ?> mois)</small>
         </h3>
-        <div class="ml-auto">
+        <div class="ml-auto d-flex align-items-center">
             <?php if (!$member->is_supporter): ?>
-                <span class="text-muted small">Membre non sympathisant</span>
-            <?php elseif ($hasActive): ?>
-                <span class="text-muted small">Carte active en cours</span>
+                <form method="post" action="<?= base_url("admin/members/{$member->id}/supporter-status") ?>" class="mb-0">
+                    <?= csrf_field() ?>
+                    <?= $backFields ?>
+                    <input type="hidden" name="is_supporter" value="1">
+                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-user-check mr-1"></i> Marquer comme sympathisant
+                    </button>
+                </form>
             <?php else: ?>
-                <button type="button" class="btn btn-primary btn-sm js-card-new">
-                    <i class="fas fa-plus mr-1"></i> Nouvelle carte
+                <?php if ($hasActive): ?>
+                    <span class="text-muted small mr-3">Carte active en cours</span>
+                <?php else: ?>
+                    <button type="button" class="btn btn-primary btn-sm mr-2 js-card-new">
+                        <i class="fas fa-plus mr-1"></i> Nouvelle carte
+                    </button>
+                <?php endif; ?>
+                <button type="button" class="btn btn-link btn-sm text-muted p-0 js-confirm-delete"
+                        data-form="#supporter-off-<?= $member->id ?>" data-label="le statut sympathisant de ce membre"
+                        title="Les cartes existantes sont conservées">
+                    Retirer le statut sympathisant
                 </button>
+                <form id="supporter-off-<?= $member->id ?>" method="post" class="d-none"
+                      action="<?= base_url("admin/members/{$member->id}/supporter-status") ?>">
+                    <?= csrf_field() ?>
+                    <?= $backFields ?>
+                    <input type="hidden" name="is_supporter" value="0">
+                </form>
             <?php endif; ?>
         </div>
     </div>
 
     <?php if (empty($supporterCards)): ?>
     <div class="card-body">
-        <div class="alert alert-info mb-0">Aucune carte sympathisant pour ce membre.</div>
+        <div class="alert alert-info mb-0">
+            <?= $member->is_supporter
+                ? 'Aucune carte sympathisant pour ce membre.'
+                : 'Ce membre n\'est pas sympathisant. Marquez-le comme sympathisant pour gérer ses cartes (30 €, 5 séances).' ?>
+        </div>
     </div>
     <?php else: ?>
     <div class="card-body p-0">
@@ -80,7 +109,7 @@ $d = fn(string $date) => date('d/m/Y', strtotime($date));
                             <form id="del-sess-<?= $s->id ?>" method="post" class="d-none"
                                   action="<?= "{$cardsUrl}/{$c->id}/sessions/{$s->id}/delete" ?>">
                                 <?= csrf_field() ?>
-                                <input type="hidden" name="_back" value="<?= $back ?>">
+                                <?= $backFields ?>
                             </form>
                         <?php endforeach; ?>
                     </td>
@@ -111,7 +140,7 @@ $d = fn(string $date) => date('d/m/Y', strtotime($date));
                         <form id="del-card-<?= $c->id ?>" method="post" class="d-none"
                               action="<?= "{$cardsUrl}/{$c->id}/delete" ?>">
                             <?= csrf_field() ?>
-                            <input type="hidden" name="_back" value="<?= $back ?>">
+                            <?= $backFields ?>
                         </form>
                     </td>
                 </tr>
@@ -129,7 +158,7 @@ $d = fn(string $date) => date('d/m/Y', strtotime($date));
         <div class="modal-content">
             <form id="cardForm" method="post" action="<?= $cardsUrl ?>" autocomplete="off">
                 <?= csrf_field() ?>
-                <input type="hidden" name="_back" value="<?= $back ?>">
+                <?= $backFields ?>
                 <div class="modal-header bg-light">
                     <h5 class="modal-title" id="cardModalTitle">Nouvelle carte sympathisant</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -170,7 +199,7 @@ $d = fn(string $date) => date('d/m/Y', strtotime($date));
         <div class="modal-content">
             <form id="sessionForm" method="post" autocomplete="off">
                 <?= csrf_field() ?>
-                <input type="hidden" name="_back" value="<?= $back ?>">
+                <?= $backFields ?>
                 <div class="modal-header bg-light">
                     <h5 class="modal-title">Nouvelle séance</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>

@@ -67,12 +67,14 @@ class MemberPaymentsController extends BaseController
                 ['title' => 'Cotisations', 'url' => base_url("admin/members/{$memberId}/payments")],
                 ['title' => "Année {$year}"],
             ],
-            'member'  => $member,
-            'year'    => $year,
-            'season'  => $season,
-            'clubFee' => $this->clubFeeModel->findForYear($memberId, $year),
-            'payment' => $this->paymentModel->findForSeason($memberId, $season),
-            'ref'     => $ref,
+            'member'         => $member,
+            'year'           => $year,
+            'season'         => $season,
+            'clubFee'        => $this->clubFeeModel->findForYear($memberId, $year),
+            'payment'        => $this->paymentModel->findForSeason($memberId, $season),
+            'ref'            => $ref,
+            'supporterCards' => (new SupporterCardModel())->getForMember($memberId),
+            'cardsBackYear'  => $year,
         ]);
     }
 

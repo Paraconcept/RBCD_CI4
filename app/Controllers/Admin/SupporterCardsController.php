@@ -128,6 +128,19 @@ class SupporterCardsController extends BaseController
         return $this->back($memberId, 'success', 'Séance supprimée.');
     }
 
+    public function setStatus(int $memberId)
+    {
+        if (!$this->memberModel->find($memberId)) {
+            return redirect()->to(base_url('admin/members'))->with('error', 'Membre introuvable.');
+        }
+        $on = $this->request->getPost('is_supporter') === '1';
+        $this->memberModel->update($memberId, ['is_supporter' => $on ? 1 : 0]);
+
+        return $this->back($memberId, 'success', $on
+            ? 'Membre marqué comme sympathisant.'
+            : 'Statut sympathisant retiré (les cartes existantes sont conservées).');
+    }
+
     // ----------------------------------------------------------------
 
     private function findCard(int $memberId, int $cardId): ?object
@@ -169,9 +182,13 @@ class SupporterCardsController extends BaseController
 
     private function back(int $memberId, string $type, string $message)
     {
-        $url = $this->request->getPost('_back') === 'payments'
-            ? base_url("admin/members/{$memberId}/payments")
-            : base_url("admin/members/{$memberId}/edit?tab=cotisations");
+        $ref = $this->request->getPost('_ref');
+        $url = match ($this->request->getPost('_back')) {
+            'fees'     => base_url("admin/members/{$memberId}/payments/" . (int) $this->request->getPost('_year'))
+                          . (in_array($ref, ['treasury', 'member_edit'], true) ? "?ref={$ref}" : ''),
+            'payments' => base_url("admin/members/{$memberId}/payments"),
+            default    => base_url("admin/members/{$memberId}/edit?tab=cotisations"),
+        };
 
         return redirect()->to($url)->with($type, $message);
     }
