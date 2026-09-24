@@ -14,6 +14,7 @@ class TreasurySettingModel extends Model
         'annual_cotisation',
         'semester_cotisation',
         'forfait_price',
+        'supporter_card_price',
         'lesson_price',
         'hourly_price',
     ];

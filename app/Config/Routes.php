@@ -117,6 +117,13 @@ $routes->group('admin', static function ($routes) {
         $routes->post('members/(:num)/payments/(:num)/delete-club',    'Admin\MemberPaymentsController::deleteClub/$1/$2');
         $routes->post('members/(:num)/payments/season/(:num)/delete',  'Admin\MemberPaymentsController::deleteSeason/$1/$2');
 
+        // Cartes sympathisant
+        $routes->post('members/(:num)/supporter-cards',                                  'Admin\SupporterCardsController::store/$1');
+        $routes->post('members/(:num)/supporter-cards/(:num)/update',                    'Admin\SupporterCardsController::update/$1/$2');
+        $routes->post('members/(:num)/supporter-cards/(:num)/delete',                    'Admin\SupporterCardsController::delete/$1/$2');
+        $routes->post('members/(:num)/supporter-cards/(:num)/sessions',                  'Admin\SupporterCardsController::addSession/$1/$2');
+        $routes->post('members/(:num)/supporter-cards/(:num)/sessions/(:num)/delete',    'Admin\SupporterCardsController::deleteSession/$1/$2/$3');
+
         // Trésorerie — paiements
         $routes->get ('settings',      'Admin\SettingsController::index');
         $routes->post('settings/save', 'Admin\SettingsController::save');

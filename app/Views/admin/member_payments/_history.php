@@ -128,3 +128,7 @@ $forfaitBadge = function (bool $choice, bool $paid, ?string $date) use ($paidBad
     </div>
     <?php endif; ?>
 </div>
+
+<?php if (isset($supporterCards) && ($member->is_supporter || $supporterCards)): ?>
+    <?= $this->include('admin/member_payments/_supporter_cards') ?>
+<?php endif; ?>

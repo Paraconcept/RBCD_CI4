@@ -1077,6 +1077,15 @@ class TreasuryBilanController extends BaseController
             }
         }
 
+        $rows = $this->db->table('supporter_cards')
+            ->select('MONTH(purchase_date) as m, SUM(amount) as total')
+            ->where('YEAR(purchase_date)', $year)
+            ->groupBy('MONTH(purchase_date)')
+            ->get()->getResultArray();
+        foreach ($rows as $row) {
+            $result[(int) $row['m']] += (float) $row['total'];
+        }
+
         return $result;
     }
 
@@ -1151,6 +1160,13 @@ class TreasuryBilanController extends BaseController
                 ->groupBy("DAY(forfait_{$h}_paid_date)")->get()->getResultArray();
             foreach ($rows as $row) $result[(int)$row['d']] += (int)$row['cnt'] * $this->forfaitAmount;
         }
+
+        $rows = $this->db->table('supporter_cards')
+            ->select('DAY(purchase_date) as d, SUM(amount) as total')
+            ->where('YEAR(purchase_date)', $year)->where('MONTH(purchase_date)', $month)
+            ->groupBy('DAY(purchase_date)')->get()->getResultArray();
+        foreach ($rows as $row) $result[(int)$row['d']] += (float)$row['total'];
+
         return $result;
     }
 

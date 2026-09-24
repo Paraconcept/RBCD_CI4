@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\MemberClubFeeModel;
 use App\Models\MemberModel;
 use App\Models\MemberPaymentModel;
+use App\Models\SupporterCardModel;
 use App\Models\TreasurySettingModel;
 
 class MemberPaymentsController extends BaseController
@@ -37,10 +38,11 @@ class MemberPaymentsController extends BaseController
                 ['title' => esc($member->first_name . ' ' . $member->last_name)],
                 ['title' => 'Cotisations'],
             ],
-            'member'   => $member,
-            'clubFees' => $this->clubFeeModel->getForMember($memberId),
-            'payments' => $this->paymentModel->getForMember($memberId),
-            'ref'      => $ref,
+            'member'         => $member,
+            'clubFees'       => $this->clubFeeModel->getForMember($memberId),
+            'payments'       => $this->paymentModel->getForMember($memberId),
+            'supporterCards' => (new SupporterCardModel())->getForMember($memberId),
+            'ref'            => $ref,
         ]);
     }
 

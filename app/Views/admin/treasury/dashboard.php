@@ -21,6 +21,13 @@ $cards = [
     ['n' => $stats['rbcdH2Paid'], 't' => $stats['total'],     'label' => 'RBCD 2 (juil–déc)', 'unit' => 'des membres',  'bar' => 'bg-rbcd',    'img' => 'Ecusson_RBCD.png',    'h' => 70],
     ['n' => $stats['f1Paid'],     't' => $stats['f1Total'],   'label' => 'Effectif 1',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'img' => '75euros.gif',         'h' => 80],
     ['n' => $stats['f2Paid'],     't' => $stats['f2Total'],   'label' => 'Effectif 2',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'img' => '75euros.gif',         'h' => 80],
+    ['n' => $stats['supportersActive'], 't' => $stats['supporters'], 'label' => 'Cartes sympathisant actives', 'unit' => "des sympathisants · {$stats['cardsSold']} vendue" . ($stats['cardsSold'] > 1 ? 's' : '') . " en {$year}", 'bar' => 'bg-info', 'icon' => 'fa-id-card'],
+];
+$maxSess = \App\Models\SupporterCardModel::SESSIONS_PER_CARD;
+$cardBadge = [
+    'active'   => 'badge-success',
+    'complete' => 'badge-secondary',
+    'expired'  => 'badge-danger',
 ];
 ?>
 
@@ -58,8 +65,12 @@ $cards = [
                 <small class="text-muted"><?= $pct($c['n'], $c['t']) ?> % <?= $c['unit'] ?></small>
             </div>
             <div class="icon" style="position:absolute;right:10px;bottom:60px;z-index:0;">
+                <?php if (isset($c['img'])): ?>
                 <img src="<?= base_url('assets/images/' . $c['img']) ?>"
                      style="height:<?= $c['h'] ?>px;width:auto;opacity:1;object-fit:contain;">
+                <?php else: ?>
+                <i class="fas <?= $c['icon'] ?>" style="font-size:60px;color:#17a2b8;"></i>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -86,6 +97,7 @@ $cards = [
                         <th class="text-center">RBCD 2<br><small>juil–déc</small></th>
                         <th class="text-center">Effectif 1<br><small>jan–juin</small></th>
                         <th class="text-center">Effectif 2<br><small>juil–déc</small></th>
+                        <th class="text-center">Sympathisant<br><small>carte en cours</small></th>
                         <th class="text-center no-sort">Fiche</th>
                     </tr>
                 </thead>
@@ -130,6 +142,23 @@ $cards = [
                         <?php endif; ?>
                     </td>
                     <?php endforeach; ?>
+
+                    <!-- Sympathisant : dernière carte -->
+                    <td class="text-center" data-order="<?= $r->card ? ($r->card->status === 'active' ? 2 : 1) : 0 ?>">
+                        <?php if (!$r->is_supporter && !$r->card): ?>
+                            <span class="text-muted">—</span>
+                        <?php elseif (!$r->card): ?>
+                            <span class="badge badge-warning text-dark">Aucune carte</span>
+                        <?php else: ?>
+                            <span class="badge <?= $cardBadge[$r->card->status] ?>"
+                                  title="<?= $r->card->card_number ? 'Carte n° ' . esc($r->card->card_number) . ' — ' : '' ?>achetée le <?= date('d/m/Y', strtotime($r->card->purchase_date)) ?>">
+                                <?= $r->card->used ?>/<?= $maxSess ?> · exp. <?= date('d/m/Y', strtotime($r->card->expiry_date)) ?>
+                            </span>
+                            <?php if ($r->cardsYear > 1): ?>
+                                <br><small class="text-muted"><?= $r->cardsYear ?> cartes en <?= $year ?></small>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </td>
 
                     <!-- Lien fiche -->
                     <td class="text-center">

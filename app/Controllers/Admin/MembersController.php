@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\MemberModel;
 use App\Models\MemberClubFeeModel;
 use App\Models\MemberPaymentModel;
+use App\Models\SupporterCardModel;
 use App\Models\MemberKeyModel;
 use App\Models\MemberCategoryModel;
 use App\Models\FrbbCategoryModel;
@@ -109,6 +110,7 @@ class MembersController extends BaseController
             'availableKeys'   => $keyModel->where('member_id IS NULL')->orderBy('badge_number')->findAll(),
             'payments'        => $paymentModel->getForMember($id),
             'clubFees'        => (new MemberClubFeeModel())->getForMember($id),
+            'supporterCards'  => (new SupporterCardModel())->getForMember($id),
             'ref'             => 'member_edit',
             'memberCategories'=> (new MemberCategoryModel())->getForMember($id),
             'categoryOptions' => (new FrbbCategoryModel())->getOptionsByGameMode(),

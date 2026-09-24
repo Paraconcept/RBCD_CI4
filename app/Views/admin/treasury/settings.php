@@ -54,6 +54,20 @@
         </div>
         <div class="col-md-4">
           <div class="form-group">
+            <label for="supporter_card_price">Carte sympathisant (5 séances)</label>
+            <div class="input-group">
+              <input type="number" name="supporter_card_price" id="supporter_card_price"
+                     class="form-control" step="0.01" min="0"
+                     value="<?= number_format((float)($settings->supporter_card_price ?? 30), 2, '.', '') ?>">
+              <div class="input-group-append">
+                <span class="input-group-text">€</span>
+              </div>
+            </div>
+            <small class="form-text text-muted">Montant figé sur chaque carte à sa création, compté dans le bilan.</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
             <label for="lesson_price">Prix par séance — École de billard</label>
             <div class="input-group">
               <input type="number" name="lesson_price" id="lesson_price"

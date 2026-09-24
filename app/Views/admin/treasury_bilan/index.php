@@ -149,7 +149,7 @@ $delta = function(float $d, float $nm1, string $arrowPlus, string $arrowMinus) u
                 <tr>
                     <td class="font-weight-bold">
                         <i class="fas fa-users text-muted mr-2"></i>Cotisations
-                        <small class="text-muted font-weight-normal">(RBCD <?= $fmt($cotisAmount) ?>/sem. · forfait <?= $fmt($forfaitAmount) ?>/sem.)</small>
+                        <small class="text-muted font-weight-normal">(RBCD <?= $fmt($cotisAmount) ?>/sem. · forfait <?= $fmt($forfaitAmount) ?>/sem. · cartes sympathisant)</small>
                     </td>
                     <td class="text-right font-weight-bold text-success"><?= $fmt($totalCotisN) ?></td>
                     <td class="text-right text-muted text-nowrap"><?= $pctC ?> %</td>
