@@ -86,7 +86,7 @@ $forfaitBlocks = [
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title">
-                    <img src="<?= base_url('assets/images/75euros.gif') ?>" style="height:1.4em;width:auto;vertical-align:middle;" class="mr-2">Forfait <?= $b['label'] ?> <small class="text-muted">(<?= $b['period'] ?>)</small>
+                    <i class="fas fa-id-card mr-2" style="color:#84252B;"></i>Forfait <?= $b['label'] ?> <small class="text-muted">(<?= $b['period'] ?>)</small>
                 </h3>
             </div>
             <div class="card-body">

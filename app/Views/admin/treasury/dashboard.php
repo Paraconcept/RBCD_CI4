@@ -19,9 +19,9 @@ $cards = [
     ['n' => $stats['frbbPaid'],   't' => $stats['frbbTotal'], 'label' => "FRBB {$saison}",   'unit' => 'des fédérés',  'bar' => 'bg-warning', 'img' => 'Ecusson_FRBB-LL.png', 'h' => 70],
     ['n' => $stats['rbcdH1Paid'], 't' => $stats['total'],     'label' => 'RBCD 1 (jan–juin)', 'unit' => 'des membres',  'bar' => 'bg-rbcd',    'img' => 'Ecusson_RBCD.png',    'h' => 70],
     ['n' => $stats['rbcdH2Paid'], 't' => $stats['total'],     'label' => 'RBCD 2 (juil–déc)', 'unit' => 'des membres',  'bar' => 'bg-rbcd',    'img' => 'Ecusson_RBCD.png',    'h' => 70],
-    ['n' => $stats['f1Paid'],     't' => $stats['f1Total'],   'label' => 'Effectif 1',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'img' => '75euros.gif',         'h' => 80],
-    ['n' => $stats['f2Paid'],     't' => $stats['f2Total'],   'label' => 'Effectif 2',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'img' => '75euros.gif',         'h' => 80],
-    ['n' => $stats['supportersActive'], 't' => $stats['supporters'], 'label' => 'Cartes sympathisant actives', 'unit' => "des sympathisants · {$stats['cardsSold']} vendue" . ($stats['cardsSold'] > 1 ? 's' : '') . " en {$year}", 'bar' => 'bg-info', 'icon' => 'fa-id-card'],
+    ['n' => $stats['f1Paid'],     't' => $stats['f1Total'],   'label' => 'Effectif 1',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'icon' => 'fa-id-card', 'color' => '#84252B'],
+    ['n' => $stats['f2Paid'],     't' => $stats['f2Total'],   'label' => 'Effectif 2',        'unit' => 'des souscrits', 'bar' => 'bg-success', 'icon' => 'fa-id-card', 'color' => '#84252B'],
+    ['n' => $stats['supportersActive'], 't' => $stats['supporters'], 'label' => 'Cartes sympathisant actives', 'unit' => "des sympathisants · {$stats['cardsSold']} vendue" . ($stats['cardsSold'] > 1 ? 's' : '') . " en {$year}", 'bar' => 'bg-info', 'icon' => 'fa-id-card', 'color' => '#17a2b8'],
 ];
 $maxSess = \App\Models\SupporterCardModel::SESSIONS_PER_CARD;
 $cardBadge = [
@@ -69,7 +69,7 @@ $cardBadge = [
                 <img src="<?= base_url('assets/images/' . $c['img']) ?>"
                      style="height:<?= $c['h'] ?>px;width:auto;opacity:1;object-fit:contain;">
                 <?php else: ?>
-                <i class="fas <?= $c['icon'] ?>" style="font-size:60px;color:#17a2b8;"></i>
+                <i class="fas <?= $c['icon'] ?>" style="font-size:60px;color:<?= $c['color'] ?>;"></i>
                 <?php endif; ?>
             </div>
         </div>
