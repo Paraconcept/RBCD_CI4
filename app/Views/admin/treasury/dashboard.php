@@ -64,14 +64,17 @@ $cardBadge = [
                 </div>
                 <small class="text-muted"><?= $pct($c['n'], $c['t']) ?> % <?= $c['unit'] ?></small>
             </div>
+            <?php if (isset($c['img'])): ?>
             <div class="icon" style="position:absolute;right:10px;bottom:60px;z-index:0;">
-                <?php if (isset($c['img'])): ?>
                 <img src="<?= base_url('assets/images/' . $c['img']) ?>"
                      style="height:<?= $c['h'] ?>px;width:auto;opacity:1;object-fit:contain;">
-                <?php else: ?>
-                <i class="fas <?= $c['icon'] ?>" style="font-size:60px;color:<?= $c['color'] ?>;"></i>
-                <?php endif; ?>
             </div>
+            <?php else: ?>
+            <!-- Positionnement AdminLTE natif : en haut à droite de la carte -->
+            <div class="icon">
+                <i class="fas <?= $c['icon'] ?>" style="font-size:60px;color:<?= $c['color'] ?>;"></i>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
     <?php endforeach; ?>
