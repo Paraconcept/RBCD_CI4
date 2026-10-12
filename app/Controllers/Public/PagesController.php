@@ -418,6 +418,19 @@ class PagesController extends BaseController
         ]);
     }
 
+    public function documentsMarquoirsHowTo(): string
+    {
+        return view('public/pages/marquoirs_howto', [
+            'title'      => 'Marquoirs : How To — RBC Disonais',
+            'page_title' => 'Marquoirs : How To',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Documents utiles', 'url' => base_url('documents')],
+                ['label' => 'Marquoirs : How To'],
+            ],
+        ]);
+    }
+
     public function documentShow(string $slug)
     {
         $doc = (new \App\Models\ClubDocumentModel())->findBySlug($slug);

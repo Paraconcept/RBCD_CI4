@@ -76,6 +76,7 @@ $routes->get('archives/journal', 'Public\PagesController::archivesJournal');
 // Documents utiles
 $routes->get('documents',                              'Public\PagesController::documents');
 $routes->get('documents/remboursements-mutuelle',      'Public\PagesController::documentsRemboursementsMutuelle');
+$routes->get('documents/marquoirs-how-to',             'Public\PagesController::documentsMarquoirsHowTo');
 $routes->get('documents/(:segment)',                   'Public\PagesController::documentShow/$1');
 
 // En direct : suivi public des parties du jour (lecture seule)

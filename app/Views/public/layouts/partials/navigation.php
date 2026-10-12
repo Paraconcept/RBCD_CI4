@@ -147,6 +147,7 @@
                       <li><a href="<?= base_url('documents/' . esc($cdoc->slug)) ?>" target="_blank"><?= esc($cdoc->title) ?><i class="far fa-file-pdf"></i></a></li>
                       <?php endforeach; ?>
                       <li><a href="<?= base_url('documents/remboursements-mutuelle') ?>">Remboursements Mutuelle</a></li>
+                      <li><a href="<?= base_url('documents/marquoirs-how-to') ?>">Marquoirs : How To</a></li>
                     </ul>
                   </li>
 
