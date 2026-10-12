@@ -305,6 +305,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard',                       'Admin\ScoreboardController::store');
         $routes->get ('scoreboard/(:num)',                'Admin\ScoreboardController::show/$1');
         $routes->get ('scoreboard/(:num)/edit',           'Admin\ScoreboardController::edit/$1');
+        $routes->get ('scoreboard/(:num)/pdf',            'Admin\ScoreboardController::pdf/$1');
         $routes->post('scoreboard/(:num)/update',         'Admin\ScoreboardController::update/$1');
         $routes->post('scoreboard/(:num)/delete',         'Admin\ScoreboardController::delete/$1');
         $routes->post('scoreboard/(:num)/reset',          'Admin\ScoreboardController::reset/$1');

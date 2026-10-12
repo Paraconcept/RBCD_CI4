@@ -22,7 +22,7 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
           <th width="90" class="text-center">Reprises</th>
           <th width="100">Billard</th>
           <th width="90" class="text-center">Statut</th>
-          <th width="130" class="text-right">Actions</th>
+          <th width="160" class="text-right">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -48,6 +48,7 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
           <td class="text-right text-nowrap">
             <?php if ($m->status !== 'scheduled'): ?>
               <a href="<?= base_url('admin/scoreboard/' . $m->id) ?>" class="btn btn-xs btn-info" title="Feuille de match"><i class="fas fa-list-ol"></i></a>
+              <a href="<?= base_url('admin/scoreboard/' . $m->id . '/pdf') ?>" target="_blank" class="btn btn-xs btn-primary" title="Feuille de match PDF"><i class="fas fa-file-pdf"></i></a>
             <?php endif; ?>
             <a href="<?= base_url('admin/scoreboard/' . $m->id . '/edit') ?>" class="btn btn-xs btn-warning" title="Modifier"><i class="fas fa-pen"></i></a>
             <?php if ($m->status !== 'scheduled' && $m->type === 'official'): ?>

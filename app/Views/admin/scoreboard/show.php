@@ -76,8 +76,11 @@
     </table>
     <?php endif; ?>
   </div>
-  <div class="card-footer">
+  <div class="card-footer d-flex">
     <a href="<?= base_url('admin/scoreboard') ?>" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>Retour</a>
+    <a href="<?= base_url('admin/scoreboard/' . $match->id . '/pdf') ?>" target="_blank" class="btn btn-primary ml-auto">
+      <i class="fas fa-file-pdf mr-1"></i>Feuille de match PDF
+    </a>
   </div>
 </div>
 

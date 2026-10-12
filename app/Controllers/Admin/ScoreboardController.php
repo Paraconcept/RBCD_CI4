@@ -9,6 +9,8 @@ use App\Models\ScoreboardPlayerModel;
 use App\Models\ScoreboardTableModel;
 use App\Models\SiteSettingModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class ScoreboardController extends BaseController
 {
@@ -66,6 +68,47 @@ class ScoreboardController extends BaseController
         $match = $this->find($id);
         $table = $match->table_id ? (new ScoreboardTableModel())->find($match->table_id) : null;
 
+        return view('admin/scoreboard/show', [
+            'title'       => 'Feuille de match',
+            'breadcrumbs' => [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')], ['title' => 'Feuille de match']],
+            'match'       => $match,
+            'table'       => $table,
+            'sheet'       => $this->buildSheet($id),
+        ]);
+    }
+
+    public function pdf(int $id)
+    {
+        $match = $this->find($id);
+
+        $logo = FCPATH . 'assets/images/Ecusson_RBCD.png';
+        $html = view('admin/scoreboard/pdf', [
+            'match' => $match,
+            'sheet' => $this->buildSheet($id),
+            'logo'  => is_file($logo) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logo)) : null,
+        ]);
+
+        $options = new Options();
+        $options->set('defaultFont', 'Helvetica');
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        $date     = date('Y-m-d', strtotime($match->started_at ?? $match->scheduled_at ?? 'now'));
+        $filename = 'feuille_match_' . $date . '_' . url_title($match->p1_last_name . '-' . $match->p2_last_name, '-', true) . '.pdf';
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
+            ->setBody($dompdf->output());
+    }
+
+    /**
+     * Reprises indexées par numéro : [n° => [joueur => ['points' => série, 'total' => cumul]]].
+     */
+    private function buildSheet(int $id): array
+    {
         $sheet = [];
         $cumul = [1 => 0, 2 => 0];
         foreach ((new ScoreboardInningModel())->getForMatch($id) as $row) {
@@ -73,14 +116,7 @@ class ScoreboardController extends BaseController
             $cumul[$p] += (int) $row->points;
             $sheet[(int) $row->inning_no][$p] = ['points' => (int) $row->points, 'total' => $cumul[$p]];
         }
-
-        return view('admin/scoreboard/show', [
-            'title'       => 'Feuille de match',
-            'breadcrumbs' => [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')], ['title' => 'Feuille de match']],
-            'match'       => $match,
-            'table'       => $table,
-            'sheet'       => $sheet,
-        ]);
+        return $sheet;
     }
 
     public function edit(int $id): string
