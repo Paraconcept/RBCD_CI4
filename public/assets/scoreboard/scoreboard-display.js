@@ -217,8 +217,6 @@
                 clock.total = clock.left = C.clock.seconds * 1000;
                 clock.endAt = Date.now() + clock.left;
                 clock.lastSec = null;
-                beep(660, 0.15);
-                setTimeout(function () { beep(660, 0.15); }, 200);
                 flash('Time-out utilisé (' + (C.clock.extensions - st.ext[i]) + ' restant' + (C.clock.extensions - st.ext[i] > 1 ? 's' : '') + ')');
                 commit();
                 return;
@@ -226,7 +224,6 @@
             clock.running = false;
             clock.left = 0;
             clock.lastSec = 0;
-            beep(440, 0.9);
             render();
             return;
         }
@@ -242,8 +239,8 @@
         box.classList.toggle('expired', left <= 0 && !st.finished);
 
         if (clock.running && sec !== clock.lastSec) {
+            // Un seul bip, à 10 s : les bips répétés dérangeaient les joueurs
             if (sec === 10) beep(880, 0.12);
-            else if (sec > 0 && sec <= 5) beep(1100, 0.08);
             clock.lastSec = sec;
         }
     }
