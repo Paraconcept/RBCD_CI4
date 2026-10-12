@@ -35,9 +35,14 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
       <div class="row">
         <div class="col-md-3">
           <div class="form-group">
-            <label for="scheduled_at">Date et heure</label>
-            <input type="datetime-local" name="scheduled_at" id="scheduled_at" class="form-control"
-                   value="<?= esc(($v = $val('scheduled_at')) ? date('Y-m-d\TH:i', strtotime($v)) : '') ?>">
+            <?php $sched = $match->scheduled_at ?? null; ?>
+            <label for="scheduled_date">Date et heure</label>
+            <div class="d-flex">
+              <input type="date" name="scheduled_date" id="scheduled_date" class="form-control mr-2"
+                     value="<?= esc(old('scheduled_date', $sched ? date('Y-m-d', strtotime($sched)) : '')) ?>">
+              <input type="time" name="scheduled_time" id="scheduled_time" class="form-control" style="max-width:120px"
+                     value="<?= esc(old('scheduled_time', $sched ? date('H:i', strtotime($sched)) : '19:30')) ?>">
+            </div>
           </div>
         </div>
         <div class="col-md-5">

@@ -180,8 +180,9 @@ class ScoreboardController extends BaseController
         $post = $this->request->getPost();
         [$data, $errors] = ScoreboardMatchModel::dataFromInput($post);
 
-        $scheduled = trim((string) ($post['scheduled_at'] ?? ''));
-        $data['scheduled_at'] = $scheduled !== '' ? date('Y-m-d H:i:s', strtotime($scheduled)) : null;
+        $date = trim((string) ($post['scheduled_date'] ?? ''));
+        $time = trim((string) ($post['scheduled_time'] ?? '')) ?: '19:30';
+        $data['scheduled_at'] = $date !== '' ? date('Y-m-d H:i:s', strtotime($date . ' ' . $time)) : null;
         $competition = trim((string) ($post['competition'] ?? ''));
         $data['competition'] = $competition !== '' ? $competition : null;
 
