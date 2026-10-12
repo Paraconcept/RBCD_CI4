@@ -118,6 +118,15 @@ $config = [
         <div class="sbd-clock-num" id="sbdClockNum"></div>
     </div>
 
+    <?php if ($spectator): ?>
+    <!-- Suggestion mode paysage (smartphone), identique à la page Coupe des Régions -->
+    <div class="sbd-rotate-hint" id="sbdRotateHint" role="alert">
+        <button type="button" class="sbd-rotate-hint-close" aria-label="Fermer" onclick="document.getElementById('sbdRotateHint').remove()">&times;</button>
+        <i class="fas fa-mobile-alt fa-rotate-90"></i>
+        <p>Pour un meilleur confort de lecture, tournez votre téléphone en mode paysage.</p>
+    </div>
+    <?php endif; ?>
+
     <?php if (!$spectator): ?>
     <footer class="sbd-help">
         <span><kbd>+</kbd> point</span>
