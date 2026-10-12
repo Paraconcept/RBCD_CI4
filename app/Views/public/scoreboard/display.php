@@ -37,6 +37,7 @@ $config = [
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="<?= base_url('assets/scoreboard/scoreboard.css') ?>">
 </head>
 <body>
@@ -136,9 +137,11 @@ $config = [
         <div class="sbd-menu">
             <button type="button" class="btn btn-light" data-action="fullscreen"><i class="fas fa-expand me-2"></i>Plein écran</button>
             <a href="<?= esc($config['urls']['table']) ?>" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Retour au billard (la partie reste en cours)</a>
-            <form method="post" action="<?= base_url('marquoir/match/' . $match->id . '/annuler') ?>"
-                  onsubmit="return confirm('<?= $match->type === 'friendly' ? 'Annuler cette partie amicale ?' : 'Remettre cette rencontre à zéro ? Toutes les reprises seront effacées.' ?>')">
-                <button class="btn btn-danger w-100"><i class="fas fa-ban me-2"></i><?= $match->type === 'friendly' ? 'Annuler la partie' : 'Remettre la rencontre à zéro' ?></button>
+            <form method="post" id="sbdCancelForm" action="<?= base_url('marquoir/match/' . $match->id . '/annuler') ?>"
+                  data-title="<?= $match->type === 'friendly' ? 'Annuler cette partie amicale ?' : 'Remettre la rencontre à zéro ?' ?>"
+                  data-text="<?= $match->type === 'friendly' ? 'La partie sera abandonnée et ne figurera pas dans les résultats.' : 'Toutes les reprises seront effacées et la rencontre redeviendra « prévue ».' ?>"
+                  data-confirm="<?= $match->type === 'friendly' ? 'Oui, annuler la partie' : 'Oui, remettre à zéro' ?>">
+                <button type="button" class="btn btn-danger w-100" data-action="cancel"><i class="fas fa-ban me-2"></i><?= $match->type === 'friendly' ? 'Annuler la partie' : 'Remettre la rencontre à zéro' ?></button>
             </form>
             <button type="button" class="btn btn-outline-light" data-action="close"><i class="fas fa-xmark me-2"></i>Fermer (Échap)</button>
         </div>
@@ -146,6 +149,7 @@ $config = [
 </div>
 
 <script>window.SB_CONFIG = <?= json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
 <script src="<?= base_url('assets/scoreboard/scoreboard-display.js') ?>"></script>
 </body>
 </html>

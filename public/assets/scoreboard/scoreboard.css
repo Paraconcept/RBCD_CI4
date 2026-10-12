@@ -194,5 +194,9 @@
 .sbd-menu { display: flex; flex-direction: column; gap: 1.5vh; min-width: 30vw; font-family: 'Barlow', sans-serif; }
 .sbd-menu .btn { font-size: 2.4vh; padding: 1.4vh 2vw; }
 
+.sbd-swal { font-family: 'Barlow', sans-serif; border: 3px solid var(--sb-red); border-radius: 18px; }
+.sbd-swal .swal2-title { font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem; }
+.swal2-container { cursor: default; }
+
 @keyframes sbd-bump { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
 @keyframes sbd-blink { 50% { opacity: .35; } }

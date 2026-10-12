@@ -407,6 +407,8 @@
     const closeMenu = () => { menu.classList.remove('open'); };
 
     document.addEventListener('keydown', function (e) {
+        // La boîte de confirmation gère elle-même Entrée / Échap
+        if (window.Swal && Swal.isVisible()) return;
         const a = actionFor(e);
         if (!a) return;
         e.preventDefault();
@@ -441,7 +443,29 @@
         const btn = e.target.closest('[data-action]');
         if (e.target === menu || (btn && btn.dataset.action === 'close')) closeMenu();
         if (btn && btn.dataset.action === 'fullscreen') { enterFullscreen(); closeMenu(); }
+        if (btn && btn.dataset.action === 'cancel') confirmCancel();
     });
+
+    function confirmCancel() {
+        const form = $('sbdCancelForm');
+        if (!window.Swal) { form.submit(); return; }
+        Swal.fire({
+            title: form.dataset.title,
+            text: form.dataset.text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: form.dataset.confirm,
+            cancelButtonText: 'Non, continuer la partie',
+            reverseButtons: true,
+            focusCancel: true,
+            background: '#16213d',
+            color: '#eef1f7',
+            iconColor: '#f59e0b',
+            confirmButtonColor: '#84252B',
+            cancelButtonColor: '#475569',
+            customClass: { popup: 'sbd-swal' },
+        }).then(function (r) { if (r.isConfirmed) form.submit(); });
+    }
 
     root.addEventListener('dblclick', openMenu);
 
