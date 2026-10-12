@@ -133,19 +133,21 @@
 
 .sbd-body { flex: 1; display: flex; align-items: center; gap: 1.5vw; min-height: 0; }
 .sbd-player.p2 .sbd-body { flex-direction: row-reverse; }
-.sbd-last5 { flex: 0 0 8vw; display: flex; flex-direction: column; gap: .9vh; }
+.sbd-last5 { flex: 0 0 6vw; display: flex; flex-direction: column; gap: .8vh; }
 .sbd-last5 div {
-    height: 6.6vh; display: flex; align-items: center; justify-content: space-between; padding: 0 .8vw;
+    height: 5.2vh; display: flex; align-items: center; justify-content: space-between; padding: 0 .7vw;
     background: rgba(0,0,0,.35); border: .25vh solid transparent; border-radius: 1vh;
 }
-.sbd-last5 small { font-size: 1.9vh; color: var(--sb-muted); }
-.sbd-last5 b { font-size: 4.6vh; font-weight: 700; line-height: 1; }
+.sbd-last5 small { font-size: 1.7vh; color: var(--sb-muted); }
+.sbd-last5 b { font-size: 3.4vh; font-weight: 700; line-height: 1; }
 .sbd-last5 div.latest { border-color: var(--pc); }
 .sbd-last5 div.empty b { color: rgba(255,255,255,.15); }
 .sbd-score {
     flex: 1; display: grid; place-items: center; min-height: 0;
-    font-size: 34vh; font-weight: 800; line-height: .85; color: var(--pc); letter-spacing: -.02em;
+    font-size: 38vh; font-weight: 800; line-height: .85; color: var(--pc); letter-spacing: -.02em;
 }
+/* 3 chiffres et plus (libre) : réduit pour ne pas déborder du panneau */
+.sbd-score.long { font-size: 27vh; }
 .sbd-score.bump { animation: sbd-bump .25s ease-out; }
 
 .sbd-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1vw; text-align: center; }

@@ -335,6 +335,7 @@
             el.classList.toggle('active', p === cur);
             const score = el.querySelector('[data-score]');
             score.textContent = t.pts;
+            score.classList.toggle('long', t.pts >= 100);
             if (lastScores[p] !== null && lastScores[p] !== t.pts) {
                 score.classList.remove('bump'); void score.offsetWidth; score.classList.add('bump');
             }
