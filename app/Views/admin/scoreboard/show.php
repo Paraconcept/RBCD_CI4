@@ -8,7 +8,7 @@
       <i class="fas fa-list-ol mr-2"></i>
       <?= esc(M::disciplineLabel($match)) ?> · <?= esc(M::distanceLabel($match)) ?>
       <?= $match->innings_limit ? ' · limite ' . (int) $match->innings_limit . ' reprises' : '' ?>
-      <?= $match->competition ? ' — ' . esc($match->competition) : '' ?>
+      <?= ($competition = M::competitionLabel($match)) ? ' — ' . esc($competition) : '' ?>
     </h3>
     <div class="ml-auto">
       <span class="badge badge-<?= $match->status === 'finished' ? 'success' : 'danger' ?> p-2"><?= esc(M::STATUSES[$match->status]) ?></span>

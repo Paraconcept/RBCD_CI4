@@ -1,0 +1,109 @@
+<?php
+use App\Models\ScoreboardMatchModel as M;
+use App\Models\ScoreboardTeamEncounterModel as TE;
+$isEdit = $encounter !== null;
+$val    = static fn (string $f, $default = '') => old($f, $encounter->$f ?? $default);
+$sched  = $encounter->scheduled_at ?? null;
+?>
+<?= $this->extend('admin/layouts/main') ?>
+<?= $this->section('content') ?>
+
+<?php if (session()->getFlashdata('errors')): ?>
+  <div class="alert alert-danger alert-dismissible fade show">
+    <ul class="mb-0">
+      <?php foreach ((array) session()->getFlashdata('errors') as $e): ?><li><?= esc($e) ?></li><?php endforeach; ?>
+    </ul>
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+  </div>
+<?php endif; ?>
+
+<form method="post" autocomplete="off"
+      action="<?= $isEdit ? base_url('admin/scoreboard/teams/' . $encounter->id . '/update') : base_url('admin/scoreboard/teams') ?>">
+  <?= csrf_field() ?>
+  <div class="card card-outline card-primary">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-users mr-2"></i><?= $isEdit ? 'Modifier la rencontre ' . esc($encounter->code) : "Nouvelle rencontre d'équipe" ?></h3>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="code">N° de rencontre <span class="text-danger">*</span></label>
+            <input type="text" name="code" id="code" class="form-control" maxlength="20" required style="text-transform:uppercase"
+                   placeholder="ex. LPF001" value="<?= esc($val('code')) ?>">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="competition">Compétition <span class="text-danger">*</span></label>
+            <select name="competition" id="competition" class="form-control">
+              <?php foreach (TE::COMPETITIONS as $k => $v): ?>
+              <option value="<?= $k ?>" <?= $val('competition', 'CDR') === $k ? 'selected' : '' ?>><?= esc($k . ' — ' . $v) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="scheduled_date">Date et heure</label>
+            <div class="d-flex">
+              <input type="date" name="scheduled_date" id="scheduled_date" class="form-control mr-2"
+                     value="<?= esc(old('scheduled_date', $sched ? date('Y-m-d', strtotime($sched)) : '')) ?>">
+              <input type="time" name="scheduled_time" id="scheduled_time" class="form-control" style="max-width:120px"
+                     value="<?= esc(old('scheduled_time', $sched ? date('H:i', strtotime($sched)) : '19:30')) ?>">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="team_id">Notre équipe <span class="text-danger">*</span></label>
+            <select name="team_id" id="team_id" class="form-control" required>
+              <option value="">— Choisir l'équipe —</option>
+              <?php foreach ($teams as $t): ?>
+              <option value="<?= $t->id ?>" <?= (int) $val('team_id') === (int) $t->id ? 'selected' : '' ?>
+                      data-discipline="<?= esc(M::DISCIPLINES[$t->discipline] . ' ' . $t->format) ?>"
+                      data-roster="<?= esc(implode(', ', array_map(static fn ($r) => mb_strtoupper($r->last_name, 'UTF-8') . ' ' . $r->first_name, $t->roster))) ?>">
+                <?= esc($t->name . ' — ' . $t->game_mode . ' (' . $t->season . ')') ?>
+              </option>
+              <?php endforeach; ?>
+            </select>
+            <small class="text-muted" id="teamInfo"></small>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="opponent_club">Club adverse <span class="text-danger">*</span></label>
+            <input type="text" name="opponent_club" id="opponent_club" class="form-control" maxlength="100" required
+                   placeholder="ex. B.C. Grâce-Hollogne 3" value="<?= esc($val('opponent_club')) ?>">
+          </div>
+        </div>
+      </div>
+      <div class="form-group mb-0">
+        <label for="notes">Remarques</label>
+        <textarea name="notes" id="notes" class="form-control" rows="2"><?= esc($val('notes')) ?></textarea>
+      </div>
+    </div>
+    <div class="card-footer d-flex">
+      <a href="<?= $isEdit ? base_url('admin/scoreboard/teams/' . $encounter->id) : base_url('admin/scoreboard/teams') ?>" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>Retour</a>
+      <button class="btn btn-primary ml-auto"><i class="fas fa-save mr-1"></i>Enregistrer</button>
+    </div>
+  </div>
+</form>
+
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<script>
+(function () {
+    const sel = document.getElementById('team_id');
+    const info = document.getElementById('teamInfo');
+    const sync = () => {
+        const o = sel.options[sel.selectedIndex];
+        info.textContent = o && o.value ? 'Discipline : ' + o.dataset.discipline + ' · Joueurs : ' + (o.dataset.roster || '—') : '';
+    };
+    sel.addEventListener('change', sync);
+    sync();
+})();
+</script>
+<?= $this->endSection() ?>

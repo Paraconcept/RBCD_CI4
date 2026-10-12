@@ -1,7 +1,13 @@
 <?php
 use App\Models\ScoreboardMatchModel as M;
-$isEdit = $match !== null;
-$val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
+use App\Models\ScoreboardTeamEncounterModel as TE;
+$isEdit  = $match !== null;
+$team    = $team ?? null;
+$roster  = $roster ?? [];
+// Valeurs du match existant, sinon pré-remplissage (match d'une rencontre d'équipe)
+$src     = $match ?? (object) ($prefill ?? []);
+$val     = static fn (string $f, $default = '') => old($f, $src->$f ?? $default);
+$backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('admin/scoreboard');
 ?>
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('content') ?>
@@ -35,7 +41,7 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
       <div class="row">
         <div class="col-md-3">
           <div class="form-group">
-            <?php $sched = $match->scheduled_at ?? null; ?>
+            <?php $sched = $src->scheduled_at ?? null; ?>
             <label for="scheduled_date">Date et heure</label>
             <div class="d-flex">
               <input type="date" name="scheduled_date" id="scheduled_date" class="form-control mr-2"
@@ -46,11 +52,21 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
           </div>
         </div>
         <div class="col-md-5">
+          <?php if ($team): ?>
+          <input type="hidden" name="team_encounter_id" value="<?= (int) $team->id ?>">
+          <input type="hidden" name="competition" value="">
+          <label>Rencontre d'équipe</label>
+          <div class="border rounded px-3 py-2 bg-light">
+            <strong><?= esc(TE::label($team)) ?></strong><br>
+            <span class="text-muted"><?= esc($team->team_name) ?> contre <?= esc($team->opponent_club) ?></span>
+          </div>
+          <?php else: ?>
           <div class="form-group">
             <label for="competition">Compétition</label>
             <input type="text" name="competition" id="competition" class="form-control" maxlength="150"
                    placeholder="ex. Championnat 3 Bandes PF — 2e tour" value="<?= esc($val('competition')) ?>">
           </div>
+          <?php endif; ?>
         </div>
         <div class="col-md-4">
           <div class="form-group">
@@ -76,6 +92,17 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
         </div>
         <div class="card-body">
           <input type="hidden" name="<?= $p ?>_member_id" value="<?= esc($val($p . '_member_id')) ?>">
+          <?php if ($p === 'p1' && $roster): ?>
+          <div class="mb-3">
+            <small class="text-muted d-block mb-1">Joueurs de l'équipe :</small>
+            <?php foreach ($roster as $r): ?>
+            <button type="button" class="btn btn-sm btn-outline-primary mr-1 mb-1" data-roster
+                    data-member-id="<?= (int) $r->id ?>" data-last-name="<?= esc(mb_strtoupper($r->last_name, 'UTF-8')) ?>" data-first-name="<?= esc($r->first_name) ?>">
+              <i class="fas fa-user mr-1"></i><?= esc(mb_strtoupper($r->last_name, 'UTF-8') . ' ' . $r->first_name) ?>
+            </button>
+            <?php endforeach; ?>
+          </div>
+          <?php endif; ?>
           <div class="form-group">
             <label>Nom <span class="text-danger">*</span></label>
             <input type="text" name="<?= $p ?>_last_name" class="form-control" required style="text-transform:uppercase"
@@ -174,7 +201,7 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
       </div>
     </div>
     <div class="card-footer d-flex">
-      <a href="<?= base_url('admin/scoreboard') ?>" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>Retour</a>
+      <a href="<?= $backUrl ?>" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>Retour</a>
       <button class="btn btn-primary ml-auto"><i class="fas fa-save mr-1"></i>Enregistrer</button>
     </div>
   </div>
@@ -183,4 +210,15 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') ?>"></script>
+<script>
+document.querySelectorAll('[data-roster]').forEach(function (b) {
+    b.addEventListener('click', function () {
+        const f = b.closest('form');
+        f.querySelector('[name="p1_member_id"]').value  = b.dataset.memberId;
+        f.querySelector('[name="p1_last_name"]').value  = b.dataset.lastName;
+        f.querySelector('[name="p1_first_name"]').value = b.dataset.firstName;
+        document.querySelectorAll('[data-roster]').forEach(x => x.classList.toggle('active', x === b));
+    });
+});
+</script>
 <?= $this->endSection() ?>

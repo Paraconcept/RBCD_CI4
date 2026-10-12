@@ -309,6 +309,16 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard/(:num)/update',         'Admin\ScoreboardController::update/$1');
         $routes->post('scoreboard/(:num)/delete',         'Admin\ScoreboardController::delete/$1');
         $routes->post('scoreboard/(:num)/reset',          'Admin\ScoreboardController::reset/$1');
+        $routes->get ('scoreboard/teams',                       'Admin\ScoreboardTeamController::index');
+        $routes->get ('scoreboard/teams/create',                'Admin\ScoreboardTeamController::create');
+        $routes->post('scoreboard/teams',                       'Admin\ScoreboardTeamController::store');
+        $routes->get ('scoreboard/teams/(:num)',                'Admin\ScoreboardTeamController::show/$1');
+        $routes->get ('scoreboard/teams/(:num)/edit',           'Admin\ScoreboardTeamController::edit/$1');
+        $routes->post('scoreboard/teams/(:num)/update',         'Admin\ScoreboardTeamController::update/$1');
+        $routes->post('scoreboard/teams/(:num)/delete',         'Admin\ScoreboardTeamController::delete/$1');
+        $routes->post('scoreboard/teams/(:num)/attach',         'Admin\ScoreboardTeamController::attach/$1');
+        $routes->post('scoreboard/teams/(:num)/detach/(:num)',  'Admin\ScoreboardTeamController::detach/$1/$2');
+        $routes->get ('scoreboard/teams/(:num)/matches/create', 'Admin\ScoreboardController::createForTeam/$1');
         $routes->get ('scoreboard/players/search',        'Admin\ScoreboardController::searchPlayers');
         $routes->get ('scoreboard/players',               'Admin\ScoreboardSetupController::players');
         $routes->post('scoreboard/players/(:num)/update', 'Admin\ScoreboardSetupController::updatePlayer/$1');

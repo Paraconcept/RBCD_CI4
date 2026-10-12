@@ -97,7 +97,7 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
 
     <div style="height:6mm"></div>
     <div class="field"><b>Date :</b> <span><?= $date ? date('d/m/Y', strtotime($date)) : '' ?></span></div>
-    <div class="field thick"><b>Epreuve :</b> <span><?= esc($match->competition ?? ($match->type === 'friendly' ? 'Partie amicale' : '')) ?></span></div>
+    <div class="field thick"><b>Epreuve :</b> <span><?= esc(M::competitionLabel($match) ?: ($match->type === 'friendly' ? 'Partie amicale' : '')) ?></span></div>
     <div class="field"></div>
     <div style="height:7mm"></div>
     <div class="field thick"><b>Mode de jeu :</b> <span><?= esc(M::disciplineLabel($match)) ?><?= $match->innings_limit ? ' — ' . (int) $match->innings_limit . ' reprises max.' : '' ?></span><?= $pages > 1 ? ' <span class="small">(feuille ' . ($page + 1) . '/' . $pages . ')</span>' : '' ?></div>

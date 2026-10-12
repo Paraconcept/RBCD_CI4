@@ -264,7 +264,7 @@ class ScoreboardController extends BaseController
 
     private function findMatch(int $id): object
     {
-        $match = $this->matches->find($id);
+        $match = $this->matches->withTable()->find($id);
         if (!$match) {
             throw PageNotFoundException::forPageNotFound('Partie introuvable');
         }

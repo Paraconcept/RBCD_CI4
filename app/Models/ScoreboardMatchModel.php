@@ -32,7 +32,7 @@ class ScoreboardMatchModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'type', 'status', 'table_id', 'scheduled_at', 'competition',
+        'type', 'team_encounter_id', 'status', 'table_id', 'scheduled_at', 'competition',
         'discipline', 'format', 'innings_limit', 'unequal_innings',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions',
         'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_distance',
@@ -49,8 +49,12 @@ class ScoreboardMatchModel extends Model
 
     public function withTable()
     {
-        return $this->select('scoreboard_matches.*, t.name AS table_name')
-                    ->join('scoreboard_tables t', 't.id = scoreboard_matches.table_id', 'left');
+        // Sous-requête : seules des colonnes au nom unique sont jointes, pour que les filtres et tris
+        // non qualifiés (scheduled_at, discipline…) restent sans ambiguïté
+        return $this->select('scoreboard_matches.*, t.name AS table_name, te.te_code, te.te_competition')
+                    ->join('scoreboard_tables t', 't.id = scoreboard_matches.table_id', 'left')
+                    ->join('(SELECT id AS te_id, code AS te_code, competition AS te_competition FROM scoreboard_team_encounters) te',
+                           'te.te_id = scoreboard_matches.team_encounter_id', 'left', false);
     }
 
     /**
@@ -304,6 +308,21 @@ class ScoreboardMatchModel extends Model
     {
         $from = self::startAllowedAt($m, $windowMinutes);
         return $from === null || self::nowTs() >= $from;
+    }
+
+    /**
+     * « CDR · LPF001 » pour un match de rencontre d'équipe (requiert withTable()), sinon la compétition saisie.
+     */
+    public static function competitionLabel(object $m): string
+    {
+        $parts = [];
+        if (!empty($m->te_code)) {
+            $parts[] = $m->te_competition . ' · ' . $m->te_code;
+        }
+        if (!empty($m->competition)) {
+            $parts[] = $m->competition;
+        }
+        return implode(' — ', $parts);
     }
 
     /** ex. « 3 Bandes PB » */

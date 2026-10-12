@@ -22,7 +22,7 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
                 <span><i class="far fa-clock me-1"></i><?= date('Y-m-d', strtotime($m->scheduled_at)) === M::now('Y-m-d') ? date('H:i', strtotime($m->scheduled_at)) : $frDate($m->scheduled_at) ?></span>
                 <?php endif; ?>
                 <span><?= esc(M::disciplineLabel($m)) ?> · <?= esc(M::distanceLabel($m)) ?><?= $m->innings_limit ? ' · ' . (int) $m->innings_limit . ' rep.' : '' ?></span>
-                <?php if ($m->competition): ?><span><?= esc($m->competition) ?></span><?php endif; ?>
+                <?php if ($competition = M::competitionLabel($m)): ?><span><?= esc($competition) ?></span><?php endif; ?>
             </div>
             <div class="sb-match-players">
                 <div><strong><?= esc(M::playerLabel($m, 'p1')) ?></strong><small><?= esc($m->p1_club) ?></small></div>

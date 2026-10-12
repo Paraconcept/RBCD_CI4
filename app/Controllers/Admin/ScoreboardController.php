@@ -7,6 +7,7 @@ use App\Models\ScoreboardInningModel;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
 use App\Models\ScoreboardTableModel;
+use App\Models\ScoreboardTeamEncounterModel;
 use App\Models\SiteSettingModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use Dompdf\Dompdf;
@@ -47,6 +48,25 @@ class ScoreboardController extends BaseController
         return $this->form(null);
     }
 
+    /**
+     * Nouveau match d'une rencontre d'équipe : date, clubs, discipline et format repris de la fiche.
+     */
+    public function createForTeam(int $teamEncounterId): string
+    {
+        $team = (new ScoreboardTeamEncounterModel())->find($teamEncounterId);
+        if (!$team) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+
+        return $this->form(null, $team, [
+            'scheduled_at' => $team->scheduled_at,
+            'discipline'   => $team->discipline,
+            'format'       => $team->format,
+            'p1_club'      => $team->team_name,
+            'p2_club'      => $team->opponent_club,
+        ]);
+    }
+
     public function store()
     {
         [$data, $errors] = $this->buildData();
@@ -60,7 +80,7 @@ class ScoreboardController extends BaseController
         $this->model->insert($data);
         ScoreboardMatchModel::rememberExternalPlayers($data);
 
-        return redirect()->to(base_url('admin/scoreboard'))->with('success', 'Rencontre ajoutée.');
+        return $this->redirectAfterSave($data['team_encounter_id'] ?? null, 'Match ajouté.');
     }
 
     public function show(int $id): string
@@ -121,7 +141,10 @@ class ScoreboardController extends BaseController
 
     public function edit(int $id): string
     {
-        return $this->form($this->find($id));
+        $match = $this->find($id);
+        $team  = $match->team_encounter_id ? (new ScoreboardTeamEncounterModel())->find($match->team_encounter_id) : null;
+
+        return $this->form($match, $team);
     }
 
     public function update(int $id)
@@ -136,7 +159,7 @@ class ScoreboardController extends BaseController
         $this->model->update($match->id, $data);
         ScoreboardMatchModel::rememberExternalPlayers($data);
 
-        return redirect()->to(base_url('admin/scoreboard'))->with('success', 'Rencontre modifiée.');
+        return $this->redirectAfterSave($data['team_encounter_id'] ?? $match->team_encounter_id, 'Match modifié.');
     }
 
     public function delete(int $id)
@@ -158,14 +181,30 @@ class ScoreboardController extends BaseController
         return $this->response->setJSON((new ScoreboardPlayerModel())->search((string) $this->request->getGet('q')));
     }
 
-    private function form(?object $match): string
+    private function redirectAfterSave(?int $teamEncounterId, string $message)
+    {
+        $url = $teamEncounterId ? 'admin/scoreboard/teams/' . $teamEncounterId : 'admin/scoreboard';
+        return redirect()->to(base_url($url))->with('success', $message);
+    }
+
+    private function form(?object $match, ?object $team = null, array $prefill = []): string
     {
         $settings = new SiteSettingModel();
 
+        $breadcrumbs = [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')]];
+        if ($team) {
+            $breadcrumbs[] = ['title' => "Rencontres d'équipe", 'url' => base_url('admin/scoreboard/teams')];
+            $breadcrumbs[] = ['title' => $team->code, 'url' => base_url('admin/scoreboard/teams/' . $team->id)];
+        }
+        $breadcrumbs[] = ['title' => $match ? 'Modifier' : 'Nouveau match'];
+
         return view('admin/scoreboard/form', [
-            'title'       => $match ? 'Modifier la rencontre' : 'Nouvelle rencontre',
-            'breadcrumbs' => [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')], ['title' => $match ? 'Modifier' : 'Nouvelle rencontre']],
+            'title'       => $match ? 'Modifier le match' : ($team ? 'Nouveau match — ' . $team->code : 'Nouvelle rencontre'),
+            'breadcrumbs' => $breadcrumbs,
             'match'       => $match,
+            'team'        => $team,
+            'roster'      => $team ? (new ScoreboardTeamEncounterModel())->getRoster((int) $team->team_id) : [],
+            'prefill'     => $prefill,
             'tables'      => (new ScoreboardTableModel())->getActive(),
             'defaults'    => [
                 'shot_clock_seconds'    => (int) $settings->getSetting('scoreboard_shot_clock_seconds', 40),
@@ -186,12 +225,18 @@ class ScoreboardController extends BaseController
         $competition = trim((string) ($post['competition'] ?? ''));
         $data['competition'] = $competition !== '' ? $competition : null;
 
+        // Le champ n'existe que dans le formulaire d'un match d'équipe : absent, on ne touche pas au rattachement
+        if (array_key_exists('team_encounter_id', $post)) {
+            $teamId = (int) $post['team_encounter_id'];
+            $data['team_encounter_id'] = $teamId > 0 && (new ScoreboardTeamEncounterModel())->find($teamId) ? $teamId : null;
+        }
+
         return [$data, $errors];
     }
 
     private function find(int $id): object
     {
-        $match = $this->model->find($id);
+        $match = $this->model->withTable()->find($id);
         if (!$match) {
             throw PageNotFoundException::forPageNotFound();
         }
