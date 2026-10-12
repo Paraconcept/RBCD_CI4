@@ -35,9 +35,11 @@ class ScoreboardMatchModel extends Model
         'type', 'team_encounter_id', 'status', 'table_id', 'scheduled_at', 'competition',
         'discipline', 'format', 'innings_limit', 'unequal_innings',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions',
-        'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license', 'p1_distance',
+        'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license',
+        'p1_category_id', 'p1_category', 'p1_average_min', 'p1_distance',
         'p1_points', 'p1_innings', 'p1_high_run', 'p1_extensions_used',
-        'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_license', 'p2_distance',
+        'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_license',
+        'p2_category_id', 'p2_category', 'p2_average_min', 'p2_distance',
         'p2_points', 'p2_innings', 'p2_high_run', 'p2_extensions_used',
         'starting_player', 'current_run', 'winner', 'rev',
         'started_at', 'finished_at', 'created_by',
@@ -182,6 +184,23 @@ class ScoreboardMatchModel extends Model
         }
         $data['format'] = $format;
 
+        $modes = FrbbCategoryModel::gameModesFor($discipline, $format);
+        foreach (['p1', 'p2'] as $i => $p) {
+            $data[$p . '_category_id'] = $data[$p . '_category'] = $data[$p . '_average_min'] = null;
+            $categoryId = (int) ($in[$p . '_category_id'] ?? 0);
+            if ($categoryId <= 0) {
+                continue;
+            }
+            $cat = (new FrbbCategoryModel())->find($categoryId);
+            if (!$cat || !in_array($cat->game_mode, $modes, true)) {
+                $errors[] = 'La catégorie du joueur ' . ($i + 1) . ' ne correspond pas à la discipline et au format choisis.';
+                continue;
+            }
+            $data[$p . '_category_id'] = (int) $cat->id;
+            $data[$p . '_category']    = $cat->categories;
+            $data[$p . '_average_min'] = $cat->average_min;
+        }
+
         $data['innings_limit'] = null;
         if (!empty($in['innings_limit_enabled'])) {
             $limit = (int) ($in['innings_limit'] ?? 0);
@@ -211,7 +230,9 @@ class ScoreboardMatchModel extends Model
         $players = new ScoreboardPlayerModel();
         foreach (['p1', 'p2'] as $p) {
             if ($data[$p . '_member_id'] === null) {
-                $players->remember($data[$p . '_last_name'], $data[$p . '_first_name'], $data[$p . '_club'], $data[$p . '_license'] ?? null);
+                $cat = !empty($data[$p . '_category_id']) ? (new FrbbCategoryModel())->find($data[$p . '_category_id']) : null;
+                $players->remember($data[$p . '_last_name'], $data[$p . '_first_name'], $data[$p . '_club'], $data[$p . '_license'] ?? null,
+                                   $cat ? [$cat->game_mode => $cat->categories] : []);
             }
         }
     }
@@ -261,9 +282,7 @@ class ScoreboardMatchModel extends Model
             $update['status']      = 'finished';
             $update['finished_at'] = self::now();
             $update['current_run'] = 0;
-            // Distances différentes (handicap) : on compare le pourcentage de la distance réalisé
-            $update['winner']      = ($totals[1]['points'] * (int) $match->p2_distance) <=> ($totals[2]['points'] * (int) $match->p1_distance);
-            $update['winner']      = match ($update['winner']) { 1 => 1, -1 => 2, default => 0 };
+            $update['winner']      = self::winnerOf($match, $totals[1]['points'], $totals[1]['innings'], $totals[2]['points'], $totals[2]['innings']);
         } elseif ($match->status === 'finished') {
             // Correction après la fin (touche « - » sur l'écran de résultat) : la partie reprend
             $update['status']      = 'live';
@@ -280,6 +299,58 @@ class ScoreboardMatchModel extends Model
         $this->db->transComplete();
 
         return $rev;
+    }
+
+    /**
+     * Vainqueur (1, 2, ou 0 = nul) d'une partie terminée.
+     * Si l'un des joueurs a atteint sa distance, on compare le pourcentage de la distance réalisé
+     * (distances différentes = handicap). Sinon la partie s'est arrêtée à la limite de reprises :
+     * on départage à la moyenne proportionnelle (moyenne réalisée / moyenne minimum de la catégorie),
+     * ou au pourcentage de la distance si une catégorie manque.
+     * Doit rester identique au calcul de l'écran (scoreboard-display.js, winnerOf).
+     */
+    public static function winnerOf(object $m, int $pts1, int $inn1, int $pts2, int $inn2): int
+    {
+        $prop1 = self::proportionalAverage($m, 'p1', $pts1, $inn1);
+        $prop2 = self::proportionalAverage($m, 'p2', $pts2, $inn2);
+        $reached = $pts1 >= (int) $m->p1_distance || $pts2 >= (int) $m->p2_distance;
+
+        $cmp = (!$reached && $prop1 !== null && $prop2 !== null)
+            ? round($prop1, 9) <=> round($prop2, 9)
+            : ($pts1 * (int) $m->p2_distance) <=> ($pts2 * (int) $m->p1_distance);
+
+        return match ($cmp) { 1 => 1, -1 => 2, default => 0 };
+    }
+
+    /** Moyenne réalisée divisée par la moyenne minimum de la catégorie (null si inconnue). */
+    public static function proportionalAverage(object $m, string $p, int $points, int $innings): ?float
+    {
+        $min = (float) ($m->{$p . '_average_min'} ?? 0);
+        return $min > 0 && $innings > 0 ? ($points / $innings) / $min : null;
+    }
+
+    /** Vrai si la partie terminée a été départagée à la moyenne proportionnelle. */
+    public static function decidedByProportional(object $m): bool
+    {
+        return $m->status === 'finished'
+            && (int) $m->p1_points < (int) $m->p1_distance && (int) $m->p2_points < (int) $m->p2_distance
+            && self::proportionalAverage($m, 'p1', (int) $m->p1_points, (int) $m->p1_innings) !== null
+            && self::proportionalAverage($m, 'p2', (int) $m->p2_points, (int) $m->p2_innings) !== null;
+    }
+
+    public static function proportionalLabel(object $m, string $p): string
+    {
+        $v = self::proportionalAverage($m, $p, (int) $m->{$p . '_points'}, (int) $m->{$p . '_innings'});
+        return $v === null ? '' : number_format($v, 3, ',', '');
+    }
+
+    /** ex. « 1A (0,811) » */
+    public static function categoryLabel(object $m, string $p): string
+    {
+        if (empty($m->{$p . '_category'})) {
+            return '';
+        }
+        return $m->{$p . '_category'} . ' (' . number_format((float) $m->{$p . '_average_min'}, 3, ',', '') . ')';
     }
 
     /**
@@ -353,7 +424,7 @@ class ScoreboardMatchModel extends Model
     private static function swappedPlayers(object $match): array
     {
         $data = [];
-        foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'distance'] as $f) {
+        foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'category_id', 'category', 'average_min', 'distance'] as $f) {
             $data['p1_' . $f] = $match->{'p2_' . $f};
             $data['p2_' . $f] = $match->{'p1_' . $f};
         }

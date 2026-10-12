@@ -3,6 +3,7 @@
 namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
+use App\Models\FrbbCategoryModel;
 use App\Filters\ScoreboardDeviceFilter;
 use App\Models\ScoreboardInningModel;
 use App\Models\ScoreboardMatchModel;
@@ -86,8 +87,9 @@ class ScoreboardController extends BaseController
     {
         return view('public/scoreboard/friendly', [
             'title'    => 'Partie amicale',
-            'table'    => $this->findTable($tableId),
-            'defaults' => $this->defaults(),
+            'table'      => $this->findTable($tableId),
+            'defaults'   => $this->defaults(),
+            'categories' => (new FrbbCategoryModel())->forScoreboard(),
         ]);
     }
 

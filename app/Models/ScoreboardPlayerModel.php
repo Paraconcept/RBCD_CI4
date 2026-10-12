@@ -12,7 +12,7 @@ class ScoreboardPlayerModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'object';
 
-    protected $allowedFields = ['last_name', 'first_name', 'club', 'license'];
+    protected $allowedFields = ['last_name', 'first_name', 'club', 'license', 'categories'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
@@ -39,6 +39,8 @@ class ScoreboardPlayerModel extends Model
             ->orderBy('last_name')->orderBy('first_name')
             ->findAll($limit);
 
+        $memberCats = FrbbCategoryModel::memberCategories(array_column($members, 'id'));
+
         $results = [];
         foreach ($members as $m) {
             $results[] = [
@@ -47,6 +49,7 @@ class ScoreboardPlayerModel extends Model
                 'first_name' => $m->first_name,
                 'club'       => self::HOME_CLUB,
                 'license'    => $m->frbb_license,
+                'categories' => $memberCats[(int) $m->id] ?? (object) [],
             ];
         }
         foreach ($externals as $p) {
@@ -56,22 +59,40 @@ class ScoreboardPlayerModel extends Model
                 'first_name' => $p->first_name,
                 'club'       => $p->club,
                 'license'    => $p->license,
+                'categories' => (object) json_decode((string) $p->categories, true),
             ];
         }
 
         return array_slice($results, 0, $limit);
     }
 
-    public function remember(string $lastName, string $firstName, ?string $club, ?string $license = null): void
+    /**
+     * $categories : catégories connues par mode de jeu, fusionnées avec celles déjà mémorisées.
+     */
+    public function remember(string $lastName, string $firstName, ?string $club, ?string $license = null, array $categories = []): void
     {
         $existing = $this->where('last_name', $lastName)
                          ->where('first_name', $firstName)
                          ->where('club', $club)
                          ->first();
         if (!$existing) {
-            $this->insert(['last_name' => $lastName, 'first_name' => $firstName, 'club' => $club, 'license' => $license]);
-        } elseif ($license !== null && $license !== $existing->license) {
-            $this->update($existing->id, ['license' => $license]);
+            $this->insert([
+                'last_name' => $lastName, 'first_name' => $firstName, 'club' => $club, 'license' => $license,
+                'categories' => $categories ? json_encode($categories) : null,
+            ]);
+            return;
+        }
+
+        $update = [];
+        if ($license !== null && $license !== $existing->license) {
+            $update['license'] = $license;
+        }
+        if ($categories) {
+            $merged = array_merge((array) json_decode((string) $existing->categories, true), $categories);
+            $update['categories'] = json_encode($merged);
+        }
+        if ($update) {
+            $this->update($existing->id, $update);
         }
     }
 }

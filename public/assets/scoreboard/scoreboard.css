@@ -218,6 +218,7 @@
 .sbd-result { text-align: center; padding: 4vh 4vw; border-radius: 3vh; background: var(--sb-panel); border: .4vh solid var(--sb-red); min-width: 60vw; }
 .sbd-result h2 { font-size: 4vh; color: var(--sb-muted); text-transform: uppercase; letter-spacing: .15em; margin: 0; }
 .sbd-result .sbd-winner { font-size: 9vh; font-weight: 800; line-height: 1.1; margin: 1vh 0 3vh; }
+.sbd-result .sbd-decision { font-family: 'Barlow', sans-serif; font-size: 2.8vh; color: var(--sb-muted); margin: -2vh 0 2.5vh; }
 .sbd-result table { margin: 0 auto 3vh; font-size: 4vh; border-collapse: collapse; }
 .sbd-result th, .sbd-result td { padding: .6vh 2vw; }
 .sbd-result th { color: var(--sb-muted); font-weight: 600; font-size: 2.6vh; text-transform: uppercase; letter-spacing: .08em; }

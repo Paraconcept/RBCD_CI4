@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\FrbbCategoryModel;
 use App\Models\ScoreboardInningModel;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
@@ -203,7 +204,9 @@ class ScoreboardController extends BaseController
             'breadcrumbs' => $breadcrumbs,
             'match'       => $match,
             'team'        => $team,
-            'roster'      => $team ? (new ScoreboardTeamEncounterModel())->getRoster((int) $team->team_id) : [],
+            'roster'      => $roster = $team ? (new ScoreboardTeamEncounterModel())->getRoster((int) $team->team_id) : [],
+            'rosterCategories' => FrbbCategoryModel::memberCategories(array_column($roster, 'id')),
+            'categories'  => (new FrbbCategoryModel())->forScoreboard(),
             'prefill'     => $prefill,
             'tables'      => (new ScoreboardTableModel())->getActive(),
             'defaults'    => [

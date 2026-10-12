@@ -32,6 +32,11 @@
                         <label class="form-label">Points à réaliser <span class="text-danger">*</span></label>
                         <input type="number" name="<?= $p ?>_distance" min="1" max="9999" required class="form-control form-control-lg" value="<?= esc(old($p . '_distance')) ?>">
                     </div>
+                    <div class="col-12">
+                        <label class="form-label">Catégorie</label>
+                        <select name="<?= $p ?>_category_id" class="form-select form-select-lg" data-sb-category="<?= $p ?>"
+                                data-selected="<?= esc(old($p . '_category_id')) ?>"></select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -101,5 +106,6 @@
 </form>
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
+<script>window.SB_CATEGORIES = <?= json_encode($categories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') ?>"></script>
 <?= $this->endSection() ?>

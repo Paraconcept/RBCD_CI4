@@ -97,7 +97,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <small class="text-muted d-block mb-1">Joueurs de l'équipe :</small>
             <?php foreach ($roster as $r): ?>
             <button type="button" class="btn btn-sm btn-outline-primary mr-1 mb-1" data-roster
-                    data-member-id="<?= (int) $r->id ?>" data-license="<?= esc($r->frbb_license ?? '') ?>" data-last-name="<?= esc(mb_strtoupper($r->last_name, 'UTF-8')) ?>" data-first-name="<?= esc($r->first_name) ?>">
+                    data-member-id="<?= (int) $r->id ?>" data-license="<?= esc($r->frbb_license ?? '') ?>" data-categories="<?= esc(json_encode((object) ($rosterCategories[(int) $r->id] ?? []))) ?>" data-last-name="<?= esc(mb_strtoupper($r->last_name, 'UTF-8')) ?>" data-first-name="<?= esc($r->first_name) ?>">
               <i class="fas fa-user mr-1"></i><?= esc(mb_strtoupper($r->last_name, 'UTF-8') . ' ' . $r->first_name) ?>
             </button>
             <?php endforeach; ?>
@@ -114,16 +114,26 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <input type="text" name="<?= $p ?>_first_name" class="form-control" required value="<?= esc($val($p . '_first_name')) ?>">
           </div>
           <div class="row">
-            <div class="col-5">
-              <div class="form-group mb-0">
+            <div class="col-8">
+              <div class="form-group">
                 <label>Club</label>
                 <input type="text" name="<?= $p ?>_club" class="form-control" value="<?= esc($val($p . '_club', 'RBC Disonais')) ?>">
               </div>
             </div>
-            <div class="col-3">
-              <div class="form-group mb-0">
+            <div class="col-4">
+              <div class="form-group">
                 <label>N° licence</label>
                 <input type="text" name="<?= $p ?>_license" class="form-control" maxlength="25" value="<?= esc($val($p . '_license')) ?>">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-8">
+              <div class="form-group mb-0">
+                <label>Catégorie</label>
+                <select name="<?= $p ?>_category_id" class="form-control" data-sb-category="<?= $p ?>"
+                        data-selected="<?= esc($val($p . '_category_id')) ?>"></select>
+                <small class="text-muted">Sert à départager à la moyenne proportionnelle si la limite de reprises est atteinte.</small>
               </div>
             </div>
             <div class="col-4">
@@ -215,6 +225,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
 
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
+<script>window.SB_CATEGORIES = <?= json_encode($categories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') ?>"></script>
 <script>
 document.querySelectorAll('[data-roster]').forEach(function (b) {
@@ -224,6 +235,7 @@ document.querySelectorAll('[data-roster]').forEach(function (b) {
         f.querySelector('[name="p1_last_name"]').value  = b.dataset.lastName;
         f.querySelector('[name="p1_first_name"]').value = b.dataset.firstName;
         f.querySelector('[name="p1_license"]').value    = b.dataset.license;
+        f.querySelector('[name="p1_last_name"]').dispatchEvent(new CustomEvent('sb:player', { detail: JSON.parse(b.dataset.categories || '{}') }));
         document.querySelectorAll('[data-roster]').forEach(x => x.classList.toggle('active', x === b));
     });
 });

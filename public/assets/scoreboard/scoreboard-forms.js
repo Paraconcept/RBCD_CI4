@@ -30,6 +30,7 @@
             field('member_id').value  = p.member_id || '';
             if (field('license')) field('license').value = p.license || '';
             close();
+            input.dispatchEvent(new CustomEvent('sb:player', { detail: p.categories || {} }));
             field('first_name').dispatchEvent(new Event('change'));
         };
 
@@ -106,7 +107,46 @@
     }
 
     const discipline = document.getElementById('discipline');
+    const format     = document.getElementById('format');
     const limit      = document.getElementById('innings_limit');
+
+    // Catégorie de chaque joueur : liste filtrée selon discipline + format, présélection d'après
+    // les catégories connues du joueur choisi (membre du club ou joueur externe déjà encodé)
+    const CAT = window.SB_CATEGORIES;
+    const catSelects = document.querySelectorAll('select[data-sb-category]');
+    if (CAT && discipline && format && catSelects.length) {
+        const fmt = (n) => n.toFixed(3).replace('.', ',');
+        catSelects.forEach(function (sel) {
+            let known = {};
+            const refresh = function (preferKnown) {
+                const modes = (CAT.modes[discipline.value] || {})[format.value] || [];
+                const current = preferKnown ? '' : (sel.value || sel.dataset.selected || '');
+                delete sel.dataset.selected;
+                sel.innerHTML = '<option value="">— Non renseignée —</option>';
+                modes.forEach(function (mode) {
+                    const rows = CAT.list.filter((c) => c.mode === mode);
+                    if (!rows.length) return;
+                    const parent = modes.length > 1 ? document.createElement('optgroup') : sel;
+                    if (parent !== sel) { parent.label = rows[0].mode_text; sel.appendChild(parent); }
+                    rows.forEach(function (c) {
+                        const o = document.createElement('option');
+                        o.value = c.id;
+                        o.textContent = c.label + ' — moy. min. ' + fmt(c.avg_min);
+                        o.selected = String(c.id) === String(current) || (!current && known[mode] === c.code);
+                        parent.appendChild(o);
+                    });
+                });
+            };
+            const nameInput = sel.form.querySelector('[name="' + sel.dataset.sbCategory + '_last_name"]');
+            if (nameInput) {
+                nameInput.addEventListener('sb:player', function (e) { known = e.detail || {}; refresh(true); });
+            }
+            discipline.addEventListener('change', () => refresh(true));
+            format.addEventListener('change', () => refresh(true));
+            refresh(false);
+        });
+    }
+
     if (discipline && limit) {
         discipline.addEventListener('change', function () {
             if (discipline.value === '3bandes' && discipline.dataset.defaultLimit3c) {

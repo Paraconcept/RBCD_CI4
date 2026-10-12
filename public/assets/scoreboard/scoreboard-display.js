@@ -392,14 +392,32 @@
         box.innerHTML = html;
     }
 
+    /*
+     * Même règle que ScoreboardMatchModel::winnerOf() : distance atteinte → pourcentage de la distance
+     * (handicap) ; arrêt à la limite de reprises → moyenne proportionnelle (moyenne / moyenne minimum
+     * de la catégorie), ou pourcentage de la distance si une catégorie manque.
+     */
+    function winnerOf(t1, t2) {
+        const prop = (p, t) => (C.avgMin[p] > 0 && t.inn > 0 ? (t.pts / t.inn) / C.avgMin[p] : null);
+        const p1 = prop(1, t1), p2 = prop(2, t2);
+        const reached = t1.pts >= dist(1) || t2.pts >= dist(2);
+        if (!reached && p1 !== null && p2 !== null) {
+            const r = (v) => Math.round(v * 1e9);
+            return { cmp: Math.sign(r(p1) - r(p2)), proportional: true, prop: { 1: p1, 2: p2 } };
+        }
+        return { cmp: Math.sign(t1.pts * dist(2) - t2.pts * dist(1)), proportional: false };
+    }
+
     function renderResult() {
         const box = $('sbdResult');
         box.classList.toggle('open', st.finished);
         if (!st.finished) return;
 
         const t1 = totals(1, false), t2 = totals(2, false);
-        // Avec des distances différentes, on compare le pourcentage de la distance réalisé
-        const cmp = Math.sign(t1.pts * dist(2) - t2.pts * dist(1));
+        const res = winnerOf(t1, t2);
+        const cmp = res.cmp;
+        $('sbdDecision').hidden = !res.proportional;
+        $('sbdPropHead').hidden = !res.proportional;
         $('sbdWinner').textContent = cmp === 0 ? 'Match nul' : 'Victoire de ' + name(cmp > 0 ? 1 : 2);
         $('sbdWinner').style.color = cmp === 0 ? '#fff' : (cmp > 0 ? 'var(--sb-p1)' : 'var(--sb-p2)');
 
@@ -407,7 +425,9 @@
         rows.innerHTML = '';
         [[1, t1], [2, t2]].forEach(function (pair) {
             const tr = document.createElement('tr');
-            [name(pair[0]), pair[1].pts, pair[1].inn, fmtAvg(pair[1].pts, pair[1].inn), pair[1].hr].forEach(function (v) {
+            const cells = [name(pair[0]), pair[1].pts, pair[1].inn, fmtAvg(pair[1].pts, pair[1].inn), pair[1].hr];
+            if (res.proportional) cells.push(res.prop[pair[0]].toFixed(3).replace('.', ','));
+            cells.forEach(function (v) {
                 const td = document.createElement('td');
                 td.textContent = v;
                 tr.appendChild(td);

@@ -12,6 +12,8 @@ $config = [
     'distances'    => [1 => (int) $match->p1_distance, 2 => (int) $match->p2_distance],
     'inningsLimit' => $match->innings_limit ? (int) $match->innings_limit : null,
     'unequal'      => (bool) $match->unequal_innings,
+    'avgMin'       => [1 => $match->p1_average_min !== null ? (float) $match->p1_average_min : null,
+                       2 => $match->p2_average_min !== null ? (float) $match->p2_average_min : null],
     'clock'        => [
         'enabled'    => (bool) $match->shot_clock_enabled,
         'seconds'    => (int) $match->shot_clock_seconds,
@@ -146,8 +148,9 @@ $config = [
         <div class="sbd-result">
             <h2>Partie terminée</h2>
             <div class="sbd-winner" id="sbdWinner"></div>
+            <div class="sbd-decision" id="sbdDecision" hidden>Départagés à la moyenne proportionnelle</div>
             <table>
-                <thead><tr><th></th><th>Points</th><th>Reprises</th><th>Moyenne</th><th>MS</th></tr></thead>
+                <thead><tr><th></th><th>Points</th><th>Reprises</th><th>Moyenne</th><th>MS</th><th id="sbdPropHead" hidden>Moy. prop.</th></tr></thead>
                 <tbody id="sbdResultRows"></tbody>
             </table>
             <div class="sbd-small">

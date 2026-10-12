@@ -106,7 +106,7 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
         <tr class="title"><td colspan="3">RESULTAT</td></tr>
         <tr><td class="lbl">Nom</td><td class="a"><?= esc(M::playerLabel($match, 'p1')) ?></td><td class="b"><?= esc(M::playerLabel($match, 'p2')) ?></td></tr>
         <tr><td class="lbl">Club</td><td class="a"><?= esc($match->p1_club) ?></td><td class="b"><?= esc($match->p2_club) ?></td></tr>
-        <tr><td class="lbl">Cat.</td><td class="a"></td><td class="b"></td></tr>
+        <tr><td class="lbl">Cat.</td><td class="a"><?= esc($match->p1_category ?? '') ?></td><td class="b"><?= esc($match->p2_category ?? '') ?></td></tr>
         <tr class="split"><td class="lbl">P à J</td><td class="a"><?= (int) $match->p1_distance ?></td><td class="b"><?= (int) $match->p2_distance ?></td></tr>
         <?php $done = $match->status !== 'scheduled'; ?>
         <tr><td class="lbl">Pts</td><td class="a"><?= $done ? (int) $match->p1_points : '' ?></td><td class="b"><?= $done ? (int) $match->p2_points : '' ?></td></tr>

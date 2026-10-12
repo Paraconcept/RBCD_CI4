@@ -22,9 +22,10 @@
       <?= $match->unequal_innings ? ' · reprises inégales' : '' ?>
     </p>
 
-    <table class="table table-sm table-bordered mb-4" style="max-width:900px">
+    <?php $prop = M::decidedByProportional($match); ?>
+    <table class="table table-sm table-bordered <?= $prop ? 'mb-2' : 'mb-4' ?>" style="max-width:1000px">
       <thead class="thead-rbcd">
-        <tr><th>Joueur</th><th>Club</th><th class="text-center">À réaliser</th><th class="text-center">Points</th><th class="text-center">Reprises</th><th class="text-center">Moyenne</th><th class="text-center">MS</th></tr>
+        <tr><th>Joueur</th><th>Club</th><th class="text-center">Catégorie</th><th class="text-center">À réaliser</th><th class="text-center">Points</th><th class="text-center">Reprises</th><th class="text-center">Moyenne</th><th class="text-center">MS</th><?php if ($prop): ?><th class="text-center">Moy. prop.</th><?php endif; ?></tr>
       </thead>
       <tbody>
         <?php foreach ([1, 2] as $n): $p = 'p' . $n; ?>
@@ -35,15 +36,20 @@
             <?= (int) $match->winner === $n ? '<i class="fas fa-trophy ml-1 text-warning"></i>' : '' ?>
           </td>
           <td><?= esc($match->{$p . '_club'}) ?></td>
+          <td class="text-center"><?= esc(M::categoryLabel($match, $p)) ?: '<span class="text-muted">—</span>' ?></td>
           <td class="text-center"><?= (int) $match->{$p . '_distance'} ?></td>
           <td class="text-center"><?= (int) $match->{$p . '_points'} ?></td>
           <td class="text-center"><?= (int) $match->{$p . '_innings'} ?></td>
           <td class="text-center"><?= M::average((int) $match->{$p . '_points'}, (int) $match->{$p . '_innings'}) ?></td>
           <td class="text-center"><?= (int) $match->{$p . '_high_run'} ?></td>
+          <?php if ($prop): ?><td class="text-center"><?= M::proportionalLabel($match, $p) ?></td><?php endif; ?>
         </tr>
         <?php endforeach; ?>
       </tbody>
     </table>
+    <?php if ($prop): ?>
+    <p class="text-muted small mb-4"><i class="fas fa-balance-scale mr-1"></i>Limite de reprises atteinte : vainqueur désigné à la moyenne proportionnelle (moyenne réalisée ÷ moyenne minimum de la catégorie).</p>
+    <?php endif; ?>
 
     <h5 class="mb-2">Feuille de match</h5>
     <?php if (!$sheet): ?>
