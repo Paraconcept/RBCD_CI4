@@ -45,7 +45,7 @@ $config = [
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="<?= base_url('assets/scoreboard/scoreboard.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/scoreboard/scoreboard.css') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard.css') ?>">
 </head>
 <body>
 <div class="sbd<?= $spectator ? ' spectator' : '' ?>" id="sbd">
@@ -185,6 +185,6 @@ $config = [
 
 <script>window.SB_CONFIG = <?= json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
-<script src="<?= base_url('assets/scoreboard/scoreboard-display.js') ?>"></script>
+<script src="<?= base_url('assets/scoreboard/scoreboard-display.js') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard-display.js') ?>"></script>
 </body>
 </html>

@@ -226,7 +226,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script>window.SB_CATEGORIES = <?= json_encode($categories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;</script>
-<script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') ?>"></script>
+<script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard-forms.js') ?>"></script>
 <script>
 document.querySelectorAll('[data-roster]').forEach(function (b) {
     b.addEventListener('click', function () {
