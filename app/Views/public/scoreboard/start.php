@@ -6,7 +6,7 @@
 <?= $this->section('content') ?>
 <h1 class="sb-title text-center mb-1">Qui commence la partie ?</h1>
 <p class="text-center text-secondary mb-4">
-    <?= esc(M::DISCIPLINES[$match->discipline] ?? '') ?> · <?= esc(M::distanceLabel($match)) ?>
+    <?= esc(M::disciplineLabel($match)) ?> · <?= esc(M::distanceLabel($match)) ?>
     <?= $match->innings_limit ? ' · limite ' . (int) $match->innings_limit . ' reprises' : '' ?>
     <br><kbd>1</kbd> ou <kbd>2</kbd> au pavé numérique, ou cliquez.<br>Le joueur qui commence se place à gauche et joue les chiffres blancs.
 </p>

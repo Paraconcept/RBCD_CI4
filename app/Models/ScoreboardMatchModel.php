@@ -13,6 +13,11 @@ class ScoreboardMatchModel extends Model
         '3bandes' => '3 Bandes',
     ];
 
+    public const FORMATS = [
+        'PB' => 'Petit billard',
+        'GB' => 'Grand billard',
+    ];
+
     public const STATUSES = [
         'scheduled' => 'Prévue',
         'live'      => 'En cours',
@@ -26,7 +31,7 @@ class ScoreboardMatchModel extends Model
 
     protected $allowedFields = [
         'type', 'status', 'table_id', 'scheduled_at', 'competition',
-        'discipline', 'innings_limit', 'unequal_innings',
+        'discipline', 'format', 'innings_limit', 'unequal_innings',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions',
         'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_distance',
         'p1_points', 'p1_innings', 'p1_high_run', 'p1_extensions_used',
@@ -99,6 +104,12 @@ class ScoreboardMatchModel extends Model
             $errors[] = 'Discipline invalide.';
         }
         $data['discipline'] = $discipline;
+
+        $format = (string) ($in['format'] ?? '');
+        if (!array_key_exists($format, self::FORMATS)) {
+            $errors[] = 'Format de billard invalide.';
+        }
+        $data['format'] = $format;
 
         $data['innings_limit'] = null;
         if (!empty($in['innings_limit_enabled'])) {
@@ -249,6 +260,12 @@ class ScoreboardMatchModel extends Model
         }
 
         $this->update($match->id, $data);
+    }
+
+    /** ex. « 3 Bandes PB » */
+    public static function disciplineLabel(object $m): string
+    {
+        return (self::DISCIPLINES[$m->discipline] ?? $m->discipline) . ' ' . ($m->format ?? '');
     }
 
     public static function distanceLabel(object $m): string

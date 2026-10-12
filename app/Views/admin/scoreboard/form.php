@@ -117,6 +117,16 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
             </select>
           </div>
         </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="format">Format <span class="text-danger">*</span></label>
+            <select name="format" id="format" class="form-control">
+              <?php foreach (M::FORMATS as $k => $v): ?>
+              <option value="<?= $k ?>" <?= $val('format', 'PB') === $k ? 'selected' : '' ?>><?= $v ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="row">
         <div class="col-md-4">

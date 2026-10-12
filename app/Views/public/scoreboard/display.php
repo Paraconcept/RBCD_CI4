@@ -50,7 +50,7 @@ $config = [
             <?php if ($table): ?><span class="sbd-muted">· <?= esc($table->name) ?></span><?php endif; ?>
         </div>
         <div class="sbd-discipline">
-            <?= esc(M::DISCIPLINES[$match->discipline] ?? $match->discipline) ?>
+            <?= esc(M::disciplineLabel($match)) ?>
             <?php if ($sameDistance): ?>· <b><?= (int) $match->p1_distance ?></b> points<?php endif; ?>
             <?php if ($match->competition): ?><span class="sbd-muted">· <?= esc($match->competition) ?></span><?php endif; ?>
         </div>

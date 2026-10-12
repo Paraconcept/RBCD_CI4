@@ -6,7 +6,7 @@
   <div class="card-header d-flex align-items-center">
     <h3 class="card-title">
       <i class="fas fa-list-ol mr-2"></i>
-      <?= esc(M::DISCIPLINES[$match->discipline] ?? $match->discipline) ?> · <?= esc(M::distanceLabel($match)) ?>
+      <?= esc(M::disciplineLabel($match)) ?> · <?= esc(M::distanceLabel($match)) ?>
       <?= $match->innings_limit ? ' · limite ' . (int) $match->innings_limit . ' reprises' : '' ?>
       <?= $match->competition ? ' — ' . esc($match->competition) : '' ?>
     </h3>

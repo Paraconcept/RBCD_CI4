@@ -48,6 +48,14 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="format">Format</label>
+                        <select name="format" id="format" class="form-select form-select-lg">
+                            <?php foreach (M::FORMATS as $k => $v): ?>
+                            <option value="<?= $k ?>" <?= old('format', 'PB') === $k ? 'selected' : '' ?>><?= $v ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
                 <hr class="my-4">
                 <div class="row g-3">
