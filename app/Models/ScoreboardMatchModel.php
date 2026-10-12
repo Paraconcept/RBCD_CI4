@@ -278,8 +278,8 @@ class ScoreboardMatchModel extends Model
     }
 
     /**
-     * Heure belge. L'application tourne en UTC, mais les rencontres sont saisies en heure locale :
-     * toutes les dates du marquoir sont donc des heures « murales » de Bruxelles.
+     * Heure belge, explicite pour que les rencontres (saisies en heure locale) restent justes
+     * quel que soit le fuseau configuré dans App::$appTimezone.
      */
     public static function now(string $format = 'Y-m-d H:i:s'): string
     {
