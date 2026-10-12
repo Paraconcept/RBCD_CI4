@@ -55,7 +55,7 @@ class ScoreboardController extends BaseController
         }
 
         return view('public/scoreboard/index', [
-            'title'  => 'Marquoir',
+            'title'  => 'Marquoirs',
             'tables' => $tables,
         ]);
     }

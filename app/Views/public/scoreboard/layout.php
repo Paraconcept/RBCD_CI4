@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= esc($title ?? 'Marquoir') ?> | RBC Disonais</title>
+    <title><?= esc($title ?? 'Marquoirs') ?> | RBC Disonais</title>
     <link rel="shortcut icon" href="<?= base_url('assets/images/favicons/favicon.ico') ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap">
@@ -16,7 +16,7 @@
 <header class="sb-topbar">
     <a href="<?= base_url('marquoir') ?>" class="sb-brand">
         <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="">
-        <span>RBC Disonais <small>Marquoir</small></span>
+        <span>RBC Disonais <small>Marquoirs</small></span>
     </a>
     <?= $this->renderSection('topbar') ?>
 </header>
