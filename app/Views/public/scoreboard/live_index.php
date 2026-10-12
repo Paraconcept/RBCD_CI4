@@ -8,7 +8,7 @@
 <p class="text-secondary mb-4"><?= M::now('d/m/Y') ?> · cliquez sur « Visionner » pour suivre une partie en direct.</p>
 
 <?php if (!$matches): ?>
-    <div class="sb-card text-secondary">Aucune rencontre aujourd'hui au RBC Disonais.</div>
+    <div class="sb-card text-secondary">Aucune rencontre officielle aujourd'hui au RBC Disonais.</div>
 <?php endif; ?>
 
 <?php foreach ($matches as $m): ?>

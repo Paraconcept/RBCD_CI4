@@ -114,12 +114,14 @@ class ScoreboardMatchModel extends Model
     }
 
     /**
-     * Rencontres du jour pour les spectateurs (page publique « En direct »), tous billards confondus.
+     * Rencontres officielles du jour pour les spectateurs (page publique « En direct »), tous billards confondus.
+     * Les parties amicales (entraînements entre membres) ne sont jamais publiées.
      */
     public function getTodayForSpectators(): array
     {
         $today = self::now('Y-m-d');
         return $this->withTable()
+            ->where('type', 'official')
             ->whereIn('status', ['scheduled', 'live', 'finished'])
             ->groupStart()
                 ->where("DATE(scheduled_at) = '$today'", null, false)

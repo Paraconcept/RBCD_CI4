@@ -30,7 +30,7 @@ class LiveController extends BaseController
     public function watch(int $matchId)
     {
         $match = $this->matches->withTable()->find($matchId);
-        if (!$match || $match->status === 'cancelled') {
+        if (!$match || $match->status === 'cancelled' || $match->type !== 'official') {
             return redirect()->to(base_url('en-direct'))->with('error', "Cette partie n'est pas disponible.");
         }
 
@@ -55,7 +55,7 @@ class LiveController extends BaseController
     public function state(int $matchId)
     {
         $match = $this->matches->find($matchId);
-        if (!$match || $match->status === 'cancelled') {
+        if (!$match || $match->status === 'cancelled' || $match->type !== 'official') {
             return $this->response->setStatusCode(404)->setJSON(['status' => 'cancelled']);
         }
 
