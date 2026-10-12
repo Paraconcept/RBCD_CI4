@@ -341,7 +341,7 @@
             lastScores[p] = t.pts;
             el.querySelector('[data-avg]').textContent = fmtAvg(t.pts, t.inn);
             el.querySelector('[data-hr]').textContent = t.hr;
-            el.querySelector('[data-left]').textContent = Math.max(0, dist(p) - t.pts);
+            renderLast5(p, el.querySelector('[data-last5]'));
 
             const ext = el.querySelector('[data-ext]');
             if (C.clock.enabled && C.clock.extensions > 0) {
@@ -371,6 +371,21 @@
 
         renderResult();
         renderClock();
+    }
+
+    // 5 dernières reprises terminées du joueur, la plus récente en haut
+    function renderLast5(p, box) {
+        const mine = [];
+        st.innings.forEach(function (v, i) { if (playerAt(i) === p) mine.push({ n: mine.length + 1, pts: v }); });
+        const last = mine.slice(-5).reverse();
+        let html = '';
+        for (let k = 0; k < 5; k++) {
+            const r = last[k];
+            html += r
+                ? '<div' + (k === 0 ? ' class="latest"' : '') + '><small>' + r.n + '</small><b>' + r.pts + '</b></div>'
+                : '<div class="empty"><small></small><b>–</b></div>';
+        }
+        box.innerHTML = html;
     }
 
     function renderResult() {

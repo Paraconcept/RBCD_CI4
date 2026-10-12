@@ -90,11 +90,13 @@ $config = [
                 </div>
                 <?php if ($n === 1): ?><span class="sbd-ball"></span><?php endif; ?>
             </div>
-            <div class="sbd-score" data-score>0</div>
+            <div class="sbd-body">
+                <div class="sbd-last5" data-last5 title="5 dernières reprises (la plus récente en haut)"></div>
+                <div class="sbd-score" data-score>0</div>
+            </div>
             <div class="sbd-stats">
                 <div class="sbd-stat"><span>Moyenne</span><b data-avg>0,000</b></div>
                 <div class="sbd-stat"><span>Série max</span><b data-hr>0</b></div>
-                <div class="sbd-stat"><span>Reste</span><b data-left><?= (int) $match->{$p . '_distance'} ?></b></div>
             </div>
             <div class="sbd-ext" data-ext></div>
         </section>
