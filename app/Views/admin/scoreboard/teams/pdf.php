@@ -3,8 +3,8 @@ use App\Models\ScoreboardMatchModel as M;
 use App\Models\ScoreboardTeamEncounterModel as TE;
 
 $blocks = [
-    'home' => ['title' => 'CLUB VISITE',   'club' => $encounter->team_club,     'number' => $encounter->team_number],
-    'away' => ['title' => 'CLUB VISITEUR', 'club' => $encounter->opponent_club, 'number' => $encounter->opponent_number],
+    'home' => ['title' => 'CLUB VISITE',   'club' => $encounter->team_club,     'number' => $encounter->team_number,     'email' => $encounter->team_email],
+    'away' => ['title' => 'CLUB VISITEUR', 'club' => $encounter->opponent_club, 'number' => $encounter->opponent_number, 'email' => $encounter->opponent_email],
 ];
 $rowsCount = max(3, $result['total']);
 ?>
@@ -103,7 +103,7 @@ $rowsCount = max(3, $result['total']);
     </tr>
     <?php endfor; ?>
     <tr class="total">
-        <td colspan="4" class="mail">E.Mail :</td>
+        <td colspan="4" class="mail">E.Mail : <?= esc($b['email'] ?? '') ?></td>
         <td><?= $t['points'] ?></td>
         <td><?= $t['innings'] ?></td>
         <td><?= M::average($t['points'], $t['innings']) ?></td>
@@ -126,7 +126,7 @@ $rowsCount = max(3, $result['total']);
     <tr><td style="height:16mm"><b>Signatures :</b> (facultatif pour l'envoi par mail. Conservez les feuilles de match en cas de litige)</td></tr>
 </table>
 <div class="footer">
-    Envoyer à Chistian JEUNEAU<span style="margin-left:30mm">cdregions@gmail.com</span>
+    Envoyer à Christian JEUNEAU<span style="margin-left:30mm">cdregions@gmail.com</span>
 </div>
 
 </body>

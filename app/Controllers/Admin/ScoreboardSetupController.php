@@ -104,6 +104,7 @@ class ScoreboardSetupController extends BaseController
             'inningsLimit3c'      => (int) $s->getSetting('scoreboard_innings_limit_3c', 60),
             'warmupMinutes'       => (int) $s->getSetting('scoreboard_warmup_minutes', 5),
             'startWindowMinutes'  => (int) $s->getSetting('scoreboard_start_window_minutes', 60),
+            'clubEmail'           => (string) $s->getSetting('scoreboard_club_email', 'ds@rbcd.be'),
             'pin'                 => (string) $s->getSetting('scoreboard_pin', ''),
         ]);
     }
@@ -115,11 +116,16 @@ class ScoreboardSetupController extends BaseController
         if ($pin !== '' && !preg_match('/^\d{4,8}$/', $pin)) {
             return redirect()->back()->with('error', 'Le code PIN doit contenir de 4 à 8 chiffres.');
         }
+        $clubEmail = trim((string) $this->request->getPost('club_email'));
+        if ($clubEmail !== '' && !filter_var($clubEmail, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->with('error', "L'adresse e-mail du club est invalide.");
+        }
 
         $s->setSetting('scoreboard_shot_clock_seconds', max(5, min(300, (int) $this->request->getPost('shot_clock_seconds'))));
         $s->setSetting('scoreboard_shot_clock_extensions', max(0, min(10, (int) $this->request->getPost('shot_clock_extensions'))));
         $s->setSetting('scoreboard_innings_limit_3c', max(1, min(999, (int) $this->request->getPost('innings_limit_3c'))));
         $s->setSetting('scoreboard_warmup_minutes', max(1, min(15, (int) $this->request->getPost('warmup_minutes'))));
+        $s->setSetting('scoreboard_club_email', $clubEmail);
         $s->setSetting('scoreboard_start_window_minutes', max(0, min(720, (int) $this->request->getPost('start_window_minutes'))));
         $s->setSetting('scoreboard_pin', $pin);
 

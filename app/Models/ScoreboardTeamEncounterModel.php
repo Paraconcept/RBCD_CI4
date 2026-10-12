@@ -23,7 +23,7 @@ class ScoreboardTeamEncounterModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'code', 'competition', 'team_id', 'team_name', 'team_club', 'team_number', 'opponent_club', 'opponent_number',
+        'code', 'competition', 'team_id', 'team_name', 'team_club', 'team_number', 'team_email', 'opponent_club', 'opponent_number', 'opponent_email',
         'scheduled_at', 'discipline', 'format', 'notes', 'created_by',
     ];
 
@@ -94,6 +94,25 @@ class ScoreboardTeamEncounterModel extends Model
         return [];
     }
 
+    public static function normalizeClub(?string $club): string
+    {
+        return preg_replace('/[^a-z0-9]/', '', strtolower((string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string) $club)));
+    }
+
+    /**
+     * Dernier e-mail connu par club adverse (clé = nom de club normalisé).
+     */
+    public function knownOpponentEmails(): array
+    {
+        $emails = [];
+        $rows = $this->select('opponent_club, opponent_email')->where('opponent_email IS NOT NULL')
+                     ->where('opponent_email <>', '')->orderBy('updated_at', 'ASC')->findAll();
+        foreach ($rows as $r) {
+            $emails[self::normalizeClub($r->opponent_club)] = $r->opponent_email;
+        }
+        return $emails;
+    }
+
     public static function label(object $e): string
     {
         return $e->competition . ' · ' . $e->code;
@@ -131,8 +150,7 @@ class ScoreboardTeamEncounterModel extends Model
      */
     public static function homeSide(object $e, object $m): int
     {
-        $norm = static fn (?string $s): string => preg_replace('/[^a-z0-9]/', '', strtolower(
-            (string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string) $s)));
+        $norm = static fn (?string $s): string => self::normalizeClub($s);
         $away = $norm($e->opponent_club);
         $home = $norm($e->team_club);
 

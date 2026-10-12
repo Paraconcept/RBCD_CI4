@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardTeamEncounterModel;
+use App\Models\SiteSettingModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -170,7 +171,9 @@ class ScoreboardTeamController extends BaseController
                 ['title' => $encounter ? $encounter->code : 'Nouvelle'],
             ],
             'encounter' => $encounter,
-            'teams'     => $this->model->getCdrTeams(),
+            'teams'       => $this->model->getCdrTeams(),
+            'clubEmail'   => (string) (new SiteSettingModel())->getSetting('scoreboard_club_email', 'ds@rbcd.be'),
+            'knownEmails' => $this->model->knownOpponentEmails(),
         ]);
     }
 
@@ -213,6 +216,16 @@ class ScoreboardTeamController extends BaseController
         }
         $teamClub = trim((string) ($post['team_club'] ?? '')) ?: 'RBC Disonais';
         $number   = static fn ($v): ?int => (int) $v > 0 ? min(255, (int) $v) : null;
+        $email    = static function ($v) use (&$errors): ?string {
+            $v = trim((string) $v);
+            if ($v === '') {
+                return null;
+            }
+            if (!filter_var($v, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Adresse e-mail invalide : ' . $v;
+            }
+            return mb_substr($v, 0, 150);
+        };
 
         $date = trim((string) ($post['scheduled_date'] ?? ''));
         $time = trim((string) ($post['scheduled_time'] ?? '')) ?: '19:30';
@@ -227,6 +240,9 @@ class ScoreboardTeamController extends BaseController
             'team_number'     => $number($post['team_number'] ?? null),
             'opponent_club'   => $opponent,
             'opponent_number' => $number($post['opponent_number'] ?? null),
+            'team_email'      => $email($post['team_email'] ?? ''),
+            'opponent_email'  => $email($post['opponent_email'] ?? '')
+                                 ?? ($this->model->knownOpponentEmails()[ScoreboardTeamEncounterModel::normalizeClub($opponent)] ?? null),
             'scheduled_at'  => $date !== '' ? date('Y-m-d H:i:s', strtotime($date . ' ' . $time)) : null,
             'discipline'    => $team->discipline ?? 'libre',
             'format'        => $team->format ?? 'PB',

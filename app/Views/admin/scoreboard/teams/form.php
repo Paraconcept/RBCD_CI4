@@ -103,6 +103,23 @@ $sched  = $encounter->scheduled_at ?? null;
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="team_email">E-mail du club visité</label>
+            <input type="email" name="team_email" id="team_email" class="form-control" maxlength="150"
+                   value="<?= esc($val('team_email', $clubEmail)) ?>">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="opponent_email">E-mail du club visiteur</label>
+            <input type="email" name="opponent_email" id="opponent_email" class="form-control" maxlength="150"
+                   value="<?= esc($val('opponent_email')) ?>">
+            <small class="text-muted">Retrouvé automatiquement si ce club a déjà été encodé.</small>
+          </div>
+        </div>
+      </div>
       <div class="form-group mb-0">
         <label for="notes">Remarques</label>
         <textarea name="notes" id="notes" class="form-control" rows="2"><?= esc($val('notes')) ?></textarea>
@@ -133,6 +150,16 @@ $sched  = $encounter->scheduled_at ?? null;
         if (m) num.value = m[1];
     });
     sync();
+
+    // E-mail du club visiteur déjà connu (rencontres précédentes contre ce club)
+    const knownEmails = <?= json_encode($knownEmails, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
+    const norm = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const opp = document.getElementById('opponent_club');
+    const oppMail = document.getElementById('opponent_email');
+    opp.addEventListener('change', function () {
+        const mail = knownEmails[norm(opp.value)];
+        if (mail && !oppMail.value) oppMail.value = mail;
+    });
 })();
 </script>
 <?= $this->endSection() ?>
