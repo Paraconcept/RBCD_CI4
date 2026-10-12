@@ -19,7 +19,7 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
   <div class="alert alert-warning">
     <i class="fas fa-exclamation-triangle mr-2"></i>
     Cette rencontre est <strong><?= esc(M::STATUSES[$match->status]) ?></strong> : les modifications des règles
-    (distance, limite…) ne s'appliqueront qu'au prochain rechargement du marquoir.
+    (points à réaliser, limite…) ne s'appliqueront qu'au prochain rechargement du marquoir.
   </div>
 <?php endif; ?>
 
@@ -81,9 +81,19 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
             <label>Prénom <span class="text-danger">*</span></label>
             <input type="text" name="<?= $p ?>_first_name" class="form-control" required value="<?= esc($val($p . '_first_name')) ?>">
           </div>
-          <div class="form-group mb-0">
-            <label>Club</label>
-            <input type="text" name="<?= $p ?>_club" class="form-control" value="<?= esc($val($p . '_club', 'RBC Disonais')) ?>">
+          <div class="row">
+            <div class="col-8">
+              <div class="form-group mb-0">
+                <label>Club</label>
+                <input type="text" name="<?= $p ?>_club" class="form-control" value="<?= esc($val($p . '_club', 'RBC Disonais')) ?>">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="form-group mb-0">
+                <label>Points à réaliser <span class="text-danger">*</span></label>
+                <input type="number" name="<?= $p ?>_distance" class="form-control" min="1" max="9999" required value="<?= esc($val($p . '_distance')) ?>">
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -105,12 +115,6 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
               <option value="<?= $k ?>" <?= $val('discipline', 'libre') === $k ? 'selected' : '' ?>><?= $v ?></option>
               <?php endforeach; ?>
             </select>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="form-group">
-            <label for="distance">Points à réaliser <span class="text-danger">*</span></label>
-            <input type="number" name="distance" id="distance" class="form-control" min="1" max="9999" required value="<?= esc($val('distance')) ?>">
           </div>
         </div>
       </div>

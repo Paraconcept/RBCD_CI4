@@ -6,7 +6,7 @@
   <div class="card-header d-flex align-items-center">
     <h3 class="card-title">
       <i class="fas fa-list-ol mr-2"></i>
-      <?= esc(M::DISCIPLINES[$match->discipline] ?? $match->discipline) ?> · <?= (int) $match->distance ?> points
+      <?= esc(M::DISCIPLINES[$match->discipline] ?? $match->discipline) ?> · <?= esc(M::distanceLabel($match)) ?>
       <?= $match->innings_limit ? ' · limite ' . (int) $match->innings_limit . ' reprises' : '' ?>
       <?= $match->competition ? ' — ' . esc($match->competition) : '' ?>
     </h3>
@@ -24,7 +24,7 @@
 
     <table class="table table-sm table-bordered mb-4" style="max-width:900px">
       <thead class="thead-rbcd">
-        <tr><th>Joueur</th><th>Club</th><th class="text-center">Points</th><th class="text-center">Reprises</th><th class="text-center">Moyenne</th><th class="text-center">MS</th></tr>
+        <tr><th>Joueur</th><th>Club</th><th class="text-center">À réaliser</th><th class="text-center">Points</th><th class="text-center">Reprises</th><th class="text-center">Moyenne</th><th class="text-center">MS</th></tr>
       </thead>
       <tbody>
         <?php foreach ([1, 2] as $n): $p = 'p' . $n; ?>
@@ -35,6 +35,7 @@
             <?= (int) $match->winner === $n ? '<i class="fas fa-trophy ml-1 text-warning"></i>' : '' ?>
           </td>
           <td><?= esc($match->{$p . '_club'}) ?></td>
+          <td class="text-center"><?= (int) $match->{$p . '_distance'} ?></td>
           <td class="text-center"><?= (int) $match->{$p . '_points'} ?></td>
           <td class="text-center"><?= (int) $match->{$p . '_innings'} ?></td>
           <td class="text-center"><?= M::average((int) $match->{$p . '_points'}, (int) $match->{$p . '_innings'}) ?></td>

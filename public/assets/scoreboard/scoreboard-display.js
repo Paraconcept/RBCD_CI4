@@ -15,7 +15,7 @@
     const C = window.SB_CONFIG;
     const S = C.starter;
     const O = S === 1 ? 2 : 1;
-    const D = C.distance;
+    const dist = (p) => C.distances[p];
     const STORE_KEY = 'sb_match_' + C.id + '_' + C.startedAt;
 
     const $ = (id) => document.getElementById(id);
@@ -59,7 +59,7 @@
         return { pts: pts, inn: inn, hr: hr };
     }
 
-    const remaining = () => D - totals(current(), false).pts - st.run;
+    const remaining = () => dist(current()) - totals(current(), false).pts - st.run;
 
     function inningNumber() {
         const n = st.innings.length;
@@ -67,7 +67,7 @@
     }
 
     function isEqualizing() {
-        return !st.finished && !C.unequal && st.innings.length % 2 === 1 && totals(S, false).pts >= D;
+        return !st.finished && !C.unequal && st.innings.length % 2 === 1 && totals(S, false).pts >= dist(S);
     }
 
     function commit() {
@@ -95,7 +95,7 @@
     function endInning() {
         if (st.finished) return;
         if (buffer !== '') {
-            st.run = Math.min(parseInt(buffer, 10) || 0, D - totals(current(), false).pts);
+            st.run = Math.min(parseInt(buffer, 10) || 0, dist(current()) - totals(current(), false).pts);
             buffer = '';
         }
         st.innings.push(st.run);
@@ -115,9 +115,9 @@
         const s2 = totals(O, false).pts;
         if (n % 2 === 1) {
             // Le joueur qui casse vient de jouer : sans égalisation, il gagne immédiatement
-            if (s1 >= D && C.unequal) st.finished = true;
+            if (s1 >= dist(S) && C.unequal) st.finished = true;
         } else {
-            if (s1 >= D || s2 >= D) st.finished = true;
+            if (s1 >= dist(S) || s2 >= dist(O)) st.finished = true;
             if (C.inningsLimit && n / 2 >= C.inningsLimit) st.finished = true;
         }
     }
@@ -306,7 +306,7 @@
             lastScores[p] = t.pts;
             el.querySelector('[data-avg]').textContent = fmtAvg(t.pts, t.inn);
             el.querySelector('[data-hr]').textContent = t.hr;
-            el.querySelector('[data-left]').textContent = Math.max(0, D - t.pts);
+            el.querySelector('[data-left]').textContent = Math.max(0, dist(p) - t.pts);
 
             const ext = el.querySelector('[data-ext]');
             if (C.clock.enabled && C.clock.extensions > 0) {
@@ -343,9 +343,10 @@
         if (!st.finished) return;
 
         const t1 = totals(1, false), t2 = totals(2, false);
-        $('sbdWinner').textContent = t1.pts === t2.pts ? 'Match nul'
-            : 'Victoire de ' + name(t1.pts > t2.pts ? 1 : 2);
-        $('sbdWinner').style.color = t1.pts === t2.pts ? '#fff' : (t1.pts > t2.pts ? 'var(--sb-p1)' : 'var(--sb-p2)');
+        // Avec des distances différentes, on compare le pourcentage de la distance réalisé
+        const cmp = Math.sign(t1.pts * dist(2) - t2.pts * dist(1));
+        $('sbdWinner').textContent = cmp === 0 ? 'Match nul' : 'Victoire de ' + name(cmp > 0 ? 1 : 2);
+        $('sbdWinner').style.color = cmp === 0 ? '#fff' : (cmp > 0 ? 'var(--sb-p1)' : 'var(--sb-p2)');
 
         const rows = $('sbdResultRows');
         rows.innerHTML = '';

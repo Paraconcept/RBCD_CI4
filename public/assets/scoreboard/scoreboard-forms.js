@@ -96,6 +96,14 @@
         sync();
     });
 
+    const d1 = document.querySelector('input[name="p1_distance"]');
+    const d2 = document.querySelector('input[name="p2_distance"]');
+    if (d1 && d2) {
+        let d2Touched = d2.value !== '' && d2.value !== d1.value;
+        d2.addEventListener('input', function () { d2Touched = true; });
+        d1.addEventListener('input', function () { if (!d2Touched) d2.value = d1.value; });
+    }
+
     const discipline = document.getElementById('discipline');
     const limit      = document.getElementById('innings_limit');
     if (discipline && limit) {

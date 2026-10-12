@@ -26,11 +26,11 @@ class ScoreboardMatchModel extends Model
 
     protected $allowedFields = [
         'type', 'status', 'table_id', 'scheduled_at', 'competition',
-        'discipline', 'distance', 'innings_limit', 'unequal_innings',
+        'discipline', 'innings_limit', 'unequal_innings',
         'shot_clock_enabled', 'shot_clock_seconds',
-        'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club',
+        'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_distance',
         'p1_points', 'p1_innings', 'p1_high_run', 'p1_extensions_used',
-        'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club',
+        'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_distance',
         'p2_points', 'p2_innings', 'p2_high_run', 'p2_extensions_used',
         'starting_player', 'current_run', 'winner', 'rev',
         'started_at', 'finished_at', 'created_by',
@@ -86,6 +86,12 @@ class ScoreboardMatchModel extends Model
             $data[$p . '_last_name']  = $last;
             $data[$p . '_first_name'] = $first;
             $data[$p . '_club']       = $club !== '' ? $club : null;
+
+            $distance = (int) ($in[$p . '_distance'] ?? 0);
+            if ($distance < 1 || $distance > 9999) {
+                $errors[] = 'Les points à réaliser du joueur ' . ($i + 1) . ' doivent être compris entre 1 et 9999.';
+            }
+            $data[$p . '_distance'] = $distance;
         }
 
         $discipline = (string) ($in['discipline'] ?? '');
@@ -93,12 +99,6 @@ class ScoreboardMatchModel extends Model
             $errors[] = 'Discipline invalide.';
         }
         $data['discipline'] = $discipline;
-
-        $distance = (int) ($in['distance'] ?? 0);
-        if ($distance < 1 || $distance > 9999) {
-            $errors[] = 'Le nombre de points à réaliser doit être compris entre 1 et 9999.';
-        }
-        $data['distance'] = $distance;
 
         $data['innings_limit'] = null;
         if (!empty($in['innings_limit_enabled'])) {
@@ -178,7 +178,8 @@ class ScoreboardMatchModel extends Model
             $update['status']      = 'finished';
             $update['finished_at'] = date('Y-m-d H:i:s');
             $update['current_run'] = 0;
-            $update['winner']      = $totals[1]['points'] <=> $totals[2]['points'];
+            // Distances différentes (handicap) : on compare le pourcentage de la distance réalisé
+            $update['winner']      = ($totals[1]['points'] * (int) $match->p2_distance) <=> ($totals[2]['points'] * (int) $match->p1_distance);
             $update['winner']      = match ($update['winner']) { 1 => 1, -1 => 2, default => 0 };
         } elseif ($match->status === 'finished') {
             // Correction après la fin (touche « - » sur l'écran de résultat) : la partie reprend
@@ -225,6 +226,13 @@ class ScoreboardMatchModel extends Model
         } else {
             $this->resetToScheduled((int) $match->id);
         }
+    }
+
+    public static function distanceLabel(object $m): string
+    {
+        return (int) $m->p1_distance === (int) $m->p2_distance
+            ? $m->p1_distance . ' pts'
+            : $m->p1_distance . ' / ' . $m->p2_distance . ' pts';
     }
 
     public static function playerLabel(object $m, string $p): string

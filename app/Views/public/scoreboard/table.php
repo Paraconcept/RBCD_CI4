@@ -15,7 +15,7 @@
             <div class="sb-match-meta">
                 <span class="badge <?= $m->type === 'official' ? 'bg-sb' : 'bg-secondary' ?>"><?= $m->type === 'official' ? 'Officielle' : 'Amicale' ?></span>
                 <?php if ($m->scheduled_at): ?><span><i class="far fa-clock me-1"></i><?= date('d/m H:i', strtotime($m->scheduled_at)) ?></span><?php endif; ?>
-                <span><?= esc(M::DISCIPLINES[$m->discipline] ?? $m->discipline) ?> · <?= (int) $m->distance ?> pts<?= $m->innings_limit ? ' · ' . (int) $m->innings_limit . ' rep.' : '' ?></span>
+                <span><?= esc(M::DISCIPLINES[$m->discipline] ?? $m->discipline) ?> · <?= esc(M::distanceLabel($m)) ?><?= $m->innings_limit ? ' · ' . (int) $m->innings_limit . ' rep.' : '' ?></span>
                 <?php if ($m->competition): ?><span><?= esc($m->competition) ?></span><?php endif; ?>
             </div>
             <div class="sb-match-players">

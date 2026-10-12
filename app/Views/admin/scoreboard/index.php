@@ -32,7 +32,7 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
           <td><?= $date ? date('d/m/Y H:i', strtotime($date)) : '<span class="text-muted">—</span>' ?></td>
           <td><?= $m->type === 'official' ? '<span class="badge" style="background:#84252B;color:#fff">Officielle</span>' : '<span class="badge badge-secondary">Amicale</span>' ?></td>
           <td>
-            <?= esc(M::DISCIPLINES[$m->discipline] ?? $m->discipline) ?> · <?= (int) $m->distance ?> pts
+            <?= esc(M::DISCIPLINES[$m->discipline] ?? $m->discipline) ?> · <?= esc(M::distanceLabel($m)) ?>
             <?php if ($m->competition): ?><br><small class="text-muted"><?= esc($m->competition) ?></small><?php endif; ?>
           </td>
           <td class="<?= $m->winner == 1 ? 'font-weight-bold' : '' ?>">

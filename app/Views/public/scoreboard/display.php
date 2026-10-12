@@ -1,11 +1,13 @@
 <?php
 use App\Models\ScoreboardMatchModel as M;
 
+$sameDistance = (int) $match->p1_distance === (int) $match->p2_distance;
+
 $config = [
     'id'           => (int) $match->id,
     'startedAt'    => (string) $match->started_at,
     'starter'      => (int) ($match->starting_player ?: 1),
-    'distance'     => (int) $match->distance,
+    'distances'    => [1 => (int) $match->p1_distance, 2 => (int) $match->p2_distance],
     'inningsLimit' => $match->innings_limit ? (int) $match->innings_limit : null,
     'unequal'      => (bool) $match->unequal_innings,
     'clock'        => [
@@ -48,7 +50,7 @@ $config = [
         </div>
         <div class="sbd-discipline">
             <?= esc(M::DISCIPLINES[$match->discipline] ?? $match->discipline) ?>
-            · <b><?= (int) $match->distance ?></b> points
+            <?php if ($sameDistance): ?>· <b><?= (int) $match->p1_distance ?></b> points<?php endif; ?>
             <?php if ($match->competition): ?><span class="sbd-muted">· <?= esc($match->competition) ?></span><?php endif; ?>
         </div>
         <div class="sbd-head-right">
@@ -81,6 +83,9 @@ $config = [
                     <div class="sbd-last"><?= esc($match->{$p . '_last_name'}) ?></div>
                     <div class="sbd-first"><?= esc($match->{$p . '_first_name'}) ?></div>
                     <div class="sbd-club"><?= esc($match->{$p . '_club'} ?? '') ?></div>
+                    <?php if (!$sameDistance): ?>
+                    <div class="sbd-target">À réaliser : <b><?= (int) $match->{$p . '_distance'} ?></b></div>
+                    <?php endif; ?>
                 </div>
                 <?php if ($n === 1): ?><span class="sbd-ball"></span><?php endif; ?>
             </div>
@@ -88,7 +93,7 @@ $config = [
             <div class="sbd-stats">
                 <div class="sbd-stat"><span>Moyenne</span><b data-avg>0,000</b></div>
                 <div class="sbd-stat"><span>Série max</span><b data-hr>0</b></div>
-                <div class="sbd-stat"><span>Reste</span><b data-left><?= (int) $match->distance ?></b></div>
+                <div class="sbd-stat"><span>Reste</span><b data-left><?= (int) $match->{$p . '_distance'} ?></b></div>
             </div>
             <div class="sbd-ext" data-ext></div>
         </section>

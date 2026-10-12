@@ -23,9 +23,15 @@
                     <label class="form-label">Prénom <span class="text-danger">*</span></label>
                     <input type="text" name="<?= $p ?>_first_name" class="form-control form-control-lg" required value="<?= esc(old($p . '_first_name')) ?>">
                 </div>
-                <div>
-                    <label class="form-label">Club</label>
-                    <input type="text" name="<?= $p ?>_club" class="form-control form-control-lg" value="<?= esc(old($p . '_club', 'RBC Disonais')) ?>">
+                <div class="row g-3">
+                    <div class="col-8">
+                        <label class="form-label">Club</label>
+                        <input type="text" name="<?= $p ?>_club" class="form-control form-control-lg" value="<?= esc(old($p . '_club', 'RBC Disonais')) ?>">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label">Points à réaliser <span class="text-danger">*</span></label>
+                        <input type="number" name="<?= $p ?>_distance" min="1" max="9999" required class="form-control form-control-lg" value="<?= esc(old($p . '_distance')) ?>">
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,10 +47,6 @@
                             <option value="<?= $k ?>" <?= old('discipline', 'libre') === $k ? 'selected' : '' ?>><?= $v ?></option>
                             <?php endforeach; ?>
                         </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label" for="distance">Points à réaliser <span class="text-danger">*</span></label>
-                        <input type="number" name="distance" id="distance" min="1" max="9999" required class="form-control form-control-lg" value="<?= esc(old('distance')) ?>">
                     </div>
                 </div>
                 <hr class="my-4">

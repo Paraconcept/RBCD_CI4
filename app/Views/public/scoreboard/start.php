@@ -6,7 +6,7 @@
 <?= $this->section('content') ?>
 <h1 class="sb-title text-center mb-1">Qui casse ?</h1>
 <p class="text-center text-secondary mb-4">
-    <?= esc(M::DISCIPLINES[$match->discipline] ?? '') ?> · <?= (int) $match->distance ?> points
+    <?= esc(M::DISCIPLINES[$match->discipline] ?? '') ?> · <?= esc(M::distanceLabel($match)) ?>
     <?= $match->innings_limit ? ' · limite ' . (int) $match->innings_limit . ' reprises' : '' ?>
     <br><kbd>1</kbd> ou <kbd>2</kbd> au pavé numérique, ou cliquez.
 </p>
@@ -20,6 +20,7 @@
                 <span class="sb-starter-name"><?= esc($match->{$p . '_last_name'}) ?></span>
                 <span class="sb-starter-first"><?= esc($match->{$p . '_first_name'}) ?></span>
                 <small><?= esc($match->{$p . '_club'}) ?></small>
+                <span class="badge bg-sb mt-2 fs-6"><?= (int) $match->{$p . '_distance'} ?> points à réaliser</span>
             </button>
         </div>
         <?php endforeach; ?>
