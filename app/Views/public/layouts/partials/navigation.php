@@ -110,7 +110,7 @@
                         </ul>
                       </li>
                       <?php endif; ?>
-                      <li><a href="<?= base_url('en-direct') ?>"><i class="fas fa-tv me-2"></i>En direct</a></li>
+                      <li><a href="<?= base_url('en-direct') ?>" style="display:flex;justify-content:space-between;gap:.75rem;align-items:center"><span>En direct</span><i class="fas fa-tv"></i></a></li>
                       <?php if ($intmTeams): ?>
                       <li class="has-sub">
                         <a href="#">I.N.T.M.</a>
