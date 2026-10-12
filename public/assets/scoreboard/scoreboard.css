@@ -48,6 +48,7 @@
 }
 .sb-tile:hover, .sb-tile:focus { transform: translateY(-3px); border-color: var(--sb-red-light); color: var(--sb-text); }
 .sb-tile > i { font-size: 2.5rem; color: var(--sb-red-light); }
+.sb-tile-img { width: 120px; height: auto; }
 .sb-tile-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.8rem; font-weight: 700; }
 .sb-tile-cta { border: 2px dashed var(--sb-red-light); }
 
