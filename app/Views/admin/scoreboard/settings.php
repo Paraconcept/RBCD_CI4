@@ -31,6 +31,11 @@
             <input type="number" name="warmup_minutes" id="warmup_minutes" class="form-control" min="1" max="15" value="<?= $warmupMinutes ?>" style="max-width:150px">
             <small class="text-muted">Décompte affiché avant la partie, la dernière minute en rouge.</small>
           </div>
+          <div class="form-group mb-0 mt-3">
+            <label for="start_window_minutes">Démarrage des rencontres programmées (minutes avant l'heure prévue)</label>
+            <input type="number" name="start_window_minutes" id="start_window_minutes" class="form-control" min="0" max="720" value="<?= $startWindowMinutes ?>" style="max-width:150px">
+            <small class="text-muted">Avant ce délai, le bouton « Démarrer » reste verrouillé sur le marquoir (60 = une heure avant).</small>
+          </div>
         </div>
       </div>
     </div>

@@ -12,13 +12,14 @@ $frDate = static function (string $dt): string {
     $t = strtotime($dt);
     return ucfirst($days[(int) date('w', $t)]) . ' ' . date('j', $t) . ' ' . $months[(int) date('n', $t)] . ' · ' . date('H:i', $t);
 };
-$matchCard = static function (object $m, bool $today) use ($tableId, $frDate): string {
+$startWindow = (int) $startWindow;
+$matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $startWindow): string {
     ob_start(); ?>
         <div class="sb-card sb-match mb-3<?= $today ? '' : ' sb-match-upcoming' ?>">
             <div class="sb-match-meta">
                 <span class="badge <?= $m->type === 'official' ? 'bg-sb' : 'bg-secondary' ?>"><?= $m->type === 'official' ? 'Officielle' : 'Amicale' ?></span>
                 <?php if ($m->scheduled_at): ?>
-                <span><i class="far fa-clock me-1"></i><?= date('Y-m-d', strtotime($m->scheduled_at)) === date('Y-m-d') ? date('H:i', strtotime($m->scheduled_at)) : $frDate($m->scheduled_at) ?></span>
+                <span><i class="far fa-clock me-1"></i><?= date('Y-m-d', strtotime($m->scheduled_at)) === M::now('Y-m-d') ? date('H:i', strtotime($m->scheduled_at)) : $frDate($m->scheduled_at) ?></span>
                 <?php endif; ?>
                 <span><?= esc(M::disciplineLabel($m)) ?> · <?= esc(M::distanceLabel($m)) ?><?= $m->innings_limit ? ' · ' . (int) $m->innings_limit . ' rep.' : '' ?></span>
                 <?php if ($m->competition): ?><span><?= esc($m->competition) ?></span><?php endif; ?>
@@ -28,9 +29,15 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate): s
                 <span class="sb-vs">vs</span>
                 <div><strong><?= esc(M::playerLabel($m, 'p2')) ?></strong><small><?= esc($m->p2_club) ?></small></div>
             </div>
-            <a href="<?= base_url('marquoir/billard/' . $tableId . '/demarrer/' . $m->id) ?>" class="btn <?= $today ? 'btn-sb' : 'btn-outline-secondary btn-sm' ?>">
+            <?php if ($today && M::canStartNow($m, $startWindow)): ?>
+            <a href="<?= base_url('marquoir/billard/' . $tableId . '/demarrer/' . $m->id) ?>" class="btn btn-sb">
                 <i class="fas fa-play me-2"></i>Démarrer
             </a>
+            <?php elseif ($today): ?>
+            <span class="btn btn-outline-secondary disabled sb-start-locked">
+                <i class="fas fa-lock me-2"></i>Disponible à partir de <?= date('H:i', M::startAllowedAt($m, $startWindow)) ?>
+            </span>
+            <?php endif; ?>
         </div>
     <?php return (string) ob_get_clean();
 };
@@ -74,4 +81,13 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate): s
         <?php endif; ?>
     </div>
 </div>
+<?php
+$unlocks = [];
+foreach ($startable as $m) {
+    if (!M::canStartNow($m, $startWindow)) $unlocks[] = M::startAllowedAt($m, $startWindow);
+}
+?>
+<?php if ($unlocks): ?>
+<script>setTimeout(() => location.reload(), <?= max(5, min($unlocks) - M::nowTs() + 2) ?> * 1000);</script>
+<?php endif; ?>
 <?= $this->endSection() ?>

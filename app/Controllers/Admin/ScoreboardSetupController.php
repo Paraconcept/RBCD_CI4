@@ -103,6 +103,7 @@ class ScoreboardSetupController extends BaseController
             'shotClockExtensions' => (int) $s->getSetting('scoreboard_shot_clock_extensions', 3),
             'inningsLimit3c'      => (int) $s->getSetting('scoreboard_innings_limit_3c', 60),
             'warmupMinutes'       => (int) $s->getSetting('scoreboard_warmup_minutes', 5),
+            'startWindowMinutes'  => (int) $s->getSetting('scoreboard_start_window_minutes', 60),
             'pin'                 => (string) $s->getSetting('scoreboard_pin', ''),
         ]);
     }
@@ -119,6 +120,7 @@ class ScoreboardSetupController extends BaseController
         $s->setSetting('scoreboard_shot_clock_extensions', max(0, min(10, (int) $this->request->getPost('shot_clock_extensions'))));
         $s->setSetting('scoreboard_innings_limit_3c', max(1, min(999, (int) $this->request->getPost('innings_limit_3c'))));
         $s->setSetting('scoreboard_warmup_minutes', max(1, min(15, (int) $this->request->getPost('warmup_minutes'))));
+        $s->setSetting('scoreboard_start_window_minutes', max(0, min(720, (int) $this->request->getPost('start_window_minutes'))));
         $s->setSetting('scoreboard_pin', $pin);
 
         return redirect()->to(base_url('admin/scoreboard/settings'))->with('success', 'Paramètres du marquoir enregistrés.');

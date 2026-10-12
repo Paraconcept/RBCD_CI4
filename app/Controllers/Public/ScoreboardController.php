@@ -78,6 +78,7 @@ class ScoreboardController extends BaseController
             'startable'    => $this->matches->getStartableForTable($tableId),
             'upcoming'     => $this->matches->getUpcomingForTable($tableId),
             'lastFinished' => $lastFinished,
+            'startWindow'  => $this->startWindow(),
         ]);
     }
 
@@ -115,6 +116,9 @@ class ScoreboardController extends BaseController
         if ($match->status !== 'scheduled') {
             return redirect()->to(base_url('marquoir/billard/' . $tableId));
         }
+        if ($tooEarly = $this->tooEarly($match, $tableId)) {
+            return $tooEarly;
+        }
 
         return view('public/scoreboard/start', [
             'title'         => 'Qui commence la partie ?',
@@ -131,6 +135,9 @@ class ScoreboardController extends BaseController
 
         if ($match->status !== 'scheduled') {
             return redirect()->to(base_url('marquoir/billard/' . $tableId));
+        }
+        if ($tooEarly = $this->tooEarly($match, $tableId)) {
+            return $tooEarly;
         }
         if ($this->matches->getLiveForTable($tableId)) {
             return redirect()->to(base_url('marquoir/billard/' . $tableId))
@@ -214,6 +221,27 @@ class ScoreboardController extends BaseController
             'current_run' => (int) $match->current_run,
             'extensions' => [(int) $match->p1_extensions_used, (int) $match->p2_extensions_used],
         ];
+    }
+
+    private function startWindow(): int
+    {
+        return (int) $this->settings->getSetting('scoreboard_start_window_minutes', 60);
+    }
+
+    /**
+     * Empêche de démarrer une rencontre programmée trop tôt (ex. un joueur qui s'entraîne l'après-midi).
+     */
+    private function tooEarly(object $match, int $tableId)
+    {
+        if (ScoreboardMatchModel::canStartNow($match, $this->startWindow())) {
+            return null;
+        }
+
+        $from = ScoreboardMatchModel::startAllowedAt($match, $this->startWindow());
+        $when = date('Y-m-d', $from) === ScoreboardMatchModel::now('Y-m-d') ? 'de ' . date('H:i', $from) : 'du ' . date('d/m/Y à H:i', $from);
+
+        return redirect()->to(base_url('marquoir/billard/' . $tableId))
+                         ->with('error', "Cette rencontre ne pourra être démarrée qu'à partir " . $when . '.');
     }
 
     private function defaults(): array

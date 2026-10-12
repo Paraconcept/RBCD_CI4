@@ -13,6 +13,8 @@ class ScoreboardMatchModel extends Model
         '3bandes' => '3 Bandes',
     ];
 
+    public const TIMEZONE = 'Europe/Brussels';
+
     public const FORMATS = [
         'PB' => 'Petit billard',
         'GB' => 'Grand billard',
@@ -59,7 +61,7 @@ class ScoreboardMatchModel extends Model
         return $this->withTable()
             ->where('status', 'scheduled')
             ->groupStart()->where('table_id', $tableId)->orWhere('table_id', null)->groupEnd()
-            ->groupStart()->where('scheduled_at', null)->orWhere('scheduled_at <=', date('Y-m-d 23:59:59'))->groupEnd()
+            ->groupStart()->where('scheduled_at', null)->orWhere('scheduled_at <=', self::now('Y-m-d 23:59:59'))->groupEnd()
             ->orderBy('scheduled_at IS NULL', 'ASC', false)
             ->orderBy('scheduled_at', 'ASC')
             ->findAll();
@@ -73,7 +75,7 @@ class ScoreboardMatchModel extends Model
         return $this->withTable()
             ->where('status', 'scheduled')
             ->groupStart()->where('table_id', $tableId)->orWhere('table_id', null)->groupEnd()
-            ->where('scheduled_at >', date('Y-m-d 23:59:59'))
+            ->where('scheduled_at >', self::now('Y-m-d 23:59:59'))
             ->orderBy('scheduled_at', 'ASC')
             ->findAll($limit);
     }
@@ -201,7 +203,7 @@ class ScoreboardMatchModel extends Model
 
         if (!empty($state['finished'])) {
             $update['status']      = 'finished';
-            $update['finished_at'] = date('Y-m-d H:i:s');
+            $update['finished_at'] = self::now();
             $update['current_run'] = 0;
             // Distances différentes (handicap) : on compare le pourcentage de la distance réalisé
             $update['winner']      = ($totals[1]['points'] * (int) $match->p2_distance) <=> ($totals[2]['points'] * (int) $match->p1_distance);
@@ -262,7 +264,7 @@ class ScoreboardMatchModel extends Model
             'status'          => 'live',
             'table_id'        => $tableId,
             'starting_player' => 1,
-            'started_at'      => date('Y-m-d H:i:s'),
+            'started_at'      => self::now(),
         ];
 
         if ($starter === 2) {
@@ -273,6 +275,35 @@ class ScoreboardMatchModel extends Model
         }
 
         $this->update($match->id, $data);
+    }
+
+    /**
+     * Heure belge. L'application tourne en UTC, mais les rencontres sont saisies en heure locale :
+     * toutes les dates du marquoir sont donc des heures « murales » de Bruxelles.
+     */
+    public static function now(string $format = 'Y-m-d H:i:s'): string
+    {
+        return (new \DateTime('now', new \DateTimeZone(self::TIMEZONE)))->format($format);
+    }
+
+    /** Horodatage de l'heure belge, comparable à strtotime() d'une date du marquoir. */
+    public static function nowTs(): int
+    {
+        return strtotime(self::now());
+    }
+
+    /**
+     * Moment à partir duquel une rencontre programmée peut être démarrée (null = sans heure, toujours possible).
+     */
+    public static function startAllowedAt(object $m, int $windowMinutes): ?int
+    {
+        return $m->scheduled_at ? strtotime($m->scheduled_at) - $windowMinutes * 60 : null;
+    }
+
+    public static function canStartNow(object $m, int $windowMinutes): bool
+    {
+        $from = self::startAllowedAt($m, $windowMinutes);
+        return $from === null || self::nowTs() >= $from;
     }
 
     /** ex. « 3 Bandes PB » */
