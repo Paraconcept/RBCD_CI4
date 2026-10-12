@@ -436,7 +436,16 @@
 
     if (!C.spectator) {
         const menu = $('sbdMenu');
-        const openMenu = () => { menu.classList.add('open'); root.classList.add('show-cursor'); };
+        const swapForm = $('sbdSwapForm');
+        const openMenu = () => {
+            // Inverser n'a de sens qu'avant le premier coup (erreur au choix du joueur qui commence)
+            swapForm.hidden = st.finished || st.innings.length > 0 || st.run > 0;
+            menu.classList.add('open');
+            root.classList.add('show-cursor');
+        };
+        swapForm.addEventListener('submit', function () {
+            try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignoré */ }
+        });
         const closeMenu = () => { menu.classList.remove('open'); };
 
         document.addEventListener('keydown', function (e) {

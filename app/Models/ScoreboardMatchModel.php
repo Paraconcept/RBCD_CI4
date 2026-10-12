@@ -324,13 +324,40 @@ class ScoreboardMatchModel extends Model
         ];
 
         if ($starter === 2) {
-            foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'distance'] as $f) {
-                $data['p1_' . $f] = $match->{'p2_' . $f};
-                $data['p2_' . $f] = $match->{'p1_' . $f};
-            }
+            $data += self::swappedPlayers($match);
         }
 
         $this->update($match->id, $data);
+    }
+
+    /**
+     * Inverse les deux joueurs d'une partie démarrée, tant qu'aucun coup n'a été joué
+     * (l'arbitre s'est trompé de joueur au moment de choisir qui commence).
+     */
+    public function swapPlayers(object $match): bool
+    {
+        $played = $this->db->table('scoreboard_innings')->where('match_id', $match->id)->countAllResults();
+        if ($match->status !== 'live' || $played > 0 || (int) $match->current_run > 0) {
+            return false;
+        }
+
+        $data = self::swappedPlayers($match);
+        $data['p1_extensions_used'] = $match->p2_extensions_used;
+        $data['p2_extensions_used'] = $match->p1_extensions_used;
+        $data['rev'] = (int) $match->rev + 1;
+        $this->update($match->id, $data);
+
+        return true;
+    }
+
+    private static function swappedPlayers(object $match): array
+    {
+        $data = [];
+        foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'distance'] as $f) {
+            $data['p1_' . $f] = $match->{'p2_' . $f};
+            $data['p2_' . $f] = $match->{'p1_' . $f};
+        }
+        return $data;
     }
 
     /**

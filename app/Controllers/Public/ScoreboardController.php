@@ -165,6 +165,14 @@ class ScoreboardController extends BaseController
         ]);
     }
 
+    public function swap(int $matchId)
+    {
+        $match = $this->findMatch($matchId);
+        $this->matches->swapPlayers($match);
+
+        return redirect()->to(base_url('marquoir/match/' . $matchId));
+    }
+
     public function cancel(int $matchId)
     {
         $match = $this->findMatch($matchId);
