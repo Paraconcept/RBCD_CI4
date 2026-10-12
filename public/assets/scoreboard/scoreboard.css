@@ -58,6 +58,7 @@
 .sb-match-players { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .sb-match-players strong { display: block; font-size: 1.2rem; }
 .sb-match-players small { color: var(--sb-muted); }
+.sb-live-score { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.8rem; color: var(--sb-p2); }
 .sb-vs { color: var(--sb-red-light); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.3rem; }
 .sb-last a { display: flex; gap: .5rem; padding: .45rem .75rem; margin-bottom: .35rem; border-radius: 8px; background: var(--sb-panel); color: var(--sb-text); text-decoration: none; }
 
@@ -229,6 +230,61 @@
 .sbd-swal { font-family: 'Barlow', sans-serif; border: 3px solid var(--sb-red); border-radius: 18px; }
 .sbd-swal .swal2-title { font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem; }
 .swal2-container { cursor: default; }
+
+/* ---------- Spectateur (page publique « En direct ») ---------- */
+
+.sbd.spectator { cursor: default; user-select: text; }
+.sbd-back { font-size: 2.4vh; color: var(--sb-muted); text-decoration: none; margin-left: 1vw; }
+.sbd-back:hover { color: #fff; }
+.sbd-live { background: var(--sb-danger); color: #fff; border-radius: .8vh; padding: .3vh 1vw; font-size: 2.4vh; font-weight: 700; letter-spacing: .08em; }
+.sbd-live i { animation: sbd-blink 1.2s infinite; }
+.sbd-live.offline { background: var(--sb-muted); }
+
+/* Téléphone ou tablette tenus en hauteur : joueurs côte à côte, reprise et série au-dessus */
+@media (orientation: portrait) {
+    .sbd { overflow-y: auto; grid-template-rows: auto auto auto auto; align-content: start; }
+    .sbd-head { font-size: 3.4vw; flex-wrap: wrap; gap: 1.5vw 3vw; padding: 2.5vw 3vw; }
+    .sbd-head-left { order: 1; gap: 2vw; }
+    .sbd-head-right { order: 2; gap: 2vw; }
+    .sbd-discipline { order: 3; flex-basis: 100%; text-align: center; }
+    .sbd-head img { height: 7vw; }
+    .sbd-back, .sbd-live { font-size: 3vw; }
+    .sbd-main { grid-template-columns: 1fr 1fr; grid-template-areas: "center center" "p1 p2"; gap: 2.5vw; padding: 3vw; }
+    #sbdPlayer1 { grid-area: p1; }
+    #sbdPlayer2 { grid-area: p2; }
+    .sbd-center { grid-area: center; flex-direction: row; flex-wrap: wrap; gap: 2.5vw; }
+    .sbd-center > .sbd-box { flex: 1; padding: 2vw; }
+    .sbd-notice { flex-basis: 100%; order: 3; font-size: 3.6vw; padding: 1.5vw; }
+    .sbd-box > span { font-size: 3vw; }
+    .sbd-innings b, .sbd-run b { font-size: 15vw; }
+    .sbd-innings small, .sbd-run .sbd-hint { font-size: 3vw; min-height: 0; }
+    .sbd-player { padding: 2.5vw; border-width: .7vw; border-radius: 3vw; }
+    .sbd-last { font-size: 6vw; }
+    .sbd-first { font-size: 4vw; }
+    .sbd-club, .sbd-target { font-size: 3.2vw; }
+    .sbd-target b { font-size: 3.6vw; }
+    .sbd-ball { width: 5vw; height: 5vw; }
+    .sbd-body, .sbd-player.p2 .sbd-body { flex-direction: column; gap: 2vw; }
+    .sbd-score { font-size: 24vw; padding: 2vw 0; }
+    .sbd-score.long { font-size: 17vw; }
+    .sbd-last5 { flex: none; width: 100%; flex-direction: row; gap: 1vw; }
+    .sbd-last5 div { flex: 1; height: auto; flex-direction: column; padding: 1vw 0; border-radius: 1.5vw; }
+    .sbd-last5 small { font-size: 2.4vw; }
+    .sbd-last5 b { font-size: 4.2vw; }
+    .sbd-stats { grid-template-columns: 1fr; gap: 1.5vw; }
+    .sbd-stat { border-radius: 2vw; padding: 1vw; }
+    .sbd-stat span { font-size: 2.6vw; }
+    .sbd-stat b { font-size: 6vw; }
+    .sbd-ext { min-height: 4vw; margin-top: 1.5vw; }
+    .sbd-ext i { font-size: 3.6vw; }
+    .sbd-result { min-width: 92vw; padding: 5vw 4vw; }
+    .sbd-result h2 { font-size: 4vw; }
+    .sbd-result .sbd-winner { font-size: 8vw; }
+    .sbd-result table { font-size: 3.6vw; }
+    .sbd-result th { font-size: 2.6vw; }
+    .sbd-result th, .sbd-result td { padding: 1vw 1.5vw; }
+    .sbd-result .sbd-small { font-size: 3.4vw; }
+}
 
 @keyframes sbd-bump { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
 @keyframes sbd-blink { 50% { opacity: .35; } }

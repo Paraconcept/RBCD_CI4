@@ -14,9 +14,9 @@
 </head>
 <body class="sb-body">
 <header class="sb-topbar">
-    <a href="<?= base_url('marquoir') ?>" class="sb-brand">
+    <a href="<?= $brandUrl ?? base_url('marquoir') ?>" class="sb-brand">
         <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="">
-        <span>RBC Disonais <small>Marquoirs</small></span>
+        <span>RBC Disonais <small><?= esc($brandSub ?? 'Marquoirs') ?></small></span>
     </a>
     <?= $this->renderSection('topbar') ?>
 </header>

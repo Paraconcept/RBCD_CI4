@@ -84,6 +84,54 @@ class ScoreboardMatchModel extends Model
             ->findAll($limit);
     }
 
+    /**
+     * État d'une partie tel que l'écran du marquoir le manipule (séries dans l'ordre chronologique).
+     */
+    public function stateFor(object $match): array
+    {
+        $rows    = (new ScoreboardInningModel())->getForMatch((int) $match->id);
+        $starter = (int) ($match->starting_player ?: 1);
+        $byPlayer = [1 => [], 2 => []];
+        foreach ($rows as $r) {
+            $byPlayer[(int) $r->player][(int) $r->inning_no] = (int) $r->points;
+        }
+
+        $innings = [];
+        $other   = $starter === 1 ? 2 : 1;
+        $count   = max(count($byPlayer[1]), count($byPlayer[2]));
+        for ($n = 1; $n <= $count; $n++) {
+            if (isset($byPlayer[$starter][$n])) $innings[] = $byPlayer[$starter][$n];
+            if (isset($byPlayer[$other][$n]))   $innings[] = $byPlayer[$other][$n];
+        }
+
+        return [
+            'rev'        => (int) $match->rev,
+            'status'     => $match->status,
+            'innings'    => $innings,
+            'current_run' => (int) $match->current_run,
+            'extensions' => [(int) $match->p1_extensions_used, (int) $match->p2_extensions_used],
+        ];
+    }
+
+    /**
+     * Rencontres du jour pour les spectateurs (page publique « En direct »), tous billards confondus.
+     */
+    public function getTodayForSpectators(): array
+    {
+        $today = self::now('Y-m-d');
+        return $this->withTable()
+            ->whereIn('status', ['scheduled', 'live', 'finished'])
+            ->groupStart()
+                ->where("DATE(scheduled_at) = '$today'", null, false)
+                ->orWhere("DATE(started_at) = '$today'", null, false)
+                ->orWhere("DATE(finished_at) = '$today'", null, false)
+            ->groupEnd()
+            ->orderBy("FIELD(status, 'live', 'scheduled', 'finished')", '', false)
+            ->orderBy('scheduled_at', 'ASC')
+            ->orderBy('started_at', 'ASC')
+            ->findAll();
+    }
+
     public function getLiveForTable(int $tableId): ?object
     {
         return $this->where('status', 'live')->where('table_id', $tableId)->orderBy('started_at', 'DESC')->first();

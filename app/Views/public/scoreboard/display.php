@@ -2,6 +2,8 @@
 use App\Models\ScoreboardMatchModel as M;
 
 $sameDistance = (int) $match->p1_distance === (int) $match->p2_distance;
+// Spectateur (page publique « En direct ») : lecture seule, mise à jour par interrogation du serveur
+$spectator = $spectator ?? false;
 
 $config = [
     'id'           => (int) $match->id,
@@ -19,10 +21,13 @@ $config = [
         1 => ['last' => $match->p1_last_name, 'first' => $match->p1_first_name],
         2 => ['last' => $match->p2_last_name, 'first' => $match->p2_first_name],
     ],
-    'server' => $state,
-    'urls'   => [
+    'server'    => $state,
+    'spectator' => $spectator,
+    'urls'      => [
         'save'  => base_url('marquoir/api/match/' . $match->id),
         'table' => base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'),
+        'state' => base_url('en-direct/api/' . $match->id),
+        'list'  => base_url('en-direct'),
     ],
 ];
 ?>
@@ -41,12 +46,13 @@ $config = [
     <link rel="stylesheet" href="<?= base_url('assets/scoreboard/scoreboard.css') ?>">
 </head>
 <body>
-<div class="sbd" id="sbd">
+<div class="sbd<?= $spectator ? ' spectator' : '' ?>" id="sbd">
 
     <header class="sbd-head">
         <div class="sbd-head-left">
             <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="">
             <span>RBC Disonais</span>
+            <?php if ($spectator): ?><a href="<?= base_url('en-direct') ?>" class="sbd-back"><i class="fas fa-arrow-left me-1"></i>Rencontres du jour</a><?php endif; ?>
             <?php if ($table): ?><span class="sbd-muted">· <?= esc($table->name) ?></span><?php endif; ?>
         </div>
         <div class="sbd-discipline">
@@ -56,7 +62,11 @@ $config = [
         </div>
         <div class="sbd-head-right">
             <span id="sbdTime"></span>
+            <?php if ($spectator): ?>
+            <span class="sbd-live" id="sbdLive"><i class="fas fa-circle me-1"></i>EN DIRECT</span>
+            <?php else: ?>
             <span class="sbd-sync" id="sbdSync" title="Synchronisation"></span>
+            <?php endif; ?>
         </div>
     </header>
 
@@ -108,6 +118,7 @@ $config = [
         <div class="sbd-clock-num" id="sbdClockNum"></div>
     </div>
 
+    <?php if (!$spectator): ?>
     <footer class="sbd-help">
         <span><kbd>+</kbd> point</span>
         <span><kbd>−</kbd> correction</span>
@@ -120,6 +131,7 @@ $config = [
         <span><kbd>/</kbd> effacer la saisie</span>
         <span><kbd>Échap</kbd> menu</span>
     </footer>
+    <?php endif; ?>
 
     <div class="sbd-overlay" id="sbdResult">
         <div class="sbd-result">
@@ -130,11 +142,16 @@ $config = [
                 <tbody id="sbdResultRows"></tbody>
             </table>
             <div class="sbd-small">
+                <?php if ($spectator): ?>
+                <a href="<?= base_url('en-direct') ?>" class="btn btn-outline-light"><i class="fas fa-arrow-left me-2"></i>Rencontres du jour</a>
+                <?php else: ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> corriger la dernière reprise
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
+    <?php if (!$spectator): ?>
     <div class="sbd-overlay" id="sbdMenu">
         <div class="sbd-menu">
             <button type="button" class="btn btn-light" data-action="fullscreen"><i class="fas fa-expand me-2"></i>Plein écran</button>
@@ -148,6 +165,7 @@ $config = [
             <button type="button" class="btn btn-outline-light" data-action="close"><i class="fas fa-xmark me-2"></i>Fermer (Échap)</button>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
 <script>window.SB_CONFIG = <?= json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;</script>

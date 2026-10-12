@@ -38,6 +38,7 @@
             ext: srv.extensions.slice(),
             finished: srv.status === 'finished',
         };
+        if (C.spectator) return s;
         try {
             const local = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
             if (local && local.rev > s.rev) s = local;
@@ -216,7 +217,8 @@
 
     function renderClock() {
         const box = $('sbdClock');
-        if (!C.clock.enabled) return;
+        // Le chrono vit sur le Chromebook du billard : il n'est pas transmis aux spectateurs
+        if (!C.clock.enabled || C.spectator) return;
         box.hidden = false;
 
         if (clock.running && clockLeft() <= 0) {
@@ -292,6 +294,7 @@
     }
 
     function sync() {
+        if (C.spectator) return;
         if (st.rev <= syncedRev) { setSync(''); return; }
         if (inflight) return;
         inflight = true;
@@ -431,79 +434,81 @@
         return null;
     }
 
-    const menu = $('sbdMenu');
-    const openMenu = () => { menu.classList.add('open'); root.classList.add('show-cursor'); };
-    const closeMenu = () => { menu.classList.remove('open'); };
+    if (!C.spectator) {
+        const menu = $('sbdMenu');
+        const openMenu = () => { menu.classList.add('open'); root.classList.add('show-cursor'); };
+        const closeMenu = () => { menu.classList.remove('open'); };
 
-    document.addEventListener('keydown', function (e) {
-        // La boîte de confirmation gère elle-même Entrée / Échap
-        if (window.Swal && Swal.isVisible()) return;
-        const a = actionFor(e);
-        if (!a) return;
-        e.preventDefault();
+        document.addEventListener('keydown', function (e) {
+            // La boîte de confirmation gère elle-même Entrée / Échap
+            if (window.Swal && Swal.isVisible()) return;
+            const a = actionFor(e);
+            if (!a) return;
+            e.preventDefault();
 
-        if (menu.classList.contains('open')) {
-            if (a === 'menu' || a === 'enter') closeMenu();
-            return;
+            if (menu.classList.contains('open')) {
+                if (a === 'menu' || a === 'enter') closeMenu();
+                return;
+            }
+            if (e.repeat && a !== 'plus' && a !== 'minus') return;
+            enterFullscreen();
+
+            if (st.finished) {
+                if (a === 'enter') window.location.href = C.urls.table;
+                else if (a === 'minus') minus();
+                else if (a === 'menu') openMenu();
+                return;
+            }
+
+            switch (a) {
+                case 'plus':  addPoint(); break;
+                case 'minus': minus(); break;
+                case 'enter': endInning(); break;
+                case 'clock': toggleClock(); break;
+                case 'ext':   extension(); break;
+                case 'clear': clearBuffer(); break;
+                case 'menu':  openMenu(); break;
+                default:      digit(a.slice(1));
+            }
+        });
+
+        menu.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-action]');
+            if (e.target === menu || (btn && btn.dataset.action === 'close')) closeMenu();
+            if (btn && btn.dataset.action === 'fullscreen') { enterFullscreen(); closeMenu(); }
+            if (btn && btn.dataset.action === 'cancel') confirmCancel();
+        });
+
+        function confirmCancel() {
+            const form = $('sbdCancelForm');
+            if (!window.Swal) { form.submit(); return; }
+            Swal.fire({
+                title: form.dataset.title,
+                text: form.dataset.text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: form.dataset.confirm,
+                cancelButtonText: 'Non, continuer la partie',
+                reverseButtons: true,
+                focusCancel: true,
+                background: '#16213d',
+                color: '#eef1f7',
+                iconColor: '#f59e0b',
+                confirmButtonColor: '#84252B',
+                cancelButtonColor: '#475569',
+                customClass: { popup: 'sbd-swal' },
+            }).then(function (r) { if (r.isConfirmed) form.submit(); });
         }
-        if (e.repeat && a !== 'plus' && a !== 'minus') return;
-        enterFullscreen();
 
-        if (st.finished) {
-            if (a === 'enter') window.location.href = C.urls.table;
-            else if (a === 'minus') minus();
-            else if (a === 'menu') openMenu();
-            return;
-        }
+        root.addEventListener('dblclick', openMenu);
 
-        switch (a) {
-            case 'plus':  addPoint(); break;
-            case 'minus': minus(); break;
-            case 'enter': endInning(); break;
-            case 'clock': toggleClock(); break;
-            case 'ext':   extension(); break;
-            case 'clear': clearBuffer(); break;
-            case 'menu':  openMenu(); break;
-            default:      digit(a.slice(1));
-        }
-    });
-
-    menu.addEventListener('click', function (e) {
-        const btn = e.target.closest('[data-action]');
-        if (e.target === menu || (btn && btn.dataset.action === 'close')) closeMenu();
-        if (btn && btn.dataset.action === 'fullscreen') { enterFullscreen(); closeMenu(); }
-        if (btn && btn.dataset.action === 'cancel') confirmCancel();
-    });
-
-    function confirmCancel() {
-        const form = $('sbdCancelForm');
-        if (!window.Swal) { form.submit(); return; }
-        Swal.fire({
-            title: form.dataset.title,
-            text: form.dataset.text,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: form.dataset.confirm,
-            cancelButtonText: 'Non, continuer la partie',
-            reverseButtons: true,
-            focusCancel: true,
-            background: '#16213d',
-            color: '#eef1f7',
-            iconColor: '#f59e0b',
-            confirmButtonColor: '#84252B',
-            cancelButtonColor: '#475569',
-            customClass: { popup: 'sbd-swal' },
-        }).then(function (r) { if (r.isConfirmed) form.submit(); });
+        let cursorTimer = null;
+        document.addEventListener('mousemove', function () {
+            root.classList.add('show-cursor');
+            clearTimeout(cursorTimer);
+            cursorTimer = setTimeout(function () { if (!menu.classList.contains('open')) root.classList.remove('show-cursor'); }, 3000);
+        });
     }
-
-    root.addEventListener('dblclick', openMenu);
-
-    let cursorTimer = null;
-    document.addEventListener('mousemove', function () {
-        root.classList.add('show-cursor');
-        clearTimeout(cursorTimer);
-        cursorTimer = setTimeout(function () { if (!menu.classList.contains('open')) root.classList.remove('show-cursor'); }, 3000);
-    });
 
     function enterFullscreen() {
         if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
@@ -532,6 +537,26 @@
 
     setInterval(function () { if (C.clock.enabled) renderClock(); }, 200);
 
+    // Spectateur : on relit l'état du serveur toutes les 2 secondes
+    function poll() {
+        fetch(C.urls.state, { cache: 'no-store' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+                $('sbdLive').classList.toggle('offline', !d);
+                if (!d) return;
+                if (d.status === 'scheduled' || d.status === 'cancelled') { window.location.reload(); return; }
+                if (d.rev !== st.rev || (d.status === 'finished') !== st.finished) {
+                    st = { rev: d.rev, innings: d.innings.slice(), run: d.current_run, ext: d.extensions.slice(), finished: d.status === 'finished' };
+                    render();
+                }
+            })
+            .catch(function () { $('sbdLive').classList.add('offline'); });
+    }
+
     render();
-    sync();
+    if (C.spectator) {
+        setInterval(poll, 2000);
+    } else {
+        sync();
+    }
 })();

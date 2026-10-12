@@ -78,6 +78,11 @@ $routes->get('documents',                              'Public\PagesController::
 $routes->get('documents/remboursements-mutuelle',      'Public\PagesController::documentsRemboursementsMutuelle');
 $routes->get('documents/(:segment)',                   'Public\PagesController::documentShow/$1');
 
+// En direct : suivi public des parties du jour (lecture seule)
+$routes->get('en-direct',              'Public\LiveController::index');
+$routes->get('en-direct/(:num)',       'Public\LiveController::watch/$1');
+$routes->get('en-direct/api/(:num)',   'Public\LiveController::state/$1');
+
 // Marquoir (Chromebooks des billards) — accès par code PIN mémorisé sur l'appareil
 $routes->get ('marquoir/acces', 'Public\ScoreboardController::access');
 $routes->post('marquoir/acces', 'Public\ScoreboardController::accessPost');

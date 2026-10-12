@@ -161,7 +161,7 @@ class ScoreboardController extends BaseController
             'title' => 'Marquoir',
             'match' => $match,
             'table' => $match->table_id ? $this->tables->find($match->table_id) : null,
-            'state' => $this->stateFor($match),
+            'state' => $this->matches->stateFor($match),
         ]);
     }
 
@@ -182,7 +182,7 @@ class ScoreboardController extends BaseController
 
     public function state(int $matchId)
     {
-        return $this->response->setJSON($this->stateFor($this->findMatch($matchId)));
+        return $this->response->setJSON($this->matches->stateFor($this->findMatch($matchId)));
     }
 
     public function saveState(int $matchId)
@@ -195,32 +195,6 @@ class ScoreboardController extends BaseController
         $rev = $this->matches->applyState($match, (array) $this->request->getJSON(true));
 
         return $this->response->setJSON(['rev' => $rev]);
-    }
-
-    private function stateFor(object $match): array
-    {
-        $rows    = (new ScoreboardInningModel())->getForMatch((int) $match->id);
-        $starter = (int) ($match->starting_player ?: 1);
-        $byPlayer = [1 => [], 2 => []];
-        foreach ($rows as $r) {
-            $byPlayer[(int) $r->player][(int) $r->inning_no] = (int) $r->points;
-        }
-
-        $innings = [];
-        $other   = $starter === 1 ? 2 : 1;
-        $count   = max(count($byPlayer[1]), count($byPlayer[2]));
-        for ($n = 1; $n <= $count; $n++) {
-            if (isset($byPlayer[$starter][$n])) $innings[] = $byPlayer[$starter][$n];
-            if (isset($byPlayer[$other][$n]))   $innings[] = $byPlayer[$other][$n];
-        }
-
-        return [
-            'rev'        => (int) $match->rev,
-            'status'     => $match->status,
-            'innings'    => $innings,
-            'current_run' => (int) $match->current_run,
-            'extensions' => [(int) $match->p1_extensions_used, (int) $match->p2_extensions_used],
-        ];
     }
 
     private function startWindow(): int
