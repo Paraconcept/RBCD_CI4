@@ -116,9 +116,10 @@ class ScoreboardController extends BaseController
         }
 
         return view('public/scoreboard/start', [
-            'title' => 'Qui commence la partie ?',
-            'table' => $table,
-            'match' => $match,
+            'title'         => 'Qui commence la partie ?',
+            'table'         => $table,
+            'match'         => $match,
+            'warmupMinutes' => (int) $this->settings->getSetting('scoreboard_warmup_minutes', 5),
         ]);
     }
 

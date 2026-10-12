@@ -77,6 +77,22 @@
 .sb-starter-first { font-size: 1.3rem; }
 .sb-starter small { color: var(--sb-muted); }
 
+.sb-warmup-btn { background: #16a34a; border-color: #16a34a; color: #fff; padding: .8rem 2rem; font-weight: 600; }
+.sb-warmup-btn:hover, .sb-warmup-btn:focus { background: #22c55e; border-color: #22c55e; color: #fff; }
+.sb-warmup-btn kbd { background: rgba(0,0,0,.3); }
+.sb-warmup {
+    position: fixed; inset: 0; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 0%, #17264a 0%, var(--sb-bg) 65%); cursor: none;
+    font-family: 'Barlow Condensed', sans-serif; font-variant-numeric: tabular-nums;
+}
+.sb-warmup[hidden] { display: none; }
+.sb-warmup-title { font-size: 7vh; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--sb-muted); }
+.sb-warmup-players { font-size: 4vh; font-weight: 600; }
+.sb-warmup-time { font-size: 45vh; font-weight: 800; line-height: 1; color: #fff; transition: color .3s; }
+.sb-warmup-time.last { color: var(--sb-danger); }
+.sb-warmup-hint { font-family: 'Barlow', sans-serif; font-size: 2.6vh; color: var(--sb-muted); }
+.sb-warmup-hint kbd { font-size: 2.4vh; }
+
 /* ---------- Écran du marquoir (TV) ---------- */
 
 .sbd {

@@ -21,10 +21,15 @@
             <small class="text-muted">Valeur proposée par défaut dans les formulaires. Chaque fois que le chrono arrive à zéro, un time-out est consommé et le chrono repart ;
             le dernier time-out arrête le chrono sur « Temps écoulé » jusqu'à ce que l'arbitre passe la main (<kbd>Entrée</kbd>).</small>
           </div>
-          <div class="form-group mb-0">
+          <div class="form-group">
             <label for="innings_limit_3c">Limite de reprises au 3 Bandes</label>
             <input type="number" name="innings_limit_3c" id="innings_limit_3c" class="form-control" min="1" max="999" value="<?= $inningsLimit3c ?>" style="max-width:150px">
             <small class="text-muted">Pré-remplie quand on choisit la discipline 3 Bandes (la limite reste à activer).</small>
+          </div>
+          <div class="form-group mb-0">
+            <label for="warmup_minutes">Durée de l'échauffement (minutes par joueur)</label>
+            <input type="number" name="warmup_minutes" id="warmup_minutes" class="form-control" min="1" max="15" value="<?= $warmupMinutes ?>" style="max-width:150px">
+            <small class="text-muted">Décompte affiché avant la partie, la dernière minute en rouge.</small>
           </div>
         </div>
       </div>
