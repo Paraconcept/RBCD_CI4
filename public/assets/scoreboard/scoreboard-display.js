@@ -316,7 +316,8 @@
         const cur = st.finished ? 0 : current();
 
         [1, 2].forEach(function (p) {
-            const t = totals(p, true);
+            // La série en cours n'est ajoutée au score qu'à la validation de la reprise (Entrée)
+            const t = totals(p, false);
             const el = panels[p];
             el.classList.toggle('active', p === cur);
             const score = el.querySelector('[data-score]');
