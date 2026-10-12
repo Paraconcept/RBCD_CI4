@@ -208,6 +208,29 @@
         const box = $('sbdClock');
         if (!C.clock.enabled) return;
         box.hidden = false;
+
+        if (clock.running && clockLeft() <= 0) {
+            const i = current() - 1;
+            if (st.ext[i] < C.clock.extensions) {
+                // Temps écoulé mais time-out disponible : on le consomme sans interrompre le joueur
+                st.ext[i]++;
+                clock.total = clock.left = C.clock.seconds * 1000;
+                clock.endAt = Date.now() + clock.left;
+                clock.lastSec = null;
+                beep(660, 0.15);
+                setTimeout(function () { beep(660, 0.15); }, 200);
+                flash('Time-out utilisé (' + (C.clock.extensions - st.ext[i]) + ' restant' + (C.clock.extensions - st.ext[i] > 1 ? 's' : '') + ')');
+                commit();
+                return;
+            }
+            clock.running = false;
+            clock.left = 0;
+            clock.lastSec = 0;
+            beep(440, 0.9);
+            render();
+            return;
+        }
+
         const left = clockLeft();
         const sec = Math.max(0, Math.ceil(left / 1000));
         const bar = $('sbdClockBar');
@@ -221,14 +244,15 @@
         if (clock.running && sec !== clock.lastSec) {
             if (sec === 10) beep(880, 0.12);
             else if (sec > 0 && sec <= 5) beep(1100, 0.08);
-            else if (sec === 0) beep(440, 0.9);
             clock.lastSec = sec;
         }
-        if (clock.running && left <= 0) {
-            clock.running = false;
-            clock.left = 0;
-            render();
-        }
+    }
+
+    let flashMsg = '', flashTimer = null;
+    function flash(msg) {
+        flashMsg = msg;
+        clearTimeout(flashTimer);
+        flashTimer = setTimeout(function () { flashMsg = ''; render(); }, 4000);
     }
 
     let audio = null;
@@ -327,10 +351,11 @@
         $('sbdRun').textContent = buffer !== '' ? buffer : st.run;
         $('sbdHint').textContent = buffer !== '' ? 'Entrée pour valider la série' : '';
 
-        let notice = '';
-        if (isEqualizing()) notice = "Reprise d'égalisation";
+        let notice = flashMsg;
+        if (notice) { /* message temporaire prioritaire */ }
+        else if (isEqualizing()) notice = "Reprise d'égalisation";
         else if (!st.finished && C.inningsLimit && inningNumber() === C.inningsLimit) notice = 'Dernière reprise';
-        else if (C.clock.enabled && !st.finished && clockLeft() <= 0 && clock.lastSec === 0) notice = 'Temps écoulé';
+        else if (C.clock.enabled && !st.finished && !clock.running && clock.left <= 0 && clock.lastSec === 0) notice = 'Temps écoulé';
         $('sbdNotice').textContent = notice;
 
         renderResult();

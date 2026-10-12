@@ -150,6 +150,11 @@ $val = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
                    value="<?= esc($val('shot_clock_seconds', $defaults['shot_clock_seconds'])) ?>">
             <div class="input-group-append"><span class="input-group-text">secondes</span></div>
           </div>
+          <div class="input-group mt-2" data-sb-show-when="shot_clock_enabled" style="max-width:220px">
+            <input type="number" name="shot_clock_extensions" class="form-control" min="0" max="10"
+                   value="<?= esc($val('shot_clock_extensions', $defaults['shot_clock_extensions'])) ?>">
+            <div class="input-group-append"><span class="input-group-text">time-outs / joueur</span></div>
+          </div>
         </div>
       </div>
     </div>

@@ -16,9 +16,10 @@
             <small class="text-muted">Proposé par défaut quand on active le chrono sur une partie.</small>
           </div>
           <div class="form-group">
-            <label for="shot_clock_extensions">Extensions de chrono par joueur et par partie</label>
+            <label for="shot_clock_extensions">Time-outs par joueur et par partie</label>
             <input type="number" name="shot_clock_extensions" id="shot_clock_extensions" class="form-control" min="0" max="10" value="<?= $shotClockExtensions ?>" style="max-width:150px">
-            <small class="text-muted">Chaque extension ajoute une durée de chrono complète (touche <kbd>,</kbd> du pavé).</small>
+            <small class="text-muted">Valeur proposée par défaut dans les formulaires. Quand le chrono arrive à zéro, un time-out est utilisé automatiquement et le chrono repart.
+            Le joueur peut aussi en demander un (touche <kbd>,</kbd> du pavé).</small>
           </div>
           <div class="form-group mb-0">
             <label for="innings_limit_3c">Limite de reprises au 3 Bandes</label>

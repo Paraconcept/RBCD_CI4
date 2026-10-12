@@ -60,13 +60,13 @@
 .sb-last a { display: flex; gap: .5rem; padding: .45rem .75rem; margin-bottom: .35rem; border-radius: 8px; background: var(--sb-panel); color: var(--sb-text); text-decoration: none; }
 
 .sb-starter {
-    width: 100%; display: flex; flex-direction: column; align-items: center; gap: .25rem; padding: 2rem 1rem;
+    width: 100%; transition: transform .15s, border-color .15s, background-color .3s; display: flex; flex-direction: column; align-items: center; gap: .25rem; padding: 2rem 1rem;
     border-radius: 18px; border: 3px solid transparent; background: var(--sb-panel); color: var(--sb-text);
-    transition: transform .15s, border-color .15s;
 }
 .sb-starter:hover, .sb-starter:focus { transform: scale(1.02); }
 .sb-starter-1:hover, .sb-starter-1:focus { border-color: var(--sb-p1); }
 .sb-starter-2:hover, .sb-starter-2:focus { border-color: var(--sb-p2); }
+.sb-starters > div { transition: transform .55s cubic-bezier(.65, 0, .35, 1); }
 .sb-starter-key {
     width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
     font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem; font-weight: 800; margin-bottom: .5rem;

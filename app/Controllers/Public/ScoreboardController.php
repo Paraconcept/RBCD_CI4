@@ -116,7 +116,7 @@ class ScoreboardController extends BaseController
         }
 
         return view('public/scoreboard/start', [
-            'title' => 'Qui casse ?',
+            'title' => 'Qui commence la partie ?',
             'table' => $table,
             'match' => $match,
         ]);
@@ -136,12 +136,7 @@ class ScoreboardController extends BaseController
         }
 
         $starter = (int) $this->request->getPost('starting_player') === 2 ? 2 : 1;
-        $this->matches->update($matchId, [
-            'status'          => 'live',
-            'table_id'        => $tableId,
-            'starting_player' => $starter,
-            'started_at'      => date('Y-m-d H:i:s'),
-        ]);
+        $this->matches->startWith($match, $starter, $tableId);
 
         return redirect()->to(base_url('marquoir/match/' . $matchId));
     }
@@ -158,7 +153,6 @@ class ScoreboardController extends BaseController
             'match' => $match,
             'table' => $match->table_id ? $this->tables->find($match->table_id) : null,
             'state' => $this->stateFor($match),
-            'extensionsAllowed' => (int) $this->settings->getSetting('scoreboard_shot_clock_extensions', 2),
         ]);
     }
 
@@ -223,7 +217,8 @@ class ScoreboardController extends BaseController
     private function defaults(): array
     {
         return [
-            'shot_clock_seconds' => (int) $this->settings->getSetting('scoreboard_shot_clock_seconds', 40),
+            'shot_clock_seconds'    => (int) $this->settings->getSetting('scoreboard_shot_clock_seconds', 40),
+            'shot_clock_extensions' => (int) $this->settings->getSetting('scoreboard_shot_clock_extensions', 3),
             'innings_limit_3c'   => (int) $this->settings->getSetting('scoreboard_innings_limit_3c', 60),
         ];
     }

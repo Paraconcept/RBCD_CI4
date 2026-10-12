@@ -27,7 +27,7 @@ class ScoreboardMatchModel extends Model
     protected $allowedFields = [
         'type', 'status', 'table_id', 'scheduled_at', 'competition',
         'discipline', 'innings_limit', 'unequal_innings',
-        'shot_clock_enabled', 'shot_clock_seconds',
+        'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions',
         'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_distance',
         'p1_points', 'p1_innings', 'p1_high_run', 'p1_extensions_used',
         'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_distance',
@@ -113,6 +113,7 @@ class ScoreboardMatchModel extends Model
         $data['shot_clock_enabled'] = !empty($in['shot_clock_enabled']) ? 1 : 0;
         $seconds = (int) ($in['shot_clock_seconds'] ?? 40);
         $data['shot_clock_seconds'] = max(5, min(300, $seconds ?: 40));
+        $data['shot_clock_extensions'] = max(0, min(10, (int) ($in['shot_clock_extensions'] ?? 3)));
 
         $tableId = (int) ($in['table_id'] ?? 0);
         $data['table_id'] = $tableId > 0 ? $tableId : null;
@@ -226,6 +227,28 @@ class ScoreboardMatchModel extends Model
         } else {
             $this->resetToScheduled((int) $match->id);
         }
+    }
+
+    /**
+     * Le joueur qui commence devient toujours le joueur 1 (à gauche, chiffres blancs).
+     */
+    public function startWith(object $match, int $starter, int $tableId): void
+    {
+        $data = [
+            'status'          => 'live',
+            'table_id'        => $tableId,
+            'starting_player' => 1,
+            'started_at'      => date('Y-m-d H:i:s'),
+        ];
+
+        if ($starter === 2) {
+            foreach (['member_id', 'last_name', 'first_name', 'club', 'distance'] as $f) {
+                $data['p1_' . $f] = $match->{'p2_' . $f};
+                $data['p2_' . $f] = $match->{'p1_' . $f};
+            }
+        }
+
+        $this->update($match->id, $data);
     }
 
     public static function distanceLabel(object $m): string

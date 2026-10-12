@@ -13,7 +13,7 @@ $config = [
     'clock'        => [
         'enabled'    => (bool) $match->shot_clock_enabled,
         'seconds'    => (int) $match->shot_clock_seconds,
-        'extensions' => $extensionsAllowed,
+        'extensions' => (int) $match->shot_clock_extensions,
     ],
     'players' => [
         1 => ['last' => $match->p1_last_name, 'first' => $match->p1_first_name],
@@ -112,7 +112,7 @@ $config = [
         <span><kbd>Entrée</kbd> fin de reprise</span>
         <?php if ($match->shot_clock_enabled): ?>
         <span><kbd>*</kbd> chrono départ/pause</span>
-        <span><kbd>,</kbd> extension</span>
+        <span><kbd>,</kbd> time-out</span>
         <?php endif; ?>
         <span><kbd>/</kbd> effacer la saisie</span>
         <span><kbd>Échap</kbd> menu</span>

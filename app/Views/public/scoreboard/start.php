@@ -4,15 +4,15 @@
 <span class="sb-topbar-title"><?= esc($table->name) ?></span>
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<h1 class="sb-title text-center mb-1">Qui casse ?</h1>
+<h1 class="sb-title text-center mb-1">Qui commence la partie ?</h1>
 <p class="text-center text-secondary mb-4">
     <?= esc(M::DISCIPLINES[$match->discipline] ?? '') ?> · <?= esc(M::distanceLabel($match)) ?>
     <?= $match->innings_limit ? ' · limite ' . (int) $match->innings_limit . ' reprises' : '' ?>
-    <br><kbd>1</kbd> ou <kbd>2</kbd> au pavé numérique, ou cliquez.
+    <br><kbd>1</kbd> ou <kbd>2</kbd> au pavé numérique, ou cliquez.<br>Le joueur qui commence se place à gauche et joue les chiffres blancs.
 </p>
 <form method="post" id="startForm" action="<?= base_url('marquoir/billard/' . $table->id . '/demarrer/' . $match->id) ?>">
     <input type="hidden" name="starting_player" id="startingPlayer">
-    <div class="row g-4 justify-content-center">
+    <div class="row g-4 justify-content-center sb-starters">
         <?php foreach ([1 => 'p1', 2 => 'p2'] as $n => $p): ?>
         <div class="col-md-5">
             <button type="button" class="sb-starter sb-starter-<?= $n ?>" data-player="<?= $n ?>">
@@ -34,7 +34,21 @@
 <script>
 (function () {
     const form = document.getElementById('startForm');
-    const choose = (n) => { document.getElementById('startingPlayer').value = n; form.submit(); };
+    const cols = document.querySelectorAll('.sb-starters > div');
+    let chosen = false;
+    const choose = (n) => {
+        if (chosen) return;
+        chosen = true;
+        document.getElementById('startingPlayer').value = n;
+        if (String(n) !== '2') { form.submit(); return; }
+        // Le joueur 2 glisse à gauche (blanc), le joueur 1 à droite (jaune)
+        const dx = cols[1].getBoundingClientRect().left - cols[0].getBoundingClientRect().left;
+        cols[0].style.transform = 'translateX(' + dx + 'px)';
+        cols[1].style.transform = 'translateX(' + (-dx) + 'px)';
+        cols[0].querySelector('.sb-starter').classList.replace('sb-starter-1', 'sb-starter-2');
+        cols[1].querySelector('.sb-starter').classList.replace('sb-starter-2', 'sb-starter-1');
+        setTimeout(() => form.submit(), 650);
+    };
     document.querySelectorAll('.sb-starter').forEach(b => b.addEventListener('click', () => choose(b.dataset.player)));
     document.addEventListener('keydown', (e) => {
         const k = e.code.replace('Numpad', '').replace('Digit', '');

@@ -77,6 +77,10 @@
                             <input type="number" name="shot_clock_seconds" min="5" max="300" class="form-control" value="<?= esc(old('shot_clock_seconds', $defaults['shot_clock_seconds'])) ?>">
                             <span class="input-group-text">secondes</span>
                         </div>
+                        <div class="input-group mt-2" data-sb-show-when="shot_clock_enabled">
+                            <input type="number" name="shot_clock_extensions" min="0" max="10" class="form-control" value="<?= esc(old('shot_clock_extensions', $defaults['shot_clock_extensions'])) ?>">
+                            <span class="input-group-text">time-outs / joueur</span>
+                        </div>
                     </div>
                 </div>
             </div>

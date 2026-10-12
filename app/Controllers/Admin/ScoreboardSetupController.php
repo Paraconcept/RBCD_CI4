@@ -100,7 +100,7 @@ class ScoreboardSetupController extends BaseController
             'title'       => 'Marquoir — Paramètres',
             'breadcrumbs' => [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')], ['title' => 'Paramètres']],
             'shotClockSeconds'    => (int) $s->getSetting('scoreboard_shot_clock_seconds', 40),
-            'shotClockExtensions' => (int) $s->getSetting('scoreboard_shot_clock_extensions', 2),
+            'shotClockExtensions' => (int) $s->getSetting('scoreboard_shot_clock_extensions', 3),
             'inningsLimit3c'      => (int) $s->getSetting('scoreboard_innings_limit_3c', 60),
             'pin'                 => (string) $s->getSetting('scoreboard_pin', ''),
         ]);

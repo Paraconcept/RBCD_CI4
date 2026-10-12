@@ -132,7 +132,8 @@ class ScoreboardController extends BaseController
             'match'       => $match,
             'tables'      => (new ScoreboardTableModel())->getActive(),
             'defaults'    => [
-                'shot_clock_seconds' => (int) $settings->getSetting('scoreboard_shot_clock_seconds', 40),
+                'shot_clock_seconds'    => (int) $settings->getSetting('scoreboard_shot_clock_seconds', 40),
+                'shot_clock_extensions' => (int) $settings->getSetting('scoreboard_shot_clock_extensions', 3),
                 'innings_limit_3c'   => (int) $settings->getSetting('scoreboard_innings_limit_3c', 60),
             ],
         ]);
