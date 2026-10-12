@@ -100,6 +100,7 @@
         }
         st.innings.push(st.run);
         st.run = 0;
+        clock.expired = false;
         checkEnd();
         if (st.finished) {
             stopClock();
@@ -137,6 +138,8 @@
         }
         if (st.innings.length) {
             st.run = st.innings.pop();
+            clock.expired = false;
+            stopClock();
         }
         commit();
     }
@@ -154,14 +157,15 @@
 
     // ------------------------------------------------------------ chrono par coup
 
-    const clock = { total: C.clock.seconds * 1000, left: C.clock.seconds * 1000, running: false, endAt: 0, lastSec: null };
+    // expired : temps écoulé sans time-out restant, le chrono reste bloqué jusqu'à la fin de reprise (Entrée)
+    const clock = { total: C.clock.seconds * 1000, left: C.clock.seconds * 1000, running: false, endAt: 0, lastSec: null, expired: false };
 
     function clockLeft() {
         return clock.running ? clock.endAt - Date.now() : clock.left;
     }
 
     function restartClock() {
-        if (!C.clock.enabled || st.finished) return;
+        if (!C.clock.enabled || st.finished || clock.expired) return;
         clock.total = clock.left = C.clock.seconds * 1000;
         clock.running = true;
         clock.endAt = Date.now() + clock.left;
@@ -174,7 +178,7 @@
     }
 
     function toggleClock() {
-        if (!C.clock.enabled || st.finished) return;
+        if (!C.clock.enabled || st.finished || clock.expired) return;
         if (clock.running) {
             stopClock();
         } else if (clock.left <= 0) {
@@ -223,9 +227,12 @@
                 commit();
                 return;
             }
-            // Plus de time-out : faute de temps, la reprise s'arrête et la main passe à l'adversaire
-            flash('Temps écoulé\nAu tour de ' + C.players[current() === 1 ? 2 : 1].last);
-            endInning();
+            // Plus de time-out : on s'arrête sur « Temps écoulé » ; c'est l'arbitre qui passe la main (Entrée)
+            clock.running = false;
+            clock.left = 0;
+            clock.expired = true;
+            flashMsg = '';
+            render();
             return;
         }
 
@@ -351,7 +358,8 @@
         $('sbdHint').textContent = buffer !== '' ? 'Entrée pour valider la série' : '';
 
         let notice = flashMsg;
-        if (notice) { /* message temporaire prioritaire */ }
+        if (clock.expired && !st.finished) notice = 'Temps écoulé\nEntrée pour passer la main';
+        else if (notice) { /* message temporaire prioritaire */ }
         else if (isEqualizing()) notice = "Reprise d'égalisation";
         else if (!st.finished && C.inningsLimit && inningNumber() === C.inningsLimit) notice = 'Dernière reprise';
         $('sbdNotice').textContent = notice;
