@@ -56,9 +56,9 @@ $sched  = $encounter->scheduled_at ?? null;
         </div>
       </div>
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-5">
           <div class="form-group">
-            <label for="team_id">Notre équipe <span class="text-danger">*</span></label>
+            <label for="team_id">Notre équipe CDR <span class="text-danger">*</span></label>
             <select name="team_id" id="team_id" class="form-control" required>
               <option value="">— Choisir l'équipe —</option>
               <?php foreach ($teams as $t): ?>
@@ -72,11 +72,34 @@ $sched  = $encounter->scheduled_at ?? null;
             <small class="text-muted" id="teamInfo"></small>
           </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-5">
           <div class="form-group">
-            <label for="opponent_club">Club adverse <span class="text-danger">*</span></label>
+            <label for="team_club">Club visité (notre club)</label>
+            <input type="text" name="team_club" id="team_club" class="form-control" maxlength="100"
+                   value="<?= esc($val('team_club', 'RBC Disonais')) ?>">
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="form-group">
+            <label for="team_number">Équipe n°</label>
+            <input type="number" name="team_number" id="team_number" class="form-control" min="1" max="255"
+                   value="<?= esc($val('team_number')) ?>">
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-5 offset-md-5">
+          <div class="form-group">
+            <label for="opponent_club">Club visiteur <span class="text-danger">*</span></label>
             <input type="text" name="opponent_club" id="opponent_club" class="form-control" maxlength="100" required
-                   placeholder="ex. B.C. Grâce-Hollogne 3" value="<?= esc($val('opponent_club')) ?>">
+                   placeholder="ex. B.C. Grâce-Hollogne" value="<?= esc($val('opponent_club')) ?>">
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="form-group">
+            <label for="opponent_number">Équipe n°</label>
+            <input type="number" name="opponent_number" id="opponent_number" class="form-control" min="1" max="255"
+                   placeholder="ex. 3" value="<?= esc($val('opponent_number')) ?>">
           </div>
         </div>
       </div>
@@ -98,11 +121,17 @@ $sched  = $encounter->scheduled_at ?? null;
 (function () {
     const sel = document.getElementById('team_id');
     const info = document.getElementById('teamInfo');
+    const num = document.getElementById('team_number');
     const sync = () => {
         const o = sel.options[sel.selectedIndex];
         info.textContent = o && o.value ? 'Discipline : ' + o.dataset.discipline + ' · Joueurs : ' + (o.dataset.roster || '—') : '';
     };
-    sel.addEventListener('change', sync);
+    sel.addEventListener('change', function () {
+        sync();
+        // « R.B.C. Disonais 1 » → équipe n° 1
+        const m = (sel.options[sel.selectedIndex].text.split(' — ')[0] || '').trim().match(/(\d+)$/);
+        if (m) num.value = m[1];
+    });
     sync();
 })();
 </script>

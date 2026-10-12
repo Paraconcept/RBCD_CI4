@@ -12,7 +12,7 @@ class ScoreboardPlayerModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'object';
 
-    protected $allowedFields = ['last_name', 'first_name', 'club'];
+    protected $allowedFields = ['last_name', 'first_name', 'club', 'license'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
@@ -29,7 +29,7 @@ class ScoreboardPlayerModel extends Model
         }
 
         $members = $this->db->table('members')
-            ->select('id, last_name, first_name')
+            ->select('id, last_name, first_name, frbb_license')
             ->where('is_active', 1)
             ->groupStart()->like('last_name', $term)->orLike('first_name', $term)->groupEnd()
             ->orderBy('last_name')->orderBy('first_name')
@@ -46,6 +46,7 @@ class ScoreboardPlayerModel extends Model
                 'last_name'  => mb_strtoupper($m->last_name, 'UTF-8'),
                 'first_name' => $m->first_name,
                 'club'       => self::HOME_CLUB,
+                'license'    => $m->frbb_license,
             ];
         }
         foreach ($externals as $p) {
@@ -54,20 +55,23 @@ class ScoreboardPlayerModel extends Model
                 'last_name'  => $p->last_name,
                 'first_name' => $p->first_name,
                 'club'       => $p->club,
+                'license'    => $p->license,
             ];
         }
 
         return array_slice($results, 0, $limit);
     }
 
-    public function remember(string $lastName, string $firstName, ?string $club): void
+    public function remember(string $lastName, string $firstName, ?string $club, ?string $license = null): void
     {
-        $exists = $this->where('last_name', $lastName)
-                       ->where('first_name', $firstName)
-                       ->where('club', $club)
-                       ->countAllResults();
-        if ($exists === 0) {
-            $this->insert(['last_name' => $lastName, 'first_name' => $firstName, 'club' => $club]);
+        $existing = $this->where('last_name', $lastName)
+                         ->where('first_name', $firstName)
+                         ->where('club', $club)
+                         ->first();
+        if (!$existing) {
+            $this->insert(['last_name' => $lastName, 'first_name' => $firstName, 'club' => $club, 'license' => $license]);
+        } elseif ($license !== null && $license !== $existing->license) {
+            $this->update($existing->id, ['license' => $license]);
         }
     }
 }

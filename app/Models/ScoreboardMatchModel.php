@@ -35,9 +35,9 @@ class ScoreboardMatchModel extends Model
         'type', 'team_encounter_id', 'status', 'table_id', 'scheduled_at', 'competition',
         'discipline', 'format', 'innings_limit', 'unequal_innings',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions',
-        'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_distance',
+        'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license', 'p1_distance',
         'p1_points', 'p1_innings', 'p1_high_run', 'p1_extensions_used',
-        'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_distance',
+        'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_license', 'p2_distance',
         'p2_points', 'p2_innings', 'p2_high_run', 'p2_extensions_used',
         'starting_player', 'current_run', 'winner', 'rev',
         'started_at', 'finished_at', 'created_by',
@@ -110,6 +110,8 @@ class ScoreboardMatchModel extends Model
             $data[$p . '_last_name']  = $last;
             $data[$p . '_first_name'] = $first;
             $data[$p . '_club']       = $club !== '' ? $club : null;
+            $license = mb_substr(trim((string) ($in[$p . '_license'] ?? '')), 0, 25);
+            $data[$p . '_license']    = $license !== '' ? $license : null;
 
             $distance = (int) ($in[$p . '_distance'] ?? 0);
             if ($distance < 1 || $distance > 9999) {
@@ -159,7 +161,7 @@ class ScoreboardMatchModel extends Model
         $players = new ScoreboardPlayerModel();
         foreach (['p1', 'p2'] as $p) {
             if ($data[$p . '_member_id'] === null) {
-                $players->remember($data[$p . '_last_name'], $data[$p . '_first_name'], $data[$p . '_club']);
+                $players->remember($data[$p . '_last_name'], $data[$p . '_first_name'], $data[$p . '_club'], $data[$p . '_license'] ?? null);
             }
         }
     }
@@ -272,7 +274,7 @@ class ScoreboardMatchModel extends Model
         ];
 
         if ($starter === 2) {
-            foreach (['member_id', 'last_name', 'first_name', 'club', 'distance'] as $f) {
+            foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'distance'] as $f) {
                 $data['p1_' . $f] = $match->{'p2_' . $f};
                 $data['p2_' . $f] = $match->{'p1_' . $f};
             }

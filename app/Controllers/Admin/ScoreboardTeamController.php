@@ -6,6 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardTeamEncounterModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class ScoreboardTeamController extends BaseController
 {
@@ -63,9 +65,42 @@ class ScoreboardTeamController extends BaseController
                 ['title' => $encounter->code],
             ],
             'encounter'  => $encounter,
-            'matches'    => $this->model->getMatches($id),
+            'matches'    => $matches = $this->model->getMatches($id),
             'attachable' => $attachable,
+            'result'     => ScoreboardTeamEncounterModel::computeResult($encounter, $matches),
         ]);
+    }
+
+    public function pdf(int $id)
+    {
+        $encounter = $this->find($id);
+        $result    = ScoreboardTeamEncounterModel::computeResult($encounter, $this->model->getMatches($id));
+
+        $logo = static function (string $file): ?string {
+            $path = FCPATH . 'assets/images/' . $file;
+            return is_file($path) ? 'data:image/png;base64,' . base64_encode(file_get_contents($path)) : null;
+        };
+
+        $html = view('admin/scoreboard/teams/pdf', [
+            'encounter' => $encounter,
+            'result'    => $result,
+            'logoFrbb'  => $logo('frbb_kbbb_logo_100.png'),
+            'logoLL'    => $logo('Ecusson_FRBB-LL.png'),
+        ]);
+
+        $options = new Options();
+        $options->set('defaultFont', 'Times');
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        $filename = 'recapitulatif_' . url_title($encounter->competition . '-' . $encounter->code, '-', true) . '.pdf';
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
+            ->setBody($dompdf->output());
     }
 
     public function edit(int $id): string
@@ -176,6 +211,8 @@ class ScoreboardTeamController extends BaseController
         if ($opponent === '') {
             $errors[] = 'Le club adverse est obligatoire.';
         }
+        $teamClub = trim((string) ($post['team_club'] ?? '')) ?: 'RBC Disonais';
+        $number   = static fn ($v): ?int => (int) $v > 0 ? min(255, (int) $v) : null;
 
         $date = trim((string) ($post['scheduled_date'] ?? ''));
         $time = trim((string) ($post['scheduled_time'] ?? '')) ?: '19:30';
@@ -185,8 +222,11 @@ class ScoreboardTeamController extends BaseController
             'code'          => $code,
             'competition'   => $competition,
             'team_id'       => $team->id ?? null,
-            'team_name'     => $team->name ?? '',
-            'opponent_club' => $opponent,
+            'team_name'       => $team->name ?? '',
+            'team_club'       => $teamClub,
+            'team_number'     => $number($post['team_number'] ?? null),
+            'opponent_club'   => $opponent,
+            'opponent_number' => $number($post['opponent_number'] ?? null),
             'scheduled_at'  => $date !== '' ? date('Y-m-d H:i:s', strtotime($date . ' ' . $time)) : null,
             'discipline'    => $team->discipline ?? 'libre',
             'format'        => $team->format ?? 'PB',

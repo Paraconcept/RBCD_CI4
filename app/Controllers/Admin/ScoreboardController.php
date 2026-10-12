@@ -62,8 +62,8 @@ class ScoreboardController extends BaseController
             'scheduled_at' => $team->scheduled_at,
             'discipline'   => $team->discipline,
             'format'       => $team->format,
-            'p1_club'      => $team->team_name,
-            'p2_club'      => $team->opponent_club,
+            'p1_club'      => ScoreboardTeamEncounterModel::homeLabel($team),
+            'p2_club'      => ScoreboardTeamEncounterModel::awayLabel($team),
         ]);
     }
 

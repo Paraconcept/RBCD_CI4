@@ -39,7 +39,7 @@ use App\Models\ScoreboardTeamEncounterModel as TE;
           <td><a href="<?= base_url('admin/scoreboard/teams/' . $e->id) ?>"><strong><?= esc($e->code) ?></strong></a></td>
           <td><?= $e->scheduled_at ? date('d/m/Y H:i', strtotime($e->scheduled_at)) : '<span class="text-muted">—</span>' ?></td>
           <td><?= esc($e->competition) ?></td>
-          <td><?= esc($e->team_name) ?> <span class="text-muted">contre</span> <?= esc($e->opponent_club) ?></td>
+          <td><?= esc(TE::homeLabel($e)) ?> <span class="text-muted">contre</span> <?= esc(TE::awayLabel($e)) ?></td>
           <td><?= esc(M::disciplineLabel($e)) ?></td>
           <td class="text-center"><span class="badge <?= $badge ?> p-2"><?= $done ?> / <?= $total ?> terminé<?= $done > 1 ? 's' : '' ?></span></td>
           <td class="text-right text-nowrap">

@@ -58,7 +58,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
           <label>Rencontre d'équipe</label>
           <div class="border rounded px-3 py-2 bg-light">
             <strong><?= esc(TE::label($team)) ?></strong><br>
-            <span class="text-muted"><?= esc($team->team_name) ?> contre <?= esc($team->opponent_club) ?></span>
+            <span class="text-muted"><?= esc(TE::homeLabel($team)) ?> contre <?= esc(TE::awayLabel($team)) ?></span>
           </div>
           <?php else: ?>
           <div class="form-group">
@@ -97,7 +97,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <small class="text-muted d-block mb-1">Joueurs de l'équipe :</small>
             <?php foreach ($roster as $r): ?>
             <button type="button" class="btn btn-sm btn-outline-primary mr-1 mb-1" data-roster
-                    data-member-id="<?= (int) $r->id ?>" data-last-name="<?= esc(mb_strtoupper($r->last_name, 'UTF-8')) ?>" data-first-name="<?= esc($r->first_name) ?>">
+                    data-member-id="<?= (int) $r->id ?>" data-license="<?= esc($r->frbb_license ?? '') ?>" data-last-name="<?= esc(mb_strtoupper($r->last_name, 'UTF-8')) ?>" data-first-name="<?= esc($r->first_name) ?>">
               <i class="fas fa-user mr-1"></i><?= esc(mb_strtoupper($r->last_name, 'UTF-8') . ' ' . $r->first_name) ?>
             </button>
             <?php endforeach; ?>
@@ -114,10 +114,16 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <input type="text" name="<?= $p ?>_first_name" class="form-control" required value="<?= esc($val($p . '_first_name')) ?>">
           </div>
           <div class="row">
-            <div class="col-8">
+            <div class="col-5">
               <div class="form-group mb-0">
                 <label>Club</label>
                 <input type="text" name="<?= $p ?>_club" class="form-control" value="<?= esc($val($p . '_club', 'RBC Disonais')) ?>">
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="form-group mb-0">
+                <label>N° licence</label>
+                <input type="text" name="<?= $p ?>_license" class="form-control" maxlength="25" value="<?= esc($val($p . '_license')) ?>">
               </div>
             </div>
             <div class="col-4">
@@ -217,6 +223,7 @@ document.querySelectorAll('[data-roster]').forEach(function (b) {
         f.querySelector('[name="p1_member_id"]').value  = b.dataset.memberId;
         f.querySelector('[name="p1_last_name"]').value  = b.dataset.lastName;
         f.querySelector('[name="p1_first_name"]').value = b.dataset.firstName;
+        f.querySelector('[name="p1_license"]').value    = b.dataset.license;
         document.querySelectorAll('[data-roster]').forEach(x => x.classList.toggle('active', x === b));
     });
 });

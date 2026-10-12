@@ -313,6 +313,7 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('scoreboard/teams/create',                'Admin\ScoreboardTeamController::create');
         $routes->post('scoreboard/teams',                       'Admin\ScoreboardTeamController::store');
         $routes->get ('scoreboard/teams/(:num)',                'Admin\ScoreboardTeamController::show/$1');
+        $routes->get ('scoreboard/teams/(:num)/pdf',            'Admin\ScoreboardTeamController::pdf/$1');
         $routes->get ('scoreboard/teams/(:num)/edit',           'Admin\ScoreboardTeamController::edit/$1');
         $routes->post('scoreboard/teams/(:num)/update',         'Admin\ScoreboardTeamController::update/$1');
         $routes->post('scoreboard/teams/(:num)/delete',         'Admin\ScoreboardTeamController::delete/$1');

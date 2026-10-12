@@ -23,7 +23,7 @@ class ScoreboardTeamEncounterModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'code', 'competition', 'team_id', 'team_name', 'opponent_club',
+        'code', 'competition', 'team_id', 'team_name', 'team_club', 'team_number', 'opponent_club', 'opponent_number',
         'scheduled_at', 'discipline', 'format', 'notes', 'created_by',
     ];
 
@@ -67,7 +67,7 @@ class ScoreboardTeamEncounterModel extends Model
         $ids = array_filter(array_unique($ids));
         $members = [];
         if ($ids) {
-            foreach ($this->db->table('members')->select('id, last_name, first_name')->whereIn('id', $ids)->get()->getResultObject() as $m) {
+            foreach ($this->db->table('members')->select('id, last_name, first_name, frbb_license')->whereIn('id', $ids)->get()->getResultObject() as $m) {
                 $members[(int) $m->id] = $m;
             }
         }
@@ -97,5 +97,100 @@ class ScoreboardTeamEncounterModel extends Model
     public static function label(object $e): string
     {
         return $e->competition . ' · ' . $e->code;
+    }
+
+    /** « RBC Disonais 1 » */
+    public static function homeLabel(object $e): string
+    {
+        return trim($e->team_club . ' ' . ($e->team_number ?? ''));
+    }
+
+    /** « B.C. Grâce-Hollogne 3 » */
+    public static function awayLabel(object $e): string
+    {
+        return trim($e->opponent_club . ' ' . ($e->opponent_number ?? ''));
+    }
+
+    /** Saison sportive de la rencontre (juillet → juin), ex. « 2026 - 2027 ». */
+    public static function season(object $e): string
+    {
+        $t     = strtotime($e->scheduled_at ?? 'now');
+        $start = (int) date('n', $t) >= 7 ? (int) date('Y', $t) : (int) date('Y', $t) - 1;
+        return $start . ' - ' . ($start + 1);
+    }
+
+    /** « Libre P.F. », « 3 Bandes G.F. » */
+    public static function gameModeLabel(object $e): string
+    {
+        return (ScoreboardMatchModel::DISCIPLINES[$e->discipline] ?? $e->discipline) . ' ' . ($e->format === 'GB' ? 'G.F.' : 'P.F.');
+    }
+
+    /**
+     * Côté (1 ou 2) de notre joueur dans un match : le joueur qui commence passe en 1,
+     * on se repère donc aux clubs, puis au membre du club.
+     */
+    public static function homeSide(object $e, object $m): int
+    {
+        $norm = static fn (?string $s): string => preg_replace('/[^a-z0-9]/', '', strtolower(
+            (string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string) $s)));
+        $away = $norm($e->opponent_club);
+        $home = $norm($e->team_club);
+
+        if ($away !== '' && str_contains($norm($m->p2_club), $away)) return 1;
+        if ($away !== '' && str_contains($norm($m->p1_club), $away)) return 2;
+        if ($home !== '' && str_contains($norm($m->p1_club), $home)) return 1;
+        if ($home !== '' && str_contains($norm($m->p2_club), $home)) return 2;
+        if (!$m->p1_member_id && $m->p2_member_id) return 2;
+        return 1;
+    }
+
+    /**
+     * Résultat de la rencontre selon les règles de la Coupe des Régions :
+     * 2 points de match pour une victoire, 1 chacun pour un nul (les deux ont fini), 0 pour une défaite.
+     * Équipe : somme des points et des reprises, moyenne = points / reprises, série = meilleure des joueurs.
+     */
+    public static function computeResult(object $e, array $matches): array
+    {
+        $teams = [];
+        foreach (['home', 'away'] as $side) {
+            $teams[$side] = ['rows' => [], 'points' => 0, 'innings' => 0, 'high_run' => 0, 'match_points' => 0];
+        }
+
+        foreach ($matches as $m) {
+            $homeSide = self::homeSide($e, $m);
+            $finished = $m->status === 'finished';
+            foreach (['home' => $homeSide, 'away' => 3 - $homeSide] as $side => $n) {
+                $p = 'p' . $n;
+                $matchPoints = null;
+                if ($finished) {
+                    $winner      = (int) $m->winner;
+                    $matchPoints = $winner === 0 ? 1 : ($winner === $n ? 2 : 0);
+                }
+                $row = [
+                    'name'         => trim($m->{$p . '_last_name'} . ' ' . $m->{$p . '_first_name'}),
+                    'license'      => $m->{$p . '_license'},
+                    'distance'     => (int) $m->{$p . '_distance'},
+                    'points'       => (int) $m->{$p . '_points'},
+                    'innings'      => (int) $m->{$p . '_innings'},
+                    'high_run'     => (int) $m->{$p . '_high_run'},
+                    'match_points' => $matchPoints,
+                    'played'       => $m->status !== 'scheduled',
+                ];
+                $teams[$side]['rows'][]        = $row;
+                $teams[$side]['points']       += $row['points'];
+                $teams[$side]['innings']      += $row['innings'];
+                $teams[$side]['high_run']      = max($teams[$side]['high_run'], $row['high_run']);
+                $teams[$side]['match_points'] += $matchPoints ?? 0;
+            }
+        }
+
+        $finishedCount = count(array_filter($matches, static fn ($m) => $m->status === 'finished'));
+
+        return [
+            'teams'    => $teams,
+            'finished' => $finishedCount,
+            'total'    => count($matches),
+            'complete' => $matches && $finishedCount === count($matches),
+        ];
     }
 }

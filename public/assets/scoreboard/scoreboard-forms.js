@@ -28,6 +28,7 @@
             field('first_name').value = p.first_name || '';
             field('club').value       = p.club || '';
             field('member_id').value  = p.member_id || '';
+            if (field('license')) field('license').value = p.license || '';
             close();
             field('first_name').dispatchEvent(new Event('change'));
         };

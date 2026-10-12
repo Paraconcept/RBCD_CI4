@@ -2,8 +2,6 @@
 use App\Models\ScoreboardMatchModel as M;
 use App\Models\ScoreboardTeamEncounterModel as TE;
 
-$total = count($matches);
-$done  = count(array_filter($matches, static fn ($m) => $m->status === 'finished'));
 $statusBadge = static fn (string $s): string => match ($s) {
     'live'      => '<span class="badge badge-danger"><i class="fas fa-circle mr-1"></i>En cours</span>',
     'scheduled' => '<span class="badge badge-info">Prévu</span>',
@@ -28,7 +26,7 @@ $statusBadge = static fn (string $s): string => match ($s) {
   </div>
   <div class="card-body">
     <h4 class="mb-0">
-      <?= esc($encounter->team_name) ?> <small class="text-muted">contre</small> <?= esc($encounter->opponent_club) ?>
+      <?= esc(TE::homeLabel($encounter)) ?> <small class="text-muted">contre</small> <?= esc(TE::awayLabel($encounter)) ?>
     </h4>
     <?php if ($encounter->notes): ?><p class="text-muted mt-2 mb-0"><?= nl2br(esc($encounter->notes)) ?></p><?php endif; ?>
   </div>
@@ -112,18 +110,66 @@ $statusBadge = static fn (string $s): string => match ($s) {
   <div class="card-header d-flex align-items-center">
     <h3 class="card-title"><i class="fas fa-flag-checkered mr-2"></i>Résultat de la rencontre</h3>
     <div class="ml-auto">
-      <button class="btn btn-sm btn-primary" disabled title="Disponible quand le modèle de feuille récapitulative sera intégré">
+      <?php if ($result['complete']): ?>
+      <a href="<?= base_url('admin/scoreboard/teams/' . $encounter->id . '/pdf') ?>" target="_blank" class="btn btn-sm btn-primary">
+        <i class="fas fa-file-pdf mr-1"></i>Feuille récapitulative
+      </a>
+      <?php else: ?>
+      <button class="btn btn-sm btn-primary" disabled title="Disponible quand tous les matchs sont terminés">
         <i class="fas fa-file-pdf mr-1"></i>Feuille récapitulative
       </button>
+      <?php endif; ?>
     </div>
   </div>
   <div class="card-body">
-    <?php if ($total === 0): ?>
+    <?php if ($result['total'] === 0): ?>
       <p class="text-muted mb-0">En attente des matchs.</p>
-    <?php elseif ($done < $total): ?>
-      <p class="mb-0"><i class="fas fa-hourglass-half mr-2 text-muted"></i>En attente : <strong><?= $done ?> / <?= $total ?></strong> match<?= $total > 1 ? 's' : '' ?> terminé<?= $done > 1 ? 's' : '' ?>.</p>
     <?php else: ?>
-      <p class="mb-0 text-success"><i class="fas fa-check mr-2"></i>Les <?= $total ?> matchs sont terminés. Le calcul du résultat global et la feuille récapitulative arrivent avec votre modèle PDF.</p>
+      <?php if (!$result['complete']): ?>
+      <p class="mb-3"><i class="fas fa-hourglass-half mr-2 text-muted"></i>Résultat provisoire : <strong><?= $result['finished'] ?> / <?= $result['total'] ?></strong> match<?= $result['total'] > 1 ? 's' : '' ?> terminé<?= $result['finished'] > 1 ? 's' : '' ?>.</p>
+      <?php endif; ?>
+      <?php foreach (['home' => TE::homeLabel($encounter), 'away' => TE::awayLabel($encounter)] as $side => $label): $t = $result['teams'][$side]; ?>
+      <table class="table table-sm table-bordered mb-3">
+        <thead class="thead-rbcd">
+          <tr>
+            <th><?= esc($label) ?></th>
+            <th width="90" class="text-center">N° lic.</th>
+            <th width="90" class="text-center">Pts à jouer</th>
+            <th width="90" class="text-center">Pts réalisés</th>
+            <th width="80" class="text-center">Reprises</th>
+            <th width="90" class="text-center">Moyenne</th>
+            <th width="70" class="text-center">Série</th>
+            <th width="90" class="text-center">Pts match</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($t['rows'] as $r): ?>
+          <tr>
+            <td><?= esc($r['name']) ?></td>
+            <td class="text-center"><?= esc($r['license'] ?? '') ?></td>
+            <td class="text-center"><?= $r['distance'] ?></td>
+            <td class="text-center"><?= $r['played'] ? $r['points'] : '—' ?></td>
+            <td class="text-center"><?= $r['played'] ? $r['innings'] : '—' ?></td>
+            <td class="text-center"><?= $r['played'] ? M::average($r['points'], $r['innings']) : '—' ?></td>
+            <td class="text-center"><?= $r['played'] ? $r['high_run'] : '—' ?></td>
+            <td class="text-center font-weight-bold"><?= $r['match_points'] ?? '—' ?></td>
+          </tr>
+          <?php endforeach; ?>
+          <tr class="font-weight-bold" style="background:#f4f6f9">
+            <td colspan="3" class="text-right">Équipe</td>
+            <td class="text-center"><?= $t['points'] ?></td>
+            <td class="text-center"><?= $t['innings'] ?></td>
+            <td class="text-center"><?= M::average($t['points'], $t['innings']) ?></td>
+            <td class="text-center"><?= $t['high_run'] ?></td>
+            <td class="text-center" style="font-size:1.15rem"><?= $t['match_points'] ?></td>
+          </tr>
+        </tbody>
+      </table>
+      <?php endforeach; ?>
+      <h5 class="mb-0 text-center">
+        Résultat <?= $result['complete'] ? 'final' : 'provisoire' ?> :
+        <strong><?= esc(TE::homeLabel($encounter)) ?> <?= $result['teams']['home']['match_points'] ?> / <?= $result['teams']['away']['match_points'] ?> <?= esc(TE::awayLabel($encounter)) ?></strong>
+      </h5>
     <?php endif; ?>
   </div>
 </div>
