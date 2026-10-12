@@ -157,6 +157,7 @@
 .sbd-notice {
     font-size: 3vh; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
     background: var(--sb-red); border-radius: 1.2vh; padding: .8vh .5vw; text-align: center;
+    white-space: pre-line; line-height: 1.15;
 }
 .sbd-notice:empty { display: none; }
 

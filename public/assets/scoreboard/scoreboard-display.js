@@ -217,14 +217,15 @@
                 clock.total = clock.left = C.clock.seconds * 1000;
                 clock.endAt = Date.now() + clock.left;
                 clock.lastSec = null;
-                flash('Time-out utilisé (' + (C.clock.extensions - st.ext[i]) + ' restant' + (C.clock.extensions - st.ext[i] > 1 ? 's' : '') + ')');
+                const left = C.clock.extensions - st.ext[i];
+                flash(left === 0 ? 'Dernier time-out\n(plus aucun restant)'
+                    : 'Time-out utilisé\n(' + left + ' restant' + (left > 1 ? 's' : '') + ')');
                 commit();
                 return;
             }
-            clock.running = false;
-            clock.left = 0;
-            clock.lastSec = 0;
-            render();
+            // Plus de time-out : faute de temps, la reprise s'arrête et la main passe à l'adversaire
+            flash('Temps écoulé\nAu tour de ' + C.players[current() === 1 ? 2 : 1].last);
+            endInning();
             return;
         }
 
@@ -353,7 +354,6 @@
         if (notice) { /* message temporaire prioritaire */ }
         else if (isEqualizing()) notice = "Reprise d'égalisation";
         else if (!st.finished && C.inningsLimit && inningNumber() === C.inningsLimit) notice = 'Dernière reprise';
-        else if (C.clock.enabled && !st.finished && !clock.running && clock.left <= 0 && clock.lastSec === 0) notice = 'Temps écoulé';
         $('sbdNotice').textContent = notice;
 
         renderResult();
