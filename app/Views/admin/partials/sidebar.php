@@ -116,7 +116,10 @@
                            || strpos(uri_string(), 'admin/arbitrage-stats') === 0
                            || strpos(uri_string(), 'admin/sport-results') === 0
                            || strpos(uri_string(), 'admin/cdr') === 0
-                           || strpos(uri_string(), 'admin/intm') === 0;
+                           || strpos(uri_string(), 'admin/intm') === 0
+                           || strpos(uri_string(), 'admin/scoreboard') === 0;
+                $isSbActive = strpos(uri_string(), 'admin/scoreboard') === 0;
+                $sbUri = uri_string();
                 ?>
 
                 <!-- ── TRÉSORERIE (section collapsible) ── -->
@@ -234,6 +237,43 @@
                                        class="nav-link <?= strpos(uri_string(), 'admin/intm') === 0 ? 'active' : '' ?>">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Équipes</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- Marquoir électronique — niveau 2 -->
+                        <li class="nav-item has-treeview <?= $isSbActive ? 'menu-open' : '' ?>">
+                            <a href="#" class="nav-link <?= $isSbActive ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Marquoir <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?= base_url('admin/scoreboard') ?>"
+                                       class="nav-link <?= $isSbActive && !preg_match('#^admin/scoreboard/(tables|players|settings)#', $sbUri) ? 'active' : '' ?>">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p>Rencontres</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?= base_url('admin/scoreboard/tables') ?>"
+                                       class="nav-link <?= strpos($sbUri, 'admin/scoreboard/tables') === 0 ? 'active' : '' ?>">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p>Billards</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?= base_url('admin/scoreboard/players') ?>"
+                                       class="nav-link <?= strpos($sbUri, 'admin/scoreboard/players') === 0 ? 'active' : '' ?>">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p>Joueurs externes</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?= base_url('admin/scoreboard/settings') ?>"
+                                       class="nav-link <?= strpos($sbUri, 'admin/scoreboard/settings') === 0 ? 'active' : '' ?>">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p>Paramètres</p>
                                     </a>
                                 </li>
                             </ul>

@@ -78,6 +78,23 @@ $routes->get('documents',                              'Public\PagesController::
 $routes->get('documents/remboursements-mutuelle',      'Public\PagesController::documentsRemboursementsMutuelle');
 $routes->get('documents/(:segment)',                   'Public\PagesController::documentShow/$1');
 
+// Marquoir (Chromebooks des billards) — accès par code PIN mémorisé sur l'appareil
+$routes->get ('marquoir/acces', 'Public\ScoreboardController::access');
+$routes->post('marquoir/acces', 'Public\ScoreboardController::accessPost');
+$routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($routes) {
+    $routes->get ('/',                             'Public\ScoreboardController::index');
+    $routes->get ('billard/(:num)',                'Public\ScoreboardController::table/$1');
+    $routes->get ('billard/(:num)/amicale',        'Public\ScoreboardController::friendly/$1');
+    $routes->post('billard/(:num)/amicale',        'Public\ScoreboardController::friendlyStore/$1');
+    $routes->get ('billard/(:num)/demarrer/(:num)', 'Public\ScoreboardController::start/$1/$2');
+    $routes->post('billard/(:num)/demarrer/(:num)', 'Public\ScoreboardController::startPost/$1/$2');
+    $routes->get ('match/(:num)',                  'Public\ScoreboardController::display/$1');
+    $routes->post('match/(:num)/annuler',          'Public\ScoreboardController::cancel/$1');
+    $routes->get ('joueurs',                       'Public\ScoreboardController::searchPlayers');
+    $routes->get ('api/match/(:num)',              'Public\ScoreboardController::state/$1');
+    $routes->post('api/match/(:num)',              'Public\ScoreboardController::saveState/$1');
+});
+
 // ----------------------------------------------------------------
 // Administration
 // ----------------------------------------------------------------
@@ -281,6 +298,26 @@ $routes->group('admin', static function ($routes) {
         $routes->post('schedule-events/(:num)/update',    'Admin\ScheduleEventsController::update/$1');
         $routes->post('schedule-events/(:num)/delete',    'Admin\ScheduleEventsController::delete/$1');
         $routes->get ('schedule-events/(:num)/duplicate', 'Admin\ScheduleEventsController::duplicate/$1');
+
+        // Marquoir électronique
+        $routes->get ('scoreboard',                       'Admin\ScoreboardController::index');
+        $routes->get ('scoreboard/create',                'Admin\ScoreboardController::create');
+        $routes->post('scoreboard',                       'Admin\ScoreboardController::store');
+        $routes->get ('scoreboard/(:num)',                'Admin\ScoreboardController::show/$1');
+        $routes->get ('scoreboard/(:num)/edit',           'Admin\ScoreboardController::edit/$1');
+        $routes->post('scoreboard/(:num)/update',         'Admin\ScoreboardController::update/$1');
+        $routes->post('scoreboard/(:num)/delete',         'Admin\ScoreboardController::delete/$1');
+        $routes->post('scoreboard/(:num)/reset',          'Admin\ScoreboardController::reset/$1');
+        $routes->get ('scoreboard/players/search',        'Admin\ScoreboardController::searchPlayers');
+        $routes->get ('scoreboard/players',               'Admin\ScoreboardSetupController::players');
+        $routes->post('scoreboard/players/(:num)/update', 'Admin\ScoreboardSetupController::updatePlayer/$1');
+        $routes->post('scoreboard/players/(:num)/delete', 'Admin\ScoreboardSetupController::deletePlayer/$1');
+        $routes->get ('scoreboard/tables',                'Admin\ScoreboardSetupController::tables');
+        $routes->post('scoreboard/tables',                'Admin\ScoreboardSetupController::storeTable');
+        $routes->post('scoreboard/tables/(:num)/update',  'Admin\ScoreboardSetupController::updateTable/$1');
+        $routes->post('scoreboard/tables/(:num)/delete',  'Admin\ScoreboardSetupController::deleteTable/$1');
+        $routes->get ('scoreboard/settings',              'Admin\ScoreboardSetupController::settings');
+        $routes->post('scoreboard/settings',              'Admin\ScoreboardSetupController::saveSettings');
 
         // Utilisateurs admin
         $routes->get ('users',               'Admin\AdminUsersController::index');

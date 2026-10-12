@@ -1,0 +1,124 @@
+<?php
+
+namespace App\Controllers\Admin;
+
+use App\Controllers\BaseController;
+use App\Models\ScoreboardPlayerModel;
+use App\Models\ScoreboardTableModel;
+use App\Models\SiteSettingModel;
+
+class ScoreboardSetupController extends BaseController
+{
+    public function tables(): string
+    {
+        return view('admin/scoreboard/tables', [
+            'title'       => 'Marquoir — Billards',
+            'breadcrumbs' => [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')], ['title' => 'Billards']],
+            'tables'      => (new ScoreboardTableModel())->orderBy('sort_order')->orderBy('name')->findAll(),
+        ]);
+    }
+
+    public function storeTable()
+    {
+        $name = trim((string) $this->request->getPost('name'));
+        if ($name === '') {
+            return redirect()->back()->with('error', 'Le nom du billard est obligatoire.');
+        }
+
+        $model = new ScoreboardTableModel();
+        $model->insert([
+            'name'       => $name,
+            'sort_order' => (int) $model->selectMax('sort_order')->first()->sort_order + 1,
+            'is_active'  => 1,
+        ]);
+
+        return redirect()->to(base_url('admin/scoreboard/tables'))->with('success', 'Billard ajouté.');
+    }
+
+    public function updateTable(int $id)
+    {
+        $name = trim((string) $this->request->getPost('name'));
+        if ($name === '') {
+            return redirect()->back()->with('error', 'Le nom du billard est obligatoire.');
+        }
+
+        (new ScoreboardTableModel())->update($id, [
+            'name'       => $name,
+            'sort_order' => (int) $this->request->getPost('sort_order'),
+            'is_active'  => $this->request->getPost('is_active') ? 1 : 0,
+        ]);
+
+        return redirect()->to(base_url('admin/scoreboard/tables'))->with('success', 'Billard modifié.');
+    }
+
+    public function deleteTable(int $id)
+    {
+        (new ScoreboardTableModel())->delete($id);
+
+        return redirect()->to(base_url('admin/scoreboard/tables'))->with('success', 'Billard supprimé.');
+    }
+
+    public function players(): string
+    {
+        return view('admin/scoreboard/players', [
+            'title'       => 'Marquoir — Joueurs externes',
+            'breadcrumbs' => [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')], ['title' => 'Joueurs externes']],
+            'players'     => (new ScoreboardPlayerModel())->orderBy('last_name')->orderBy('first_name')->findAll(),
+        ]);
+    }
+
+    public function updatePlayer(int $id)
+    {
+        $last  = mb_strtoupper(trim((string) $this->request->getPost('last_name')), 'UTF-8');
+        $first = trim((string) $this->request->getPost('first_name'));
+        $club  = trim((string) $this->request->getPost('club'));
+        if ($last === '' || $first === '') {
+            return redirect()->back()->with('error', 'Nom et prénom obligatoires.');
+        }
+
+        try {
+            (new ScoreboardPlayerModel())->update($id, ['last_name' => $last, 'first_name' => $first, 'club' => $club !== '' ? $club : null]);
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Ce joueur existe déjà.');
+        }
+
+        return redirect()->to(base_url('admin/scoreboard/players'))->with('success', 'Joueur modifié.');
+    }
+
+    public function deletePlayer(int $id)
+    {
+        (new ScoreboardPlayerModel())->delete($id);
+
+        return redirect()->to(base_url('admin/scoreboard/players'))->with('success', 'Joueur supprimé.');
+    }
+
+    public function settings(): string
+    {
+        $s = new SiteSettingModel();
+
+        return view('admin/scoreboard/settings', [
+            'title'       => 'Marquoir — Paramètres',
+            'breadcrumbs' => [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')], ['title' => 'Paramètres']],
+            'shotClockSeconds'    => (int) $s->getSetting('scoreboard_shot_clock_seconds', 40),
+            'shotClockExtensions' => (int) $s->getSetting('scoreboard_shot_clock_extensions', 2),
+            'inningsLimit3c'      => (int) $s->getSetting('scoreboard_innings_limit_3c', 60),
+            'pin'                 => (string) $s->getSetting('scoreboard_pin', ''),
+        ]);
+    }
+
+    public function saveSettings()
+    {
+        $s   = new SiteSettingModel();
+        $pin = trim((string) $this->request->getPost('pin'));
+        if ($pin !== '' && !preg_match('/^\d{4,8}$/', $pin)) {
+            return redirect()->back()->with('error', 'Le code PIN doit contenir de 4 à 8 chiffres.');
+        }
+
+        $s->setSetting('scoreboard_shot_clock_seconds', max(5, min(300, (int) $this->request->getPost('shot_clock_seconds'))));
+        $s->setSetting('scoreboard_shot_clock_extensions', max(0, min(10, (int) $this->request->getPost('shot_clock_extensions'))));
+        $s->setSetting('scoreboard_innings_limit_3c', max(1, min(999, (int) $this->request->getPost('innings_limit_3c'))));
+        $s->setSetting('scoreboard_pin', $pin);
+
+        return redirect()->to(base_url('admin/scoreboard/settings'))->with('success', 'Paramètres du marquoir enregistrés.');
+    }
+}
