@@ -76,6 +76,7 @@ class ScoreboardController extends BaseController
             'title'        => $table->name,
             'table'        => $table,
             'startable'    => $this->matches->getStartableForTable($tableId),
+            'upcoming'     => $this->matches->getUpcomingForTable($tableId),
             'lastFinished' => $lastFinished,
         ]);
     }

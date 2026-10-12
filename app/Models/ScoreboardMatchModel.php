@@ -65,6 +65,19 @@ class ScoreboardMatchModel extends Model
             ->findAll();
     }
 
+    /**
+     * Rencontres prévues après aujourd'hui sur ce billard (ou sans billard attribué).
+     */
+    public function getUpcomingForTable(int $tableId, int $limit = 10): array
+    {
+        return $this->withTable()
+            ->where('status', 'scheduled')
+            ->groupStart()->where('table_id', $tableId)->orWhere('table_id', null)->groupEnd()
+            ->where('scheduled_at >', date('Y-m-d 23:59:59'))
+            ->orderBy('scheduled_at', 'ASC')
+            ->findAll($limit);
+    }
+
     public function getLiveForTable(int $tableId): ?object
     {
         return $this->where('status', 'live')->where('table_id', $tableId)->orderBy('started_at', 'DESC')->first();

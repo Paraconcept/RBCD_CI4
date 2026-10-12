@@ -52,6 +52,7 @@
 .sb-tile-cta { border: 2px dashed var(--sb-red-light); }
 
 .sb-match { display: grid; grid-template-columns: 1fr auto; gap: .75rem 1.5rem; align-items: center; }
+.sb-match-upcoming { opacity: .8; }
 .sb-match-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .4rem 1rem; color: var(--sb-muted); font-size: .9rem; align-items: center; }
 .sb-match-players { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .sb-match-players strong { display: block; font-size: 1.2rem; }
