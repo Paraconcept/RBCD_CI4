@@ -244,8 +244,8 @@
                         <!-- Marquoir électronique — niveau 2 -->
                         <li class="nav-item has-treeview <?= $isSbActive ? 'menu-open' : '' ?>">
                             <a href="#" class="nav-link <?= $isSbActive ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Marquoir <i class="right fas fa-angle-left"></i></p>
+                                <i class="fas fa-table nav-icon"></i>
+                                <p>Marquoirs <i class="right fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
