@@ -49,6 +49,15 @@
 .mh-note.green { border-left-color: #22c55e; }
 .mh-note.orange { border-left-color: #f59e0b; }
 
+.mh-formula { background: var(--navy); color: #fff; border-radius: 10px; padding: 1rem 1.2rem; text-align: center; font-size: 1.1rem; margin-bottom: 1rem; }
+.mh-formula b { color: var(--yellow); }
+.mh-formula small { display: block; color: #aeb7cc; margin-top: .3rem; }
+.mh-ex { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+.mh-ex th, .mh-ex td { padding: .45rem .5rem; border-bottom: 1px solid #e3e7ef; text-align: center; }
+.mh-ex th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.mh-ex td:first-child, .mh-ex th:first-child { text-align: left; }
+.mh-ex tr.win td { font-weight: 700; color: var(--red); }
+
 .mh-card { background: var(--soft); border-top: 5px solid var(--red); border-radius: 10px; padding: 1.2rem; height: 100%; }
 .mh-card .ico { width: 46px; height: 46px; border-radius: 10px; background: var(--navy); color: var(--yellow); display: grid; place-items: center; font-size: 1.3rem; margin-bottom: .7rem; }
 .mh-card h5 { font-family: 'Barlow Condensed'; font-weight: 700; color: var(--navy); font-size: 1.35rem; margin: 0 0 .3rem; }
@@ -112,6 +121,7 @@
       <a href="#ecran">Lire l'écran</a>
       <a href="#chrono">Chrono et time-outs</a>
       <a href="#fin">Fin de partie</a>
+      <a href="#proportionnelle">Moyenne proportionnelle</a>
       <a href="#direct">En direct</a>
     </nav>
 
@@ -165,6 +175,7 @@
             <ol class="mh-steps">
               <li><b>Les joueurs</b> — tapez les deux premières lettres du nom : les membres du club et les joueurs déjà rencontrés sont proposés. Un clic remplit nom, prénom et club.</li>
               <li><b>Points à réaliser</b> — propres à chaque joueur (handicap possible). Ceux du joueur 1 sont recopiés chez le joueur 2.</li>
+              <li><b>Catégorie</b> — proposée d'office pour les membres et les joueurs déjà rencontrés. Elle sert à départager à la limite de reprises (<a href="#proportionnelle">voir plus bas</a>).</li>
               <li><b>Discipline et format</b> — libre, cadre, bande ou 3 bandes ; petit ou grand billard.</li>
               <li><b>Options</b> si besoin :
                 <ul>
@@ -298,6 +309,29 @@
           <div class="col-md-6">
             <div class="mh-note orange"><b>Une erreur ?</b> — <kbd>−</kbd> retire un point ; à 0, il rouvre la reprise précédente. Ça fonctionne même après la fin de la partie.</div>
             <div class="mh-note"><b>Abandonner</b> — <kbd>Échap</kbd> ouvre le menu : « Annuler la partie » (amicale) ou « Remettre à zéro » (rencontre officielle). Une confirmation est toujours demandée.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Moyenne proportionnelle -->
+    <div class="mh-section" id="proportionnelle">
+      <div class="mh-head"><div class="num"><i class="fas fa-balance-scale"></i></div><div><h3>Limite de reprises : la moyenne proportionnelle</h3><p>Quand personne n'a atteint ses points (ex. 60 reprises en 3 bandes)</p></div></div>
+      <div class="mh-body">
+        <div class="row g-4">
+          <div class="col-lg-7"><img class="mh-shot" src="<?= $img('14_moyenne_prop') ?>" alt="Résultat départagé à la moyenne proportionnelle"><div class="mh-caption">MARTIN a moins de points et une moins bonne moyenne, mais gagne : il a mieux joué par rapport à sa catégorie.</div></div>
+          <div class="col-lg-5">
+            <div class="mh-formula">Moyenne proportionnelle =<br><b>moyenne réalisée ÷ moyenne minimum de la catégorie</b><small>La plus élevée l'emporte.</small></div>
+            <div class="table-responsive">
+              <table class="mh-ex">
+                <tr><th>Joueur</th><th>Cat.</th><th>Moy.</th><th>Moy. min.</th><th>Prop.</th></tr>
+                <tr><td>DUPONT</td><td>2 A</td><td>0,500</td><td>0,603</td><td>0,829</td></tr>
+                <tr class="win"><td>MARTIN</td><td>3 C</td><td>0,300</td><td>0,358</td><td>0,838</td></tr>
+              </table>
+            </div>
+            <div class="mh-note">Le marquoir fait le calcul tout seul et affiche <b>«&nbsp;Départagés à la moyenne proportionnelle&nbsp;»</b>.</div>
+            <div class="mh-note orange">Il faut que la <b>catégorie des deux joueurs</b> soit encodée. Sinon, le vainqueur est celui qui a réalisé le plus grand pourcentage de ses points.</div>
+            <div class="mh-note green">Si un joueur atteint ses points, rien ne change : il gagne (ou match nul après la reprise d'égalisation).</div>
           </div>
         </div>
       </div>
