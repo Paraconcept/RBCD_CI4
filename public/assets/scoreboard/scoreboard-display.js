@@ -105,7 +105,7 @@
         if (st.finished) {
             stopClock();
         } else {
-            restartClock();
+            resetClock();
         }
         commit();
     }
@@ -172,6 +172,12 @@
         clock.lastSec = null;
     }
 
+    function resetClock() {
+        clock.total = clock.left = C.clock.seconds * 1000;
+        clock.running = false;
+        clock.lastSec = null;
+    }
+
     function stopClock() {
         clock.left = Math.max(0, clockLeft());
         clock.running = false;
@@ -193,7 +199,7 @@
     function extension() {
         if (!C.clock.enabled || st.finished) return;
         const i = current() - 1;
-        if (st.ext[i] >= C.clock.extensions) return;
+        if (st.ext[i] >= C.clock.extensions - 1) return;
         st.ext[i]++;
         const add = C.clock.seconds * 1000;
         if (clock.running) {
@@ -214,25 +220,24 @@
         box.hidden = false;
 
         if (clock.running && clockLeft() <= 0) {
+            // Chaque dépassement consomme un time-out ; celui qui épuise le compteur arrête le chrono
             const i = current() - 1;
-            if (st.ext[i] < C.clock.extensions) {
-                // Temps écoulé mais time-out disponible : on le consomme sans interrompre le joueur
-                st.ext[i]++;
+            if (st.ext[i] < C.clock.extensions) st.ext[i]++;
+            const left = C.clock.extensions - st.ext[i];
+            if (left > 0) {
                 clock.total = clock.left = C.clock.seconds * 1000;
                 clock.endAt = Date.now() + clock.left;
                 clock.lastSec = null;
-                const left = C.clock.extensions - st.ext[i];
-                flash(left === 0 ? 'Dernier time-out\n(plus aucun restant)'
-                    : 'Time-out utilisé\n(' + left + ' restant' + (left > 1 ? 's' : '') + ')');
+                flash('Time-out utilisé\n(' + left + ' restant' + (left > 1 ? 's' : '') + ')');
                 commit();
                 return;
             }
-            // Plus de time-out : on s'arrête sur « Temps écoulé » ; c'est l'arbitre qui passe la main (Entrée)
+            // Dernier time-out : on s'arrête sur « Temps écoulé » ; c'est l'arbitre qui passe la main (Entrée)
             clock.running = false;
             clock.left = 0;
             clock.expired = true;
             flashMsg = '';
-            render();
+            commit();
             return;
         }
 
