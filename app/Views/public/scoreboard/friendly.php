@@ -97,9 +97,9 @@
                         <div class="mt-3" data-sb-show-when="shot_clock_enabled">
                             <div class="form-check form-switch fs-5">
                                 <input class="form-check-input" type="checkbox" role="switch" name="shot_clock_auto_start" id="shot_clock_auto_start" value="1" <?= old('shot_clock_auto_start') ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="shot_clock_auto_start">Démarrage auto</label>
+                                <label class="form-check-label" for="shot_clock_auto_start">Démarrage automatique</label>
                             </div>
-                            <small class="text-secondary">Le chrono repart dès l'appui sur <kbd>Entrée</kbd>. Sinon, le lancer avec <kbd>*</kbd> à chaque reprise.</small>
+                            <small class="text-secondary">Le chrono repart dès l'appui sur <kbd class="mx-1">Entrée</kbd>.<br>Sinon, le lancer avec <kbd class="mx-1">*</kbd> à chaque reprise.</small>
                         </div>
                     </div>
                 </div>
