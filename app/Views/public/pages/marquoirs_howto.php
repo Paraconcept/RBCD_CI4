@@ -122,6 +122,7 @@
       <a href="#chrono">Chrono et time-outs</a>
       <a href="#fin">Fin de partie</a>
       <a href="#proportionnelle">Moyenne proportionnelle</a>
+      <a href="#sets">Partie par sets</a>
       <a href="#direct">En direct</a>
     </nav>
 
@@ -182,6 +183,7 @@
                   <li><b>Limite de reprises</b> (60 proposé en 3 bandes)</li>
                   <li><b>Reprises inégales</b> : pas de reprise d'égalisation</li>
                   <li><b>Chrono par coup</b> : 40 s et 3 time-outs par joueur</li>
+                  <li><b>Par sets</b> (3 bandes) : <a href="#sets">voir plus bas</a></li>
                 </ul>
               </li>
               <li>Cliquez sur <b>Continuer</b>.</li>
@@ -290,6 +292,7 @@
           <li>Un seul bip, à <b>10 secondes</b> de la fin.</li>
           <li>Chaque dépassement consomme <b>un time-out</b> (l'icône devient rouge) et le chrono repart sans interrompre le joueur.</li>
           <li>Au <b>dernier</b> time-out, le chrono reste sur « Temps écoulé » : l'arbitre passe la main avec <kbd>Entrée</kbd>.</li>
+          <li><b>Partie par sets</b> : le nombre de time-outs vaut <b>par set</b>. Ils sont tous rendus au début de chaque set.</li>
         </ol>
       </div>
     </div>
@@ -334,6 +337,53 @@
             <div class="mh-note">Le marquoir fait le calcul tout seul et affiche <b>«&nbsp;Départagés à la moyenne proportionnelle&nbsp;»</b>.</div>
             <div class="mh-note orange">Il faut que la <b>catégorie des deux joueurs</b> soit encodée. Sinon, le vainqueur est celui qui a réalisé le plus grand pourcentage de ses points.</div>
             <div class="mh-note green">Si un joueur atteint ses points, rien ne change : il gagne (ou match nul après la reprise d'égalisation).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Par sets -->
+    <div class="mh-section" id="sets">
+      <div class="mh-head"><div class="num"><i class="fas fa-layer-group"></i></div><div><h3>Partie par sets (3 bandes)</h3><p>En amical comme en rencontre officielle</p></div></div>
+      <div class="mh-body">
+        <div class="row g-4 mb-4">
+          <div class="col-lg-7">
+            <img class="mh-shot" src="<?= $img('15_sets_form') ?>" alt="Réglages d'une partie par sets">
+            <div class="mh-caption">« Par sets » coché : reprises inégales imposées, plus de limite de reprises.</div>
+          </div>
+          <div class="col-lg-5">
+            <ol class="mh-steps">
+              <li>Choisissez la discipline <b>3 Bandes</b> : l'option <b>Par sets</b> apparaît.</li>
+              <li>Cochez <b>Par sets</b>, puis indiquez :
+                <ul>
+                  <li>les <b>points par set</b> (15 proposé) ;</li>
+                  <li>le nombre de <b>sets gagnants</b> (souvent 2 ou 3).</li>
+                </ul>
+              </li>
+              <li><b>Reprises inégales</b> se coche toute seule : un set s'arrête dès qu'un joueur atteint ses points, sans reprise d'égalisation.</li>
+              <li>Les points à réaliser de chaque joueur disparaissent : ce sont les <b>points par set</b> qui comptent.</li>
+              <li><b>Chrono par coup</b> : le nombre de time-outs choisi vaut <b>par joueur et par set</b>.</li>
+            </ol>
+            <div class="mh-note orange mt-3"><b>Qui casse ?</b> — le joueur qui commence le 1<sup>er</sup> set garde la <b>bille blanche</b> toute la partie. Le joueur à la bille jaune casse le 2<sup>e</sup> set, et ainsi de suite, à tour de rôle.</div>
+            <div class="mh-note green"><b>Exemple</b> — 2 sets gagnants de 15 points : le premier joueur à remporter 2 sets gagne la partie (2-0 ou 2-1).</div>
+          </div>
+        </div>
+        <div class="row g-4 mb-3">
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('16_sets_marquoir') ?>" alt="Marquoir pendant un set"><div class="mh-caption">Pendant un set : le n° du set et le score en sets au centre.</div></div>
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('17_sets_pause') ?>" alt="Fin d'un set"><div class="mh-caption">Fin d'un set : le résumé et qui casse le set suivant.</div></div>
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('18_sets_resultat') ?>" alt="Résultat d'une partie par sets"><div class="mh-caption">Fin de partie : le détail de chaque set.</div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <ol class="mh-steps">
+              <li>Le grand chiffre est le <b>score du set en cours</b>. Les pastilles sous le nom montrent les <b>sets gagnés</b>.</li>
+              <li>La <b>moyenne</b> et la <b>série max</b> portent sur toute la partie ; les 5 dernières reprises, sur le set en cours.</li>
+              <li>L'annonce <b>« Pour 3 … Pour 1 »</b> s'affiche dans chaque set.</li>
+            </ol>
+          </div>
+          <div class="col-md-6">
+            <div class="mh-note"><b>Fin d'un set</b> — l'écran affiche le résumé du set. <kbd>Entrée</kbd> lance le set suivant ; <kbd>−</kbd> corrige la dernière reprise si besoin.</div>
+            <div class="mh-note green"><b>Fin de partie</b> — dès qu'un joueur a gagné le nombre de sets prévu : « Victoire de … 2 sets à 1 », avec les points (et les reprises) de chaque set.</div>
           </div>
         </div>
       </div>
