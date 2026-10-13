@@ -323,3 +323,22 @@
     background: rgba(10, 16, 32, .92); backdrop-filter: blur(6px);
     border-top: 1px solid rgba(255, 255, 255, .12);
 }
+
+/* Annonce « Pour 5 … Pour 1 » */
+.sbd-pour { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; pointer-events: none; visibility: hidden; }
+.sbd-pour > div {
+    text-align: center; padding: 3vh 6vw; border-radius: 4vh; border: .8vh solid var(--pc, #fff);
+    background: rgba(10, 16, 32, .9); box-shadow: 0 0 8vh color-mix(in srgb, var(--pc, #fff) 45%, transparent);
+    font-family: 'Barlow Condensed', sans-serif; color: var(--pc, #fff);
+}
+.sbd-pour small { display: block; font-size: 6vh; font-weight: 700; text-transform: uppercase; line-height: 1.1; }
+.sbd-pour b { display: block; font-size: 22vh; font-weight: 800; text-transform: uppercase; line-height: 1; }
+.sbd-pour.show { visibility: visible; }
+.sbd-pour.show > div { animation: sbd-pour 2.2s cubic-bezier(.2, 1.4, .4, 1) forwards; }
+@keyframes sbd-pour {
+    0%   { transform: scale(.2); opacity: 0; }
+    18%  { transform: scale(1.08); opacity: 1; }
+    28%  { transform: scale(1); }
+    80%  { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.4); opacity: 0; }
+}

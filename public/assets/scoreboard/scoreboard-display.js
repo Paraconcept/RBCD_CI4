@@ -330,8 +330,31 @@
     const fmtAvg = (pts, inn) => (inn > 0 ? pts / inn : 0).toFixed(3).replace('.', ',');
     const name = (p) => C.players[p].last + ' ' + C.players[p].first;
 
+    // « Pour 5 … Pour 1 » (3 bandes : à partir de 3) quand il ne manque plus que quelques points au joueur à la table
+    const POUR = C.discipline === '3bandes' ? [3, 2, 1] : [5, 4, 3, 2, 1];
+    let pourKey = null, pourTimer = null;
+
+    function announcePour(p, left) {
+        const box = $('sbdPour');
+        box.style.setProperty('--pc', p === 2 ? 'var(--sb-p2)' : 'var(--sb-p1)');
+        box.querySelector('small').textContent = C.players[p].last;
+        box.querySelector('b').textContent = 'Pour ' + left;
+        box.classList.remove('show'); void box.offsetWidth; box.classList.add('show');
+        clearTimeout(pourTimer);
+        pourTimer = setTimeout(function () { box.classList.remove('show'); }, 2200);
+    }
+
+    function checkPour(cur) {
+        const left = cur ? remaining() : null;
+        const key = cur + ':' + left;
+        // Pas d'annonce au chargement de la page : seulement quand la situation change
+        if (pourKey !== null && key !== pourKey && POUR.indexOf(left) !== -1) announcePour(cur, left);
+        pourKey = key;
+    }
+
     function render() {
         const cur = st.finished ? 0 : current();
+        checkPour(cur);
 
         [1, 2].forEach(function (p) {
             // La série en cours n'est ajoutée au score qu'à la validation de la reprise (Entrée)

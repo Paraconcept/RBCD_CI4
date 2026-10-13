@@ -8,6 +8,7 @@ $config = [
     'id'           => (int) $match->id,
     'startedAt'    => (string) $match->started_at,
     'starter'      => (int) ($match->starting_player ?: 1),
+    'discipline'   => (string) $match->discipline,
     'distances'    => [1 => (int) $match->p1_distance, 2 => (int) $match->p2_distance],
     'inningsLimit' => $match->innings_limit ? (int) $match->innings_limit : null,
     'unequal'      => (bool) $match->unequal_innings,
@@ -112,6 +113,8 @@ $config = [
         </section>
         <?php endforeach; ?>
     </main>
+
+    <div class="sbd-pour" id="sbdPour" aria-live="polite"><div><small></small><b></b></div></div>
 
     <div class="sbd-clock" id="sbdClock" hidden>
         <div class="sbd-clock-track"><div class="sbd-clock-bar" id="sbdClockBar"></div></div>
