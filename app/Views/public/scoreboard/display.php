@@ -1,7 +1,6 @@
 <?php
 use App\Models\ScoreboardMatchModel as M;
 
-$sameDistance = (int) $match->p1_distance === (int) $match->p2_distance;
 // Spectateur (page publique « En direct ») : lecture seule, mise à jour par interrogation du serveur
 $spectator = $spectator ?? false;
 
@@ -61,7 +60,6 @@ $config = [
         </div>
         <div class="sbd-discipline">
             <?= esc(M::disciplineLabel($match)) ?>
-            <?php if ($sameDistance): ?>· <b><?= (int) $match->p1_distance ?></b> points<?php endif; ?>
             <?php if ($competition = M::competitionLabel($match)): ?><span class="sbd-muted">· <?= esc($competition) ?></span><?php endif; ?>
         </div>
         <div class="sbd-head-right">
@@ -98,9 +96,7 @@ $config = [
                     <div class="sbd-last"><?= esc($match->{$p . '_last_name'}) ?></div>
                     <div class="sbd-first"><?= esc($match->{$p . '_first_name'}) ?></div>
                     <div class="sbd-club"><?= esc($match->{$p . '_club'} ?? '') ?></div>
-                    <?php if (!$sameDistance): ?>
                     <div class="sbd-target">À réaliser : <b><?= (int) $match->{$p . '_distance'} ?></b></div>
-                    <?php endif; ?>
                 </div>
                 <?php if ($n === 1): ?><span class="sbd-ball"></span><?php endif; ?>
             </div>

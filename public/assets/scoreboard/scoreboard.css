@@ -182,7 +182,8 @@
 .sbd-box > span { display: block; font-size: 2.8vh; color: var(--sb-muted); text-transform: uppercase; letter-spacing: .12em; }
 .sbd-innings b { display: block; font-size: 17vh; line-height: .95; font-weight: 800; color: #4fc3f7; }
 .sbd-innings small { display: block; font-size: 3vh; color: var(--sb-muted); }
-.sbd-run { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.sbd-center > .sbd-box { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+.sbd-box.sbd-innings > span { font-size: 3.8vh; }
 .sbd-run b { display: block; font-size: 20vh; line-height: .9; font-weight: 800; color: var(--run-color, #fff); }
 .sbd-run.typing b { color: var(--sb-orange); }
 .sbd-run .sbd-hint { font-size: 2.4vh; color: var(--sb-orange); min-height: 3vh; }
@@ -275,7 +276,7 @@
     .sbd-center { grid-area: center; flex-direction: row; flex-wrap: wrap; gap: 2.5vw; }
     .sbd-center > .sbd-box { flex: 1; padding: 2vw; }
     .sbd-notice { flex-basis: 100%; order: 3; font-size: 3.6vw; padding: 1.5vw; }
-    .sbd-box > span { font-size: 3vw; }
+    .sbd-box > span, .sbd-box.sbd-innings > span { font-size: 3vw; }
     .sbd-innings b, .sbd-run b { font-size: 15vw; }
     .sbd-innings small, .sbd-run .sbd-hint { font-size: 3vw; min-height: 0; }
     .sbd-player { padding: 2.5vw; border-width: .7vw; border-radius: 3vw; }
