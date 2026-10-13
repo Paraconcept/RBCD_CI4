@@ -35,13 +35,13 @@ class ScoreboardMatchModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'type', 'team_encounter_id', 'status', 'table_id', 'scheduled_at', 'competition',
+        'type', 'team_encounter_id', 'final_id', 'final_order', 'status', 'table_id', 'scheduled_at', 'competition',
         'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start',
-        'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license',
+        'p1_member_id', 'p1_final_player_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license',
         'p1_category_id', 'p1_category', 'p1_average_min', 'p1_distance',
         'p1_points', 'p1_innings', 'p1_high_run', 'p1_sets', 'p1_extensions_used',
-        'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_license',
+        'p2_member_id', 'p2_final_player_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_license',
         'p2_category_id', 'p2_category', 'p2_average_min', 'p2_distance',
         'p2_points', 'p2_innings', 'p2_high_run', 'p2_sets', 'p2_extensions_used',
         'starting_player', 'current_run', 'paused', 'winner', 'absent', 'comment', 'rev',
@@ -73,6 +73,8 @@ class ScoreboardMatchModel extends Model
             ->groupStart()->where('scheduled_at', null)->orWhere('scheduled_at <=', self::now('Y-m-d 23:59:59'))->groupEnd()
             ->orderBy('scheduled_at IS NULL', 'ASC', false)
             ->orderBy('scheduled_at', 'ASC')
+            ->orderBy('final_order', 'ASC')
+            ->orderBy('scoreboard_matches.id', 'ASC')
             ->findAll();
     }
 
@@ -554,7 +556,7 @@ class ScoreboardMatchModel extends Model
     private static function swappedPlayers(object $match): array
     {
         $data = [];
-        foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'category_id', 'category', 'average_min', 'distance'] as $f) {
+        foreach (['member_id', 'final_player_id', 'last_name', 'first_name', 'club', 'license', 'category_id', 'category', 'average_min', 'distance'] as $f) {
             $data['p1_' . $f] = $match->{'p2_' . $f};
             $data['p2_' . $f] = $match->{'p1_' . $f};
         }

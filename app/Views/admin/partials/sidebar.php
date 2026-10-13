@@ -250,7 +250,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="<?= base_url('admin/scoreboard') ?>"
-                                       class="nav-link <?= $isSbActive && !preg_match('#^admin/scoreboard/(tables|players|settings|teams)#', $sbUri) ? 'active' : '' ?>">
+                                       class="nav-link <?= $isSbActive && !preg_match('#^admin/scoreboard/(tables|players|settings|teams|finals)#', $sbUri) ? 'active' : '' ?>">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Rencontres</p>
                                     </a>
@@ -260,6 +260,13 @@
                                        class="nav-link <?= strpos($sbUri, 'admin/scoreboard/teams') === 0 ? 'active' : '' ?>">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Rencontres d'équipe</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?= base_url('admin/scoreboard/finals') ?>"
+                                       class="nav-link <?= strpos($sbUri, 'admin/scoreboard/finals') === 0 ? 'active' : '' ?>">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p>Finales et poules</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">

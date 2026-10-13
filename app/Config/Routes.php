@@ -335,6 +335,15 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard/teams/(:num)/attach',         'Admin\ScoreboardTeamController::attach/$1');
         $routes->post('scoreboard/teams/(:num)/detach/(:num)',  'Admin\ScoreboardTeamController::detach/$1/$2');
         $routes->get ('scoreboard/teams/(:num)/matches/create', 'Admin\ScoreboardController::createForTeam/$1');
+        $routes->get ('scoreboard/finals',                'Admin\ScoreboardFinalController::index');
+        $routes->get ('scoreboard/finals/create',         'Admin\ScoreboardFinalController::create');
+        $routes->post('scoreboard/finals',                'Admin\ScoreboardFinalController::store');
+        $routes->get ('scoreboard/finals/(:num)',         'Admin\ScoreboardFinalController::show/$1');
+        $routes->get ('scoreboard/finals/(:num)/edit',    'Admin\ScoreboardFinalController::edit/$1');
+        $routes->post('scoreboard/finals/(:num)/update',  'Admin\ScoreboardFinalController::update/$1');
+        $routes->post('scoreboard/finals/(:num)/delete',  'Admin\ScoreboardFinalController::delete/$1');
+        $routes->post('scoreboard/finals/(:num)/comment', 'Admin\ScoreboardFinalController::comment/$1');
+        $routes->get ('scoreboard/finals/(:num)/pdf',     'Admin\ScoreboardFinalController::pdf/$1');
         $routes->get ('scoreboard/players/search',        'Admin\ScoreboardController::searchPlayers');
         $routes->get ('scoreboard/players',               'Admin\ScoreboardSetupController::players');
         $routes->post('scoreboard/players/(:num)/update', 'Admin\ScoreboardSetupController::updatePlayer/$1');
