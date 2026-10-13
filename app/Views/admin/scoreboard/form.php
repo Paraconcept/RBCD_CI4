@@ -58,7 +58,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
           <label>Rencontre d'équipe</label>
           <div class="border rounded px-3 py-2 bg-light">
             <strong><?= esc(TE::label($team)) ?></strong><br>
-            <span class="text-muted"><?= esc(TE::homeLabel($team)) ?> contre <?= esc(TE::awayLabel($team)) ?></span>
+            <span class="text-muted"><?= esc(TE::homeLabel($team)) ?><i class="fas fa-arrows-alt-h mx-2"></i><?= esc(TE::awayLabel($team)) ?></span>
           </div>
           <?php else: ?>
           <div class="form-group">
