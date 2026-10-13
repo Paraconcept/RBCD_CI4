@@ -120,6 +120,12 @@ $sched  = $encounter->scheduled_at ?? null;
           </div>
         </div>
       </div>
+      <div class="form-group">
+        <label>E-mail du responsable CDR</label>
+        <input type="text" class="form-control-plaintext" readonly
+               value="<?= esc(trim($cdr->name . ' — ' . $cdr->email, ' —')) ?>">
+        <small class="text-muted">Défini dans <a href="<?= base_url('admin/scoreboard/settings') ?>">Marquoir › Paramètres</a> ; commun à toutes les rencontres.</small>
+      </div>
       <div class="form-group mb-0">
         <label for="notes">Remarques</label>
         <textarea name="notes" id="notes" class="form-control" rows="2"><?= esc($val('notes')) ?></textarea>

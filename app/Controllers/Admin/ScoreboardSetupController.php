@@ -105,6 +105,8 @@ class ScoreboardSetupController extends BaseController
             'warmupMinutes'       => (int) $s->getSetting('scoreboard_warmup_minutes', 5),
             'startWindowMinutes'  => (int) $s->getSetting('scoreboard_start_window_minutes', 60),
             'clubEmail'           => (string) $s->getSetting('scoreboard_club_email', 'ds@rbcd.be'),
+            'cdrName'             => (string) $s->getSetting('scoreboard_cdr_name', 'Christian JEUNEAU'),
+            'cdrEmail'            => (string) $s->getSetting('scoreboard_cdr_email', 'cdregions@gmail.com'),
             'pin'                 => (string) $s->getSetting('scoreboard_pin', ''),
         ]);
     }
@@ -120,12 +122,18 @@ class ScoreboardSetupController extends BaseController
         if ($clubEmail !== '' && !filter_var($clubEmail, FILTER_VALIDATE_EMAIL)) {
             return redirect()->back()->with('error', "L'adresse e-mail du club est invalide.");
         }
+        $cdrEmail = trim((string) $this->request->getPost('cdr_email'));
+        if ($cdrEmail !== '' && !filter_var($cdrEmail, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->with('error', "L'adresse e-mail du responsable CDR est invalide.");
+        }
 
         $s->setSetting('scoreboard_shot_clock_seconds', max(5, min(300, (int) $this->request->getPost('shot_clock_seconds'))));
         $s->setSetting('scoreboard_shot_clock_extensions', max(0, min(10, (int) $this->request->getPost('shot_clock_extensions'))));
         $s->setSetting('scoreboard_innings_limit_3c', max(1, min(999, (int) $this->request->getPost('innings_limit_3c'))));
         $s->setSetting('scoreboard_warmup_minutes', max(1, min(15, (int) $this->request->getPost('warmup_minutes'))));
         $s->setSetting('scoreboard_club_email', $clubEmail);
+        $s->setSetting('scoreboard_cdr_name', trim((string) $this->request->getPost('cdr_name')));
+        $s->setSetting('scoreboard_cdr_email', $cdrEmail);
         $s->setSetting('scoreboard_start_window_minutes', max(0, min(720, (int) $this->request->getPost('start_window_minutes'))));
         $s->setSetting('scoreboard_pin', $pin);
 

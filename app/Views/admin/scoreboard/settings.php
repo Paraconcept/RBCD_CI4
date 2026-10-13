@@ -36,6 +36,17 @@
             <input type="email" name="club_email" id="club_email" class="form-control" maxlength="150" value="<?= esc($clubEmail) ?>" style="max-width:320px">
             <small class="text-muted">Proposée par défaut comme e-mail du club visité dans chaque rencontre d'équipe.</small>
           </div>
+          <div class="form-row mt-3">
+            <div class="form-group col-sm-6">
+              <label for="cdr_name">Responsable CDR</label>
+              <input type="text" name="cdr_name" id="cdr_name" class="form-control" maxlength="100" value="<?= esc($cdrName) ?>">
+            </div>
+            <div class="form-group col-sm-6">
+              <label for="cdr_email">E-mail du responsable CDR</label>
+              <input type="email" name="cdr_email" id="cdr_email" class="form-control" maxlength="150" value="<?= esc($cdrEmail) ?>">
+            </div>
+            <small class="text-muted col-12 mt-n2">Destinataire des feuilles récapitulatives des rencontres d'équipe, avec les clubs visité et visiteur (imprimé au bas du PDF).</small>
+          </div>
           <div class="form-group mb-0 mt-3">
             <label for="start_window_minutes">Démarrage des rencontres programmées (minutes avant l'heure prévue)</label>
             <input type="number" name="start_window_minutes" id="start_window_minutes" class="form-control" min="0" max="720" value="<?= $startWindowMinutes ?>" style="max-width:150px">

@@ -126,7 +126,7 @@ $rowsCount = max(3, $result['total']);
     <tr><td style="height:16mm"><b>Signatures :</b> (facultatif pour l'envoi par mail. Conservez les feuilles de match en cas de litige)</td></tr>
 </table>
 <div class="footer">
-    Envoyer à Christian JEUNEAU<span style="margin-left:30mm">cdregions@gmail.com</span>
+    Envoyer à <?= esc($cdr->name) ?><span style="margin-left:30mm"><?= esc($cdr->email) ?></span>
 </div>
 
 </body>

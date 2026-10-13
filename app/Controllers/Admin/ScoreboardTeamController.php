@@ -87,6 +87,7 @@ class ScoreboardTeamController extends BaseController
             'result'    => $result,
             'logoFrbb'  => $logo('frbb_kbbb_logo_100.png'),
             'logoLL'    => $logo('Ecusson_FRBB-LL.png'),
+            'cdr'       => $this->cdr(),
         ]);
 
         $options = new Options();
@@ -174,7 +175,18 @@ class ScoreboardTeamController extends BaseController
             'teams'       => $this->model->getCdrTeams(),
             'clubEmail'   => (string) (new SiteSettingModel())->getSetting('scoreboard_club_email', 'ds@rbcd.be'),
             'knownEmails' => $this->model->knownOpponentEmails(),
+            'cdr'         => $this->cdr(),
         ]);
+    }
+
+    private function cdr(): object
+    {
+        $s = new SiteSettingModel();
+
+        return (object) [
+            'name'  => (string) $s->getSetting('scoreboard_cdr_name', 'Christian JEUNEAU'),
+            'email' => (string) $s->getSetting('scoreboard_cdr_email', 'cdregions@gmail.com'),
+        ];
     }
 
     private function buildData(?object $current): array
