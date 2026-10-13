@@ -177,6 +177,36 @@ class ScoreboardController extends BaseController
         return redirect()->to(base_url('marquoir/match/' . $matchId));
     }
 
+    /**
+     * Amicale terminée : nouvelle partie avec les mêmes joueurs et les mêmes règles,
+     * qui repasse par « Qui commence ? » (et l'échauffement).
+     */
+    public function rematch(int $matchId)
+    {
+        $match = $this->findMatch($matchId);
+        if ($match->type !== 'friendly' || $match->status !== 'finished') {
+            return redirect()->to(base_url('marquoir/match/' . $matchId));
+        }
+
+        $copy = [
+            'competition', 'discipline', 'format', 'innings_limit', 'unequal_innings',
+            'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'created_by',
+        ];
+        foreach (['p1', 'p2'] as $p) {
+            foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'category_id', 'category', 'average_min', 'distance'] as $f) {
+                $copy[] = $p . '_' . $f;
+            }
+        }
+
+        $data = ['type' => 'friendly', 'status' => 'scheduled', 'table_id' => $match->table_id];
+        foreach ($copy as $f) {
+            $data[$f] = $match->{$f};
+        }
+        $id = $this->matches->insert($data);
+
+        return redirect()->to(base_url('marquoir/billard/' . $match->table_id . '/demarrer/' . $id));
+    }
+
     public function cancel(int $matchId)
     {
         $match = $this->findMatch($matchId);

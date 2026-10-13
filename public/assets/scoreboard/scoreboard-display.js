@@ -487,6 +487,7 @@
             if (st.finished) {
                 if (a === 'enter') window.location.href = C.urls.table;
                 else if (a === 'minus') minus();
+                else if (a === 'plus' && !e.repeat && C.urls.rematch) confirmRematch();
                 else if (a === 'menu') openMenu();
                 return;
             }
@@ -509,6 +510,53 @@
             if (btn && btn.dataset.action === 'fullscreen') { enterFullscreen(); closeMenu(); }
             if (btn && btn.dataset.action === 'cancel') confirmCancel();
         });
+
+        // Le résultat doit être enregistré sur le serveur avant de quitter la page
+        function waitSynced(timeoutMs) {
+            sync();
+            const until = Date.now() + timeoutMs;
+            return new Promise(function (resolve, reject) {
+                (function check() {
+                    if (st.rev <= syncedRev) return resolve();
+                    if (Date.now() > until) return reject();
+                    setTimeout(check, 200);
+                })();
+            });
+        }
+
+        function confirmRematch() {
+            const form = $('sbdRematchForm');
+            if (!form) return;
+            if (!window.Swal) { waitSynced(5000).then(function () { form.submit(); }, function () {}); return; }
+            Swal.fire({
+                title: 'Rejouer la même partie ?',
+                html: 'Mêmes joueurs, même mode de jeu.<br><kbd>Entrée</kbd> oui &nbsp;·&nbsp; <kbd>Échap</kbd> non',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Oui, rejouer',
+                cancelButtonText: 'Non',
+                reverseButtons: true,
+                focusConfirm: true,
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading(),
+                preConfirm: function () {
+                    return waitSynced(8000).catch(function () {
+                        Swal.showValidationMessage("Résultat pas encore enregistré (connexion ?). Réessayez dans un instant.");
+                        return false;
+                    });
+                },
+                background: '#16213d',
+                color: '#eef1f7',
+                iconColor: '#38bdf8',
+                confirmButtonColor: '#84252B',
+                cancelButtonColor: '#475569',
+                customClass: { popup: 'sbd-swal' },
+            }).then(function (r) {
+                if (!r.isConfirmed) return;
+                try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignoré */ }
+                form.submit();
+            });
+        }
 
         function confirmCancel() {
             const form = $('sbdCancelForm');

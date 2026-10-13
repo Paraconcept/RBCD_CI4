@@ -306,6 +306,7 @@
           <div class="col-md-6">
             <div class="mh-note"><b>Reprise d'égalisation</b> — quand le joueur qui a commencé atteint ses points, l'adversaire joue encore une reprise (sauf option « reprises inégales »). S'il termine aussi, c'est un match nul.</div>
             <div class="mh-note green"><b>Fin de partie</b> — <kbd>Entrée</kbd> ramène à la page du billard. La feuille de match est enregistrée automatiquement pour le DS.</div>
+            <div class="mh-note green"><b>Revanche (partie amicale)</b> — <kbd>+</kbd> puis <kbd>Entrée</kbd> pour confirmer : nouvelle partie avec les mêmes joueurs et le même mode de jeu. On repasse par « Qui commence la partie ? » et l'échauffement. Pour d'autres joueurs ou un autre mode de jeu, recommencez une partie amicale depuis la page du billard.</div>
           </div>
           <div class="col-md-6">
             <div class="mh-note orange"><b>Une erreur ?</b> — <kbd>−</kbd> retire un point ; à 0, il rouvre la reprise précédente. Ça fonctionne même après la fin de la partie.</div>

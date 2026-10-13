@@ -97,6 +97,7 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->get ('match/(:num)',                  'Public\ScoreboardController::display/$1');
     $routes->post('match/(:num)/annuler',          'Public\ScoreboardController::cancel/$1');
     $routes->post('match/(:num)/inverser',         'Public\ScoreboardController::swap/$1');
+    $routes->post('match/(:num)/rejouer',          'Public\ScoreboardController::rematch/$1');
     $routes->get ('joueurs',                       'Public\ScoreboardController::searchPlayers');
     $routes->get ('api/match/(:num)',              'Public\ScoreboardController::state/$1');
     $routes->post('api/match/(:num)',              'Public\ScoreboardController::saveState/$1');

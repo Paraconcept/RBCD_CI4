@@ -31,6 +31,7 @@ $config = [
         'table' => base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'),
         'state' => base_url('en-direct/api/' . $match->id),
         'list'  => base_url('en-direct'),
+        'rematch' => $match->type === 'friendly' && $match->table_id ? base_url('marquoir/match/' . $match->id . '/rejouer') : null,
     ],
 ];
 ?>
@@ -159,6 +160,10 @@ $config = [
                 <a href="<?= base_url('en-direct') ?>" class="btn btn-outline-light"><i class="fas fa-arrow-left me-2"></i>Rencontres du jour</a>
                 <?php else: ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> corriger la dernière reprise
+                <?php if ($config['urls']['rematch']): ?>
+                &nbsp;·&nbsp; <kbd>+</kbd> rejouer la même partie
+                <form method="post" id="sbdRematchForm" action="<?= esc($config['urls']['rematch']) ?>" hidden></form>
+                <?php endif; ?>
                 <?php endif; ?>
             </div>
         </div>
