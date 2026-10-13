@@ -290,6 +290,12 @@
                                         <p>Paramètres</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="<?= base_url('admin/scoreboard/howto') ?>" target="_blank" class="nav-link">
+                                        <i class="far fa-file-pdf nav-icon"></i>
+                                        <p>How to</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     </ul>

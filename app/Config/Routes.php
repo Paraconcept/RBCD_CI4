@@ -353,6 +353,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard/tables/(:num)/update',  'Admin\ScoreboardSetupController::updateTable/$1');
         $routes->post('scoreboard/tables/(:num)/delete',  'Admin\ScoreboardSetupController::deleteTable/$1');
         $routes->get ('scoreboard/settings',              'Admin\ScoreboardSetupController::settings');
+        $routes->get ('scoreboard/howto',                 'Admin\ScoreboardSetupController::howto');
         $routes->post('scoreboard/settings',              'Admin\ScoreboardSetupController::saveSettings');
 
         // Utilisateurs admin

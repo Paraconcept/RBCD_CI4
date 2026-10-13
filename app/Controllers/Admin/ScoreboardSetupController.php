@@ -94,6 +94,22 @@ class ScoreboardSetupController extends BaseController
         return redirect()->to(base_url('admin/scoreboard/players'))->with('success', 'Joueur supprimé.');
     }
 
+    /**
+     * Guide du directeur sportif : rangé hors du dossier public, servi uniquement aux membres connectés.
+     */
+    public function howto()
+    {
+        $path = APPPATH . 'Docs/Marquoirs_RBCD_guide_DS.pdf';
+        if (!is_file($path)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="Marquoirs_RBCD_guide_DS.pdf"')
+            ->setBody(file_get_contents($path));
+    }
+
     public function settings(): string
     {
         $s = new SiteSettingModel();
