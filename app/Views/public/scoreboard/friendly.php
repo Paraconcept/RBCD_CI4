@@ -57,7 +57,7 @@
                         <label class="form-label" for="format">Format</label>
                         <select name="format" id="format" class="form-select form-select-lg">
                             <?php foreach (M::FORMATS as $k => $v): ?>
-                            <option value="<?= $k ?>" <?= old('format', 'PB') === $k ? 'selected' : '' ?>><?= $v ?></option>
+                            <option value="<?= $k ?>" <?= old('format', $table->format ?? 'PB') === $k ? 'selected' : '' ?>><?= $v ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

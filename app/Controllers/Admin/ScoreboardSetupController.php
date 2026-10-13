@@ -28,6 +28,7 @@ class ScoreboardSetupController extends BaseController
         $model = new ScoreboardTableModel();
         $model->insert([
             'name'       => $name,
+            'format'     => $this->request->getPost('format') === 'GB' ? 'GB' : 'PB',
             'sort_order' => (int) $model->selectMax('sort_order')->first()->sort_order + 1,
             'is_active'  => 1,
         ]);
@@ -44,6 +45,7 @@ class ScoreboardSetupController extends BaseController
 
         (new ScoreboardTableModel())->update($id, [
             'name'       => $name,
+            'format'     => $this->request->getPost('format') === 'GB' ? 'GB' : 'PB',
             'sort_order' => (int) $this->request->getPost('sort_order'),
             'is_active'  => $this->request->getPost('is_active') ? 1 : 0,
         ]);

@@ -10,7 +10,7 @@ class ScoreboardTableModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'object';
 
-    protected $allowedFields = ['name', 'sort_order', 'is_active'];
+    protected $allowedFields = ['name', 'format', 'sort_order', 'is_active'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
