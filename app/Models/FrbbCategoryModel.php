@@ -75,7 +75,8 @@ class FrbbCategoryModel extends Model
             'code'      => $r->categories,
             'label'     => $r->categories_text ?: $r->categories,
             'avg_min'   => (float) $r->average_min,
-        ], $this->select('id, game_mode, game_mode_text, categories, categories_text, average_min')
+            'points'    => (int) $r->points,
+        ], $this->select('id, game_mode, game_mode_text, categories, categories_text, points, average_min')
                 ->whereIn('game_mode', $modes)->orderBy('id', 'ASC')->findAll());
 
         return ['modes' => self::SCOREBOARD_GAME_MODES, 'list' => $list];

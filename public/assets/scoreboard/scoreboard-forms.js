@@ -101,9 +101,10 @@
     const d1 = document.querySelector('input[name="p1_distance"]');
     const d2 = document.querySelector('input[name="p2_distance"]');
     if (d1 && d2) {
-        let d2Touched = d2.value !== '' && d2.value !== d1.value;
-        d2.addEventListener('input', function () { d2Touched = true; });
-        d1.addEventListener('input', function () { if (!d2Touched) d2.value = d1.value; });
+        if (d2.value !== '' && d2.value !== d1.value) d2.dataset.sbTouched = '1';
+        d2.addEventListener('input', function (e) { if (e.isTrusted) d2.dataset.sbTouched = '1'; });
+        d1.addEventListener('input', function () { if (!d2.dataset.sbTouched) d2.value = d1.value; });
+        [d1, d2].forEach((d) => d.addEventListener('input', function (e) { if (e.isTrusted) delete d.dataset.sbAuto; }));
     }
 
     const discipline = document.getElementById('discipline');
@@ -137,12 +138,35 @@
                     });
                 });
             };
+            // Points à jouer repris du barème de la catégorie ; uniquement sur action de l'utilisateur,
+            // pour ne pas écraser la distance enregistrée d'un match qu'on modifie.
+            const distance = sel.form.querySelector('[name="' + sel.dataset.sbCategory + '_distance"]');
+            const applyPoints = function () {
+                if (!distance) return;
+                const cat = CAT.list.find((c) => String(c.id) === sel.value);
+                if (cat && cat.points > 0) {
+                    distance.value = cat.points;
+                    distance.dataset.sbAuto = '1';
+                    if (sel.dataset.sbCategory === 'p2') distance.dataset.sbTouched = '1';
+                } else if (distance.dataset.sbAuto) {
+                    // Plus de catégorie : on ne laisse pas une distance d'une autre discipline
+                    const d1 = sel.form.querySelector('[name="p1_distance"]');
+                    distance.value = sel.dataset.sbCategory === 'p2' && d1 ? d1.value : '';
+                    delete distance.dataset.sbAuto;
+                    if (sel.dataset.sbCategory === 'p2') delete distance.dataset.sbTouched;
+                } else {
+                    return;
+                }
+                distance.dispatchEvent(new Event('input'));
+            };
+            const refreshAndApply = () => { refresh(true); applyPoints(); };
             const nameInput = sel.form.querySelector('[name="' + sel.dataset.sbCategory + '_last_name"]');
             if (nameInput) {
-                nameInput.addEventListener('sb:player', function (e) { known = e.detail || {}; refresh(true); });
+                nameInput.addEventListener('sb:player', function (e) { known = e.detail || {}; refreshAndApply(); });
             }
-            discipline.addEventListener('change', () => refresh(true));
-            format.addEventListener('change', () => refresh(true));
+            sel.addEventListener('change', applyPoints);
+            discipline.addEventListener('change', refreshAndApply);
+            format.addEventListener('change', refreshAndApply);
             refresh(false);
         });
     }
