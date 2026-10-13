@@ -104,6 +104,8 @@ class ScoreboardController extends BaseController
 
         $data['type']     = 'friendly';
         $data['status']   = 'scheduled';
+        // Réservé aux amicales : en officiel, c'est toujours l'arbitre qui lance le chrono.
+        $data['shot_clock_auto_start'] = $data['shot_clock_enabled'] && $this->request->getPost('shot_clock_auto_start') ? 1 : 0;
         $data['table_id'] = $tableId;
         $id = $this->matches->insert($data);
         ScoreboardMatchModel::rememberExternalPlayers($data);

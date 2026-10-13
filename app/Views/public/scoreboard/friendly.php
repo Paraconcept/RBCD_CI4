@@ -94,6 +94,11 @@
                             <input type="number" name="shot_clock_extensions" min="0" max="10" class="form-control" value="<?= esc(old('shot_clock_extensions', $defaults['shot_clock_extensions'])) ?>">
                             <span class="input-group-text">time-outs / joueur</span>
                         </div>
+                        <div class="form-check mt-2" data-sb-show-when="shot_clock_enabled">
+                            <input class="form-check-input" type="checkbox" name="shot_clock_auto_start" id="shot_clock_auto_start" value="1" <?= old('shot_clock_auto_start') ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="shot_clock_auto_start">Démarrage automatique après <kbd>Entrée</kbd></label>
+                            <small class="d-block text-secondary">Sinon, lancer le chrono avec <kbd>*</kbd> à chaque reprise.</small>
+                        </div>
                     </div>
                 </div>
             </div>

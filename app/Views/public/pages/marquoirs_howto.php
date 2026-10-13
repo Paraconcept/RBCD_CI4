@@ -286,6 +286,7 @@
         <ol class="mh-steps">
           <li>Le chrono démarre avec <kbd>*</kbd> ou au premier point marqué <kbd>+</kbd>. Chaque point le relance à 40 secondes.</li>
           <li>Après <kbd>Entrée</kbd>, il revient à 40 s <b>à l'arrêt</b> : lancez-le avec <kbd>*</kbd> quand l'adversaire est prêt.</li>
+          <li><b>Partie amicale</b> : si la case « Démarrage automatique après Entrée » a été cochée, le chrono repart tout seul à 40 s dès l'appui sur <kbd>Entrée</kbd> (<kbd>*</kbd> permet toujours de le mettre en pause). En rencontre officielle, c'est toujours l'arbitre qui le lance.</li>
           <li>Un seul bip, à <b>10 secondes</b> de la fin.</li>
           <li>Chaque dépassement consomme <b>un time-out</b> (l'icône devient rouge) et le chrono repart sans interrompre le joueur.</li>
           <li>Au <b>dernier</b> time-out, le chrono reste sur « Temps écoulé » : l'arbitre passe la main avec <kbd>Entrée</kbd>.</li>

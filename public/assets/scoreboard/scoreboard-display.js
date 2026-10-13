@@ -105,6 +105,8 @@
         checkEnd();
         if (st.finished) {
             stopClock();
+        } else if (C.clock.autoStart) {
+            restartClock();
         } else {
             resetClock();
         }

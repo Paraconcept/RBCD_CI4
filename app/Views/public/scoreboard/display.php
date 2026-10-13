@@ -18,6 +18,7 @@ $config = [
         'enabled'    => (bool) $match->shot_clock_enabled,
         'seconds'    => (int) $match->shot_clock_seconds,
         'extensions' => (int) $match->shot_clock_extensions,
+        'autoStart'  => $match->type === 'friendly' && !empty($match->shot_clock_auto_start),
     ],
     'players' => [
         1 => ['last' => $match->p1_last_name, 'first' => $match->p1_first_name],
