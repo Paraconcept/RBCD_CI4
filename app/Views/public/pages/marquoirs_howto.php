@@ -254,9 +254,9 @@
         <div class="mh-annot">
           <img class="mh-shot" src="<?= $img('06_marquoir') ?>" alt="Écran du marquoir annoté">
           <span class="mh-pin" style="left:20%;top:28%">1</span>
-          <span class="mh-pin" style="left:37%;top:18.8%">2</span>
+          <span class="mh-pin" style="left:37%;top:25%">2</span>
           <span class="mh-pin" style="left:31%;top:48%">3</span>
-          <span class="mh-pin" style="left:11.5%;top:34.5%">4</span>
+          <span class="mh-pin" style="left:11.5%;top:41.5%">4</span>
           <span class="mh-pin" style="left:57%;top:22%">5</span>
           <span class="mh-pin" style="left:57%;top:60%">6</span>
           <span class="mh-pin" style="left:18.6%;top:69%">7</span>
