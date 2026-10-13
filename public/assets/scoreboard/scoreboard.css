@@ -139,10 +139,10 @@
     font-size: 7.8vh; font-weight: 800; line-height: 1; color: var(--pc); text-transform: uppercase;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.sbd-first { font-size: 4.1vh; font-weight: 500; color: var(--pc); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbd-first { font-size: 5.4vh; font-weight: 500; color: var(--pc); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sbd-club { font-size: 2.6vh; color: var(--sb-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sbd-target { font-size: 2.8vh; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-.sbd-target b { color: var(--pc); font-size: 3.4vh; }
+.sbd-target { margin-top: .6vh; font-size: 3.4vh; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: .04em; }
+.sbd-target b { color: var(--pc); font-size: 5.6vh; font-weight: 800; vertical-align: -.3vh; }
 .sbd-ball {
     flex: 0 0 auto; width: 4.5vh; height: 4.5vh; border-radius: 50%;
     background: radial-gradient(circle at 35% 30%, #fff 0 15%, var(--pc) 45%, color-mix(in srgb, var(--pc) 55%, #000) 100%);
