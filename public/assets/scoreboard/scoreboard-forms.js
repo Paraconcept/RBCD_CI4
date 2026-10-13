@@ -198,6 +198,9 @@
                 }
                 limitCb.disabled = on;
             }
+            document.querySelectorAll('[data-sb-timeouts-label]').forEach(function (el) {
+                el.textContent = on ? 'time-outs / joueur / set' : 'time-outs / joueur';
+            });
             document.querySelectorAll('[data-sb-distance]').forEach(function (col) {
                 col.style.display = on ? 'none' : '';
                 col.querySelectorAll('input').forEach((i) => { i.disabled = on; });

@@ -4,7 +4,8 @@
  * L'état complet de la partie tient dans `st` :
  *   innings : séries terminées dans l'ordre chronologique (joueurs en alternance, découpées en sets par walk())
  *   run     : série en cours du joueur au billard
- *   ext     : extensions de chrono consommées [joueur 1, joueur 2]
+ *   ext     : extensions de chrono consommées [joueur 1, joueur 2] (par sets : dans le set en cours)
+ *   extPrev : par sets, time-outs des sets terminés, pour les rendre si une correction rouvre un set
  *   rev     : version, incrémentée à chaque modification
  * Il est gardé dans le navigateur (survit à un rechargement / une coupure Internet)
  * et poussé au serveur dès que possible ; la version la plus récente l'emporte.
@@ -140,7 +141,12 @@
         clock.expired = false;
         checkEnd();
         const newSet = SETS && !st.finished && walk().set !== setBefore;
-        if (newSet) setBreak = setBefore;
+        if (newSet) {
+            setBreak = setBefore;
+            // Le nombre de time-outs choisi vaut pour chaque set : compteurs remis à zéro
+            st.extPrev = (st.extPrev || []).concat([st.ext]);
+            st.ext = [0, 0];
+        }
         if (st.finished) {
             stopClock();
         } else if (C.clock.autoStart && !newSet) {
@@ -183,7 +189,9 @@
             return;
         }
         if (st.innings.length) {
+            const setBefore = walk().set;
             st.run = st.innings.pop();
+            if (SETS && walk().set < setBefore) st.ext = (st.extPrev || []).pop() || [0, 0];
             clock.expired = false;
             stopClock();
         }
