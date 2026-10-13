@@ -115,4 +115,35 @@
 <?= $this->section('scripts') ?>
 <script>window.SB_CATEGORIES = <?= json_encode($categories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard-forms.js') ?>"></script>
+<?php
+$tableFormat = $table->format ?? 'PB';
+$tableLabel  = preg_match('/^billard\s+(\S+)$/iu', trim($table->name), $mm) ? 'Le billard numéro ' . $mm[1] : 'Le billard « ' . $table->name . ' »';
+?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+<script>
+// Le format est celui du billard : on le rappelle gentiment si quelqu'un le change
+(function () {
+    const format = document.getElementById('format');
+    const fixed  = <?= json_encode($tableFormat) ?>;
+    const text   = <?= json_encode($tableLabel . ' est un ' . mb_strtolower(M::FORMATS[$tableFormat] ?? 'petit billard') . '.', JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) ?>;
+    if (!format || !window.Swal) return;
+    format.addEventListener('change', function () {
+        if (format.value === fixed) return;
+        Swal.fire({
+            title: text,
+            icon: 'info',
+            confirmButtonText: 'OK',
+            background: '#16213d',
+            color: '#eef1f7',
+            iconColor: '#38bdf8',
+            confirmButtonColor: '#84252B',
+            customClass: { popup: 'sbd-swal' },
+            showClass: { popup: 'sb-bounce' },
+        }).then(function () {
+            format.value = fixed;
+            format.dispatchEvent(new Event('change'));
+        });
+    });
+})();
+</script>
 <?= $this->endSection() ?>
