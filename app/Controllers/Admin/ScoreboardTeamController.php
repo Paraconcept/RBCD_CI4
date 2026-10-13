@@ -69,13 +69,68 @@ class ScoreboardTeamController extends BaseController
             'matches'    => $matches = $this->model->getMatches($id),
             'attachable' => $attachable,
             'result'     => ScoreboardTeamEncounterModel::computeResult($encounter, $matches),
+            'recipients' => $this->recapRecipients($encounter),
         ]);
     }
 
     public function pdf(int $id)
     {
+        [$pdf, $filename] = $this->renderRecapPdf($this->find($id));
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
+            ->setBody($pdf);
+    }
+
+    public function sendRecap(int $id)
+    {
         $encounter = $this->find($id);
+        $back      = redirect()->to(base_url('admin/scoreboard/teams/' . $id));
         $result    = ScoreboardTeamEncounterModel::computeResult($encounter, $this->model->getMatches($id));
+        if (!$result['complete']) {
+            return $back->with('error', 'La feuille récapitulative ne peut être envoyée que lorsque tous les matchs sont terminés.');
+        }
+
+        $recipients = $this->recapRecipients($encounter);
+        if (!$recipients) {
+            return $back->with('error', 'Aucune adresse e-mail valide pour envoyer la feuille récapitulative.');
+        }
+
+        [$pdf, $filename] = $this->renderRecapPdf($encounter);
+
+        $email = \Config\Services::email();
+        $email->setFrom('ds@rbcd.be', 'RBC Disonais');
+        $email->setReplyTo('ds@rbcd.be', 'RBC Disonais');
+        $email->setTo($recipients);
+        $email->setSubject('Feuille récapitulative — ' . ScoreboardTeamEncounterModel::homeLabel($encounter)
+            . ' / ' . ScoreboardTeamEncounterModel::awayLabel($encounter) . ' (' . $encounter->code . ')');
+        $email->setMessage(view('emails/team_recap', ['encounter' => $encounter, 'result' => $result]));
+        $email->attach($pdf, 'attachment', $filename, 'application/pdf');
+
+        if (!$email->send(false)) {
+            log_message('error', 'Envoi feuille récapitulative ' . $encounter->code . ' : ' . $email->printDebugger(['headers']));
+            return $back->with('error', "L'envoi de l'e-mail a échoué. Détails dans les logs du serveur.");
+        }
+
+        $this->model->update($id, ['recap_sent_at' => date('Y-m-d H:i:s'), 'recap_sent_to' => implode(', ', $recipients)]);
+
+        return $back->with('success', 'Feuille récapitulative envoyée à ' . implode(', ', $recipients) . '.');
+    }
+
+    private function recapRecipients(object $encounter): array
+    {
+        $emails = [$encounter->team_email, $encounter->opponent_email, $this->cdr()->email];
+        $emails = array_filter(array_map(static fn ($e) => strtolower(trim((string) $e)), $emails),
+            static fn ($e) => filter_var($e, FILTER_VALIDATE_EMAIL));
+
+        return array_values(array_unique($emails));
+    }
+
+    /** @return array{0: string, 1: string} PDF binaire et nom de fichier */
+    private function renderRecapPdf(object $encounter): array
+    {
+        $result = ScoreboardTeamEncounterModel::computeResult($encounter, $this->model->getMatches((int) $encounter->id));
 
         $logo = static function (string $file): ?string {
             $path = FCPATH . 'assets/images/' . $file;
@@ -97,12 +152,10 @@ class ScoreboardTeamController extends BaseController
         $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
 
-        $filename = 'recapitulatif_' . url_title($encounter->competition . '-' . $encounter->code, '-', true) . '.pdf';
-
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
-            ->setBody($dompdf->output());
+        return [
+            $dompdf->output(),
+            'recapitulatif_' . url_title($encounter->competition . '-' . $encounter->code, '-', true) . '.pdf',
+        ];
     }
 
     public function edit(int $id): string

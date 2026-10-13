@@ -114,13 +114,31 @@ $statusBadge = static fn (string $s): string => match ($s) {
       <a href="<?= base_url('admin/scoreboard/teams/' . $encounter->id . '/pdf') ?>" target="_blank" class="btn btn-sm btn-primary">
         <i class="fas fa-file-pdf mr-1"></i>Feuille récapitulative
       </a>
+      <form method="post" action="<?= base_url('admin/scoreboard/teams/' . $encounter->id . '/send') ?>" class="d-inline"
+            onsubmit="return confirm(<?= esc(json_encode(($encounter->recap_sent_at ? 'La feuille a déjà été envoyée le ' . date('d/m/Y à H:i', strtotime($encounter->recap_sent_at)) . ".\n\n" : '') . "Envoyer la feuille récapitulative à :\n" . implode("\n", $recipients), JSON_UNESCAPED_UNICODE), 'attr') ?>)">
+        <?= csrf_field() ?>
+        <button class="btn btn-sm btn-success ml-1" <?= $recipients ? '' : 'disabled title="Aucune adresse e-mail encodée"' ?>>
+          <i class="fas fa-paper-plane mr-1"></i><?= $encounter->recap_sent_at ? 'Renvoyer' : 'Envoyer' ?> par e-mail
+        </button>
+      </form>
       <?php else: ?>
       <button class="btn btn-sm btn-primary" disabled title="Disponible quand tous les matchs sont terminés">
         <i class="fas fa-file-pdf mr-1"></i>Feuille récapitulative
       </button>
+      <button class="btn btn-sm btn-success ml-1" disabled title="Disponible quand tous les matchs sont terminés">
+        <i class="fas fa-paper-plane mr-1"></i>Envoyer par e-mail
+      </button>
       <?php endif; ?>
     </div>
   </div>
+  <?php if ($encounter->recap_sent_at): ?>
+  <div class="px-3 pt-3 mb-n2">
+    <div class="alert alert-light border mb-0 py-2">
+      <i class="fas fa-check-circle text-success mr-2"></i>Feuille récapitulative envoyée le
+      <strong><?= date('d/m/Y à H:i', strtotime($encounter->recap_sent_at)) ?></strong> à <?= esc($encounter->recap_sent_to) ?>.
+    </div>
+  </div>
+  <?php endif; ?>
   <div class="card-body">
     <?php if ($result['total'] === 0): ?>
       <p class="text-muted mb-0">En attente des matchs.</p>

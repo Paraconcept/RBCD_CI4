@@ -24,7 +24,7 @@ class ScoreboardTeamEncounterModel extends Model
 
     protected $allowedFields = [
         'code', 'competition', 'team_id', 'team_name', 'team_club', 'team_number', 'team_email', 'opponent_club', 'opponent_number', 'opponent_email',
-        'scheduled_at', 'discipline', 'format', 'notes', 'created_by',
+        'scheduled_at', 'discipline', 'format', 'notes', 'recap_sent_at', 'recap_sent_to', 'created_by',
     ];
 
     protected $useTimestamps = true;
