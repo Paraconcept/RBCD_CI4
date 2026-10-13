@@ -44,6 +44,11 @@ $config = [
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= esc($match->p1_last_name . ' – ' . $match->p2_last_name) ?> | Marquoir RBCD</title>
     <link rel="shortcut icon" href="<?= base_url('assets/images/favicons/favicon.ico') ?>">
+    <?php if (str_starts_with(uri_string(), 'marquoir')): // pas sur les pages publiques « En direct » ?>
+    <link rel="manifest" href="<?= base_url('marquoir.webmanifest') ?>">
+    <meta name="theme-color" content="#0a1020">
+    <link rel="apple-touch-icon" href="<?= base_url('assets/images/pwa/marquoir-180.png') ?>">
+    <?php endif; ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">

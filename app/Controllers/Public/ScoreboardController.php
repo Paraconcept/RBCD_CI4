@@ -37,6 +37,36 @@ class ScoreboardController extends BaseController
         ]);
     }
 
+    /**
+     * Manifeste d'application : le marquoir s'installe sur les Chromebooks (étagère) avec l'écusson du club.
+     */
+    public function manifest()
+    {
+        $icon = static fn (string $file, int $size, string $purpose) => [
+            'src' => base_url('assets/images/pwa/' . $file), 'sizes' => $size . 'x' . $size, 'type' => 'image/png', 'purpose' => $purpose,
+        ];
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/manifest+json; charset=utf-8')
+            ->setBody(json_encode([
+                'id'               => base_url('marquoir'),
+                'name'             => 'Marquoir RBC Disonais',
+                'short_name'       => 'Marquoir',
+                'description'      => 'Marquoirs électroniques des billards du RBC Disonais.',
+                'lang'             => 'fr',
+                'start_url'        => base_url('marquoir'),
+                'scope'            => base_url('marquoir'),
+                'display'          => 'standalone',
+                'background_color' => '#0a1020',
+                'theme_color'      => '#0a1020',
+                'icons'            => [
+                    $icon('marquoir-192.png', 192, 'any'),
+                    $icon('marquoir-512.png', 512, 'any'),
+                    $icon('marquoir-maskable-512.png', 512, 'maskable'),
+                ],
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+    }
+
     public function accessPost()
     {
         $pin = (string) $this->settings->getSetting('scoreboard_pin', '');

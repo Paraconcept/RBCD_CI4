@@ -86,6 +86,8 @@ $routes->get('en-direct/api/(:num)',   'Public\LiveController::state/$1');
 
 // Marquoir (Chromebooks des billards) — accès par code PIN mémorisé sur l'appareil
 $routes->get ('marquoir/acces', 'Public\ScoreboardController::access');
+// Hors du filtre PIN : Chrome lit le manifeste sans les cookies de l'appareil
+$routes->get ('marquoir.webmanifest', 'Public\ScoreboardController::manifest');
 $routes->post('marquoir/acces', 'Public\ScoreboardController::accessPost');
 $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($routes) {
     $routes->get ('/',                             'Public\ScoreboardController::index');
