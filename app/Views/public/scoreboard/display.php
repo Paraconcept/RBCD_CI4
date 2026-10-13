@@ -151,7 +151,7 @@ $config = [
         <span><kbd>Entrée</kbd> fin de reprise</span>
         <?php if ($match->shot_clock_enabled): ?>
         <span><kbd>*</kbd> chrono départ/pause</span>
-        <span><kbd>,</kbd> time-out</span>
+        <span><kbd>.</kbd> time-out</span>
         <?php endif; ?>
         <span><kbd>/</kbd> effacer la saisie</span>
         <span><kbd>Échap</kbd> menu</span>

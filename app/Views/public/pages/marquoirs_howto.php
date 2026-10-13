@@ -67,7 +67,7 @@
 .mh-key { border-radius: 9px; background: #2f4a7a; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-weight: 800; font-size: 1.6rem; line-height: 1; box-shadow: inset 0 -4px 0 rgba(0,0,0,.35); padding: 6px 2px; text-align: center; }
 .mh-key small { font-family: 'Barlow'; font-weight: 600; font-size: .62rem; margin-top: 3px; line-height: 1.05; }
 .mh-key.off { background: #2a3043; color: #6f7891; font-size: 1rem; }
-.mh-key.plus { background: #16a34a; grid-row: span 2; }
+.mh-key.plus { background: #16a34a; }
 .mh-key.minus { background: #d97706; }
 .mh-key.enter { background: var(--red); grid-row: span 2; }
 .mh-key.star { background: #0284c7; }
@@ -218,17 +218,18 @@
         <div class="row g-4 align-items-start">
           <div class="col-lg-4">
             <div class="mh-pad">
-              <div class="mh-key off">Verr<small>num</small></div>
+              <div class="mh-key off">Num<small>Lock</small></div>
               <div class="mh-key slash">/<small>effacer</small></div>
               <div class="mh-key star">*<small>chrono</small></div>
-              <div class="mh-key minus">−<small>corriger</small></div>
+              <div class="mh-key slash">⌫<small>effacer</small></div>
               <div class="mh-key">7</div><div class="mh-key">8</div><div class="mh-key">9</div>
-              <div class="mh-key plus">+<small>1 point</small></div>
+              <div class="mh-key minus">−<small>corriger</small></div>
               <div class="mh-key">4</div><div class="mh-key">5</div><div class="mh-key">6</div>
+              <div class="mh-key plus">+<small>1 point</small></div>
               <div class="mh-key">1</div><div class="mh-key">2</div><div class="mh-key">3</div>
               <div class="mh-key enter">⏎<small>fin de reprise</small></div>
               <div class="mh-key zero">0</div>
-              <div class="mh-key dot">,<small>time-out</small></div>
+              <div class="mh-key dot">.<small>time-out</small></div>
             </div>
           </div>
           <div class="col-lg-8">
@@ -237,9 +238,9 @@
               <div class="sw" style="background:#84252B">⏎</div><div><b>Fin de reprise</b>La série est ajoutée au score et la main passe à l'adversaire.</div>
               <div class="sw" style="background:#d97706">−</div><div><b>Corriger</b>Retire 1 point. Si la série est à 0, rouvre la reprise précédente pour la corriger.</div>
               <div class="sw" style="background:#2f4a7a">0-9</div><div><b>Série directe</b>Tapez la série (ex. <kbd>1</kbd><kbd>2</kbd>) puis <kbd>Entrée</kbd> : pratique pour une longue série.</div>
-              <div class="sw" style="background:#64748b">/</div><div><b>Effacer la saisie</b>Annule une série tapée par erreur, avant <kbd>Entrée</kbd>.</div>
+              <div class="sw" style="background:#64748b">/ ⌫</div><div><b>Effacer la saisie</b>Annule une série tapée par erreur, avant <kbd>Entrée</kbd> (touche <kbd>/</kbd> ou <kbd>⌫</kbd>).</div>
               <div class="sw" style="background:#0284c7">*</div><div><b>Chrono</b>Lance ou met en pause le chrono par coup (et lance l'échauffement).</div>
-              <div class="sw" style="background:#7c3aed">,</div><div><b>Time-out</b>Le joueur demande un time-out : 40 secondes de plus.</div>
+              <div class="sw" style="background:#7c3aed">.</div><div><b>Time-out</b>Le joueur demande un time-out : 40 secondes de plus.</div>
               <div class="sw" style="background:#0a1020;font-size:.95rem">Échap</div><div><b>Menu (clavier du Chromebook)</b>Plein écran, inverser les joueurs, retour au billard, annuler la partie. Un double-clic sur l'écran ouvre aussi ce menu.</div>
             </div>
           </div>
