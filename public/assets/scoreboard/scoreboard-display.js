@@ -330,6 +330,23 @@
     const fmtAvg = (pts, inn) => (inn > 0 ? pts / inn : 0).toFixed(3).replace('.', ',');
     const name = (p) => C.players[p].last + ' ' + C.players[p].first;
 
+    // Nom de famille trop long pour la case : police réduite juste assez pour l'afficher en entier
+    function fitNames() {
+        document.querySelectorAll('.sbd-last').forEach(function (el) {
+            el.style.fontSize = '';
+            const base = parseFloat(getComputedStyle(el).fontSize);
+            let size = base;
+            for (let i = 0; i < 6 && el.scrollWidth > el.clientWidth + 1 && size > base * 0.4; i++) {
+                size = Math.max(base * 0.4, size * el.clientWidth / el.scrollWidth * 0.98);
+                el.style.fontSize = size + 'px';
+            }
+        });
+    }
+    fitNames();
+    window.addEventListener('resize', fitNames);
+    document.addEventListener('fullscreenchange', fitNames);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNames);
+
     // « Pour 5 … Pour 1 » (3 bandes : à partir de 3) quand il ne manque plus que quelques points au joueur à la table
     const POUR = C.discipline === '3bandes' ? [3, 2, 1] : [5, 4, 3, 2, 1];
     let pourKey = null, pourTimer = null;
