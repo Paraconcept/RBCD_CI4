@@ -77,7 +77,7 @@ $config = [
         <?php if ($n === 2): ?>
         <section class="sbd-center">
             <div class="sbd-box sbd-innings">
-                <span>Reprise</span>
+                <span>Reprises</span>
                 <b id="sbdInnings">1</b>
                 <small id="sbdInningsLimit"></small>
             </div>
