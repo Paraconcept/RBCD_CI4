@@ -241,6 +241,9 @@
 
 .sbd-menu { display: flex; flex-direction: column; gap: 1.5vh; min-width: 30vw; font-family: 'Barlow', sans-serif; }
 .sbd-menu .btn { font-size: 2.4vh; padding: 1.4vh 2vw; }
+.sbd-menu .btn.kbd-focus { outline: .5vh solid var(--sb-p2); outline-offset: .4vh; }
+.sbd-menu-keys, .sbd-swal-keys { text-align: center; font-size: 2vh; color: var(--sb-muted); }
+.sbd-menu-keys kbd, .sbd-swal-keys kbd { background: rgba(255,255,255,.12); color: #fff; border-radius: .5vh; padding: .1vh .6vh; font-family: inherit; font-weight: 700; }
 
 .sbd-swal { font-family: 'Barlow', sans-serif; border: 3px solid var(--sb-red); border-radius: 18px; }
 .sbd-swal .swal2-title { font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem; }

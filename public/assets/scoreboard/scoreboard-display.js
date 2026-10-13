@@ -250,24 +250,6 @@
         renderClock();
     }
 
-    function extension() {
-        if (!C.clock.enabled || st.finished) return;
-        const i = current() - 1;
-        if (st.ext[i] >= C.clock.extensions - 1) return;
-        st.ext[i]++;
-        const add = C.clock.seconds * 1000;
-        if (clock.running) {
-            clock.endAt = Math.max(clock.endAt, Date.now()) + add;
-        } else {
-            clock.left = Math.max(clock.left, 0) + add;
-            clock.running = true;
-            clock.endAt = Date.now() + clock.left;
-        }
-        clock.total = clockLeft();
-        clock.lastSec = null;
-        commit();
-    }
-
     function renderClock() {
         const box = $('sbdClock');
         // Le chrono vit sur le Chromebook du billard : il n'est pas transmis aux spectateurs
@@ -621,9 +603,9 @@
         if (code === 'NumpadSubtract' || key === '-') return 'minus';
         if (code === 'NumpadEnter' || code === 'Enter' || key === 'Enter') return 'enter';
         if (code === 'NumpadMultiply' || key === '*') return 'clock';
-        if (code === 'NumpadDecimal' || key === ',' || key === '.') return 'ext';
-        if (code === 'NumpadDivide' || key === '/' || key === 'Backspace') return 'clear';
-        if (key === 'Escape') return 'menu';
+        if (code === 'NumpadDivide' || key === '/') return 'clear';
+        // Retour arrière du pavé : le menu reste accessible sans le clavier du Chromebook
+        if (key === 'Backspace' || key === 'Escape') return 'menu';
         // event.code reste « NumpadX » même avec le Verr. Num désactivé
         if (/^Numpad[0-9]$/.test(code)) return 'd' + code.slice(-1);
         if (/^[0-9]$/.test(key)) return 'd' + key;
@@ -638,21 +620,49 @@
             swapForm.hidden = st.finished || st.innings.length > 0 || st.run > 0;
             menu.classList.add('open');
             root.classList.add('show-cursor');
+            focusMenu(0);
         };
         swapForm.addEventListener('submit', function () {
             try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignoré */ }
         });
         const closeMenu = () => { menu.classList.remove('open'); };
 
-        document.addEventListener('keydown', function (e) {
-            // La boîte de confirmation gère elle-même Entrée / Échap
-            if (window.Swal && Swal.isVisible()) return;
+        // Navigation au pavé dans le menu : 8 / 2 pour se déplacer, Entrée pour valider
+        let menuIndex = 0;
+        const menuItems = () => [...menu.querySelectorAll('.btn')].filter((b) => b.offsetParent !== null);
+        function focusMenu(i) {
+            const items = menuItems();
+            if (!items.length) return;
+            menuIndex = (i + items.length) % items.length;
+            items.forEach((b, k) => b.classList.toggle('kbd-focus', k === menuIndex));
+            items[menuIndex].focus({ preventScroll: true });
+        }
+
+        // Boîte de confirmation au pavé : 4 / 6 (ou 8 / 2) changent de bouton, Retour arrière répond « non »
+        function swalKey(e, a) {
+            if (a === 'menu') { e.preventDefault(); e.stopPropagation(); Swal.clickCancel(); return; }
+            if (['d2', 'd4', 'd6', 'd8'].indexOf(a) === -1) return;
+            // La boîte gère déjà les flèches (Verr. Num désactivé) : on évite un double changement
+            e.preventDefault();
+            e.stopPropagation();
+            const ok = Swal.getConfirmButton(), no = Swal.getCancelButton();
+            (document.activeElement === ok ? no : ok).focus();
+        }
+
+        // Phase de capture sur window : la boîte de confirmation intercepte sinon les touches avant nous
+        window.addEventListener('keydown', function (e) {
             const a = actionFor(e);
+            // Entrée et Échap sont gérés par la boîte de confirmation elle-même
+            if (window.Swal && Swal.isVisible()) { swalKey(e, a); return; }
             if (!a) return;
             e.preventDefault();
 
             if (menu.classList.contains('open')) {
-                if (a === 'menu' || a === 'enter') closeMenu();
+                if (e.repeat) return;
+                if (a === 'menu') closeMenu();
+                else if (a === 'd8') focusMenu(menuIndex - 1);
+                else if (a === 'd2') focusMenu(menuIndex + 1);
+                else if (a === 'enter') { const b = menuItems()[menuIndex]; if (b) b.click(); }
                 return;
             }
             if (e.repeat && a !== 'plus' && a !== 'minus') return;
@@ -682,12 +692,11 @@
                 case 'minus': minus(); break;
                 case 'enter': endInning(); break;
                 case 'clock': toggleClock(); break;
-                case 'ext':   extension(); break;
                 case 'clear': clearBuffer(); break;
                 case 'menu':  openMenu(); break;
                 default:      digit(a.slice(1));
             }
-        });
+        }, true);
 
         menu.addEventListener('click', function (e) {
             const btn = e.target.closest('[data-action]');
@@ -715,7 +724,7 @@
             if (!window.Swal) { waitSynced(5000).then(function () { form.submit(); }, function () {}); return; }
             Swal.fire({
                 title: 'Rejouer la même partie ?',
-                html: 'Mêmes joueurs, même mode de jeu.<br><kbd>Entrée</kbd> oui &nbsp;·&nbsp; <kbd>Échap</kbd> non',
+                html: 'Mêmes joueurs, même mode de jeu.<br><kbd>Entrée</kbd> oui &nbsp;·&nbsp; <kbd>⌫</kbd> non',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Oui, rejouer',
@@ -755,6 +764,7 @@
                 cancelButtonText: 'Non, continuer la partie',
                 reverseButtons: true,
                 focusCancel: true,
+                footer: '<span class="sbd-swal-keys"><kbd>4</kbd> <kbd>6</kbd> choisir &nbsp;·&nbsp; <kbd>Entrée</kbd> valider &nbsp;·&nbsp; <kbd>⌫</kbd> non</span>',
                 background: '#16213d',
                 color: '#eef1f7',
                 iconColor: '#f59e0b',

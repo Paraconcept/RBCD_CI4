@@ -72,7 +72,7 @@
 .mh-key.enter { background: var(--red); grid-row: span 2; }
 .mh-key.star { background: #0284c7; }
 .mh-key.slash { background: #64748b; }
-.mh-key.dot { background: #7c3aed; }
+.mh-key.menu { background: #0d9488; }
 .mh-key.zero { grid-column: span 2; }
 .mh-legend { display: grid; grid-template-columns: 64px 1fr; gap: .7rem .9rem; align-items: center; }
 .mh-legend .sw { height: 38px; border-radius: 8px; color: #fff; display: grid; place-items: center; font-family: 'Barlow Condensed'; font-weight: 800; font-size: 1.2rem; }
@@ -206,7 +206,7 @@
           <li>À la fin (ou avant), <kbd>Entrée</kbd> ramène à l'écran de choix. Recommencez pour le <b>2<sup>e</sup> échauffement</b>.</li>
           <li>Appuyez sur <kbd>1</kbd> ou <kbd>2</kbd> pour désigner <b>le joueur qui commence</b>.</li>
           <li>Il se place automatiquement <b>à gauche, en blanc</b>. Son adversaire joue à droite, en jaune.</li>
-          <li><b>Mauvais joueur ?</b> Double-cliquez sur l'écran du marquoir puis choisissez <b>« Inverser les deux joueurs »</b> (possible tant qu'aucun coup n'a été joué).</li>
+          <li><b>Mauvais joueur ?</b> Appuyez sur <kbd>⌫</kbd> pour ouvrir le menu, puis choisissez <b>« Inverser les deux joueurs »</b> (possible tant qu'aucun coup n'a été joué).</li>
         </ol>
       </div>
     </div>
@@ -221,7 +221,7 @@
               <div class="mh-key off">Num<small>Lock</small></div>
               <div class="mh-key slash">/<small>effacer</small></div>
               <div class="mh-key star">*<small>chrono</small></div>
-              <div class="mh-key slash">⌫<small>effacer</small></div>
+              <div class="mh-key menu">⌫<small>menu</small></div>
               <div class="mh-key">7</div><div class="mh-key">8</div><div class="mh-key">9</div>
               <div class="mh-key minus">−<small>corriger</small></div>
               <div class="mh-key">4</div><div class="mh-key">5</div><div class="mh-key">6</div>
@@ -229,7 +229,7 @@
               <div class="mh-key">1</div><div class="mh-key">2</div><div class="mh-key">3</div>
               <div class="mh-key enter">⏎<small>fin de reprise</small></div>
               <div class="mh-key zero">0</div>
-              <div class="mh-key dot">.<small>time-out</small></div>
+              <div class="mh-key off">.<small>Del</small></div>
             </div>
           </div>
           <div class="col-lg-8">
@@ -238,10 +238,9 @@
               <div class="sw" style="background:#84252B">⏎</div><div><b>Fin de reprise</b>La série est ajoutée au score et la main passe à l'adversaire.</div>
               <div class="sw" style="background:#d97706">−</div><div><b>Corriger</b>Retire 1 point. Si la série est à 0, rouvre la reprise précédente pour la corriger.</div>
               <div class="sw" style="background:#2f4a7a">0-9</div><div><b>Série directe</b>Tapez la série (ex. <kbd>1</kbd><kbd>2</kbd>) puis <kbd>Entrée</kbd> : pratique pour une longue série.</div>
-              <div class="sw" style="background:#64748b">/ ⌫</div><div><b>Effacer la saisie</b>Annule une série tapée par erreur, avant <kbd>Entrée</kbd> (touche <kbd>/</kbd> ou <kbd>⌫</kbd>).</div>
+              <div class="sw" style="background:#64748b">/</div><div><b>Effacer la saisie</b>Annule une série tapée par erreur, avant <kbd>Entrée</kbd>.</div>
               <div class="sw" style="background:#0284c7">*</div><div><b>Chrono</b>Lance ou met en pause le chrono par coup (et lance l'échauffement).</div>
-              <div class="sw" style="background:#7c3aed">.</div><div><b>Time-out</b>Le joueur demande un time-out : 40 secondes de plus.</div>
-              <div class="sw" style="background:#0a1020;font-size:.95rem">Échap</div><div><b>Menu (clavier du Chromebook)</b>Plein écran, inverser les joueurs, retour au billard, annuler la partie. Un double-clic sur l'écran ouvre aussi ce menu.</div>
+              <div class="sw" style="background:#0d9488">⌫</div><div><b>Menu</b>Plein écran, inverser les joueurs, retour au billard, annuler la partie. Dans le menu : <kbd>8</kbd> <kbd>2</kbd> pour se déplacer, <kbd>Entrée</kbd> pour valider, <kbd>⌫</kbd> pour fermer.</div>
             </div>
           </div>
         </div>
@@ -314,7 +313,7 @@
           </div>
           <div class="col-md-6">
             <div class="mh-note orange"><b>Une erreur ?</b> — <kbd>−</kbd> retire un point ; à 0, il rouvre la reprise précédente. Ça fonctionne même après la fin de la partie.</div>
-            <div class="mh-note"><b>Abandonner</b> — <kbd>Échap</kbd> ouvre le menu : « Annuler la partie » (amicale) ou « Remettre à zéro » (rencontre officielle). Une confirmation est toujours demandée.</div>
+            <div class="mh-note"><b>Abandonner</b> — <kbd>⌫</kbd> ouvre le menu : « Annuler la partie » (amicale) ou « Remettre à zéro » (rencontre officielle). Une confirmation est toujours demandée.</div>
           </div>
         </div>
       </div>

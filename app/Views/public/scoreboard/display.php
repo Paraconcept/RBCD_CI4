@@ -151,10 +151,9 @@ $config = [
         <span><kbd>Entrée</kbd> fin de reprise</span>
         <?php if ($match->shot_clock_enabled): ?>
         <span><kbd>*</kbd> chrono départ/pause</span>
-        <span><kbd>.</kbd> time-out</span>
         <?php endif; ?>
         <span><kbd>/</kbd> effacer la saisie</span>
-        <span><kbd>Échap</kbd> menu</span>
+        <span><kbd>⌫</kbd> menu</span>
     </footer>
     <?php endif; ?>
 
@@ -213,7 +212,8 @@ $config = [
                   data-confirm="<?= $match->type === 'friendly' ? 'Oui, annuler la partie' : 'Oui, remettre à zéro' ?>">
                 <button type="button" class="btn btn-danger w-100" data-action="cancel"><i class="fas fa-ban me-2"></i><?= $match->type === 'friendly' ? 'Annuler la partie' : 'Remettre la rencontre à zéro' ?></button>
             </form>
-            <button type="button" class="btn btn-outline-light" data-action="close"><i class="fas fa-xmark me-2"></i>Fermer (Échap)</button>
+            <button type="button" class="btn btn-outline-light" data-action="close"><i class="fas fa-xmark me-2"></i>Fermer</button>
+            <div class="sbd-menu-keys"><kbd>8</kbd> <kbd>2</kbd> se déplacer &nbsp;·&nbsp; <kbd>Entrée</kbd> valider &nbsp;·&nbsp; <kbd>⌫</kbd> fermer</div>
         </div>
     </div>
     <?php endif; ?>
