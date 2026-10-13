@@ -92,6 +92,8 @@ $routes->post('marquoir/acces', 'Public\ScoreboardController::accessPost');
 $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($routes) {
     $routes->get ('/',                             'Public\ScoreboardController::index');
     $routes->get ('billard/(:num)',                'Public\ScoreboardController::table/$1');
+    $routes->post('billard/(:num)/ce-chromebook',  'Public\ScoreboardController::rememberTable/$1');
+    $routes->post('billard/oublier',               'Public\ScoreboardController::forgetTable');
     $routes->get ('billard/(:num)/amicale',        'Public\ScoreboardController::friendly/$1');
     $routes->post('billard/(:num)/amicale',        'Public\ScoreboardController::friendlyStore/$1');
     $routes->get ('billard/(:num)/demarrer/(:num)', 'Public\ScoreboardController::start/$1/$2');

@@ -20,6 +20,6 @@
     <?php endforeach; ?>
 </div>
 <p class="text-secondary small mt-4 mb-0">
-    <i class="fas fa-lightbulb me-1"></i>Astuce : ajoutez la page de votre billard aux favoris du Chromebook pour y revenir directement.
+    <i class="fas fa-lightbulb me-1"></i>Astuce : sur chaque Chromebook, ouvrez la page de son billard et cliquez sur « Ce Chromebook est … » : le marquoir s'y ouvrira ensuite directement.
 </p>
 <?= $this->endSection() ?>

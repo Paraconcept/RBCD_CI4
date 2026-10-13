@@ -65,6 +65,23 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
             <span class="sb-tile-name">Partie amicale</span>
             <small class="text-secondary">Lancer une nouvelle partie</small>
         </a>
+        <div class="sb-card sb-device mb-4">
+            <?php if ($deviceTable && (int) $deviceTable->id === (int) $table->id): ?>
+                <p class="mb-2"><i class="fas fa-laptop me-2 sb-accent"></i>Ce Chromebook est <b><?= esc($table->name) ?></b> : le marquoir s'ouvre directement ici.</p>
+                <form method="post" action="<?= base_url('marquoir/billard/oublier') ?>" onsubmit="return confirm('Ce Chromebook ne sera plus associé à <?= esc($table->name, 'js') ?>.')">
+                    <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-unlink me-1"></i>Oublier</button>
+                    <a href="<?= base_url('marquoir?tous=1') ?>" class="btn btn-sm btn-outline-secondary ms-1"><i class="fas fa-th-large me-1"></i>Tous les billards</a>
+                </form>
+            <?php else: ?>
+                <?php if ($deviceTable): ?>
+                <p class="small text-warning mb-2"><i class="fas fa-triangle-exclamation me-1"></i>Ce Chromebook est actuellement associé à <?= esc($deviceTable->name) ?>.</p>
+                <?php endif; ?>
+                <form method="post" action="<?= base_url('marquoir/billard/' . $table->id . '/ce-chromebook') ?>">
+                    <button class="btn btn-outline-light w-100"><i class="fas fa-laptop me-2"></i>Ce Chromebook est « <?= esc($table->name) ?> »</button>
+                </form>
+                <small class="text-secondary d-block mt-2">Le marquoir s'ouvrira ensuite directement sur ce billard.</small>
+            <?php endif; ?>
+        </div>
         <?php if ($lastFinished): ?>
         <h3 class="h6 text-secondary text-uppercase mb-2">Dernières parties</h3>
         <ul class="list-unstyled sb-last">

@@ -78,8 +78,13 @@ class ScoreboardController extends BaseController
             ->setCookie(ScoreboardDeviceFilter::COOKIE, ScoreboardDeviceFilter::tokenFor($pin), 5 * 365 * 86400);
     }
 
-    public function index(): string
+    public function index()
     {
+        // Un Chromebook qui connaît son billard s'y ouvre directement (?tous=1 pour voir la liste)
+        if (!$this->request->getGet('tous') && ($own = $this->deviceTable())) {
+            return redirect()->to(base_url('marquoir/billard/' . $own->id));
+        }
+
         $tables = $this->tables->getActive();
         foreach ($tables as $t) {
             $t->live = $this->matches->getLiveForTable((int) $t->id);
@@ -110,7 +115,33 @@ class ScoreboardController extends BaseController
             'upcoming'     => $this->matches->getUpcomingForTable($tableId),
             'lastFinished' => $lastFinished,
             'startWindow'  => $this->startWindow(),
+            'deviceTable'  => $this->deviceTable(),
         ]);
+    }
+
+    /** « Ce Chromebook est le billard n° X » : retenu sur l'appareil pendant 5 ans. */
+    public function rememberTable(int $tableId)
+    {
+        $table = $this->findTable($tableId);
+
+        return redirect()->to(base_url('marquoir/billard/' . $table->id))
+            ->setCookie(ScoreboardDeviceFilter::TABLE_COOKIE, (string) $table->id, 5 * 365 * 86400)
+            ->with('success', 'Ce Chromebook est désormais « ' . $table->name . ' » : le marquoir s\'ouvrira directement ici.');
+    }
+
+    public function forgetTable()
+    {
+        return redirect()->to(base_url('marquoir?tous=1'))
+            ->deleteCookie(ScoreboardDeviceFilter::TABLE_COOKIE)
+            ->with('success', 'Ce Chromebook n\'est plus associé à un billard.');
+    }
+
+    private function deviceTable(): ?object
+    {
+        helper('cookie');
+        $id = (int) get_cookie(ScoreboardDeviceFilter::TABLE_COOKIE);
+        $table = $id > 0 ? $this->tables->find($id) : null;
+        return $table && $table->is_active ? $table : null;
     }
 
     public function friendly(int $tableId): string

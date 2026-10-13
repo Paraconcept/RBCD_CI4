@@ -10,6 +10,8 @@ use CodeIgniter\HTTP\ResponseInterface;
 class ScoreboardDeviceFilter implements FilterInterface
 {
     public const COOKIE = 'rbcd_scoreboard';
+    // Billard de ce Chromebook : un cookie n'est pas synchronisé par le compte Google, contrairement aux favoris
+    public const TABLE_COOKIE = 'rbcd_scoreboard_table';
 
     public static function tokenFor(string $pin): string
     {
