@@ -108,6 +108,13 @@
     </table>
     <?php endforeach; ?>
   </div>
+  <form method="post" action="<?= base_url('admin/scoreboard/' . $match->id . '/comment') ?>" class="px-3 pb-3" id="commentaire">
+    <?= csrf_field() ?>
+    <h5 class="mb-2"><i class="fas fa-comment-dots mr-1"></i>Commentaire de la feuille de match</h5>
+    <textarea name="comment" class="form-control mb-2" rows="2" maxlength="500" style="max-width:1000px"
+              placeholder="Incident, réserve, remarque de l'arbitre… (imprimé sur la feuille de match PDF)"><?= esc($match->comment ?? '') ?></textarea>
+    <button class="btn btn-primary btn-sm"><i class="fas fa-save mr-1"></i>Enregistrer le commentaire</button>
+  </form>
   <div class="card-footer d-flex">
     <a href="<?= base_url('admin/scoreboard') ?>" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>Retour</a>
     <a href="<?= base_url('admin/scoreboard/' . $match->id . '/pdf') ?>" target="_blank" class="btn btn-primary ml-auto">

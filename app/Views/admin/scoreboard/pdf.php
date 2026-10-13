@@ -101,7 +101,11 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
     <div style="height:6mm"></div>
     <div class="field"><b>Date :</b> <span><?= $date ? date('d/m/Y', strtotime($date)) : '' ?></span></div>
     <div class="field thick"><b>Epreuve :</b> <span><?= esc(M::competitionLabel($match) ?: ($match->type === 'friendly' ? 'Partie amicale' : '')) ?></span></div>
+    <?php if (!empty($match->comment)): ?>
+    <div class="field" style="height:auto;min-height:7mm;font-size:8.5pt;padding-bottom:1mm"><b>Remarques :</b> <?= nl2br(esc($match->comment)) ?></div>
+    <?php else: ?>
     <div class="field"></div>
+    <?php endif; ?>
     <div style="height:7mm"></div>
     <div class="field thick"><b>Mode de jeu :</b> <span><?= esc(M::disciplineLabel($match)) ?><?= $match->innings_limit ? ' — ' . (int) $match->innings_limit . ' reprises max.' : '' ?><?= M::isSets($match) ? ' — set ' . $setNo . ' (' . esc(M::distanceLabel($match)) . ')' : '' ?></span><?= $pages > 1 ? ' <span class="small">(feuille ' . ($page + 1) . '/' . $pages . ')</span>' : '' ?></div>
 

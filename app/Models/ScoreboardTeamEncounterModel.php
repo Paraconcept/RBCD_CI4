@@ -24,7 +24,7 @@ class ScoreboardTeamEncounterModel extends Model
 
     protected $allowedFields = [
         'code', 'competition', 'team_id', 'team_name', 'team_club', 'team_number', 'team_email', 'opponent_club', 'opponent_number', 'opponent_email',
-        'scheduled_at', 'discipline', 'format', 'notes', 'recap_sent_at', 'recap_sent_to', 'created_by',
+        'scheduled_at', 'discipline', 'format', 'notes', 'recap_comment', 'recap_sent_at', 'recap_sent_to', 'created_by',
     ];
 
     protected $useTimestamps = true;
@@ -92,6 +92,59 @@ class ScoreboardTeamEncounterModel extends Model
             }
         }
         return [];
+    }
+
+    /**
+     * Forfait complet d'une équipe : tous les matchs de la rencontre (complétés jusqu'à 3) sont perdus
+     * par forfait par l'équipe absente ($side = 'home' ou 'away'). Les matchs déjà joués sont laissés tels quels.
+     * Retourne le nombre de matchs déclarés forfait.
+     */
+    public function declareTeamForfeit(object $e, string $side, ?int $createdBy = null, int $matchesPerEncounter = 3): int
+    {
+        $model   = new ScoreboardMatchModel();
+        $matches = $this->getMatches((int) $e->id);
+        $count   = 0;
+
+        foreach ($matches as $m) {
+            if ((int) $m->p1_innings + (int) $m->p2_innings > 0 || $m->status === 'live') {
+                continue;
+            }
+            $homeSide = self::homeSide($e, $m);
+            $absent   = $side === 'home' ? $homeSide : 3 - $homeSide;
+            $model->update($m->id, ScoreboardMatchModel::forfeitData($absent | (int) $m->absent, $m->scheduled_at));
+            $count++;
+        }
+
+        $roster = $this->getRoster($e->team_id ? (int) $e->team_id : null);
+        $used   = array_filter(array_map(static fn ($m) => (int) $m->p1_member_id ?: (int) $m->p2_member_id, $matches));
+        $roster = array_values(array_filter($roster, static fn ($r) => !in_array((int) $r->id, $used, true)));
+        for ($i = count($matches); $i < $matchesPerEncounter; $i++) {
+            $home = $side === 'home' ? null : array_shift($roster);
+            $model->insert(array_merge([
+                'type' => 'official', 'team_encounter_id' => $e->id, 'scheduled_at' => $e->scheduled_at,
+                'discipline' => $e->discipline, 'format' => $e->format,
+                'p1_member_id' => $home->id ?? null, 'p1_license' => $home->frbb_license ?? null,
+                'p1_last_name' => $home ? mb_strtoupper($home->last_name, 'UTF-8') : ($side === 'home' ? 'ABSENT' : 'JOUEUR ' . ($i + 1)),
+                'p1_first_name' => $home->first_name ?? '', 'p1_club' => self::homeLabel($e), 'p1_distance' => 0,
+                'p2_last_name' => $side === 'away' ? 'ABSENT' : 'JOUEUR ' . ($i + 1), 'p2_first_name' => '',
+                'p2_club' => self::awayLabel($e), 'p2_distance' => 0,
+                'created_by' => $createdBy,
+            ], ScoreboardMatchModel::forfeitData($side === 'home' ? 1 : 2, $e->scheduled_at)));
+            $count++;
+        }
+
+        return $count;
+    }
+
+    /** Annule les forfaits de la rencontre : les matchs concernés redeviennent à jouer. */
+    public function cancelForfeits(object $e): void
+    {
+        $model = new ScoreboardMatchModel();
+        foreach ($this->getMatches((int) $e->id) as $m) {
+            if ((int) $m->absent > 0) {
+                $model->update($m->id, ['absent' => 0, 'status' => 'scheduled', 'winner' => null, 'finished_at' => null]);
+            }
+        }
     }
 
     public static function normalizeClub(?string $club): string
@@ -166,6 +219,8 @@ class ScoreboardTeamEncounterModel extends Model
      * Résultat de la rencontre selon les règles de la Coupe des Régions :
      * 2 points de match pour une victoire, 1 chacun pour un nul (les deux ont fini), 0 pour une défaite.
      * Équipe : somme des points et des reprises, moyenne = points / reprises, série = meilleure des joueurs.
+     * Forfait : l'absent marque 0, son adversaire 2 (0 chacun si les deux sont absents) ; ces matchs
+     * ne comptent ni dans les points ni dans les reprises de l'équipe.
      */
     public static function computeResult(object $e, array $matches): array
     {
@@ -177,10 +232,13 @@ class ScoreboardTeamEncounterModel extends Model
         foreach ($matches as $m) {
             $homeSide = self::homeSide($e, $m);
             $finished = $m->status === 'finished';
+            $absent   = (int) ($m->absent ?? 0);
             foreach (['home' => $homeSide, 'away' => 3 - $homeSide] as $side => $n) {
                 $p = 'p' . $n;
                 $matchPoints = null;
-                if ($finished) {
+                if ($finished && $absent) {
+                    $matchPoints = ($absent & $n) ? 0 : 2;
+                } elseif ($finished) {
                     $winner      = (int) $m->winner;
                     $matchPoints = $winner === 0 ? 1 : ($winner === $n ? 2 : 0);
                 }
@@ -192,7 +250,9 @@ class ScoreboardTeamEncounterModel extends Model
                     'innings'      => (int) $m->{$p . '_innings'},
                     'high_run'     => (int) $m->{$p . '_high_run'},
                     'match_points' => $matchPoints,
-                    'played'       => $m->status !== 'scheduled',
+                    'played'       => $m->status !== 'scheduled' && !$absent,
+                    'absent'       => (bool) ($absent & $n),
+                    'forfeit'      => $absent > 0,
                 ];
                 $teams[$side]['rows'][]        = $row;
                 $teams[$side]['points']       += $row['points'];

@@ -361,3 +361,34 @@
     80%  { transform: scale(1); opacity: 1; }
     100% { transform: scale(1.4); opacity: 0; }
 }
+
+/* Pause : reste affichée jusqu'à ce que l'arbitre appuie à nouveau sur « . » */
+.sbd-pause { position: fixed; inset: 0; z-index: 45; display: flex; align-items: center; justify-content: center; visibility: hidden;
+             background: rgba(5, 9, 20, .78); backdrop-filter: blur(5px); }
+.sbd-pause > div {
+    text-align: center; padding: 5vh 8vw; border-radius: 4vh; border: .8vh solid var(--sb-p2);
+    background: rgba(10, 16, 32, .94); box-shadow: 0 0 10vh color-mix(in srgb, var(--sb-p2) 40%, transparent);
+    font-family: 'Barlow Condensed', sans-serif; color: var(--sb-p2);
+}
+.sbd-pause img { height: 22vh; margin-bottom: 2vh; }
+.sbd-pause b { display: block; font-size: 20vh; font-weight: 800; text-transform: uppercase; line-height: 1; letter-spacing: .05em; }
+.sbd-pause small { display: block; font-size: 5vh; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: .2em; }
+.sbd-pause.show { visibility: visible; }
+.sbd-pause.show > div { animation: sbd-pause-in .6s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes sbd-pause-in { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* Correction d'une reprise */
+.sbd-fix { min-width: 46vw; }
+.sbd-fix h2 { margin-bottom: 2vh; }
+.sbd-fix-scroll { max-height: 56vh; overflow-y: auto; margin-bottom: 2vh; }
+.sbd-fix table { margin: 0 auto; }
+.sbd-fix thead th { position: sticky; top: 0; background: var(--sb-panel); }
+.sbd-fix td { text-align: center; min-width: 9vw; font-size: 3.6vh; border-radius: 1vh; }
+.sbd-fix td:first-child { text-align: center; color: var(--sb-muted); font-weight: 600; }
+.sbd-fix td.empty { color: var(--sb-muted); }
+.sbd-fix td.sel { outline: .5vh solid var(--sb-p2); outline-offset: -.5vh; }
+.sbd-fix td.editing { background: var(--sb-orange); color: #111; font-weight: 800; }
+.sbd-fix tr.sbd-fix-set td { text-align: left; font-size: 2.4vh; color: var(--sb-p2); text-transform: uppercase; letter-spacing: .12em; padding-top: 1.5vh; }
+.sbd-fix-msg { min-height: 3vh; font-family: 'Barlow', sans-serif; font-size: 2.4vh; color: var(--sb-green); margin-bottom: 1vh; }
+.sbd-fix-msg.err { color: var(--sb-danger); }
+.sbd-fix .sbd-small kbd, .sbd-result .sbd-small kbd { background: rgba(255,255,255,.12); color: #fff; border-radius: .5vh; padding: .1vh .6vh; font-weight: 700; }

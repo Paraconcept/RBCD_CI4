@@ -6,6 +6,7 @@
  *   run     : série en cours du joueur au billard
  *   ext     : extensions de chrono consommées [joueur 1, joueur 2] (par sets : dans le set en cours)
  *   extPrev : par sets, time-outs des sets terminés, pour les rendre si une correction rouvre un set
+ *   paused  : écran « Pause » affiché (aussi chez les spectateurs)
  *   rev     : version, incrémentée à chaque modification
  * Il est gardé dans le navigateur (survit à un rechargement / une coupure Internet)
  * et poussé au serveur dès que possible ; la version la plus récente l'emporte.
@@ -42,6 +43,7 @@
             run: srv.current_run,
             ext: srv.extensions.slice(),
             finished: srv.status === 'finished',
+            paused: !!srv.paused,
         };
         if (C.spectator) return s;
         try {
@@ -198,6 +200,41 @@
         commit();
     }
 
+    // Écran « Pause » : reste affiché jusqu'au prochain appui sur « . » ; le chrono s'arrête
+    function togglePause() {
+        if (st.finished) return;
+        st.paused = !st.paused;
+        if (st.paused) stopClock();
+        commit();
+    }
+
+    /*
+     * Rejoue des séries corrigées depuis le début : null si la partie (ou un set) se serait arrêtée plus tôt,
+     * ou si un joueur dépasserait ses points ; sinon indique si la partie est terminée.
+     */
+    function replay(arr) {
+        const saved = st;
+        try {
+            let fin = false;
+            for (let i = 0; i < arr.length; i++) {
+                st = { innings: arr.slice(0, i + 1), run: 0, ext: saved.ext, finished: false };
+                const w = walk();
+                const r = w.rows[w.rows.length - 1];
+                if (w.rows.length !== i + 1 || totals(r.player, r.set).pts > dist(r.player)) return null;
+                checkEnd();
+                if (st.finished && i < arr.length - 1) return null;
+                fin = st.finished;
+            }
+            if (!fin) {
+                st = { innings: arr, run: saved.run, ext: saved.ext, finished: false };
+                if (setTotals(current()).pts + saved.run > dist(current())) return null;
+            }
+            return { finished: fin };
+        } finally {
+            st = saved;
+        }
+    }
+
     function digit(d) {
         if (st.finished || buffer.length >= 4) return;
         buffer = (buffer === '0' ? '' : buffer) + d;
@@ -340,7 +377,7 @@
         fetch(C.urls.save, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-            body: JSON.stringify({ rev: st.rev, innings: st.innings, current_run: st.run, extensions: st.ext, finished: st.finished }),
+            body: JSON.stringify({ rev: st.rev, innings: st.innings, current_run: st.run, extensions: st.ext, finished: st.finished, paused: !!st.paused }),
         }).then(function (r) {
             if (r.status === 409) { window.location.href = C.urls.table; return; }
             if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -462,6 +499,7 @@
         $('sbdNotice').textContent = notice;
 
         renderSetBreak(w);
+        $('sbdPause').classList.toggle('show', !!st.paused && !st.finished);
         renderResult();
         renderClock();
     }
@@ -604,6 +642,7 @@
         if (code === 'NumpadEnter' || code === 'Enter' || key === 'Enter') return 'enter';
         if (code === 'NumpadMultiply' || key === '*') return 'clock';
         if (code === 'NumpadDivide' || key === '/') return 'clear';
+        if (code === 'NumpadDecimal' || key === '.' || key === ',') return 'pause';
         // Retour arrière du pavé : le menu reste accessible sans le clavier du Chromebook
         if (key === 'Backspace' || key === 'Escape') return 'menu';
         // event.code reste « NumpadX » même avec le Verr. Num désactivé
@@ -618,6 +657,7 @@
         const openMenu = () => {
             // Inverser n'a de sens qu'avant le premier coup (erreur au choix du joueur qui commence)
             swapForm.hidden = st.finished || st.innings.length > 0 || st.run > 0;
+            $('sbdFixBtn').hidden = st.innings.length === 0;
             menu.classList.add('open');
             root.classList.add('show-cursor');
             focusMenu(0);
@@ -649,6 +689,115 @@
             (document.activeElement === ok ? no : ok).focus();
         }
 
+        // ---------------------------------------------- correction d'une reprise quelconque
+
+        // idx : série sélectionnée (index dans st.innings) ; edit : saisie en cours (null = navigation)
+        const fix = { open: false, idx: 0, edit: null, msg: '', err: false };
+
+        // Lignes du tableau : une par reprise (et par set), avec l'index de la série de chaque joueur
+        function fixRows() {
+            const rows = [], byKey = {};
+            walk().rows.forEach(function (r, i) {
+                const key = r.set + ':' + r.inning;
+                if (!byKey[key]) { byKey[key] = { set: r.set, inning: r.inning, cells: {} }; rows.push(byKey[key]); }
+                byKey[key].cells[r.player] = i;
+            });
+            return rows;
+        }
+
+        function openFix() {
+            if (!st.innings.length) return;
+            Object.assign(fix, { open: true, idx: st.innings.length - 1, edit: null, msg: '', err: false });
+            renderFix();
+        }
+
+        function closeFix() {
+            fix.open = false;
+            $('sbdFix').classList.remove('open');
+        }
+
+        function moveFix(dRow, dCol) {
+            const rows = fixRows();
+            let r = rows.findIndex((x) => x.cells[1] === fix.idx || x.cells[2] === fix.idx);
+            const p = rows[r].cells[1] === fix.idx ? 1 : 2;
+            if (dCol) {
+                const other = rows[r].cells[p === 1 ? 2 : 1];
+                if (other !== undefined) fix.idx = other;
+            } else {
+                r = Math.max(0, Math.min(rows.length - 1, r + dRow));
+                fix.idx = rows[r].cells[p] !== undefined ? rows[r].cells[p] : rows[r].cells[p === 1 ? 2 : 1];
+            }
+            fix.msg = '';
+        }
+
+        function applyFix() {
+            const arr = st.innings.slice();
+            arr[fix.idx] = parseInt(fix.edit || '0', 10);
+            const res = replay(arr);
+            if (!res) {
+                fix.msg = 'Impossible : avec cette série, un joueur dépasserait ses points ou la partie se serait arrêtée plus tôt.';
+                fix.err = true;
+                return;
+            }
+            st.innings = arr;
+            st.finished = res.finished;
+            if (st.finished) { st.run = 0; stopClock(); }
+            setBreak = null;
+            fix.edit = null;
+            fix.msg = 'Reprise corrigée.';
+            fix.err = false;
+            commit();
+        }
+
+        function fixKey(a) {
+            if (fix.edit !== null) {
+                if (a === 'enter') applyFix();
+                else if (a === 'menu') fix.edit = null;
+                else if (a === 'clear') fix.edit = '';
+                else if (a.charAt(0) === 'd' && fix.edit.length < 3) fix.edit = (fix.edit === '0' ? '' : fix.edit) + a.slice(1);
+            } else if (a === 'menu') {
+                closeFix();
+                return;
+            } else if (a === 'enter') {
+                fix.edit = '';
+                fix.msg = '';
+            } else if (a === 'd8') moveFix(-1, 0);
+            else if (a === 'd2') moveFix(1, 0);
+            else if (a === 'd4' || a === 'd6') moveFix(0, 1);
+            renderFix();
+        }
+
+        function renderFix() {
+            if (!fix.open) return;
+            $('sbdFix').classList.add('open');
+            const tbody = $('sbdFixRows');
+            let html = '', lastSet = 0;
+            fixRows().forEach(function (row) {
+                if (SETS && row.set !== lastSet) {
+                    html += '<tr class="sbd-fix-set"><td colspan="3">Set ' + row.set + '</td></tr>';
+                    lastSet = row.set;
+                }
+                html += '<tr><td>' + row.inning + '</td>';
+                [1, 2].forEach(function (p) {
+                    const i = row.cells[p];
+                    if (i === undefined) { html += '<td class="empty">–</td>'; return; }
+                    const sel = i === fix.idx;
+                    const val = sel && fix.edit !== null ? (fix.edit === '' ? '_' : fix.edit) : st.innings[i];
+                    html += '<td class="' + (sel ? 'sel' + (fix.edit !== null ? ' editing' : '') : '') + '">' + val + '</td>';
+                });
+                html += '</tr>';
+            });
+            tbody.innerHTML = html;
+            const sel = tbody.querySelector('.sel');
+            if (sel) sel.scrollIntoView({ block: 'nearest' });
+            const msg = $('sbdFixMsg');
+            msg.textContent = fix.msg;
+            msg.classList.toggle('err', fix.err);
+            $('sbdFixHelp').innerHTML = fix.edit !== null
+                ? '<kbd>0-9</kbd> nouvelle série &nbsp;·&nbsp; <kbd>Entrée</kbd> valider &nbsp;·&nbsp; <kbd>/</kbd> effacer &nbsp;·&nbsp; <kbd>⌫</kbd> annuler'
+                : '<kbd>8</kbd> <kbd>2</kbd> reprise &nbsp;·&nbsp; <kbd>4</kbd> <kbd>6</kbd> joueur &nbsp;·&nbsp; <kbd>Entrée</kbd> corriger &nbsp;·&nbsp; <kbd>⌫</kbd> fermer';
+        }
+
         // Phase de capture sur window : la boîte de confirmation intercepte sinon les touches avant nous
         window.addEventListener('keydown', function (e) {
             const a = actionFor(e);
@@ -657,6 +806,10 @@
             if (!a) return;
             e.preventDefault();
 
+            if (fix.open) {
+                if (!e.repeat) fixKey(a);
+                return;
+            }
             if (menu.classList.contains('open')) {
                 if (e.repeat) return;
                 if (a === 'menu') closeMenu();
@@ -667,6 +820,9 @@
             }
             if (e.repeat && a !== 'plus' && a !== 'minus') return;
             enterFullscreen();
+
+            if (a === 'pause') { togglePause(); return; }
+            if (st.paused) return;
 
             if (setBreak !== null) {
                 if (a === 'enter') {
@@ -703,6 +859,17 @@
             if (e.target === menu || (btn && btn.dataset.action === 'close')) closeMenu();
             if (btn && btn.dataset.action === 'fullscreen') { enterFullscreen(); closeMenu(); }
             if (btn && btn.dataset.action === 'cancel') confirmCancel();
+            if (btn && btn.dataset.action === 'fix') { closeMenu(); openFix(); }
+            if (btn && btn.dataset.action === 'edit') {
+                // Les dernières reprises doivent être enregistrées avant de quitter l'écran
+                btn.disabled = true;
+                waitSynced(8000).then(function () { window.location.href = C.urls.edit; }, function () {
+                    btn.disabled = false;
+                    closeMenu();
+                    flash('Pas de connexion :\nréessayez dans un instant');
+                    render();
+                });
+            }
         });
 
         // Le résultat doit être enregistré sur le serveur avant de quitter la page
@@ -819,8 +986,8 @@
                 $('sbdLive').classList.toggle('offline', !d);
                 if (!d) return;
                 if (d.status === 'scheduled' || d.status === 'cancelled') { window.location.reload(); return; }
-                if (d.rev !== st.rev || (d.status === 'finished') !== st.finished) {
-                    st = { rev: d.rev, innings: d.innings.slice(), run: d.current_run, ext: d.extensions.slice(), finished: d.status === 'finished' };
+                if (d.rev !== st.rev || (d.status === 'finished') !== st.finished || !!d.paused !== !!st.paused) {
+                    st = { rev: d.rev, innings: d.innings.slice(), run: d.current_run, ext: d.extensions.slice(), finished: d.status === 'finished', paused: !!d.paused };
                     render();
                 }
             })

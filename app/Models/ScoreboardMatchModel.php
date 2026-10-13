@@ -44,7 +44,7 @@ class ScoreboardMatchModel extends Model
         'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_license',
         'p2_category_id', 'p2_category', 'p2_average_min', 'p2_distance',
         'p2_points', 'p2_innings', 'p2_high_run', 'p2_sets', 'p2_extensions_used',
-        'starting_player', 'current_run', 'winner', 'rev',
+        'starting_player', 'current_run', 'paused', 'winner', 'absent', 'comment', 'rev',
         'started_at', 'finished_at', 'created_by',
     ];
 
@@ -117,6 +117,7 @@ class ScoreboardMatchModel extends Model
             'status'     => $match->status,
             'innings'    => $innings,
             'current_run' => (int) $match->current_run,
+            'paused'     => (bool) ($match->paused ?? false),
             'extensions' => [(int) $match->p1_extensions_used, (int) $match->p2_extensions_used],
         ];
     }
@@ -156,12 +157,19 @@ class ScoreboardMatchModel extends Model
         $errors = [];
         $data   = [];
         $sets   = !empty($in['sets_enabled']);
+        // Forfait (rencontres d'équipe) : un joueur absent n'a besoin ni de nom ni de points à réaliser
+        $absent = (!empty($in['p1_absent']) ? 1 : 0) | (!empty($in['p2_absent']) ? 2 : 0);
+        $data['absent'] = $absent;
 
         foreach (['p1', 'p2'] as $i => $p) {
             $last  = mb_strtoupper(trim((string) ($in[$p . '_last_name'] ?? '')), 'UTF-8');
             $first = trim((string) ($in[$p . '_first_name'] ?? ''));
             $club  = trim((string) ($in[$p . '_club'] ?? ''));
-            if ($last === '' || $first === '') {
+            $isAbsent = (bool) ($absent & ($i + 1));
+            if ($isAbsent && $last === '') {
+                $last = 'ABSENT';
+            }
+            if (!$isAbsent && ($last === '' || $first === '')) {
                 $errors[] = 'Nom et prénom du joueur ' . ($i + 1) . ' obligatoires.';
             }
             $memberId = (int) ($in[$p . '_member_id'] ?? 0);
@@ -174,10 +182,10 @@ class ScoreboardMatchModel extends Model
 
             // Par sets : les points d'un set remplacent les points à réaliser (voir plus bas)
             $distance = (int) ($in[$p . '_distance'] ?? 0);
-            if (!$sets && ($distance < 1 || $distance > 9999)) {
+            if (!$sets && !$isAbsent && ($distance < 1 || $distance > 9999)) {
                 $errors[] = 'Les points à réaliser du joueur ' . ($i + 1) . ' doivent être compris entre 1 et 9999.';
             }
-            $data[$p . '_distance'] = $distance;
+            $data[$p . '_distance'] = max(0, $distance);
         }
 
         $discipline = (string) ($in['discipline'] ?? '');
@@ -256,8 +264,8 @@ class ScoreboardMatchModel extends Model
     public static function rememberExternalPlayers(array $data): void
     {
         $players = new ScoreboardPlayerModel();
-        foreach (['p1', 'p2'] as $p) {
-            if ($data[$p . '_member_id'] === null) {
+        foreach (['p1', 'p2'] as $i => $p) {
+            if ($data[$p . '_member_id'] === null && !((int) ($data['absent'] ?? 0) & ($i + 1))) {
                 $cat = !empty($data[$p . '_category_id']) ? (new FrbbCategoryModel())->find($data[$p . '_category_id']) : null;
                 $players->remember($data[$p . '_last_name'], $data[$p . '_first_name'], $data[$p . '_club'], $data[$p . '_license'] ?? null,
                                    $cat ? [$cat->game_mode => $cat->categories] : []);
@@ -303,6 +311,7 @@ class ScoreboardMatchModel extends Model
             'p1_extensions_used' => (int) ($ext[0] ?? 0),
             'p2_extensions_used' => (int) ($ext[1] ?? 0),
             'current_run' => max(0, (int) ($state['current_run'] ?? 0)),
+            'paused'      => !empty($state['paused']) && empty($state['finished']) ? 1 : 0,
             'rev'         => $rev,
         ];
 
@@ -381,6 +390,41 @@ class ScoreboardMatchModel extends Model
         return ['rows' => $rows, 'won' => $won];
     }
 
+    /**
+     * Points déjà marqués par chaque joueur dans ce qui reste à jouer : le set en cours en jeu par sets,
+     * toute la partie sinon (les points à réaliser ne peuvent pas descendre en dessous).
+     */
+    public function pointsInPlay(object $m): array
+    {
+        $walk = self::walkInnings($m, $this->stateFor($m)['innings']);
+        $set  = $walk['rows'] ? end($walk['rows'])['set'] : 1;
+        $pts  = [1 => 0, 2 => 0];
+        foreach ($walk['rows'] as $r) {
+            if ($r['set'] === $set) {
+                $pts[$r['player']] += $r['points'];
+            }
+        }
+        // Le set qui vient de se terminer n'est plus en jeu : le suivant repart de zéro
+        if (self::isSets($m) && $m->status !== 'finished' && max($pts[1] - (int) $m->p1_distance, $pts[2] - (int) $m->p2_distance) >= 0) {
+            return [1 => 0, 2 => 0];
+        }
+        return $pts;
+    }
+
+    /**
+     * Données d'un match perdu par forfait : il est directement terminé, sans reprise.
+     * absent : 1 = joueur 1, 2 = joueur 2, 3 = les deux (aucun vainqueur).
+     */
+    public static function forfeitData(int $absent, ?string $when): array
+    {
+        return [
+            'absent' => $absent, 'status' => 'finished', 'winner' => match ($absent) { 1 => 2, 2 => 1, default => null },
+            'starting_player' => null, 'current_run' => 0, 'paused' => 0, 'started_at' => null, 'finished_at' => $when ?? self::now(),
+            'p1_points' => 0, 'p1_innings' => 0, 'p1_high_run' => 0, 'p1_sets' => 0,
+            'p2_points' => 0, 'p2_innings' => 0, 'p2_high_run' => 0, 'p2_sets' => 0,
+        ];
+    }
+
     /** Score affiché dans les listes : sets gagnés en jeu par sets, sinon points. */
     public static function score(object $m, string $p): int
     {
@@ -447,7 +491,7 @@ class ScoreboardMatchModel extends Model
         $this->db->transStart();
         $this->db->table('scoreboard_innings')->where('match_id', $id)->delete();
         $this->update($id, [
-            'status' => 'scheduled', 'starting_player' => null, 'current_run' => 0, 'winner' => null,
+            'status' => 'scheduled', 'starting_player' => null, 'current_run' => 0, 'paused' => 0, 'winner' => null, 'absent' => 0,
             'p1_points' => 0, 'p1_innings' => 0, 'p1_high_run' => 0, 'p1_sets' => 0, 'p1_extensions_used' => 0,
             'p2_points' => 0, 'p2_innings' => 0, 'p2_high_run' => 0, 'p2_sets' => 0, 'p2_extensions_used' => 0,
             'started_at' => null, 'finished_at' => null,

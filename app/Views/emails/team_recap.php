@@ -46,6 +46,9 @@ $dt    = $encounter->scheduled_at ? new DateTime($encounter->scheduled_at) : nul
         <p><strong>Club visité :</strong> <?= esc(TE::homeLabel($encounter)) ?></p>
         <p><strong>Club visiteur :</strong> <?= esc(TE::awayLabel($encounter)) ?></p>
         <p><strong>Résultat :</strong> <?= $result['teams']['home']['match_points'] ?> / <?= $result['teams']['away']['match_points'] ?></p>
+        <?php if (!empty($encounter->recap_comment)): ?>
+          <p><strong>Commentaire :</strong><br><?= nl2br(esc($encounter->recap_comment)) ?></p>
+        <?php endif; ?>
       </div>
 
       <p>Pour toute question, contactez notre directeur sportif :<br>

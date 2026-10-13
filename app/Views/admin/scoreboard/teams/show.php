@@ -2,7 +2,8 @@
 use App\Models\ScoreboardMatchModel as M;
 use App\Models\ScoreboardTeamEncounterModel as TE;
 
-$statusBadge = static fn (string $s): string => match ($s) {
+$hasForfeit  = (bool) array_filter($matches, static fn ($m) => (int) $m->absent > 0);
+$statusBadge = static fn (string $s, int $absent = 0): string => $absent ? '<span class="badge badge-dark"><i class="fas fa-user-slash mr-1"></i>Forfait</span>' : match ($s) {
     'live'      => '<span class="badge badge-danger"><i class="fas fa-circle mr-1"></i>En cours</span>',
     'scheduled' => '<span class="badge badge-info">Prévu</span>',
     'finished'  => '<span class="badge badge-success">Terminé</span>',
@@ -35,7 +36,27 @@ $statusBadge = static fn (string $s): string => match ($s) {
 <div class="card card-outline card-primary">
   <div class="card-header d-flex align-items-center">
     <h3 class="card-title"><i class="fas fa-list-ol mr-2"></i>Matchs de la rencontre</h3>
-    <div class="ml-auto">
+    <div class="ml-auto d-flex">
+      <div class="dropdown mr-1">
+        <button class="btn btn-outline-danger btn-sm dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-user-slash mr-1"></i>Forfait complet</button>
+        <div class="dropdown-menu dropdown-menu-right">
+          <?php foreach (['away' => TE::awayLabel($encounter), 'home' => TE::homeLabel($encounter)] as $side => $label): ?>
+          <form method="post" action="<?= base_url('admin/scoreboard/teams/' . $encounter->id . '/forfeit') ?>"
+                onsubmit="return confirm(<?= esc(json_encode('Déclarer le forfait complet de ' . $label . " ?\n\nTous les matchs non joués sont perdus par forfait (complétés jusqu'à 3 matchs).", JSON_UNESCAPED_UNICODE), 'attr') ?>)">
+            <?= csrf_field() ?>
+            <input type="hidden" name="side" value="<?= $side ?>">
+            <button class="dropdown-item">Forfait de <strong><?= esc($label) ?></strong></button>
+          </form>
+          <?php endforeach; ?>
+          <?php if ($hasForfeit): ?>
+          <div class="dropdown-divider"></div>
+          <form method="post" action="<?= base_url('admin/scoreboard/teams/' . $encounter->id . '/forfeit/cancel') ?>" onsubmit="return confirm('Annuler tous les forfaits de cette rencontre ?')">
+            <?= csrf_field() ?>
+            <button class="dropdown-item text-danger"><i class="fas fa-undo mr-1"></i>Annuler les forfaits</button>
+          </form>
+          <?php endif; ?>
+        </div>
+      </div>
       <a href="<?= base_url('admin/scoreboard/teams/' . $encounter->id . '/matches/create') ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus mr-1"></i>Ajouter un match</a>
     </div>
   </div>
@@ -67,11 +88,11 @@ $statusBadge = static fn (string $s): string => match ($s) {
           <td class="<?= (int) $m->winner === 1 ? 'font-weight-bold' : '' ?>"><?= esc(M::playerLabel($m, 'p1')) ?></td>
           <td class="<?= (int) $m->winner === 2 ? 'font-weight-bold' : '' ?>"><?= esc(M::playerLabel($m, 'p2')) ?></td>
           <td class="text-center"><?= (int) $m->p1_distance ?> / <?= (int) $m->p2_distance ?></td>
-          <td class="text-center"><?= $m->status === 'scheduled' ? '—' : M::score($m, 'p1') . ' – ' . M::score($m, 'p2') . (M::isSets($m) ? ' sets' : '') ?></td>
-          <td class="text-center"><?= $m->status === 'scheduled' ? '—' : max((int) $m->p1_innings, (int) $m->p2_innings) ?></td>
-          <td class="text-center"><?= $statusBadge($m->status) ?></td>
+          <td class="text-center"><?= $m->status === 'scheduled' || $m->absent ? '—' : M::score($m, 'p1') . ' – ' . M::score($m, 'p2') . (M::isSets($m) ? ' sets' : '') ?></td>
+          <td class="text-center"><?= $m->status === 'scheduled' || $m->absent ? '—' : max((int) $m->p1_innings, (int) $m->p2_innings) ?></td>
+          <td class="text-center"><?= $statusBadge($m->status, (int) $m->absent) ?></td>
           <td class="text-right text-nowrap">
-            <?php if ($m->status !== 'scheduled'): ?>
+            <?php if ($m->status !== 'scheduled' && !$m->absent): ?>
               <a href="<?= base_url('admin/scoreboard/' . $m->id) ?>" class="btn btn-xs btn-info" title="Feuille de match"><i class="fas fa-list-ol"></i></a>
               <a href="<?= base_url('admin/scoreboard/' . $m->id . '/pdf') ?>" target="_blank" class="btn btn-xs btn-primary" title="Feuille de match PDF"><i class="fas fa-file-pdf"></i></a>
             <?php endif; ?>
@@ -163,9 +184,13 @@ $statusBadge = static fn (string $s): string => match ($s) {
         <tbody>
           <?php foreach ($t['rows'] as $r): ?>
           <tr>
-            <td><?= esc($r['name']) ?></td>
+            <td>
+              <?php if ($r['absent']): ?><span class="badge badge-dark mr-1">ABSENT</span><?php endif; ?>
+              <?= $r['name'] !== 'ABSENT' ? esc($r['name']) : '' ?>
+              <?php if ($r['forfeit'] && !$r['absent']): ?><small class="text-muted ml-1">(forfait adverse)</small><?php endif; ?>
+            </td>
             <td class="text-center"><?= esc($r['license'] ?? '') ?></td>
-            <td class="text-center"><?= $r['distance'] ?></td>
+            <td class="text-center"><?= $r['distance'] ?: '—' ?></td>
             <td class="text-center"><?= $r['played'] ? $r['points'] : '—' ?></td>
             <td class="text-center"><?= $r['played'] ? $r['innings'] : '—' ?></td>
             <td class="text-center"><?= $r['played'] ? M::average($r['points'], $r['innings']) : '—' ?></td>
@@ -190,6 +215,22 @@ $statusBadge = static fn (string $s): string => match ($s) {
       </h5>
     <?php endif; ?>
   </div>
+</div>
+
+<div class="card card-outline card-primary" id="commentaire">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fas fa-comment-dots mr-2"></i>Commentaire pour la feuille récapitulative</h3>
+  </div>
+  <form method="post" action="<?= base_url('admin/scoreboard/teams/' . $encounter->id . '/comment') ?>">
+    <?= csrf_field() ?>
+    <div class="card-body">
+      <textarea name="recap_comment" class="form-control" rows="3" maxlength="1000"
+                placeholder="Incident, réserve, remarque de l'arbitre… (imprimé sur la feuille récapitulative et repris dans l'e-mail)"><?= esc($encounter->recap_comment ?? '') ?></textarea>
+    </div>
+    <div class="card-footer text-right">
+      <button class="btn btn-primary btn-sm"><i class="fas fa-save mr-1"></i>Enregistrer le commentaire</button>
+    </div>
+  </form>
 </div>
 
 <?= $this->endSection() ?>

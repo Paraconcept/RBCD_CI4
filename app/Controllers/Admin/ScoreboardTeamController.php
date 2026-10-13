@@ -159,6 +159,33 @@ class ScoreboardTeamController extends BaseController
         ];
     }
 
+    public function forfeit(int $id)
+    {
+        $encounter = $this->find($id);
+        $side      = $this->request->getPost('side') === 'home' ? 'home' : 'away';
+        $count     = $this->model->declareTeamForfeit($encounter, $side, session()->get('member_id'));
+        $label     = $side === 'home' ? ScoreboardTeamEncounterModel::homeLabel($encounter) : ScoreboardTeamEncounterModel::awayLabel($encounter);
+
+        return redirect()->to(base_url('admin/scoreboard/teams/' . $id))
+                         ->with('success', 'Forfait de ' . $label . ' : ' . $count . ' match' . ($count > 1 ? 's' : '') . ' déclaré' . ($count > 1 ? 's' : '') . ' forfait.');
+    }
+
+    public function cancelForfeit(int $id)
+    {
+        $this->model->cancelForfeits($this->find($id));
+
+        return redirect()->to(base_url('admin/scoreboard/teams/' . $id))->with('success', 'Forfaits annulés : les matchs sont de nouveau à jouer.');
+    }
+
+    public function comment(int $id)
+    {
+        $encounter = $this->find($id);
+        $comment   = mb_substr(trim((string) $this->request->getPost('recap_comment')), 0, 1000);
+        $this->model->update($encounter->id, ['recap_comment' => $comment !== '' ? $comment : null]);
+
+        return redirect()->to(base_url('admin/scoreboard/teams/' . $id) . '#commentaire')->with('success', 'Commentaire enregistré.');
+    }
+
     public function edit(int $id): string
     {
         return $this->form($this->find($id));

@@ -78,6 +78,9 @@ class ScoreboardController extends BaseController
         $data['type']       = 'official';
         $data['status']     = 'scheduled';
         $data['created_by'] = session()->get('member_id');
+        if ($data['absent']) {
+            $data = array_merge($data, ScoreboardMatchModel::forfeitData($data['absent'], $data['scheduled_at']));
+        }
         $this->model->insert($data);
         ScoreboardMatchModel::rememberExternalPlayers($data);
 
@@ -142,6 +145,15 @@ class ScoreboardController extends BaseController
         return $sheets;
     }
 
+    public function comment(int $id)
+    {
+        $match   = $this->find($id);
+        $comment = mb_substr(trim((string) $this->request->getPost('comment')), 0, 500);
+        $this->model->update($match->id, ['comment' => $comment !== '' ? $comment : null]);
+
+        return redirect()->to(base_url('admin/scoreboard/' . $id))->with('success', 'Commentaire enregistré.');
+    }
+
     public function edit(int $id): string
     {
         $match = $this->find($id);
@@ -157,6 +169,17 @@ class ScoreboardController extends BaseController
         [$data, $errors] = $this->buildData();
         if ($errors) {
             return redirect()->back()->withInput()->with('errors', $errors);
+        }
+
+        $played = (int) $match->p1_innings + (int) $match->p2_innings > 0 || $match->status === 'live';
+        if ($data['absent'] && $played) {
+            return redirect()->back()->withInput()->with('errors', ['Ce match a déjà été joué : remettez-le à zéro avant de le déclarer forfait.']);
+        }
+        if ($data['absent']) {
+            $data = array_merge($data, ScoreboardMatchModel::forfeitData($data['absent'], $data['scheduled_at']));
+        } elseif ((int) $match->absent > 0) {
+            // Forfait annulé : le match redevient à jouer
+            $data += ['status' => 'scheduled', 'winner' => null, 'finished_at' => null];
         }
 
         $this->model->update($match->id, $data);

@@ -73,6 +73,7 @@
 .mh-key.star { background: #0284c7; }
 .mh-key.slash { background: #64748b; }
 .mh-key.menu { background: #0d9488; }
+.mh-key.pause { background: #eab308; color: #0a1020; }
 .mh-key.zero { grid-column: span 2; }
 .mh-legend { display: grid; grid-template-columns: 64px 1fr; gap: .7rem .9rem; align-items: center; }
 .mh-legend .sw { height: 38px; border-radius: 8px; color: #fff; display: grid; place-items: center; font-family: 'Barlow Condensed'; font-weight: 800; font-size: 1.2rem; }
@@ -121,6 +122,7 @@
       <a href="#ecran">Lire l'écran</a>
       <a href="#chrono">Chrono et time-outs</a>
       <a href="#fin">Fin de partie</a>
+      <a href="#corrections">Pause et corrections</a>
       <a href="#proportionnelle">Moyenne proportionnelle</a>
       <a href="#sets">Partie par sets</a>
       <a href="#direct">En direct</a>
@@ -229,7 +231,7 @@
               <div class="mh-key">1</div><div class="mh-key">2</div><div class="mh-key">3</div>
               <div class="mh-key enter">⏎<small>fin de reprise</small></div>
               <div class="mh-key zero">0</div>
-              <div class="mh-key off">.<small>Del</small></div>
+              <div class="mh-key pause">.<small>pause</small></div>
             </div>
           </div>
           <div class="col-lg-8">
@@ -240,7 +242,8 @@
               <div class="sw" style="background:#2f4a7a">0-9</div><div><b>Série directe</b>Tapez la série (ex. <kbd>1</kbd><kbd>2</kbd>) puis <kbd>Entrée</kbd> : pratique pour une longue série.</div>
               <div class="sw" style="background:#64748b">/</div><div><b>Effacer la saisie</b>Annule une série tapée par erreur, avant <kbd>Entrée</kbd>.</div>
               <div class="sw" style="background:#0284c7">*</div><div><b>Chrono</b>Lance ou met en pause le chrono par coup (et lance l'échauffement).</div>
-              <div class="sw" style="background:#0d9488">⌫</div><div><b>Menu</b>Plein écran, inverser les joueurs, retour au billard, annuler la partie. Dans le menu : <kbd>8</kbd> <kbd>2</kbd> pour se déplacer, <kbd>Entrée</kbd> pour valider, <kbd>⌫</kbd> pour fermer.</div>
+              <div class="sw" style="background:#eab308;color:#0a1020">.</div><div><b>Pause</b>Affiche « Pause » en grand sur la TV (et en direct sur Internet) et arrête le chrono. Appuyez à nouveau sur <kbd>.</kbd> pour reprendre.</div>
+              <div class="sw" style="background:#0d9488">⌫</div><div><b>Menu</b>Corriger une reprise, modifier la partie en cours, plein écran, inverser les joueurs, retour au billard, annuler la partie. Dans le menu : <kbd>8</kbd> <kbd>2</kbd> pour se déplacer, <kbd>Entrée</kbd> pour valider, <kbd>⌫</kbd> pour fermer.</div>
             </div>
           </div>
         </div>
@@ -312,8 +315,32 @@
             <div class="mh-note green"><b>Revanche (partie amicale)</b> — <kbd>+</kbd> puis <kbd>Entrée</kbd> pour confirmer : nouvelle partie avec les mêmes joueurs et le même mode de jeu. On repasse par « Qui commence la partie ? » et l'échauffement. Pour d'autres joueurs ou un autre mode de jeu, recommencez une partie amicale depuis la page du billard.</div>
           </div>
           <div class="col-md-6">
-            <div class="mh-note orange"><b>Une erreur ?</b> — <kbd>−</kbd> retire un point ; à 0, il rouvre la reprise précédente. Ça fonctionne même après la fin de la partie.</div>
+            <div class="mh-note orange"><b>Une erreur ?</b> — <kbd>−</kbd> retire un point ; à 0, il rouvre la reprise précédente. Ça fonctionne même après la fin de la partie. Pour une reprise plus ancienne : <kbd>⌫</kbd> › <b>Corriger une reprise</b> (<a href="#corrections">voir plus bas</a>).</div>
             <div class="mh-note"><b>Abandonner</b> — <kbd>⌫</kbd> ouvre le menu : « Annuler la partie » (amicale) ou « Remettre à zéro » (rencontre officielle). Une confirmation est toujours demandée.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pause et corrections -->
+    <div class="mh-section" id="corrections">
+      <div class="mh-head"><div class="num"><i class="fas fa-pen-to-square"></i></div><div><h3>Pause, corrections et modifications</h3><p>Sans perdre une seule reprise</p></div></div>
+      <div class="mh-body">
+        <div class="row g-4 mb-3">
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('19_pause') ?>" alt="Écran Pause"><div class="mh-caption">Touche <kbd>.</kbd> : l'écran « Pause » reste affiché jusqu'au prochain appui.</div></div>
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('20_correction') ?>" alt="Corriger une reprise"><div class="mh-caption">« Corriger une reprise » : la série choisie est en cours de correction.</div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="mh-note" style="border-left-color:#eab308"><b>Pause</b> — <kbd>.</kbd> affiche « Pause » sur la TV et chez ceux qui suivent en direct ; le chrono s'arrête. <kbd>.</kbd> à nouveau pour reprendre (le chrono se relance avec <kbd>*</kbd>).</div>
+            <div class="mh-note green"><b>Modifier la partie en cours</b> — <kbd>⌫</kbd> › « Modifier la partie en cours » : nom mal tapé, mauvais points à réaliser, catégorie, limite de reprises… Les reprises jouées sont conservées.</div>
+          </div>
+          <div class="col-md-6">
+            <ol class="mh-steps">
+              <li><kbd>⌫</kbd> ouvre le menu, puis « <b>Corriger une reprise</b> » et <kbd>Entrée</kbd>.</li>
+              <li><kbd>8</kbd> <kbd>2</kbd> choisissent la reprise, <kbd>4</kbd> <kbd>6</kbd> le joueur.</li>
+              <li><kbd>Entrée</kbd>, tapez la bonne série, puis <kbd>Entrée</kbd> : tout est recalculé. <kbd>⌫</kbd> ferme l'écran.</li>
+            </ol>
           </div>
         </div>
       </div>

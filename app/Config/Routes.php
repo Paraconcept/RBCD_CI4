@@ -98,6 +98,8 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->post('match/(:num)/annuler',          'Public\ScoreboardController::cancel/$1');
     $routes->post('match/(:num)/inverser',         'Public\ScoreboardController::swap/$1');
     $routes->post('match/(:num)/rejouer',          'Public\ScoreboardController::rematch/$1');
+    $routes->get ('match/(:num)/modifier',         'Public\ScoreboardController::edit/$1');
+    $routes->post('match/(:num)/modifier',         'Public\ScoreboardController::update/$1');
     $routes->get ('joueurs',                       'Public\ScoreboardController::searchPlayers');
     $routes->get ('api/match/(:num)',              'Public\ScoreboardController::state/$1');
     $routes->post('api/match/(:num)',              'Public\ScoreboardController::saveState/$1');
@@ -317,12 +319,16 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard/(:num)/update',         'Admin\ScoreboardController::update/$1');
         $routes->post('scoreboard/(:num)/delete',         'Admin\ScoreboardController::delete/$1');
         $routes->post('scoreboard/(:num)/reset',          'Admin\ScoreboardController::reset/$1');
+        $routes->post('scoreboard/(:num)/comment',        'Admin\ScoreboardController::comment/$1');
         $routes->get ('scoreboard/teams',                       'Admin\ScoreboardTeamController::index');
         $routes->get ('scoreboard/teams/create',                'Admin\ScoreboardTeamController::create');
         $routes->post('scoreboard/teams',                       'Admin\ScoreboardTeamController::store');
         $routes->get ('scoreboard/teams/(:num)',                'Admin\ScoreboardTeamController::show/$1');
         $routes->get ('scoreboard/teams/(:num)/pdf',            'Admin\ScoreboardTeamController::pdf/$1');
         $routes->post('scoreboard/teams/(:num)/send',           'Admin\ScoreboardTeamController::sendRecap/$1');
+        $routes->post('scoreboard/teams/(:num)/forfeit',        'Admin\ScoreboardTeamController::forfeit/$1');
+        $routes->post('scoreboard/teams/(:num)/forfeit/cancel', 'Admin\ScoreboardTeamController::cancelForfeit/$1');
+        $routes->post('scoreboard/teams/(:num)/comment',        'Admin\ScoreboardTeamController::comment/$1');
         $routes->get ('scoreboard/teams/(:num)/edit',           'Admin\ScoreboardTeamController::edit/$1');
         $routes->post('scoreboard/teams/(:num)/update',         'Admin\ScoreboardTeamController::update/$1');
         $routes->post('scoreboard/teams/(:num)/delete',         'Admin\ScoreboardTeamController::delete/$1');

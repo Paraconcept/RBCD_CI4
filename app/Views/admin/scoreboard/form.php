@@ -103,6 +103,13 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <?php endforeach; ?>
           </div>
           <?php endif; ?>
+          <?php if ($team): ?>
+          <div class="custom-control custom-checkbox mb-3">
+            <input type="checkbox" class="custom-control-input" name="<?= $p ?>_absent" id="<?= $p ?>_absent" value="1" data-sb-absent="<?= $p ?>"
+                   <?= old($p . '_absent', ((int) ($src->absent ?? 0)) & ($p === 'p1' ? 1 : 2) ? '1' : '') ? 'checked' : '' ?>>
+            <label class="custom-control-label text-danger" for="<?= $p ?>_absent"><i class="fas fa-user-slash mr-1"></i>Absent (forfait)</label>
+          </div>
+          <?php endif; ?>
           <div class="form-group">
             <label>Nom <span class="text-danger">*</span></label>
             <input type="text" name="<?= $p ?>_last_name" class="form-control" required style="text-transform:uppercase"
@@ -252,6 +259,20 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
 <script>window.SB_CATEGORIES = <?= json_encode($categories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard-forms.js') ?>"></script>
 <script>
+// Joueur absent (forfait) : nom, prénom et points à réaliser ne sont plus obligatoires
+document.querySelectorAll('[data-sb-absent]').forEach(function (cb) {
+    const f = cb.form, p = cb.dataset.sbAbsent;
+    const sync = function () {
+        ['last_name', 'first_name', 'distance'].forEach(function (n) {
+            const el = f.querySelector('[name="' + p + '_' + n + '"]');
+            if (!el) return;
+            el.required = !cb.checked;
+            if (n === 'distance') el.min = cb.checked ? 0 : 1;
+        });
+    };
+    cb.addEventListener('change', sync);
+    sync();
+});
 document.querySelectorAll('[data-roster]').forEach(function (b) {
     b.addEventListener('click', function () {
         const f = b.closest('form');

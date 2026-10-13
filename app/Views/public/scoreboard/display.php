@@ -31,6 +31,7 @@ $config = [
         'save'  => base_url('marquoir/api/match/' . $match->id),
         'table' => base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'),
         'state' => base_url('en-direct/api/' . $match->id),
+        'edit'  => base_url('marquoir/match/' . $match->id . '/modifier'),
         'list'  => base_url('en-direct'),
         'rematch' => $match->type === 'friendly' && $match->table_id ? base_url('marquoir/match/' . $match->id . '/rejouer') : null,
     ],
@@ -129,6 +130,14 @@ $config = [
 
     <div class="sbd-pour" id="sbdPour" aria-live="polite"><div><small></small><b></b></div></div>
 
+    <div class="sbd-pause" id="sbdPause" aria-live="polite">
+        <div>
+            <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="">
+            <b>Pause</b>
+            <small>RBC Disonais</small>
+        </div>
+    </div>
+
     <div class="sbd-clock" id="sbdClock" hidden>
         <div class="sbd-clock-track"><div class="sbd-clock-bar" id="sbdClockBar"></div></div>
         <div class="sbd-clock-num" id="sbdClockNum"></div>
@@ -153,6 +162,7 @@ $config = [
         <span><kbd>*</kbd> chrono départ/pause</span>
         <?php endif; ?>
         <span><kbd>/</kbd> effacer la saisie</span>
+        <span><kbd>.</kbd> pause</span>
         <span><kbd>⌫</kbd> menu</span>
     </footer>
     <?php endif; ?>
@@ -199,8 +209,26 @@ $config = [
     <?php endif; ?>
 
     <?php if (!$spectator): ?>
+    <div class="sbd-overlay" id="sbdFix">
+        <div class="sbd-result sbd-fix">
+            <h2>Corriger une reprise</h2>
+            <div class="sbd-fix-scroll">
+                <table>
+                    <thead><tr><th>Reprise</th><th style="color:var(--sb-p1)"><?= esc($match->p1_last_name) ?></th><th style="color:var(--sb-p2)"><?= esc($match->p2_last_name) ?></th></tr></thead>
+                    <tbody id="sbdFixRows"></tbody>
+                </table>
+            </div>
+            <div class="sbd-fix-msg" id="sbdFixMsg"></div>
+            <div class="sbd-small" id="sbdFixHelp"></div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!$spectator): ?>
     <div class="sbd-overlay" id="sbdMenu">
         <div class="sbd-menu">
+            <button type="button" class="btn btn-light" data-action="fix" id="sbdFixBtn"><i class="fas fa-pen-to-square me-2"></i>Corriger une reprise</button>
+            <button type="button" class="btn btn-light" data-action="edit"><i class="fas fa-user-pen me-2"></i>Modifier la partie en cours</button>
             <button type="button" class="btn btn-light" data-action="fullscreen"><i class="fas fa-expand me-2"></i>Plein écran</button>
             <a href="<?= esc($config['urls']['table']) ?>" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Retour au billard (la partie reste en cours)</a>
             <form method="post" id="sbdSwapForm" action="<?= base_url('marquoir/match/' . $match->id . '/inverser') ?>" hidden>

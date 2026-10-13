@@ -92,9 +92,9 @@ $rowsCount = max(3, $result['total']);
     <?php for ($i = 0; $i < $rowsCount; $i++): $r = $t['rows'][$i] ?? null; ?>
     <tr>
         <td class="idx"><?= $i + 1 ?></td>
-        <td class="name"><?= $r ? esc($r['name']) : '' ?></td>
+        <td class="name"><?php if ($r): ?><?= $r['absent'] ? ($r['name'] === 'ABSENT' ? '<b>ABSENT</b>' : esc($r['name']) . ' <b>(absent)</b>') : esc($r['name']) . ($r['forfeit'] ? ' (forfait adverse)' : '') ?><?php endif; ?></td>
         <td><?= $r ? esc($r['license'] ?? '') : '' ?></td>
-        <td><?= $r ? $r['distance'] : '' ?></td>
+        <td><?= $r && $r['distance'] ? $r['distance'] : '' ?></td>
         <td><?= $r && $r['played'] ? $r['points'] : '' ?></td>
         <td><?= $r && $r['played'] ? $r['innings'] : '' ?></td>
         <td><?= $r && $r['played'] ? M::average($r['points'], $r['innings']) : '' ?></td>
@@ -122,6 +122,11 @@ $rowsCount = max(3, $result['total']);
     </tr>
 </table>
 
+<?php if (!empty($encounter->recap_comment)): ?>
+<table class="sign" style="height:auto">
+    <tr><td style="padding:2mm 3mm"><b>Commentaire :</b> <?= nl2br(esc($encounter->recap_comment)) ?></td></tr>
+</table>
+<?php endif; ?>
 <table class="sign">
     <tr><td style="height:16mm"><b>Signatures :</b> (facultatif pour l'envoi par mail. Conservez les feuilles de match en cas de litige)</td></tr>
 </table>

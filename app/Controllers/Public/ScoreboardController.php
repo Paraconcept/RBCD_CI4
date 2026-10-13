@@ -207,6 +207,79 @@ class ScoreboardController extends BaseController
         return redirect()->to(base_url('marquoir/billard/' . $match->table_id . '/demarrer/' . $id));
     }
 
+    /**
+     * Correction des joueurs ou des points d'une partie en cours, sans perdre les reprises jouées.
+     */
+    public function edit(int $matchId)
+    {
+        $match = $this->findMatch($matchId);
+        if (!in_array($match->status, ['live', 'finished'], true)) {
+            return redirect()->to(base_url('marquoir/match/' . $matchId));
+        }
+
+        return view('public/scoreboard/edit', [
+            'title'      => 'Modifier la partie en cours',
+            'match'      => $match,
+            'table'      => $match->table_id ? $this->tables->find($match->table_id) : null,
+            'categories' => (new FrbbCategoryModel())->forScoreboard(),
+            'scored'     => $this->matches->pointsInPlay($match),
+        ]);
+    }
+
+    public function update(int $matchId)
+    {
+        $match = $this->findMatch($matchId);
+        if (!in_array($match->status, ['live', 'finished'], true)) {
+            return redirect()->to(base_url('marquoir/match/' . $matchId));
+        }
+
+        // Discipline, format et règles restent ceux de la partie : seuls joueurs, points et limite changent
+        $in = array_merge($this->request->getPost(), [
+            'discipline'            => $match->discipline,
+            'format'                => $match->format,
+            'sets_enabled'          => ScoreboardMatchModel::isSets($match) ? 1 : 0,
+            'sets_to_win'           => $match->sets_to_win,
+            'unequal_innings'       => $match->unequal_innings,
+            'shot_clock_enabled'    => $match->shot_clock_enabled,
+            'shot_clock_seconds'    => $match->shot_clock_seconds,
+            'shot_clock_extensions' => $match->shot_clock_extensions,
+            'table_id'              => $match->table_id,
+        ]);
+        [$data, $errors] = ScoreboardMatchModel::dataFromInput($in);
+
+        $scored = $this->matches->pointsInPlay($match);
+        foreach ([1, 2] as $n) {
+            if ($data['p' . $n . '_distance'] < $scored[$n]) {
+                $errors[] = 'Le joueur ' . $n . ' a déjà ' . $scored[$n] . ' points : ses points à réaliser ne peuvent pas être inférieurs.';
+            }
+        }
+        $played = max((int) $match->p1_innings, (int) $match->p2_innings);
+        if ($data['innings_limit'] !== null && $data['innings_limit'] < $played) {
+            $errors[] = $played . ' reprises sont déjà jouées : la limite ne peut pas être inférieure.';
+        }
+        if ($errors) {
+            return redirect()->back()->withInput()->with('errors', $errors);
+        }
+
+        $update = [];
+        foreach (['p1', 'p2'] as $p) {
+            foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'distance', 'category_id', 'category', 'average_min'] as $f) {
+                $update[$p . '_' . $f] = $data[$p . '_' . $f];
+            }
+        }
+        if (!ScoreboardMatchModel::isSets($match)) {
+            $update['innings_limit'] = $data['innings_limit'];
+        }
+        if ($match->status === 'finished' && !ScoreboardMatchModel::isSets($match)) {
+            $after = (object) array_merge((array) $match, $update);
+            $update['winner'] = ScoreboardMatchModel::winnerOf($after, (int) $match->p1_points, (int) $match->p1_innings, (int) $match->p2_points, (int) $match->p2_innings);
+        }
+        $this->matches->update($matchId, $update);
+        ScoreboardMatchModel::rememberExternalPlayers($data);
+
+        return redirect()->to(base_url('marquoir/match/' . $matchId));
+    }
+
     public function cancel(int $matchId)
     {
         $match = $this->findMatch($matchId);
