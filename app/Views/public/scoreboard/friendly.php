@@ -106,7 +106,7 @@
             </div>
         </div>
     </div>
-    <div class="d-flex justify-content-between mt-4">
+    <div class="d-flex justify-content-between mt-4 sb-sticky-actions">
         <a href="<?= base_url('marquoir/billard/' . $table->id) ?>" class="btn btn-outline-secondary btn-lg"><i class="fas fa-arrow-left me-2"></i>Retour</a>
         <button class="btn btn-sb btn-lg"><i class="fas fa-check me-2"></i>Continuer</button>
     </div>
