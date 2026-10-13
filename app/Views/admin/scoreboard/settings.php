@@ -16,7 +16,7 @@
             <small class="text-muted">Proposé par défaut quand on active le chrono sur une partie.</small>
           </div>
           <div class="form-group">
-            <label for="shot_clock_extensions">Time-outs par joueur et par partie</label>
+            <label for="shot_clock_extensions">Time-outs par joueur (par partie, ou par set en jeu par sets)</label>
             <input type="number" name="shot_clock_extensions" id="shot_clock_extensions" class="form-control" min="0" max="10" value="<?= $shotClockExtensions ?>" style="max-width:150px">
             <small class="text-muted">Valeur proposée par défaut dans les formulaires. Chaque fois que le chrono arrive à zéro, un time-out est consommé et le chrono repart ;
             le dernier time-out arrête le chrono sur « Temps écoulé » jusqu'à ce que l'arbitre passe la main (<kbd>Entrée</kbd>).</small>
