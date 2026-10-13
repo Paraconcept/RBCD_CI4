@@ -100,8 +100,9 @@ class ScoreboardTeamController extends BaseController
         [$pdf, $filename] = $this->renderRecapPdf($encounter);
 
         $email = \Config\Services::email();
-        $email->setFrom('ds@rbcd.be', 'RBC Disonais');
-        $email->setReplyTo('ds@rbcd.be', 'RBC Disonais');
+        // L'expéditeur doit rester le compte SMTP (send.one.com refuse sinon) ; les réponses vont au DS.
+        $email->setFrom(config('Email')->fromEmail, 'RBC Disonais — Directeur sportif');
+        $email->setReplyTo('ds@rbcd.be', 'RBC Disonais — Directeur sportif');
         $email->setTo($recipients);
         $email->setSubject('Feuille récapitulative — ' . ScoreboardTeamEncounterModel::homeLabel($encounter)
             . ' / ' . ScoreboardTeamEncounterModel::awayLabel($encounter) . ' (' . $encounter->code . ')');
