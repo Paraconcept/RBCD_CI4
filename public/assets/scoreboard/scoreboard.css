@@ -136,10 +136,10 @@
 .sbd-name { display: flex; align-items: center; gap: 1vw; min-width: 0; }
 .sbd-name-text { min-width: 0; }
 .sbd-last {
-    font-size: 6.5vh; font-weight: 800; line-height: 1; color: var(--pc); text-transform: uppercase;
+    font-size: 7.8vh; font-weight: 800; line-height: 1; color: var(--pc); text-transform: uppercase;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.sbd-first { font-size: 3.4vh; font-weight: 500; color: var(--pc); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbd-first { font-size: 4.1vh; font-weight: 500; color: var(--pc); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sbd-club { font-size: 2.6vh; color: var(--sb-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sbd-target { font-size: 2.8vh; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 .sbd-target b { color: var(--pc); font-size: 3.4vh; }
