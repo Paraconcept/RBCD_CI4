@@ -19,7 +19,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/images/favicons/favicon-16x16.png') ?>">
 <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/images/favicons/apple-touch-icon.png') ?>">
 <link rel="mask-icon" href="<?= base_url('assets/images/favicons/safari-pinned-tab.svg') ?>" color="#84252b">
-<link rel="manifest" href="<?= base_url('assets/images/favicons/manifest.json') ?>">
+<link rel="manifest" href="<?= base_url('site.webmanifest') ?>">
 <meta name="msapplication-config" content="<?= base_url('assets/images/favicons/browserconfig.xml') ?>">
 <meta name="theme-color" content="#84252b">
 
