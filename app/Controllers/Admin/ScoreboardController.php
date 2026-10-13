@@ -94,7 +94,7 @@ class ScoreboardController extends BaseController
             'breadcrumbs' => [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')], ['title' => 'Feuille de match']],
             'match'       => $match,
             'table'       => $table,
-            'sheet'       => $this->buildSheet($id),
+            'sheets'      => $this->buildSheets($id),
         ]);
     }
 
@@ -105,7 +105,7 @@ class ScoreboardController extends BaseController
         $logo = FCPATH . 'assets/images/Ecusson_RBCD.png';
         $html = view('admin/scoreboard/pdf', [
             'match' => $match,
-            'sheet' => $this->buildSheet($id),
+            'sheets' => $this->buildSheets($id),
             'logo'  => is_file($logo) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logo)) : null,
         ]);
 
@@ -126,18 +126,20 @@ class ScoreboardController extends BaseController
     }
 
     /**
-     * Reprises indexées par numéro : [n° => [joueur => ['points' => série, 'total' => cumul]]].
+     * Reprises par set puis par numéro : [set => [n° => [joueur => ['points' => série, 'total' => cumul du set]]]].
+     * Une partie classique n'a qu'un set (1).
      */
-    private function buildSheet(int $id): array
+    private function buildSheets(int $id): array
     {
-        $sheet = [];
-        $cumul = [1 => 0, 2 => 0];
+        $sheets = [];
+        $cumul  = [];
         foreach ((new ScoreboardInningModel())->getForMatch($id) as $row) {
-            $p = (int) $row->player;
-            $cumul[$p] += (int) $row->points;
-            $sheet[(int) $row->inning_no][$p] = ['points' => (int) $row->points, 'total' => $cumul[$p]];
+            $set = (int) $row->set_no;
+            $p   = (int) $row->player;
+            $cumul[$set][$p] = ($cumul[$set][$p] ?? 0) + (int) $row->points;
+            $sheets[$set][(int) $row->inning_no][$p] = ['points' => (int) $row->points, 'total' => $cumul[$set][$p]];
         }
-        return $sheet;
+        return $sheets;
     }
 
     public function edit(int $id): string
@@ -213,6 +215,8 @@ class ScoreboardController extends BaseController
                 'shot_clock_seconds'    => (int) $settings->getSetting('scoreboard_shot_clock_seconds', 40),
                 'shot_clock_extensions' => (int) $settings->getSetting('scoreboard_shot_clock_extensions', 3),
                 'innings_limit_3c'   => (int) $settings->getSetting('scoreboard_innings_limit_3c', 60),
+                'set_points'         => ScoreboardMatchModel::DEFAULT_SET_POINTS,
+                'sets_to_win'        => ScoreboardMatchModel::DEFAULT_SETS_TO_WIN,
             ],
         ]);
     }

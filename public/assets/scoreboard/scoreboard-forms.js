@@ -171,6 +171,43 @@
         });
     }
 
+    // Jeu par sets (3 bandes uniquement) : reprises inégales imposées, pas de limite de reprises,
+    // les points d'un set remplacent les points à réaliser de chaque joueur
+    const setsCb = document.getElementById('sets_enabled');
+    const setsBlock = document.querySelector('[data-sb-sets-block]');
+    if (setsCb && setsBlock && discipline) {
+        const unequal = document.getElementById('unequal_innings');
+        const limitCb = document.getElementById('innings_limit_enabled');
+        const applySets = function () {
+            const allowed = discipline.value === '3bandes';
+            setsBlock.style.display = allowed ? '' : 'none';
+            if (!allowed && setsCb.checked) {
+                setsCb.checked = false;
+                setsCb.dispatchEvent(new Event('change'));
+                return;
+            }
+            const on = setsCb.checked;
+            if (unequal) {
+                if (on) unequal.checked = true;
+                unequal.disabled = on;
+            }
+            if (limitCb) {
+                if (on && limitCb.checked) {
+                    limitCb.checked = false;
+                    limitCb.dispatchEvent(new Event('change'));
+                }
+                limitCb.disabled = on;
+            }
+            document.querySelectorAll('[data-sb-distance]').forEach(function (col) {
+                col.style.display = on ? 'none' : '';
+                col.querySelectorAll('input').forEach((i) => { i.disabled = on; });
+            });
+        };
+        setsCb.addEventListener('change', applySets);
+        discipline.addEventListener('change', applySets);
+        applySets();
+    }
+
     if (discipline && limit) {
         discipline.addEventListener('change', function () {
             if (discipline.value === '3bandes' && discipline.dataset.defaultLimit3c) {

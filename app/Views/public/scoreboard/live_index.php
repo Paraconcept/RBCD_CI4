@@ -30,7 +30,7 @@
         <?php if ($m->status === 'scheduled'): ?>
             <span class="sb-vs">vs</span>
         <?php else: ?>
-            <span class="sb-live-score"><?= (int) $m->p1_points ?> – <?= (int) $m->p2_points ?></span>
+            <span class="sb-live-score"><?= M::score($m, 'p1') ?> – <?= M::score($m, 'p2') ?><?= M::isSets($m) ? ' <small>sets</small>' : '' ?></span>
         <?php endif; ?>
         <div><strong><?= esc(M::playerLabel($m, 'p2')) ?></strong><small><?= esc($m->p2_club) ?></small></div>
     </div>

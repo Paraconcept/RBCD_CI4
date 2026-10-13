@@ -28,7 +28,7 @@
                         <label class="form-label">Club</label>
                         <input type="text" name="<?= $p ?>_club" class="form-control form-control-lg" value="<?= esc(old($p . '_club', 'RBC Disonais')) ?>">
                     </div>
-                    <div class="col-4">
+                    <div class="col-4" data-sb-distance>
                         <label class="form-label">Points à réaliser <span class="text-danger">*</span></label>
                         <input type="number" name="<?= $p ?>_distance" min="1" max="9999" required class="form-control form-control-lg" value="<?= esc(old($p . '_distance')) ?>">
                     </div>
@@ -60,6 +60,29 @@
                             <option value="<?= $k ?>" <?= old('format', $table->format ?? 'PB') === $k ? 'selected' : '' ?>><?= $v ?></option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+                </div>
+                <div class="row g-3 mt-1" data-sb-sets-block>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch fs-5">
+                            <input class="form-check-input" type="checkbox" role="switch" name="sets_enabled" id="sets_enabled" value="1" <?= old('sets_enabled') ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="sets_enabled">Par sets</label>
+                        </div>
+                        <small class="text-secondary">Toujours à reprises inégales. Le joueur qui casse le 1<sup>er</sup> set garde la bille blanche ; les sets sont cassés à tour de rôle.</small>
+                    </div>
+                    <div class="col-md-4" data-sb-show-when="sets_enabled">
+                        <label class="form-label" for="set_points">Points par set</label>
+                        <div class="input-group">
+                            <input type="number" name="set_points" id="set_points" min="1" max="999" class="form-control form-control-lg" value="<?= esc(old('set_points', $defaults['set_points'])) ?>">
+                            <span class="input-group-text">points</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4" data-sb-show-when="sets_enabled">
+                        <label class="form-label" for="sets_to_win">Sets gagnants</label>
+                        <div class="input-group">
+                            <input type="number" name="sets_to_win" id="sets_to_win" min="1" max="9" class="form-control form-control-lg" value="<?= esc(old('sets_to_win', $defaults['sets_to_win'])) ?>">
+                            <span class="input-group-text">sets</span>
+                        </div>
                     </div>
                 </div>
                 <hr class="my-4">

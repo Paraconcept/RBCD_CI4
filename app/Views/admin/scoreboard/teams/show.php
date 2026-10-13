@@ -67,7 +67,7 @@ $statusBadge = static fn (string $s): string => match ($s) {
           <td class="<?= (int) $m->winner === 1 ? 'font-weight-bold' : '' ?>"><?= esc(M::playerLabel($m, 'p1')) ?></td>
           <td class="<?= (int) $m->winner === 2 ? 'font-weight-bold' : '' ?>"><?= esc(M::playerLabel($m, 'p2')) ?></td>
           <td class="text-center"><?= (int) $m->p1_distance ?> / <?= (int) $m->p2_distance ?></td>
-          <td class="text-center"><?= $m->status === 'scheduled' ? '—' : (int) $m->p1_points . ' – ' . (int) $m->p2_points ?></td>
+          <td class="text-center"><?= $m->status === 'scheduled' ? '—' : M::score($m, 'p1') . ' – ' . M::score($m, 'p2') . (M::isSets($m) ? ' sets' : '') ?></td>
           <td class="text-center"><?= $m->status === 'scheduled' ? '—' : max((int) $m->p1_innings, (int) $m->p2_innings) ?></td>
           <td class="text-center"><?= $statusBadge($m->status) ?></td>
           <td class="text-right text-nowrap">

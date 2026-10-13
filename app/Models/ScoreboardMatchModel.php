@@ -15,6 +15,9 @@ class ScoreboardMatchModel extends Model
 
     public const TIMEZONE = 'Europe/Brussels';
 
+    public const DEFAULT_SET_POINTS  = 15;
+    public const DEFAULT_SETS_TO_WIN = 2;
+
     public const FORMATS = [
         'PB' => 'Petit billard',
         'GB' => 'Grand billard',
@@ -33,14 +36,14 @@ class ScoreboardMatchModel extends Model
 
     protected $allowedFields = [
         'type', 'team_encounter_id', 'status', 'table_id', 'scheduled_at', 'competition',
-        'discipline', 'format', 'innings_limit', 'unequal_innings',
+        'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start',
         'p1_member_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license',
         'p1_category_id', 'p1_category', 'p1_average_min', 'p1_distance',
-        'p1_points', 'p1_innings', 'p1_high_run', 'p1_extensions_used',
+        'p1_points', 'p1_innings', 'p1_high_run', 'p1_sets', 'p1_extensions_used',
         'p2_member_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_license',
         'p2_category_id', 'p2_category', 'p2_average_min', 'p2_distance',
-        'p2_points', 'p2_innings', 'p2_high_run', 'p2_extensions_used',
+        'p2_points', 'p2_innings', 'p2_high_run', 'p2_sets', 'p2_extensions_used',
         'starting_player', 'current_run', 'winner', 'rev',
         'started_at', 'finished_at', 'created_by',
     ];
@@ -91,19 +94,22 @@ class ScoreboardMatchModel extends Model
      */
     public function stateFor(object $match): array
     {
-        $rows    = (new ScoreboardInningModel())->getForMatch((int) $match->id);
         $starter = (int) ($match->starting_player ?: 1);
-        $byPlayer = [1 => [], 2 => []];
-        foreach ($rows as $r) {
-            $byPlayer[(int) $r->player][(int) $r->inning_no] = (int) $r->points;
+        $bySet   = [];
+        foreach ((new ScoreboardInningModel())->getForMatch((int) $match->id) as $r) {
+            $bySet[(int) $r->set_no][(int) $r->player][(int) $r->inning_no] = (int) $r->points;
         }
+        ksort($bySet);
 
         $innings = [];
-        $other   = $starter === 1 ? 2 : 1;
-        $count   = max(count($byPlayer[1]), count($byPlayer[2]));
-        for ($n = 1; $n <= $count; $n++) {
-            if (isset($byPlayer[$starter][$n])) $innings[] = $byPlayer[$starter][$n];
-            if (isset($byPlayer[$other][$n]))   $innings[] = $byPlayer[$other][$n];
+        foreach ($bySet as $setNo => $byPlayer) {
+            $first = self::setStarter($starter, $setNo);
+            $other = $first === 1 ? 2 : 1;
+            $count = max(count($byPlayer[1] ?? []), count($byPlayer[2] ?? []));
+            for ($n = 1; $n <= $count; $n++) {
+                if (isset($byPlayer[$first][$n])) $innings[] = $byPlayer[$first][$n];
+                if (isset($byPlayer[$other][$n])) $innings[] = $byPlayer[$other][$n];
+            }
         }
 
         return [
@@ -149,6 +155,7 @@ class ScoreboardMatchModel extends Model
     {
         $errors = [];
         $data   = [];
+        $sets   = !empty($in['sets_enabled']);
 
         foreach (['p1', 'p2'] as $i => $p) {
             $last  = mb_strtoupper(trim((string) ($in[$p . '_last_name'] ?? '')), 'UTF-8');
@@ -165,8 +172,9 @@ class ScoreboardMatchModel extends Model
             $license = mb_substr(trim((string) ($in[$p . '_license'] ?? '')), 0, 25);
             $data[$p . '_license']    = $license !== '' ? $license : null;
 
+            // Par sets : les points d'un set remplacent les points à réaliser (voir plus bas)
             $distance = (int) ($in[$p . '_distance'] ?? 0);
-            if ($distance < 1 || $distance > 9999) {
+            if (!$sets && ($distance < 1 || $distance > 9999)) {
                 $errors[] = 'Les points à réaliser du joueur ' . ($i + 1) . ' doivent être compris entre 1 et 9999.';
             }
             $data[$p . '_distance'] = $distance;
@@ -211,6 +219,26 @@ class ScoreboardMatchModel extends Model
         }
 
         $data['unequal_innings']    = !empty($in['unequal_innings']) ? 1 : 0;
+
+        $data['sets_to_win'] = null;
+        if ($sets) {
+            if ($discipline !== '3bandes') {
+                $errors[] = "Le jeu par sets n'est possible qu'en 3 bandes.";
+            }
+            $setPoints = (int) ($in['set_points'] ?? self::DEFAULT_SET_POINTS);
+            if ($setPoints < 1 || $setPoints > 999) {
+                $errors[] = "Les points d'un set doivent être compris entre 1 et 999.";
+            }
+            $toWin = (int) ($in['sets_to_win'] ?? 0);
+            if ($toWin < 1 || $toWin > 9) {
+                $errors[] = 'Le nombre de sets gagnants doit être compris entre 1 et 9.';
+            }
+            $data['sets_to_win']     = $toWin;
+            $data['p1_distance']     = $data['p2_distance'] = $setPoints;
+            // Règle du jeu par sets : toujours à reprises inégales, sans limite de reprises
+            $data['unequal_innings'] = 1;
+            $data['innings_limit']   = null;
+        }
         $data['shot_clock_enabled'] = !empty($in['shot_clock_enabled']) ? 1 : 0;
         $seconds = (int) ($in['shot_clock_seconds'] ?? 40);
         $data['shot_clock_seconds'] = max(5, min(300, $seconds ?: 40));
@@ -249,22 +277,21 @@ class ScoreboardMatchModel extends Model
             return (int) $match->rev;
         }
 
-        $starter = (int) $match->starting_player;
-        $other   = $starter === 1 ? 2 : 1;
-        $totals  = [1 => ['points' => 0, 'innings' => 0, 'high' => 0], 2 => ['points' => 0, 'innings' => 0, 'high' => 0]];
-        $rows    = [];
+        $totals = [1 => ['points' => 0, 'innings' => 0, 'high' => 0], 2 => ['points' => 0, 'innings' => 0, 'high' => 0]];
+        $walk   = self::walkInnings($match, array_map('intval', array_values((array) ($state['innings'] ?? []))));
+        $rows   = [];
 
-        foreach (array_values((array) ($state['innings'] ?? [])) as $i => $pts) {
-            $player = $i % 2 === 0 ? $starter : $other;
-            $pts    = max(0, (int) $pts);
+        foreach ($walk['rows'] as $r) {
+            $player = $r['player'];
             $totals[$player]['innings']++;
-            $totals[$player]['points'] += $pts;
-            $totals[$player]['high']    = max($totals[$player]['high'], $pts);
+            $totals[$player]['points'] += $r['points'];
+            $totals[$player]['high']    = max($totals[$player]['high'], $r['points']);
             $rows[] = [
                 'match_id'  => $match->id,
-                'inning_no' => $totals[$player]['innings'],
+                'set_no'    => $r['set'],
+                'inning_no' => $r['inning'],
                 'player'    => $player,
-                'points'    => $pts,
+                'points'    => $r['points'],
             ];
         }
 
@@ -272,6 +299,7 @@ class ScoreboardMatchModel extends Model
         $update = [
             'p1_points' => $totals[1]['points'], 'p1_innings' => $totals[1]['innings'], 'p1_high_run' => $totals[1]['high'],
             'p2_points' => $totals[2]['points'], 'p2_innings' => $totals[2]['innings'], 'p2_high_run' => $totals[2]['high'],
+            'p1_sets'   => $walk['won'][1], 'p2_sets' => $walk['won'][2],
             'p1_extensions_used' => (int) ($ext[0] ?? 0),
             'p2_extensions_used' => (int) ($ext[1] ?? 0),
             'current_run' => max(0, (int) ($state['current_run'] ?? 0)),
@@ -282,7 +310,9 @@ class ScoreboardMatchModel extends Model
             $update['status']      = 'finished';
             $update['finished_at'] = self::now();
             $update['current_run'] = 0;
-            $update['winner']      = self::winnerOf($match, $totals[1]['points'], $totals[1]['innings'], $totals[2]['points'], $totals[2]['innings']);
+            $update['winner']      = self::isSets($match)
+                ? match ($walk['won'][1] <=> $walk['won'][2]) { 1 => 1, -1 => 2, default => 0 }
+                : self::winnerOf($match, $totals[1]['points'], $totals[1]['innings'], $totals[2]['points'], $totals[2]['innings']);
         } elseif ($match->status === 'finished') {
             // Correction après la fin (touche « - » sur l'écran de résultat) : la partie reprend
             $update['status']      = 'live';
@@ -299,6 +329,62 @@ class ScoreboardMatchModel extends Model
         $this->db->transComplete();
 
         return $rev;
+    }
+
+    public static function isSets(object $m): bool
+    {
+        return !empty($m->sets_to_win);
+    }
+
+    /** Joueur qui casse un set : celui qui a commencé la partie garde la bille blanche, les sets alternent. */
+    public static function setStarter(int $starter, int $setNo): int
+    {
+        return $setNo % 2 === 1 ? $starter : ($starter === 1 ? 2 : 1);
+    }
+
+    /**
+     * Découpe les séries chronologiques en reprises numérotées (par set en jeu par sets).
+     * Un set s'arrête dès qu'un joueur atteint ses points (reprises inégales), le suivant
+     * est cassé par l'autre joueur. Doit rester identique à walk() de scoreboard-display.js.
+     *
+     * @return array{rows: list<array{set:int, inning:int, player:int, points:int}>, won: array{1:int, 2:int}}
+     */
+    public static function walkInnings(object $m, array $innings): array
+    {
+        $starter = (int) ($m->starting_player ?: 1);
+        $toWin   = (int) ($m->sets_to_win ?? 0);
+        $dist    = [1 => (int) $m->p1_distance, 2 => (int) $m->p2_distance];
+        $won     = [1 => 0, 2 => 0];
+        $rows    = [];
+
+        $set = 1; $inSet = 0;
+        $pts = [1 => 0, 2 => 0]; $inn = [1 => 0, 2 => 0];
+        foreach ($innings as $v) {
+            $first  = self::setStarter($starter, $set);
+            $player = $inSet % 2 === 0 ? $first : ($first === 1 ? 2 : 1);
+            $v      = max(0, (int) $v);
+            $pts[$player] += $v;
+            $inn[$player]++;
+            $inSet++;
+            $rows[] = ['set' => $set, 'inning' => $inn[$player], 'player' => $player, 'points' => $v];
+
+            if ($toWin && $pts[$player] >= $dist[$player]) {
+                $won[$player]++;
+                if ($won[$player] >= $toWin) {
+                    break;
+                }
+                $set++; $inSet = 0;
+                $pts = [1 => 0, 2 => 0]; $inn = [1 => 0, 2 => 0];
+            }
+        }
+
+        return ['rows' => $rows, 'won' => $won];
+    }
+
+    /** Score affiché dans les listes : sets gagnés en jeu par sets, sinon points. */
+    public static function score(object $m, string $p): int
+    {
+        return (int) $m->{$p . (self::isSets($m) ? '_sets' : '_points')};
     }
 
     /**
@@ -332,7 +418,7 @@ class ScoreboardMatchModel extends Model
     /** Vrai si la partie terminée a été départagée à la moyenne proportionnelle. */
     public static function decidedByProportional(object $m): bool
     {
-        return $m->status === 'finished'
+        return $m->status === 'finished' && !self::isSets($m)
             && (int) $m->p1_points < (int) $m->p1_distance && (int) $m->p2_points < (int) $m->p2_distance
             && self::proportionalAverage($m, 'p1', (int) $m->p1_points, (int) $m->p1_innings) !== null
             && self::proportionalAverage($m, 'p2', (int) $m->p2_points, (int) $m->p2_innings) !== null;
@@ -362,8 +448,8 @@ class ScoreboardMatchModel extends Model
         $this->db->table('scoreboard_innings')->where('match_id', $id)->delete();
         $this->update($id, [
             'status' => 'scheduled', 'starting_player' => null, 'current_run' => 0, 'winner' => null,
-            'p1_points' => 0, 'p1_innings' => 0, 'p1_high_run' => 0, 'p1_extensions_used' => 0,
-            'p2_points' => 0, 'p2_innings' => 0, 'p2_high_run' => 0, 'p2_extensions_used' => 0,
+            'p1_points' => 0, 'p1_innings' => 0, 'p1_high_run' => 0, 'p1_sets' => 0, 'p1_extensions_used' => 0,
+            'p2_points' => 0, 'p2_innings' => 0, 'p2_high_run' => 0, 'p2_sets' => 0, 'p2_extensions_used' => 0,
             'started_at' => null, 'finished_at' => null,
         ]);
         $this->db->query('UPDATE scoreboard_matches SET rev = rev + 1 WHERE id = ?', [$id]);
@@ -483,6 +569,10 @@ class ScoreboardMatchModel extends Model
 
     public static function distanceLabel(object $m): string
     {
+        if (self::isSets($m)) {
+            return (int) $m->sets_to_win . ' set' . ((int) $m->sets_to_win > 1 ? 's' : '') . ' gagnant' . ((int) $m->sets_to_win > 1 ? 's' : '')
+                 . ' de ' . (int) $m->p1_distance . ' pts';
+        }
         return (int) $m->p1_distance === (int) $m->p2_distance
             ? $m->p1_distance . ' pts'
             : $m->p1_distance . ' / ' . $m->p2_distance . ' pts';

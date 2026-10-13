@@ -38,7 +38,7 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
           <td class="<?= $m->winner == 1 ? 'font-weight-bold' : '' ?>">
             <?= esc(M::playerLabel($m, 'p1')) ?><br><small class="text-muted"><?= esc($m->p1_club) ?></small>
           </td>
-          <td class="text-center align-middle"><?= $m->status === 'scheduled' ? '—' : (int) $m->p1_points . ' – ' . (int) $m->p2_points ?></td>
+          <td class="text-center align-middle"><?= $m->status === 'scheduled' ? '—' : M::score($m, 'p1') . ' – ' . M::score($m, 'p2') . (M::isSets($m) ? ' sets' : '') ?></td>
           <td class="<?= $m->winner == 2 ? 'font-weight-bold' : '' ?>">
             <?= esc(M::playerLabel($m, 'p2')) ?><br><small class="text-muted"><?= esc($m->p2_club) ?></small>
           </td>

@@ -136,7 +136,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
                 <small class="text-muted">Sert à départager à la moyenne proportionnelle si la limite de reprises est atteinte.</small>
               </div>
             </div>
-            <div class="col-4">
+            <div class="col-4" data-sb-distance>
               <div class="form-group mb-0">
                 <label>Points à réaliser <span class="text-danger">*</span></label>
                 <input type="number" name="<?= $p ?>_distance" class="form-control" min="1" max="9999" required value="<?= esc($val($p . '_distance')) ?>">
@@ -173,6 +173,30 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
               <option value="<?= $k ?>" <?= $val('format', 'PB') === $k ? 'selected' : '' ?>><?= $v ?></option>
               <?php endforeach; ?>
             </select>
+          </div>
+        </div>
+      </div>
+      <?php $setsOn = old('sets_enabled', !empty($src->sets_to_win) ? '1' : ''); ?>
+      <div class="row mb-3" data-sb-sets-block>
+        <div class="col-md-4">
+          <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" name="sets_enabled" id="sets_enabled" value="1" <?= $setsOn ? 'checked' : '' ?>>
+            <label class="custom-control-label" for="sets_enabled">Par sets</label>
+          </div>
+          <small class="text-muted">Toujours à reprises inégales. Le joueur qui casse le 1<sup>er</sup> set garde la bille blanche ; les sets sont cassés à tour de rôle.</small>
+        </div>
+        <div class="col-md-4" data-sb-show-when="sets_enabled">
+          <div class="input-group" style="max-width:220px">
+            <input type="number" name="set_points" class="form-control" min="1" max="999"
+                   value="<?= esc(old('set_points', !empty($src->sets_to_win) ? $src->p1_distance : $defaults['set_points'])) ?>">
+            <div class="input-group-append"><span class="input-group-text">points / set</span></div>
+          </div>
+        </div>
+        <div class="col-md-4" data-sb-show-when="sets_enabled">
+          <div class="input-group" style="max-width:220px">
+            <input type="number" name="sets_to_win" class="form-control" min="1" max="9"
+                   value="<?= esc(old('sets_to_win', $src->sets_to_win ?? $defaults['sets_to_win'])) ?>">
+            <div class="input-group-append"><span class="input-group-text">sets gagnants</span></div>
           </div>
         </div>
       </div>

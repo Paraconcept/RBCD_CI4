@@ -189,7 +189,7 @@ class ScoreboardController extends BaseController
         }
 
         $copy = [
-            'competition', 'discipline', 'format', 'innings_limit', 'unequal_innings',
+            'competition', 'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win',
             'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'created_by',
         ];
         foreach (['p1', 'p2'] as $p) {
@@ -266,6 +266,8 @@ class ScoreboardController extends BaseController
             'shot_clock_seconds'    => (int) $this->settings->getSetting('scoreboard_shot_clock_seconds', 40),
             'shot_clock_extensions' => (int) $this->settings->getSetting('scoreboard_shot_clock_extensions', 3),
             'innings_limit_3c'   => (int) $this->settings->getSetting('scoreboard_innings_limit_3c', 60),
+            'set_points'         => ScoreboardMatchModel::DEFAULT_SET_POINTS,
+            'sets_to_win'        => ScoreboardMatchModel::DEFAULT_SETS_TO_WIN,
         ];
     }
 

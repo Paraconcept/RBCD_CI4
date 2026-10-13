@@ -12,6 +12,7 @@ $config = [
     'distances'    => [1 => (int) $match->p1_distance, 2 => (int) $match->p2_distance],
     'inningsLimit' => $match->innings_limit ? (int) $match->innings_limit : null,
     'unequal'      => (bool) $match->unequal_innings,
+    'sets'         => M::isSets($match) ? (int) $match->sets_to_win : null,
     'avgMin'       => [1 => $match->p1_average_min !== null ? (float) $match->p1_average_min : null,
                        2 => $match->p2_average_min !== null ? (float) $match->p2_average_min : null],
     'clock'        => [
@@ -50,7 +51,7 @@ $config = [
     <link rel="stylesheet" href="<?= base_url('assets/scoreboard/scoreboard.css') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard.css') ?>">
 </head>
 <body>
-<div class="sbd<?= $spectator ? ' spectator' : '' ?>" id="sbd">
+<div class="sbd<?= $spectator ? ' spectator' : '' ?><?= M::isSets($match) ? ' sets' : '' ?>" id="sbd">
 
     <header class="sbd-head">
         <div class="sbd-head-left">
@@ -61,6 +62,7 @@ $config = [
         </div>
         <div class="sbd-discipline">
             <?= esc(M::disciplineLabel($match)) ?>
+            <?php if (M::isSets($match)): ?><span class="sbd-muted">· <?= esc(M::distanceLabel($match)) ?></span><?php endif; ?>
             <?php if ($competition = M::competitionLabel($match)): ?><span class="sbd-muted">· <?= esc($competition) ?></span><?php endif; ?>
         </div>
         <div class="sbd-head-right">
@@ -77,6 +79,13 @@ $config = [
         <?php foreach ([1, 2] as $n): $p = 'p' . $n; ?>
         <?php if ($n === 2): ?>
         <section class="sbd-center">
+            <?php if (M::isSets($match)): ?>
+            <div class="sbd-box sbd-setsbox">
+                <span id="sbdSetNo">Set 1</span>
+                <b id="sbdSetsScore"></b>
+                <small>en <?= (int) $match->p1_distance ?> points</small>
+            </div>
+            <?php endif; ?>
             <div class="sbd-box sbd-innings">
                 <span>Reprises</span>
                 <b id="sbdInnings">1</b>
@@ -97,7 +106,11 @@ $config = [
                     <div class="sbd-last"><?= esc($match->{$p . '_last_name'}) ?></div>
                     <div class="sbd-first"><?= esc($match->{$p . '_first_name'}) ?></div>
                     <div class="sbd-club"><?= esc($match->{$p . '_club'} ?? '') ?></div>
+                    <?php if (M::isSets($match)): ?>
+                    <div class="sbd-target">Sets : <span class="sbd-setdots" data-sets></span></div>
+                    <?php else: ?>
                     <div class="sbd-target">À réaliser : <b><?= (int) $match->{$p . '_distance'} ?></b></div>
+                    <?php endif; ?>
                 </div>
                 <?php if ($n === 1): ?><span class="sbd-ball"></span><?php endif; ?>
             </div>
@@ -151,7 +164,7 @@ $config = [
             <div class="sbd-winner" id="sbdWinner"></div>
             <div class="sbd-decision" id="sbdDecision" hidden>Départagés à la moyenne proportionnelle</div>
             <table>
-                <thead><tr><th></th><th>Points</th><th>Reprises</th><th>Moyenne</th><th>MS</th><th id="sbdPropHead" hidden>Moy. prop.</th></tr></thead>
+                <thead><tr id="sbdResultHead"><th></th><th>Points</th><th>Reprises</th><th>Moyenne</th><th>MS</th><th id="sbdPropHead" hidden>Moy. prop.</th></tr></thead>
                 <tbody id="sbdResultRows"></tbody>
             </table>
             <div class="sbd-small">
@@ -167,6 +180,24 @@ $config = [
             </div>
         </div>
     </div>
+
+    <?php if (!$spectator && M::isSets($match)): ?>
+    <div class="sbd-overlay" id="sbdSetBreak">
+        <div class="sbd-result">
+            <h2 id="sbdSetBreakTitle"></h2>
+            <div class="sbd-winner" id="sbdSetBreakWinner"></div>
+            <div class="sbd-setbreak-score" id="sbdSetBreakScore"></div>
+            <table>
+                <thead><tr><th></th><th>Points</th><th>Reprises</th><th>Moyenne</th><th>MS</th></tr></thead>
+                <tbody id="sbdSetBreakRows"></tbody>
+            </table>
+            <div class="sbd-setbreak-next" id="sbdSetBreakNext"></div>
+            <div class="sbd-small">
+                <kbd>Entrée</kbd> <span id="sbdSetBreakKey"></span> &nbsp;·&nbsp; <kbd>−</kbd> corriger la dernière reprise
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <?php if (!$spectator): ?>
     <div class="sbd-overlay" id="sbdMenu">

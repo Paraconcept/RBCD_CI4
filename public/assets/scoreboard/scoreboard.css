@@ -194,6 +194,19 @@
 }
 .sbd-notice:empty { display: none; }
 
+/* Jeu par sets : un 3e cadre au centre (sets gagnés), les deux autres rétrécissent */
+.sbd-setsbox b { display: block; font-size: 11vh; line-height: .95; font-weight: 800; }
+.sbd-setsbox b i { font-style: normal; }
+.sbd-setsbox small { display: block; font-size: 2.6vh; color: var(--sb-muted); }
+.sbd.sets .sbd-center > .sbd-box > span { font-size: 3vh; }
+.sbd.sets .sbd-innings b { font-size: 11vh; }
+.sbd.sets .sbd-run b { font-size: 13vh; }
+.sbd-setdots { display: inline-flex; gap: .8vh; vertical-align: .2vh; }
+.sbd-setdots i { font-size: 4.2vh; color: var(--pc); }
+.sbd-setbreak-score { font-size: 12vh; font-weight: 800; line-height: 1; margin: -1vh 0 3vh; }
+.sbd-setbreak-score i { font-style: normal; }
+.sbd-setbreak-next { font-size: 3.6vh; font-weight: 700; color: #fff; margin-bottom: 2vh; }
+
 .sbd-clock { display: flex; align-items: center; gap: 1.2vw; padding: .8vh 2vw 1vh; }
 .sbd-clock[hidden] { display: none; }
 .sbd-clock-track { flex: 1; height: 5vh; border-radius: 1vh; background: rgba(255,255,255,.08); overflow: hidden; }
@@ -298,6 +311,9 @@
     .sbd-stat b { font-size: 6vw; }
     .sbd-ext { min-height: 4vw; margin-top: 1.5vw; }
     .sbd-ext i { font-size: 3.6vw; }
+    .sbd.sets .sbd-innings b, .sbd.sets .sbd-run b, .sbd-setsbox b { font-size: 11vw; }
+    .sbd-setsbox small { font-size: 2.6vw; }
+    .sbd-setdots i { font-size: 3.4vw; }
     .sbd-result { min-width: 92vw; padding: 5vw 4vw; }
     .sbd-result h2 { font-size: 4vw; }
     .sbd-result .sbd-winner { font-size: 8vw; }

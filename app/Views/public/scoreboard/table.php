@@ -71,9 +71,9 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
             <?php foreach ($lastFinished as $m): ?>
             <li>
                 <a href="<?= base_url('marquoir/match/' . $m->id) ?>">
-                    <span><?= esc($m->p1_last_name) ?> <b><?= (int) $m->p1_points ?></b></span>
+                    <span><?= esc($m->p1_last_name) ?> <b><?= M::score($m, 'p1') ?></b></span>
                     <span class="text-secondary">–</span>
-                    <span><b><?= (int) $m->p2_points ?></b> <?= esc($m->p2_last_name) ?></span>
+                    <span><b><?= M::score($m, 'p2') ?></b> <?= esc($m->p2_last_name) ?></span>
                 </a>
             </li>
             <?php endforeach; ?>

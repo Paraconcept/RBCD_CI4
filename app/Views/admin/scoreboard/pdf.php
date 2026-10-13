@@ -2,9 +2,9 @@
 use App\Models\ScoreboardMatchModel as M;
 
 $perPage    = 75;
-$lastInning = $sheet ? max(array_keys($sheet)) : 0;
-$pages      = max(1, (int) ceil($lastInning / $perPage));
 $date       = $match->started_at ?? $match->scheduled_at;
+// Provisoire pour le jeu par sets (modèle de feuille à venir) : une feuille par set
+$sheets     = $sheets ?: [1 => []];
 
 $cell = static function (array $sheet, int $n, int $p, string $key): string {
     return isset($sheet[$n][$p]) ? (string) $sheet[$n][$p][$key] : '';
@@ -56,7 +56,10 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
 </style>
 </head>
 <body>
-<?php for ($page = 0; $page < $pages; $page++): ?>
+<?php foreach ($sheets as $setNo => $sheet):
+    $lastInning = $sheet ? max(array_keys($sheet)) : 0;
+    $pages      = max(1, (int) ceil($lastInning / $perPage));
+    for ($page = 0; $page < $pages; $page++): ?>
 <div class="page">
 <table class="layout">
 <tr>
@@ -100,7 +103,7 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
     <div class="field thick"><b>Epreuve :</b> <span><?= esc(M::competitionLabel($match) ?: ($match->type === 'friendly' ? 'Partie amicale' : '')) ?></span></div>
     <div class="field"></div>
     <div style="height:7mm"></div>
-    <div class="field thick"><b>Mode de jeu :</b> <span><?= esc(M::disciplineLabel($match)) ?><?= $match->innings_limit ? ' — ' . (int) $match->innings_limit . ' reprises max.' : '' ?></span><?= $pages > 1 ? ' <span class="small">(feuille ' . ($page + 1) . '/' . $pages . ')</span>' : '' ?></div>
+    <div class="field thick"><b>Mode de jeu :</b> <span><?= esc(M::disciplineLabel($match)) ?><?= $match->innings_limit ? ' — ' . (int) $match->innings_limit . ' reprises max.' : '' ?><?= M::isSets($match) ? ' — set ' . $setNo . ' (' . esc(M::distanceLabel($match)) . ')' : '' ?></span><?= $pages > 1 ? ' <span class="small">(feuille ' . ($page + 1) . '/' . $pages . ')</span>' : '' ?></div>
 
     <table class="result">
         <tr class="title"><td colspan="3">RESULTAT</td></tr>
@@ -120,6 +123,6 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
 </tr>
 </table>
 </div>
-<?php endfor; ?>
+<?php endfor; endforeach; ?>
 </body>
 </html>

@@ -51,11 +51,37 @@
     <p class="text-muted small mb-4"><i class="fas fa-balance-scale mr-1"></i>Limite de reprises atteinte : vainqueur désigné à la moyenne proportionnelle (moyenne réalisée ÷ moyenne minimum de la catégorie).</p>
     <?php endif; ?>
 
-    <h5 class="mb-2">Feuille de match</h5>
-    <?php if (!$sheet): ?>
+    <?php if (M::isSets($match) && $sheets): ?>
+    <h5 class="mb-2">Sets</h5>
+    <table class="table table-sm table-bordered text-center mb-4" style="max-width:1000px">
+      <thead class="thead-rbcd">
+        <tr>
+          <th class="text-left">Joueur</th>
+          <?php foreach (array_keys($sheets) as $no): ?><th>Set <?= $no ?></th><?php endforeach; ?>
+          <th>Sets gagnés</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ([1, 2] as $n): ?>
+        <tr class="<?= (int) $match->winner === $n ? 'font-weight-bold' : '' ?>">
+          <td class="text-left"><?= esc(M::playerLabel($match, 'p' . $n)) ?></td>
+          <?php foreach ($sheets as $sheet): $mine = array_column($sheet, $n); ?>
+          <td><?= $mine ? end($mine)['total'] : 0 ?> <small class="text-muted">(<?= count($mine) ?> rep.)</small></td>
+          <?php endforeach; ?>
+          <td><?= (int) $match->{'p' . $n . '_sets'} ?></td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+    <?php endif; ?>
+
+    <?php if (!$sheets): ?>
+      <h5 class="mb-2">Feuille de match</h5>
       <p class="text-muted">Aucune reprise enregistrée.</p>
-    <?php else: ?>
-    <table class="table table-sm table-bordered table-striped text-center" style="max-width:600px">
+    <?php endif; ?>
+    <?php foreach ($sheets as $setNo => $sheet): ?>
+    <h5 class="mb-2"><?= M::isSets($match) ? 'Set ' . $setNo : 'Feuille de match' ?></h5>
+    <table class="table table-sm table-bordered table-striped text-center mb-4" style="max-width:600px">
       <thead class="thead-rbcd">
         <tr>
           <th rowspan="2" class="align-middle">Reprise</th>
@@ -80,7 +106,7 @@
         <?php endforeach; ?>
       </tbody>
     </table>
-    <?php endif; ?>
+    <?php endforeach; ?>
   </div>
   <div class="card-footer d-flex">
     <a href="<?= base_url('admin/scoreboard') ?>" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>Retour</a>

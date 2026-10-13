@@ -2,7 +2,7 @@
  * Marquoir RBC Disonais — écran TV piloté au pavé numérique.
  *
  * L'état complet de la partie tient dans `st` :
- *   innings : séries terminées dans l'ordre chronologique (index pair = joueur qui casse)
+ *   innings : séries terminées dans l'ordre chronologique (joueurs en alternance, découpées en sets par walk())
  *   run     : série en cours du joueur au billard
  *   ext     : extensions de chrono consommées [joueur 1, joueur 2]
  *   rev     : version, incrémentée à chaque modification
@@ -16,6 +16,8 @@
     const S = C.starter;
     const O = S === 1 ? 2 : 1;
     const dist = (p) => C.distances[p];
+    // Jeu par sets : nombre de sets gagnants (null en partie classique) ; dist() = points d'un set
+    const SETS = C.sets;
     const STORE_KEY = 'sb_match_' + C.id + '_' + C.startedAt;
 
     const $ = (id) => document.getElementById(id);
@@ -26,6 +28,8 @@
     let buffer = '';
     let syncedRev = C.server.rev;
     let lastScores = { 1: null, 2: null };
+    // N° du set qui vient de se terminer, tant que l'arbitre n'a pas lancé le suivant (Entrée)
+    let setBreak = null;
 
     // ------------------------------------------------------------ état
 
@@ -46,29 +50,60 @@
         return s;
     }
 
-    const playerAt = (i) => (i % 2 === 0 ? S : O);
-    const current = () => playerAt(st.innings.length);
+    // Le joueur qui casse le 1er set garde la bille blanche ; les sets sont cassés à tour de rôle
+    const setStarter = (n) => (n % 2 === 1 ? S : O);
+    const other = (p) => (p === 1 ? 2 : 1);
 
-    function totals(p, withRun) {
-        let pts = 0, inn = 0, hr = 0;
-        st.innings.forEach(function (v, i) {
-            if (playerAt(i) === p) { pts += v; inn++; hr = Math.max(hr, v); }
+    /*
+     * Découpe les séries en reprises (set, n° de reprise dans le set, joueur).
+     * Un set s'arrête dès qu'un joueur atteint ses points ; le dernier set reste le set courant.
+     * Doit rester identique à ScoreboardMatchModel::walkInnings().
+     */
+    function walk() {
+        const rows = [], won = { 1: 0, 2: 0 };
+        let set = 1, inSet = 0, pts = { 1: 0, 2: 0 }, inn = { 1: 0, 2: 0 }, over = false;
+        st.innings.forEach(function (v) {
+            if (over) return;
+            const first = setStarter(set);
+            const p = inSet % 2 === 0 ? first : other(first);
+            pts[p] += v; inn[p]++; inSet++;
+            rows.push({ set: set, inning: inn[p], player: p, pts: v });
+            if (SETS && pts[p] >= dist(p)) {
+                won[p]++;
+                if (won[p] >= SETS) { over = true; return; }
+                set++; inSet = 0; pts = { 1: 0, 2: 0 }; inn = { 1: 0, 2: 0 };
+            }
         });
-        if (withRun && !st.finished && current() === p) {
-            pts += st.run; inn++; hr = Math.max(hr, st.run);
-        }
+        return { rows: rows, won: won, set: set, inSet: inSet };
+    }
+
+    function current() {
+        const w = walk();
+        const first = setStarter(w.set);
+        return w.inSet % 2 === 0 ? first : other(first);
+    }
+
+    // Toute la partie (set = null) ou un seul set
+    function totals(p, set) {
+        let pts = 0, inn = 0, hr = 0;
+        walk().rows.forEach(function (r) {
+            if (r.player === p && (set == null || r.set === set)) { pts += r.pts; inn++; hr = Math.max(hr, r.pts); }
+        });
         return { pts: pts, inn: inn, hr: hr };
     }
 
-    const remaining = () => dist(current()) - totals(current(), false).pts - st.run;
+    // Score du set en cours (en partie classique : toute la partie)
+    const setTotals = (p) => totals(p, walk().set);
+
+    const remaining = () => dist(current()) - setTotals(current()).pts - st.run;
 
     function inningNumber() {
-        const n = st.innings.length;
+        const n = walk().inSet;
         return st.finished ? Math.ceil(n / 2) : Math.floor(n / 2) + 1;
     }
 
     function isEqualizing() {
-        return !st.finished && !C.unequal && st.innings.length % 2 === 1 && totals(S, false).pts >= dist(S);
+        return !st.finished && !C.unequal && st.innings.length % 2 === 1 && totals(S).pts >= dist(S);
     }
 
     function commit() {
@@ -96,16 +131,19 @@
     function endInning() {
         if (st.finished) return;
         if (buffer !== '') {
-            st.run = Math.min(parseInt(buffer, 10) || 0, dist(current()) - totals(current(), false).pts);
+            st.run = Math.min(parseInt(buffer, 10) || 0, dist(current()) - setTotals(current()).pts);
             buffer = '';
         }
+        const setBefore = walk().set;
         st.innings.push(st.run);
         st.run = 0;
         clock.expired = false;
         checkEnd();
+        const newSet = SETS && !st.finished && walk().set !== setBefore;
+        if (newSet) setBreak = setBefore;
         if (st.finished) {
             stopClock();
-        } else if (C.clock.autoStart) {
+        } else if (C.clock.autoStart && !newSet) {
             restartClock();
         } else {
             resetClock();
@@ -114,9 +152,14 @@
     }
 
     function checkEnd() {
+        if (SETS) {
+            const w = walk();
+            if (w.won[1] >= SETS || w.won[2] >= SETS) st.finished = true;
+            return;
+        }
         const n = st.innings.length;
-        const s1 = totals(S, false).pts;
-        const s2 = totals(O, false).pts;
+        const s1 = totals(S).pts;
+        const s2 = totals(O).pts;
         if (n % 2 === 1) {
             // Le joueur qui casse vient de jouer : sans égalisation, il gagne immédiatement
             if (s1 >= dist(S) && C.unequal) st.finished = true;
@@ -373,21 +416,29 @@
         const cur = st.finished ? 0 : current();
         checkPour(cur);
 
+        const w = walk();
         [1, 2].forEach(function (p) {
-            // La série en cours n'est ajoutée au score qu'à la validation de la reprise (Entrée)
-            const t = totals(p, false);
+            // La série en cours n'est ajoutée au score qu'à la validation de la reprise (Entrée).
+            // Par sets : le grand chiffre est le score du set, moyenne et série max portent sur toute la partie.
+            const t = totals(p);
+            const ts = totals(p, w.set);
             const el = panels[p];
             el.classList.toggle('active', p === cur);
             const score = el.querySelector('[data-score]');
-            score.textContent = t.pts;
-            score.classList.toggle('long', t.pts >= 100);
-            if (lastScores[p] !== null && lastScores[p] !== t.pts) {
+            score.textContent = ts.pts;
+            score.classList.toggle('long', ts.pts >= 100);
+            if (lastScores[p] !== null && lastScores[p] !== ts.pts) {
                 score.classList.remove('bump'); void score.offsetWidth; score.classList.add('bump');
             }
-            lastScores[p] = t.pts;
+            lastScores[p] = ts.pts;
             el.querySelector('[data-avg]').textContent = fmtAvg(t.pts, t.inn);
             el.querySelector('[data-hr]').textContent = t.hr;
-            renderLast5(p, el.querySelector('[data-last5]'));
+            renderLast5(p, el.querySelector('[data-last5]'), w);
+            if (SETS) {
+                let dots = '';
+                for (let i = 0; i < SETS; i++) dots += '<i class="' + (i < w.won[p] ? 'fas' : 'far') + ' fa-circle"></i>';
+                el.querySelector('[data-sets]').innerHTML = dots;
+            }
 
             const ext = el.querySelector('[data-ext]');
             if (C.clock.enabled && C.clock.extensions > 0) {
@@ -399,6 +450,10 @@
             }
         });
 
+        if (SETS) {
+            $('sbdSetNo').textContent = 'Set ' + w.set;
+            $('sbdSetsScore').innerHTML = '<i style="color:var(--sb-p1)">' + w.won[1] + '</i> – <i style="color:var(--sb-p2)">' + w.won[2] + '</i>';
+        }
         $('sbdInnings').textContent = inningNumber();
         $('sbdInningsLimit').textContent = C.inningsLimit ? 'sur ' + C.inningsLimit : '';
 
@@ -412,17 +467,64 @@
         if (clock.expired && !st.finished) notice = 'Temps écoulé\nEntrée pour passer la main';
         else if (notice) { /* message temporaire prioritaire */ }
         else if (isEqualizing()) notice = "Reprise d'égalisation";
+        else if (SETS && !st.finished && w.set > 1 && w.inSet === 0 && st.run === 0) notice = C.players[setStarter(w.set)].last + ' casse le set ' + w.set;
         else if (!st.finished && C.inningsLimit && inningNumber() === C.inningsLimit) notice = 'Dernière reprise';
         $('sbdNotice').textContent = notice;
 
+        renderSetBreak(w);
         renderResult();
         renderClock();
     }
 
-    // 5 dernières reprises terminées du joueur, la plus récente en haut
-    function renderLast5(p, box) {
+    function setSummary(w, n) {
+        const rows = w.rows.filter((r) => r.set === n);
+        const sum = { 1: { pts: 0, inn: 0, hr: 0 }, 2: { pts: 0, inn: 0, hr: 0 } };
+        rows.forEach(function (r) {
+            const t = sum[r.player];
+            t.pts += r.pts; t.inn++; t.hr = Math.max(t.hr, r.pts);
+        });
+        sum.winner = rows.length && sum[rows[rows.length - 1].player].pts >= dist(rows[rows.length - 1].player) ? rows[rows.length - 1].player : 0;
+        return sum;
+    }
+
+    // Fin d'un set (hors fin de partie) : récapitulatif jusqu'à ce que l'arbitre lance le set suivant
+    function renderSetBreak(w) {
+        const box = $('sbdSetBreak');
+        if (!box) return;
+        if (setBreak !== null && (st.finished || w.set !== setBreak + 1 || w.inSet > 0 || st.run > 0)) setBreak = null;
+        box.classList.toggle('open', setBreak !== null);
+        if (setBreak === null) return;
+
+        const sum = setSummary(w, setBreak);
+        const next = setStarter(setBreak + 1);
+        $('sbdSetBreakTitle').textContent = 'Fin du set ' + setBreak;
+        $('sbdSetBreakWinner').textContent = sum.winner ? 'Set gagné par ' + name(sum.winner) : '';
+        $('sbdSetBreakWinner').style.color = sum.winner === 2 ? 'var(--sb-p2)' : 'var(--sb-p1)';
+        $('sbdSetBreakScore').innerHTML = $('sbdSetsScore').innerHTML;
+        fillRows($('sbdSetBreakRows'), [1, 2].map((p) => [name(p), sum[p].pts, sum[p].inn, fmtAvg(sum[p].pts, sum[p].inn), sum[p].hr]));
+        $('sbdSetBreakNext').textContent = C.players[next].last + ' casse le set ' + (setBreak + 1)
+            + ' (bille ' + (next === 1 ? 'blanche' : 'jaune') + ')';
+        $('sbdSetBreakKey').textContent = 'commencer le set ' + (setBreak + 1);
+    }
+
+    function fillRows(tbody, rows) {
+        tbody.innerHTML = '';
+        rows.forEach(function (cells, i) {
+            const tr = document.createElement('tr');
+            cells.forEach(function (v) {
+                const td = document.createElement('td');
+                td.textContent = v;
+                tr.appendChild(td);
+            });
+            tr.style.color = i === 0 ? 'var(--sb-p1)' : 'var(--sb-p2)';
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 5 dernières reprises terminées du joueur dans le set en cours, la plus récente en haut
+    function renderLast5(p, box, w) {
         const mine = [];
-        st.innings.forEach(function (v, i) { if (playerAt(i) === p) mine.push({ n: mine.length + 1, pts: v }); });
+        w.rows.forEach(function (r) { if (r.player === p && r.set === w.set) mine.push({ n: r.inning, pts: r.pts }); });
         const last = mine.slice(-5).reverse();
         let html = '';
         for (let k = 0; k < 5; k++) {
@@ -454,8 +556,9 @@
         const box = $('sbdResult');
         box.classList.toggle('open', st.finished);
         if (!st.finished) return;
+        if (SETS) { renderSetsResult(); return; }
 
-        const t1 = totals(1, false), t2 = totals(2, false);
+        const t1 = totals(1), t2 = totals(2);
         const res = winnerOf(t1, t2);
         const cmp = res.cmp;
         $('sbdDecision').hidden = !res.proportional;
@@ -477,6 +580,29 @@
             tr.style.color = pair[0] === 1 ? 'var(--sb-p1)' : 'var(--sb-p2)';
             rows.appendChild(tr);
         });
+    }
+
+    // Par sets : une colonne par set (points et reprises), sets gagnés, moyenne générale et série max
+    function renderSetsResult() {
+        const w = walk();
+        const cmp = Math.sign(w.won[1] - w.won[2]);
+        $('sbdWinner').textContent = cmp === 0 ? 'Match nul' : 'Victoire de ' + name(cmp > 0 ? 1 : 2);
+        $('sbdWinner').style.color = cmp === 0 ? '#fff' : (cmp > 0 ? 'var(--sb-p1)' : 'var(--sb-p2)');
+        $('sbdDecision').hidden = false;
+        $('sbdDecision').textContent = Math.max(w.won[1], w.won[2]) + ' sets à ' + Math.min(w.won[1], w.won[2]);
+
+        const sums = [];
+        for (let n = 1; n <= w.set; n++) sums.push(setSummary(w, n));
+        let head = '<th></th>';
+        sums.forEach(function (x, i) { head += '<th>Set ' + (i + 1) + '</th>'; });
+        $('sbdResultHead').innerHTML = head + '<th>Sets</th><th>Moyenne</th><th>MS</th>';
+
+        fillRows($('sbdResultRows'), [1, 2].map(function (p) {
+            const t = totals(p);
+            const cells = [name(p)];
+            sums.forEach(function (x) { cells.push(x[p].pts + ' (' + x[p].inn + ')'); });
+            return cells.concat([w.won[p], fmtAvg(t.pts, t.inn), t.hr]);
+        }));
     }
 
     // ------------------------------------------------------------ clavier / pavé numérique
@@ -523,6 +649,17 @@
             }
             if (e.repeat && a !== 'plus' && a !== 'minus') return;
             enterFullscreen();
+
+            if (setBreak !== null) {
+                if (a === 'enter') {
+                    setBreak = null;
+                    if (C.clock.autoStart) restartClock();
+                    render();
+                }
+                else if (a === 'minus') { setBreak = null; minus(); }
+                else if (a === 'menu') openMenu();
+                return;
+            }
 
             if (st.finished) {
                 if (a === 'enter') window.location.href = C.urls.table;
