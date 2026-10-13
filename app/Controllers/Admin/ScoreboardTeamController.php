@@ -101,8 +101,8 @@ class ScoreboardTeamController extends BaseController
 
         $email = \Config\Services::email();
         // L'expéditeur doit rester le compte SMTP (send.one.com peut refuser un autre expéditeur) ; les réponses vont au DS.
-        $email->setFrom(config('Email')->fromEmail, 'RBC Disonais — Directeur sportif');
-        $email->setReplyTo('ds@rbcd.be', 'RBC Disonais — Directeur sportif');
+        $email->setFrom(config('Email')->fromEmail, 'RBC Disonais');
+        $email->setReplyTo('ds@rbcd.be', 'RBC Disonais');
         $email->setTo($recipients);
         $email->setSubject('Feuille récapitulative — ' . ScoreboardTeamEncounterModel::homeLabel($encounter)
             . ' / ' . ScoreboardTeamEncounterModel::awayLabel($encounter) . ' (' . $encounter->code . ')');
