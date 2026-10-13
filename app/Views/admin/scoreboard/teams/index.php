@@ -43,12 +43,12 @@ use App\Models\ScoreboardTeamEncounterModel as TE;
           <td><?= esc(M::disciplineLabel($e)) ?></td>
           <td class="text-center"><span class="badge <?= $badge ?> p-2"><?= $done ?> / <?= $total ?> terminé<?= $done > 1 ? 's' : '' ?></span></td>
           <td class="text-right text-nowrap">
-            <a href="<?= base_url('admin/scoreboard/teams/' . $e->id) ?>" class="btn btn-xs btn-info" title="Ouvrir la fiche"><i class="fas fa-folder-open"></i></a>
-            <a href="<?= base_url('admin/scoreboard/teams/' . $e->id . '/edit') ?>" class="btn btn-xs btn-warning" title="Modifier"><i class="fas fa-pen"></i></a>
+            <a href="<?= base_url('admin/scoreboard/teams/' . $e->id) ?>" class="btn btn-xs btn-info" data-toggle="tooltip" title="Ouvrir la fiche"><i class="fas fa-folder-open"></i></a>
+            <a href="<?= base_url('admin/scoreboard/teams/' . $e->id . '/edit') ?>" class="btn btn-xs btn-warning" data-toggle="tooltip" title="Modifier"><i class="fas fa-pen"></i></a>
             <form method="post" action="<?= base_url('admin/scoreboard/teams/' . $e->id . '/delete') ?>" class="d-inline"
                   onsubmit="return confirm('Supprimer la rencontre <?= esc($e->code, 'js') ?> ? Ses matchs ne sont pas supprimés : ils redeviennent des matchs individuels.')">
               <?= csrf_field() ?>
-              <button class="btn btn-xs btn-danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+              <button class="btn btn-xs btn-danger" data-toggle="tooltip" title="Supprimer"><i class="fas fa-trash"></i></button>
             </form>
           </td>
         </tr>
@@ -59,4 +59,10 @@ use App\Models\ScoreboardTeamEncounterModel as TE;
   </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+$(function () { $('[data-toggle="tooltip"]').tooltip({ trigger: 'hover' }); });
+</script>
 <?= $this->endSection() ?>

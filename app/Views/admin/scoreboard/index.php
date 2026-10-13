@@ -47,21 +47,21 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
           <td class="text-center"><?= $statusBadge($m->status) ?></td>
           <td class="text-right text-nowrap">
             <?php if ($m->status !== 'scheduled'): ?>
-              <a href="<?= base_url('admin/scoreboard/' . $m->id) ?>" class="btn btn-xs btn-info" title="Feuille de match"><i class="fas fa-list-ol"></i></a>
-              <a href="<?= base_url('admin/scoreboard/' . $m->id . '/pdf') ?>" target="_blank" class="btn btn-xs btn-primary" title="Feuille de match PDF"><i class="fas fa-file-pdf"></i></a>
+              <a href="<?= base_url('admin/scoreboard/' . $m->id) ?>" class="btn btn-xs btn-info" data-toggle="tooltip" title="Feuille de match"><i class="fas fa-list-ol"></i></a>
+              <a href="<?= base_url('admin/scoreboard/' . $m->id . '/pdf') ?>" target="_blank" class="btn btn-xs btn-primary" data-toggle="tooltip" title="Feuille de match PDF"><i class="fas fa-file-pdf"></i></a>
             <?php endif; ?>
-            <a href="<?= base_url('admin/scoreboard/' . $m->id . '/edit') ?>" class="btn btn-xs btn-warning" title="Modifier"><i class="fas fa-pen"></i></a>
+            <a href="<?= base_url('admin/scoreboard/' . $m->id . '/edit') ?>" class="btn btn-xs btn-warning" data-toggle="tooltip" title="Modifier"><i class="fas fa-pen"></i></a>
             <?php if ($m->status !== 'scheduled' && $m->type === 'official'): ?>
               <form method="post" action="<?= base_url('admin/scoreboard/' . $m->id . '/reset') ?>" class="d-inline"
                     onsubmit="return confirm('Remettre cette rencontre à zéro ? Toutes les reprises seront effacées.')">
                 <?= csrf_field() ?>
-                <button class="btn btn-xs btn-secondary" title="Remettre à zéro"><i class="fas fa-undo"></i></button>
+                <button class="btn btn-xs btn-secondary" data-toggle="tooltip" title="Remettre à zéro"><i class="fas fa-undo"></i></button>
               </form>
             <?php endif; ?>
             <form method="post" action="<?= base_url('admin/scoreboard/' . $m->id . '/delete') ?>" class="d-inline"
                   onsubmit="return confirm('Supprimer définitivement cette rencontre ?')">
               <?= csrf_field() ?>
-              <button class="btn btn-xs btn-danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+              <button class="btn btn-xs btn-danger" data-toggle="tooltip" title="Supprimer"><i class="fas fa-trash"></i></button>
             </form>
           </td>
         </tr>
@@ -96,4 +96,10 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
   </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+$(function () { $('[data-toggle="tooltip"]').tooltip({ trigger: 'hover' }); });
+</script>
 <?= $this->endSection() ?>
