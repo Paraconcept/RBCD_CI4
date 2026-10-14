@@ -7,6 +7,7 @@
 <style>
 /* overflow-x:hidden sur body (Studypress) casse position:sticky — clip ne crée pas de scroll container */
 body { overflow-x: clip; }
+.news-season-title { font-size: .65em; color: #000; margin-left: .4em; }
 /* Pagination et lien « Anciennes news » sur une ligne ; même style de bouton que /club/tarifs-2026 */
 .news-footer { display: flex; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; }
 .news-footer nav, .news-footer .pagination { margin: 0 !important; }
@@ -212,6 +213,7 @@ body { overflow-x: clip; }
               <h2 class="text-uppercase line-bottom line-bottom-theme-colored1">
                 <i class="far fa-newspaper me-3 text-theme-colored1"></i>
                 Dernières <span class="text-theme-colored1">Actualités</span>
+                <small class="news-season-title"><?= SAISON_EN_COURS ?></small>
               </h2>
             </div>
           </div>
