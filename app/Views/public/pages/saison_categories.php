@@ -7,7 +7,9 @@ $avg = static fn (?int $v): string => $v === null ? '<span class="text-muted">â€
 <style>
 .cat-switch .btn { border: 2px solid #84252B; color: #84252B; background: #fff; font-weight: 600; padding: 10px 22px; transition: background .18s, color .18s; }
 .cat-switch .btn:hover, .cat-switch .btn.active { background: #84252B; color: #fff; }
-.cat-switch .btn i { margin-right: 8px; }
+.cat-icon { height: 18px; width: auto; margin-right: 10px; vertical-align: -3px; }
+.cat-icon-on, .cat-switch .btn:hover .cat-icon-off, .cat-switch .btn.active .cat-icon-off { display: none; }
+.cat-switch .btn:hover .cat-icon-on, .cat-switch .btn.active .cat-icon-on { display: inline; }
 @media (max-width: 575px) { .cat-switch .btn { padding: 8px 14px; font-size: .88rem; } .cat-dim { display: block; font-weight: 400; font-size: .8rem; } }
 .cat-card { border: 1px solid #e0e0e0; border-top: 4px solid #84252B; border-radius: 6px; overflow: hidden; margin-bottom: 30px; background: #fff; }
 .cat-card-title { padding: 12px 18px; margin: 0; font-size: 1.05rem; font-weight: 700; color: #202C45; border-bottom: 1px solid #e0e0e0; }
@@ -51,8 +53,8 @@ $avg = static fn (?int $v): string => $v === null ? '<span class="text-muted">â€
 
     <div class="text-center mb-40">
       <div class="btn-group cat-switch" role="group">
-        <button type="button" class="btn active" data-target="PF"><i class="fas fa-table"></i>Petit Billard <span class="cat-dim">(2m30 / 2m10)</span></button>
-        <button type="button" class="btn" data-target="GF"><i class="fas fa-table"></i>Grand Billard <span class="cat-dim">(2m84)</span></button>
+        <button type="button" class="btn active" data-target="PF"><img src="<?= base_url('assets/images/icon_billard_bordeaux_150x80.png') ?>" alt="" class="cat-icon cat-icon-off"><img src="<?= base_url('assets/images/icon_billard_blanc_150x80.png') ?>" alt="" class="cat-icon cat-icon-on">Petit Billard <span class="cat-dim">(2m30 / 2m10)</span></button>
+        <button type="button" class="btn" data-target="GF"><img src="<?= base_url('assets/images/icon_billard_bordeaux_150x80.png') ?>" alt="" class="cat-icon cat-icon-off"><img src="<?= base_url('assets/images/icon_billard_blanc_150x80.png') ?>" alt="" class="cat-icon cat-icon-on">Grand Billard <span class="cat-dim">(2m84)</span></button>
       </div>
     </div>
 
