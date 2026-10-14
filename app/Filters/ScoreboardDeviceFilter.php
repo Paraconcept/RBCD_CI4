@@ -43,7 +43,9 @@ class ScoreboardDeviceFilter implements FilterInterface
             return service('response')->setStatusCode(403)->setJSON(['error' => 'Appareil non autorisé']);
         }
 
-        return redirect()->to(base_url('marquoir/acces'));
+        // Depuis Internet, le marquoir n'existe pas : seul un Chromebook autorisé (ou le DS connecté) y entre.
+        // Un nouveau Chromebook s'autorise par l'adresse directe marquoir/acces (code PIN).
+        return redirect()->to(base_url('/'));
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null): mixed

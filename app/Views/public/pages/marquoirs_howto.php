@@ -141,7 +141,7 @@
         <div class="row g-4 align-items-start">
           <div class="col-lg-7"><img class="mh-shot" src="<?= $img('01_billards') ?>" alt="Choix du billard"><div class="mh-caption">L'écran de départ : un bouton par billard. Le badge indique s'il est libre ou si une partie est en cours.</div></div>
           <div class="col-lg-5">
-            <div class="mh-note green"><b>Code d'accès</b> — chaque Chromebook a été autorisé une fois pour toutes par le DS. Si un code PIN vous est demandé, adressez-vous à un membre du comité.</div>
+            <div class="mh-note green"><b>Code d'accès</b> — chaque Chromebook a été autorisé une fois pour toutes par le DS. Si le Chromebook affiche la page d'accueil du site au lieu du marquoir, il n'est plus autorisé : adressez-vous à un membre du comité.</div>
             <div class="mh-note"><b>Tout est enregistré</b> — chaque point est sauvegardé immédiatement. Même en cas de coupure Internet, la partie continue : les points sont envoyés dès le retour de la connexion.</div>
             <div class="mh-note orange"><b>Un clic suffit</b> — la souris ne sert qu'à démarrer. Ensuite, l'arbitre n'utilise plus que le pavé numérique.</div>
           </div>
