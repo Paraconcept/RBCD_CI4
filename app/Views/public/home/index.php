@@ -7,6 +7,12 @@
 <style>
 /* overflow-x:hidden sur body (Studypress) casse position:sticky — clip ne crée pas de scroll container */
 body { overflow-x: clip; }
+/* Pagination et lien « Anciennes news » sur une ligne ; même style de bouton que /club/tarifs-2026 */
+.news-footer { display: flex; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; }
+.news-footer nav, .news-footer .pagination { margin: 0 !important; }
+.doc-btn { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 2px solid #84252B; color: #84252B; border-radius: 6px; padding: 12px 22px; font-size: .9rem; font-weight: 600; text-decoration: none; transition: background .18s, color .18s; }
+.doc-btn i { font-size: 1.2rem; }
+.doc-btn:hover { background: #84252B; color: #fff; text-decoration: none; }
 /* Widget sidebar matchs — réutilise les classes de week.php */
 :root { --clr-home:#198754; --clr-away:#c6000d; }
 .day-card { border:1px solid #dee2e6; border-top:4px solid #84252B; border-radius:.5rem; margin-bottom:.75rem; overflow:hidden; }
@@ -227,11 +233,13 @@ body { overflow-x: clip; }
           <?php endforeach; ?>
           </div>
 
-          <?= !empty($news) ? $pager->links('default', 'home_pager') : '' ?>
-
           <?php if (!empty($news)): ?>
-          <div class="text-end mt-10">
-            <a href="<?= base_url('archives/anciennes-news') ?>" class="news-card-link"><i class="fas fa-archive me-1"></i>Anciennes news →</a>
+          <div class="news-footer">
+            <?= $pager->links('default', 'home_pager') ?>
+            <a href="<?= base_url('archives/anciennes-news') ?>" class="doc-btn ms-auto">
+              <i class="fas fa-archive"></i>
+              <span>Anciennes news</span>
+            </a>
           </div>
           <?php endif; ?>
           
