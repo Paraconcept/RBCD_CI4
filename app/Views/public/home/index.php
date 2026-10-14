@@ -12,7 +12,7 @@ body { overflow-x: clip; }
 .news-footer nav, .news-footer .pagination { margin: 0 !important; }
 .doc-btn { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 2px solid #84252B; color: #84252B; border-radius: 6px; padding: 12px 22px; font-size: .9rem; font-weight: 600; text-decoration: none; transition: background .18s, color .18s; }
 .doc-btn i { font-size: 1.2rem; }
-.doc-btn span i { font-size: .8rem; }
+.doc-btn span i { font-size: .8rem; margin-left: 8px; }
 .doc-btn:hover { background: #84252B; color: #fff; text-decoration: none; }
 /* Widget sidebar matchs — réutilise les classes de week.php */
 :root { --clr-home:#198754; --clr-away:#c6000d; }
