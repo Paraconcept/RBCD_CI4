@@ -31,6 +31,8 @@ class ManifestController extends BaseController
             'description' => 'Marquoirs électroniques des billards du RBC Disonais.',
             'start_url'   => base_url('marquoir'),
             'scope'       => base_url('marquoir'),
+            // Demandé au lancement depuis l'étagère ; un navigateur qui ne le gère pas retombe sur « standalone » (fenêtre sans barre d'adresse)
+            'display'     => 'fullscreen',
         ], 'marquoir');
     }
 
