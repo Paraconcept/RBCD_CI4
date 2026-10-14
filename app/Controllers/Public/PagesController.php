@@ -377,6 +377,28 @@ class PagesController extends BaseController
         ]);
     }
 
+    public function archivesNews(): string
+    {
+        $model = new \App\Models\NewsModel();
+        $news  = $model->where('is_published', 1)
+                       ->where('published_at <', \App\Models\NewsModel::seasonStart())
+                       ->orderBy('published_at', 'DESC')
+                       ->orderBy('id', 'DESC')
+                       ->paginate(9);
+
+        return view('public/pages/archives_news', [
+            'title'       => 'Anciennes News — Archives — RBC Disonais',
+            'page_title'  => 'Anciennes News',
+            'breadcrumbs' => [
+                ['label' => 'Accueil',  'url' => base_url('/')],
+                ['label' => 'Archives', 'url' => '#'],
+                ['label' => 'Anciennes News'],
+            ],
+            'news'  => $news,
+            'pager' => $model->pager,
+        ]);
+    }
+
     public function archivesResultats(): string
     {
         $bySeasonData = (new \App\Models\SportResultModel())->getGroupedBySeasonWithWinner(publishedOnly: true);

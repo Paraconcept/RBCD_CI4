@@ -34,4 +34,17 @@ class NewsModel extends Model
                     ->where('published_at <=', date('Y-m-d'))
                     ->first();
     }
+
+    /** Premier jour de la saison en cours (la saison sportive commence en août, cf. Constants.php). */
+    public static function seasonStart(): string
+    {
+        return ANNEE_1 . '-08-01';
+    }
+
+    /** Saison « 2025-2026 » d'une date de publication. */
+    public static function seasonOf(string $date): string
+    {
+        $y = (int) substr($date, 0, 4);
+        return (int) substr($date, 5, 2) < 8 ? ($y - 1) . '-' . $y : $y . '-' . ($y + 1);
+    }
 }

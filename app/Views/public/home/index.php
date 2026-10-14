@@ -1,34 +1,12 @@
 <?= $this->extend('public/layouts/main') ?>
 
 <?= $this->section('extra_css') ?>
+<?= view('public/partials/news_card_css') ?>
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/css/rs6.css') ?>">
 <link rel="stylesheet" type="text/css" href="<?= base_url('studypress/js/revolution-slider/extra-rev-slider1.css') ?>">
 <style>
 /* overflow-x:hidden sur body (Studypress) casse position:sticky — clip ne crée pas de scroll container */
 body { overflow-x: clip; }
-.news-card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-top: 4px solid #84252B;
-    border-radius: 6px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: box-shadow .2s;
-}
-.news-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
-.news-card-img-wrap { display: block; overflow: hidden; }
-.news-card-img { width: 100%; height: 190px; object-fit: contain; background: #f0f0f0; display: block; transition: transform .3s; }
-.news-card-img-wrap:hover .news-card-img { transform: scale(1.20); }
-.news-card-img-placeholder { height: 190px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 2.5rem; }
-.news-card-body { padding: 20px 22px 22px; display: flex; flex-direction: column; flex: 1; }
-.news-card-date { font-size: .78rem; color: #84252B; font-weight: 600; margin-bottom: 8px; }
-.news-card-title { font-size: 1rem; font-weight: 700; margin: 0 0 10px; line-height: 1.4; }
-.news-card-title a { color: #222; text-decoration: none; }
-.news-card-title a:hover { color: #84252B; }
-.news-card-excerpt { font-size: .87rem; color: #555; line-height: 1.55; flex: 1; margin-bottom: 16px; }
-.news-card-link { font-size: .85rem; font-weight: 600; color: #84252B; text-decoration: none; align-self: flex-start; }
-.news-card-link:hover { text-decoration: underline; }
 /* Widget sidebar matchs — réutilise les classes de week.php */
 :root { --clr-home:#198754; --clr-away:#c6000d; }
 .day-card { border:1px solid #dee2e6; border-top:4px solid #84252B; border-radius:.5rem; margin-bottom:.75rem; overflow:hidden; }
@@ -235,44 +213,27 @@ body { overflow-x: clip; }
         <div class="blog-posts">
 
           <?php if (empty($news)): ?>
-          <div class="alert alert-info">Aucune actualité pour le moment.</div>
+          <div class="alert alert-info">
+            Aucune actualité pour la saison <?= SAISON_EN_COURS ?> pour le moment.
+            <a href="<?= base_url('archives/anciennes-news') ?>" class="alert-link">Voir les anciennes news</a>
+          </div>
           <?php endif; ?>
 
           <div class="row">
           <?php foreach ($news as $n): ?>
           <div class="col-sm-6 mb-30">
-            <article class="news-card h-100">
-              <a href="<?= base_url('actualites/' . $n->slug) ?>" class="news-card-img-wrap">
-                <?php if ($n->image): ?>
-                  <img src="<?= base_url('uploads/news/' . $n->image) ?>"
-                       alt="<?= esc($n->title) ?>"
-                       class="news-card-img">
-                <?php else: ?>
-                  <div class="news-card-img-placeholder"><i class="fas fa-newspaper"></i></div>
-                <?php endif; ?>
-              </a>
-              <div class="news-card-body">
-                <?php if ($n->published_at): ?>
-                  <div class="news-card-date"><i class="fas fa-calendar-day me-1"></i><?= date('d/m/Y', strtotime($n->published_at)) ?></div>
-                <?php endif; ?>
-                <h5 class="news-card-title">
-                  <a href="<?= base_url('actualites/' . $n->slug) ?>"><?= esc($n->title) ?></a>
-                </h5>
-                <?php
-                  $_t  = strip_tags($n->content ?? '');
-                  $_ex = $n->excerpt ?: (mb_strlen($_t) > 120 ? mb_substr($_t, 0, 120) . '…' : $_t);
-                ?>
-                <?php if ($_ex): ?>
-                  <p class="news-card-excerpt"><?= esc($_ex) ?></p>
-                <?php endif; ?>
-                <a href="<?= base_url('actualites/' . $n->slug) ?>" class="news-card-link">Lire la suite →</a>
-              </div>
-            </article>
+            <?= view('public/partials/news_card', ['n' => $n]) ?>
           </div>
           <?php endforeach; ?>
           </div>
 
-          <?= $pager->links('default', 'home_pager') ?>
+          <?= $pager->getPageCount() > 1 ? $pager->links('default', 'home_pager') : '' ?>
+
+          <?php if (!empty($news)): ?>
+          <div class="text-end mt-10">
+            <a href="<?= base_url('archives/anciennes-news') ?>" class="news-card-link"><i class="fas fa-archive me-1"></i>Anciennes news →</a>
+          </div>
+          <?php endif; ?>
           
         </div>
       </div>

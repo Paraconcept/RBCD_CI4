@@ -67,6 +67,7 @@ $routes->get('saison/intm/(:num)',             'Public\PagesController::intmTeam
 
 // Archives (publiques)
 $routes->get('archives/resultats',    'Public\PagesController::archivesResultats');
+$routes->get('archives/anciennes-news', 'Public\PagesController::archivesNews');
 $routes->get('galeries',              'Public\GalleriesController::index');
 $routes->get('galeries/(:segment)',   'Public\GalleriesController::show/$1');
 

@@ -16,6 +16,7 @@ class HomeController extends BaseController
         $model   = new NewsModel();
         $news    = $model->where('is_published', 1)
                          ->where('published_at <=', date('Y-m-d'))
+                         ->where('published_at >=', NewsModel::seasonStart())
                          ->orderBy('published_at', 'DESC')
                          ->orderBy('id', 'DESC')
                          ->paginate($perPage);
