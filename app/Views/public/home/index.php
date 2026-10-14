@@ -7,7 +7,12 @@
 <style>
 /* overflow-x:hidden sur body (Studypress) casse position:sticky — clip ne crée pas de scroll container */
 body { overflow-x: clip; }
+/* Icône à gauche, texte à côté : si la saison passe à la ligne, elle s'aligne sous le « D » et non sous l'icône.
+   Flex sur un span intérieur : sur le h2, il déplacerait le trait ::after du thème (line-bottom). */
+.news-title { display: flex; align-items: baseline; }
+.news-title > i { flex-shrink: 0; }
 .news-season-title { font-size: .65em; color: #000; margin-left: .4em; }
+@media (max-width: 575px) { .news-season-title { display: block; margin-left: 0; margin-top: 4px; } }
 /* Pagination et lien « Anciennes news » sur une ligne ; même style de bouton que /club/tarifs-2026 */
 .news-footer { display: flex; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; }
 .news-footer nav, .news-footer .pagination { margin: 0 !important; }
@@ -211,9 +216,11 @@ body { overflow-x: clip; }
           <div class="tm-sc tm-sc-section-title section-title">
             <div class="title-wrapper">
               <h2 class="text-uppercase line-bottom line-bottom-theme-colored1">
-                <i class="far fa-newspaper me-3 text-theme-colored1"></i>
-                Dernières <span class="text-theme-colored1">Actualités</span>
-                <small class="news-season-title"><?= SAISON_EN_COURS ?></small>
+                <span class="news-title">
+                  <i class="far fa-newspaper me-3 text-theme-colored1"></i>
+                  <span>Dernières <span class="text-theme-colored1">Actualités</span>
+                  <small class="news-season-title"><?= SAISON_EN_COURS ?></small></span>
+                </span>
               </h2>
             </div>
           </div>
