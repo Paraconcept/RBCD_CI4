@@ -93,6 +93,7 @@
                     <a href="#">Saison <?= ANNEE_1 ?>-<?= ANNEE_2 ?></a>
                     <ul class="dropdown">
                       <li><a href="<?= base_url('saison/resultats') ?>">Résultats sportifs</a></li>
+                      <li><a href="<?= base_url('saison/categories') ?>">Tableaux des moyennes</a></li>
                       <?php if ($cdrTeams): ?>
                       <li class="has-sub">
                         <a href="#">Coupe des Régions</a>

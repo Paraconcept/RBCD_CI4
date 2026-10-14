@@ -250,6 +250,20 @@ class PagesController extends BaseController
 
     // ── Saison ───────────────────────────────────────────────────────────
 
+    public function saisonCategories(): string
+    {
+        return view('public/pages/saison_categories', [
+            'title'       => 'Tableaux des moyennes ' . SAISON_EN_COURS . ' — RBC Disonais',
+            'page_title'  => 'Tableaux des moyennes',
+            'breadcrumbs' => [
+                ['label' => 'Accueil', 'url' => base_url('/')],
+                ['label' => 'Saison ' . SAISON_EN_COURS, 'url' => '#'],
+                ['label' => 'Tableaux des moyennes'],
+            ],
+            'tables' => (new \App\Models\FrbbCategoryModel())->averageTables(),
+        ]);
+    }
+
     public function saisonResultats(): string
     {
         $season  = ANNEE_1 . '-' . ANNEE_2;

@@ -62,6 +62,7 @@ $routes->get('actualites/(:any)', 'Public\PagesController::newsDetail/$1');
 
 // Saison
 $routes->get('saison/resultats',             'Public\PagesController::saisonResultats');
+$routes->get('saison/categories',            'Public\PagesController::saisonCategories');
 $routes->get('saison/coupe-des-regions/(:num)', 'Public\PagesController::cdrTeam/$1');
 $routes->get('saison/intm/(:num)',             'Public\PagesController::intmTeam/$1');
 
