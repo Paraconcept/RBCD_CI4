@@ -136,7 +136,7 @@ $statusBadge = static fn (string $s, int $absent = 0): string => $absent ? '<spa
         <i class="fas fa-file-pdf mr-1"></i>Feuille récapitulative
       </a>
       <form method="post" action="<?= base_url('admin/scoreboard/teams/' . $encounter->id . '/send') ?>" class="d-inline"
-            onsubmit="return confirm(<?= esc(json_encode(($encounter->recap_sent_at ? 'La feuille a déjà été envoyée le ' . date('d/m/Y à H:i', strtotime($encounter->recap_sent_at)) . ".\n\n" : '') . "Envoyer la feuille récapitulative à :\n" . implode("\n", $recipients), JSON_UNESCAPED_UNICODE), 'attr') ?>)">
+            onsubmit="return confirm(<?= esc(json_encode(($encounter->recap_sent_at ? 'La feuille a déjà été envoyée le ' . date('d/m/Y à H:i', strtotime($encounter->recap_sent_at)) . ".\n\n" : '') . "Envoyer la feuille récapitulative et les feuilles de match à :\n" . implode("\n", $recipients), JSON_UNESCAPED_UNICODE), 'attr') ?>)">
         <?= csrf_field() ?>
         <button class="btn btn-sm btn-success ml-1" <?= $recipients ? '' : 'disabled title="Aucune adresse e-mail encodée"' ?>>
           <i class="fas fa-paper-plane mr-1"></i><?= $encounter->recap_sent_at ? 'Renvoyer' : 'Envoyer' ?> par e-mail

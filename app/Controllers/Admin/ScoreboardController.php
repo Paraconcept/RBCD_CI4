@@ -3,16 +3,14 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\MatchSheetPdf;
 use App\Models\FrbbCategoryModel;
-use App\Models\ScoreboardInningModel;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
 use App\Models\ScoreboardTableModel;
 use App\Models\ScoreboardTeamEncounterModel;
 use App\Models\SiteSettingModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 
 class ScoreboardController extends BaseController
 {
@@ -112,52 +110,18 @@ class ScoreboardController extends BaseController
             'breadcrumbs' => [['title' => 'Marquoir', 'url' => base_url('admin/scoreboard')], ['title' => 'Feuille de match']],
             'match'       => $match,
             'table'       => $table,
-            'sheets'      => $this->buildSheets($id),
+            'sheets'      => MatchSheetPdf::sheets($id),
         ]);
     }
 
     public function pdf(int $id)
     {
-        $match = $this->find($id);
-
-        $logo = FCPATH . 'assets/images/Ecusson_RBCD.png';
-        $html = view('admin/scoreboard/pdf', [
-            'match' => $match,
-            'sheets' => $this->buildSheets($id),
-            'logo'  => is_file($logo) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logo)) : null,
-        ]);
-
-        $options = new Options();
-        $options->set('defaultFont', 'Helvetica');
-        $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html, 'UTF-8');
-        $dompdf->setPaper('A4', 'landscape');
-        $dompdf->render();
-
-        $date     = date('Y-m-d', strtotime($match->started_at ?? $match->scheduled_at ?? 'now'));
-        $filename = 'feuille_match_' . $date . '_' . url_title($match->p1_last_name . '-' . $match->p2_last_name, '-', true) . '.pdf';
+        [$pdf, $filename] = MatchSheetPdf::render($this->find($id));
 
         return $this->response
             ->setHeader('Content-Type', 'application/pdf')
             ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
-            ->setBody($dompdf->output());
-    }
-
-    /**
-     * Reprises par set puis par numéro : [set => [n° => [joueur => ['points' => série, 'total' => cumul du set]]]].
-     * Une partie classique n'a qu'un set (1).
-     */
-    private function buildSheets(int $id): array
-    {
-        $sheets = [];
-        $cumul  = [];
-        foreach ((new ScoreboardInningModel())->getForMatch($id) as $row) {
-            $set = (int) $row->set_no;
-            $p   = (int) $row->player;
-            $cumul[$set][$p] = ($cumul[$set][$p] ?? 0) + (int) $row->points;
-            $sheets[$set][(int) $row->inning_no][$p] = ['points' => (int) $row->points, 'total' => $cumul[$set][$p]];
-        }
-        return $sheets;
+            ->setBody($pdf);
     }
 
     public function comment(int $id)

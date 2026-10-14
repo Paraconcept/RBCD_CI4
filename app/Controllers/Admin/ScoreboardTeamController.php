@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\MatchSheetPdf;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardTeamEncounterModel;
 use App\Models\SiteSettingModel;
@@ -98,6 +99,8 @@ class ScoreboardTeamController extends BaseController
         }
 
         [$pdf, $filename] = $this->renderRecapPdf($encounter);
+        $sheets = array_map(static fn ($m) => MatchSheetPdf::render($m),
+            array_filter($this->model->getMatches($id), static fn ($m) => $m->status === 'finished'));
 
         $email = \Config\Services::email();
         // L'expéditeur doit rester le compte SMTP (send.one.com peut refuser un autre expéditeur) ; les réponses vont au DS.
@@ -108,6 +111,10 @@ class ScoreboardTeamController extends BaseController
             . ' / ' . ScoreboardTeamEncounterModel::awayLabel($encounter) . ' (' . $encounter->code . ')');
         $email->setMessage(view('emails/team_recap', ['encounter' => $encounter, 'result' => $result]));
         $email->attach($pdf, 'attachment', $filename, 'application/pdf');
+        foreach (array_values($sheets) as $i => [$sheet, $sheetName]) {
+            // Préfixe d'ordre : deux matchs peuvent opposer les mêmes noms et l'ordre des pièces jointes suit la feuille
+            $email->attach($sheet, 'attachment', sprintf('%d_%s', $i + 1, $sheetName), 'application/pdf');
+        }
 
         if (!$email->send(false)) {
             log_message('error', 'Envoi feuille récapitulative ' . $encounter->code . ' : ' . $email->printDebugger(['headers']));
@@ -116,7 +123,7 @@ class ScoreboardTeamController extends BaseController
 
         $this->model->update($id, ['recap_sent_at' => date('Y-m-d H:i:s'), 'recap_sent_to' => implode(', ', $recipients)]);
 
-        return $back->with('success', 'Feuille récapitulative envoyée à ' . implode(', ', $recipients) . '.');
+        return $back->with('success', 'Feuille récapitulative et ' . count($sheets) . ' feuille' . (count($sheets) > 1 ? 's' : '') . ' de match envoyées à ' . implode(', ', $recipients) . '.');
     }
 
     private function recapRecipients(object $encounter): array

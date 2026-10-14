@@ -35,7 +35,7 @@ $dt    = $encounter->scheduled_at ? new DateTime($encounter->scheduled_at) : nul
 
       <p>Bonjour,</p>
 
-      <p>Veuillez trouver en pièce jointe la <strong>feuille récapitulative</strong> de la rencontre suivante :</p>
+      <p>Veuillez trouver en pièces jointes la <strong>feuille récapitulative</strong> et les <strong>feuilles de match individuelles</strong> de la rencontre suivante :</p>
 
       <div class="detail-box">
         <p><strong>Compétition :</strong> <?= esc(TE::COMPETITIONS[$encounter->competition] ?? $encounter->competition) ?> — <?= esc(M::disciplineLabel($encounter)) ?></p>
