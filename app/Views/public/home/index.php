@@ -12,6 +12,7 @@ body { overflow-x: clip; }
 .news-footer nav, .news-footer .pagination { margin: 0 !important; }
 .doc-btn { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 2px solid #84252B; color: #84252B; border-radius: 6px; padding: 12px 22px; font-size: .9rem; font-weight: 600; text-decoration: none; transition: background .18s, color .18s; }
 .doc-btn i { font-size: 1.2rem; }
+.doc-btn span i { font-size: .8rem; }
 .doc-btn:hover { background: #84252B; color: #fff; text-decoration: none; }
 /* Widget sidebar matchs — réutilise les classes de week.php */
 :root { --clr-home:#198754; --clr-away:#c6000d; }
@@ -238,7 +239,7 @@ body { overflow-x: clip; }
             <?= $pager->links('default', 'home_pager') ?>
             <a href="<?= base_url('archives/anciennes-news') ?>" class="doc-btn ms-auto">
               <i class="fas fa-archive"></i>
-              <span>Anciennes news</span>
+              <span>Anciennes news <i class="fas fa-chevron-right"></i></span>
             </a>
           </div>
           <?php endif; ?>
