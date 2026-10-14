@@ -23,6 +23,7 @@ class LiveController extends BaseController
             'title'    => 'En direct',
             'brandUrl' => base_url('en-direct'),
             'brandSub' => 'En direct',
+            'siteLink' => true,
             'matches'  => $this->matches->getTodayForSpectators(),
         ]);
     }
@@ -39,6 +40,7 @@ class LiveController extends BaseController
                 'title'    => 'En direct',
                 'brandUrl' => base_url('en-direct'),
                 'brandSub' => 'En direct',
+                'siteLink' => true,
                 'match'    => $match,
             ]);
         }

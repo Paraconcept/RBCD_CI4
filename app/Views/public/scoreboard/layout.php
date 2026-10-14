@@ -24,6 +24,9 @@
         <span>RBC Disonais <small><?= esc($brandSub ?? 'Marquoirs') ?></small></span>
     </a>
     <?= $this->renderSection('topbar') ?>
+    <?php if (!empty($siteLink)): ?>
+    <a href="<?= base_url('/') ?>" class="btn btn-sm btn-outline-light ms-auto text-nowrap" title="Retour au site" aria-label="Retour au site"><i class="fas fa-house"></i><span class="d-none d-sm-inline ms-1">Retour au site</span></a>
+    <?php endif; ?>
 </header>
 <main class="container py-4">
     <?php if (session()->getFlashdata('success')): ?>

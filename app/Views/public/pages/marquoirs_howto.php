@@ -438,7 +438,7 @@
           </div>
         </div>
         <p class="text-center mt-4 mb-0">
-          <a href="<?= base_url('en-direct') ?>" target="_blank" rel="noopener" class="btn mh-pdf"><i class="fas fa-tv me-2"></i>Voir les rencontres en direct</a>
+          <a href="<?= base_url('en-direct') ?>" class="btn mh-pdf"><i class="fas fa-tv me-2"></i>Voir les rencontres en direct</a>
           <span class="d-block mt-3" style="color:#5d677c">Une question ? <a href="mailto:ds@rbcd.be">ds@rbcd.be</a></span>
         </p>
       </div>
