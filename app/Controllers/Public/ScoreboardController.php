@@ -320,6 +320,11 @@ class ScoreboardController extends BaseController
                          ->with('success', 'Partie annulée.');
     }
 
+    public function keyTest(): string
+    {
+        return view('public/scoreboard/key_test', ['title' => 'Test du pavé']);
+    }
+
     public function searchPlayers()
     {
         $players = new ScoreboardPlayerModel();

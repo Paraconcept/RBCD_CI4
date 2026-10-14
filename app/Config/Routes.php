@@ -108,6 +108,7 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->get ('match/(:num)/modifier',         'Public\ScoreboardController::edit/$1');
     $routes->post('match/(:num)/modifier',         'Public\ScoreboardController::update/$1');
     $routes->get ('joueurs',                       'Public\ScoreboardController::searchPlayers');
+    $routes->get ('test-clavier',                  'Public\ScoreboardController::keyTest');
     $routes->get ('api/match/(:num)',              'Public\ScoreboardController::state/$1');
     $routes->post('api/match/(:num)',              'Public\ScoreboardController::saveState/$1');
 });
