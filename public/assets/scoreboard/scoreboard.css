@@ -393,3 +393,27 @@
 .sbd-fix-msg { min-height: 3vh; font-family: 'Barlow', sans-serif; font-size: 2.4vh; color: var(--sb-green); margin-bottom: 1vh; }
 .sbd-fix-msg.err { color: var(--sb-danger); }
 .sbd-fix .sbd-small kbd, .sbd-result .sbd-small kbd { background: rgba(255,255,255,.12); color: #fff; border-radius: .5vh; padding: .1vh .6vh; font-weight: 700; }
+
+/* ------------------------------------------------------------ appel du bar (tablette) */
+.bar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+.bar-tile {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem;
+    min-height: 190px; padding: 1.25rem; border-radius: 18px; text-align: center;
+    background: var(--sb-panel); border: 2px solid var(--sb-line); color: var(--sb-muted);
+    user-select: none; transition: background .2s, border-color .2s, color .2s;
+}
+.bar-tile-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 2.6rem; line-height: 1; color: var(--sb-text); }
+.bar-tile-players { font-size: 1rem; min-height: 1.5em; }
+.bar-tile-status { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.5rem; min-height: 1.5em; }
+.bar-tile.called { cursor: pointer; color: #1a1300; border-color: #fff; animation: bar-glow 1.4s ease-in-out infinite; }
+.bar-tile.called .bar-tile-name { color: #1a1300; }
+.bar-tile.called { background: var(--sb-p2); }
+.bar-tile.called.late { background: var(--sb-orange); }
+.bar-tile.called.very-late { background: var(--sb-danger); color: #fff; }
+.bar-tile.called.very-late .bar-tile-name { color: #fff; }
+@keyframes bar-glow { 50% { box-shadow: 0 0 36px 6px rgba(255, 204, 0, .55); } }
+.bar-unlock {
+    position: fixed; inset: 0; z-index: 1050; display: flex; align-items: center; justify-content: center;
+    text-align: center; background: rgba(10, 16, 32, .94); cursor: pointer;
+}
+.bar-unlock[hidden] { display: none; }

@@ -252,6 +252,9 @@ $config = [
     <?php endif; ?>
 </div>
 
+<?php if (!$spectator): ?>
+<?= $this->include('public/scoreboard/_bar_call') ?>
+<?php endif; ?>
 <script>window.SB_CONFIG = <?= json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
 <script src="<?= base_url('assets/scoreboard/scoreboard-display.js') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard-display.js') ?>"></script>

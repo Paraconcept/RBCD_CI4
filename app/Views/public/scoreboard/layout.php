@@ -42,6 +42,9 @@
     <?php endif; ?>
     <?= $this->renderSection('content') ?>
 </main>
+<?php if (str_starts_with(uri_string(), 'marquoir') && empty($noBarCall)): ?>
+<?= $this->include('public/scoreboard/_bar_call') ?>
+<?php endif; ?>
 <?= $this->renderSection('scripts') ?>
 </body>
 </html>
