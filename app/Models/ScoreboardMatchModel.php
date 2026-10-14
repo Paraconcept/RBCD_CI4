@@ -146,12 +146,12 @@ class ScoreboardMatchModel extends Model
     }
 
     /**
-     * « Dernières parties » d'un billard : amicales des 48 dernières heures, officielles de la semaine en cours (depuis lundi).
+     * « Dernières parties » d'un billard : amicales du jour même, officielles de la semaine en cours (depuis lundi).
      */
     public function getRecentForTable(int $tableId, int $limit = 10): array
     {
         $now      = new \DateTime('now', new \DateTimeZone(self::TIMEZONE));
-        $friendly = (clone $now)->modify('-48 hours')->format('Y-m-d H:i:s');
+        $friendly = $now->format('Y-m-d 00:00:00');
         $monday   = (clone $now)->modify('monday this week')->format('Y-m-d 00:00:00');
 
         return $this->where('table_id', $tableId)
