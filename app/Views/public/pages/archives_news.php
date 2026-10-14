@@ -45,7 +45,7 @@
       <?php endforeach; ?>
       </div>
 
-      <?= $pager->getPageCount() > 1 ? $pager->links('default', 'home_pager') : '' ?>
+      <?= !empty($news) ? $pager->links('default', 'home_pager') : '' ?>
       <?php endif; ?>
     </div>
 

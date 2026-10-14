@@ -227,7 +227,7 @@ body { overflow-x: clip; }
           <?php endforeach; ?>
           </div>
 
-          <?= $pager->getPageCount() > 1 ? $pager->links('default', 'home_pager') : '' ?>
+          <?= !empty($news) ? $pager->links('default', 'home_pager') : '' ?>
 
           <?php if (!empty($news)): ?>
           <div class="text-end mt-10">
