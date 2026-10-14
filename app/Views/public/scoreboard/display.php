@@ -94,7 +94,7 @@ $config = [
             <?php endif; ?>
             <div class="sbd-box sbd-innings">
                 <span>Reprises</span>
-                <b id="sbdInnings">1</b>
+                <b id="sbdInnings">0</b>
                 <small id="sbdInningsLimit"></small>
             </div>
             <div class="sbd-notice" id="sbdNotice"></div>

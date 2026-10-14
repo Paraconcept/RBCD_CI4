@@ -100,10 +100,15 @@
 
     const remaining = () => dist(current()) - setTotals(current()).pts - st.run;
 
+    // Reprise en cours (règles : dernière reprise, limite)
     function inningNumber() {
         const n = walk().inSet;
         return st.finished ? Math.ceil(n / 2) : Math.floor(n / 2) + 1;
     }
+
+    // Reprises affichées : le compteur avance quand le joueur qui a cassé termine sa série (Entrée vers l'adversaire),
+    // comme sur les marquoirs classiques — 0 avant la première série, puis 1 pendant que l'adversaire joue, etc.
+    const inningsShown = () => Math.ceil(walk().inSet / 2);
 
     function isEqualizing() {
         return !st.finished && !C.unequal && st.innings.length % 2 === 1 && totals(S).pts >= dist(S);
@@ -481,7 +486,7 @@
             $('sbdSetNo').textContent = 'Set ' + w.set;
             $('sbdSetsScore').innerHTML = '<i style="color:var(--sb-p1)">' + w.won[1] + '</i> – <i style="color:var(--sb-p2)">' + w.won[2] + '</i>';
         }
-        $('sbdInnings').textContent = inningNumber();
+        $('sbdInnings').textContent = inningsShown();
         $('sbdInningsLimit').textContent = C.inningsLimit ? 'sur ' + C.inningsLimit : '';
 
         const runBox = $('sbdRunBox');
