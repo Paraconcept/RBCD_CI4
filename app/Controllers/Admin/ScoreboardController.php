@@ -25,6 +25,8 @@ class ScoreboardController extends BaseController
 
     public function index(): string
     {
+        $this->model->purgeOldFriendlies();
+
         $upcoming = $this->model->withTable()
             ->whereIn('status', ['scheduled', 'live'])
             ->orderBy("FIELD(status, 'live', 'scheduled')", '', false)
@@ -32,7 +34,7 @@ class ScoreboardController extends BaseController
             ->orderBy('scheduled_at', 'ASC')
             ->findAll();
 
-        // Les amicales ne servent qu'au marquoir (48 h) : seules les officielles sont listées, jusqu'au nettoyage de fin de saison.
+        // Seules les officielles restent jusqu'au nettoyage de fin de saison (les amicales disparaissent après 48 h).
         $finished = $this->model->withTable()
             ->where('status', 'finished')
             ->where('type', 'official')

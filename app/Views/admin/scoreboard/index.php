@@ -102,8 +102,8 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
   ?>
   <div class="card-footer d-flex align-items-center">
     <small class="text-muted mr-3">
-      <i class="fas fa-info-circle mr-1"></i>Les parties amicales ne sont pas listées ici : elles restent 48 heures dans « Dernières parties » sur la page du billard.
-      En fin de saison, « Nettoyer les rencontres » efface toutes les parties terminées ou annulées (officielles et amicales), avec leurs feuilles de match,
+      <i class="fas fa-info-circle mr-1"></i>Les parties amicales ne sont pas listées ici : visibles 48 heures dans « Dernières parties » sur la page du billard, elles sont ensuite effacées automatiquement.
+      En fin de saison, « Nettoyer les rencontres » efface toutes les parties terminées ou annulées, avec leurs feuilles de match,
       ainsi que les rencontres d'équipe et finales entièrement terminées. Les rencontres prévues ou en cours sont conservées.
     </small>
     <form method="post" action="<?= base_url('admin/scoreboard/purge') ?>" class="ml-auto"

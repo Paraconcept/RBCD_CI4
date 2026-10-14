@@ -165,6 +165,20 @@ class ScoreboardMatchModel extends Model
     }
 
     /**
+     * Les amicales terminées ou annulées n'ont plus d'intérêt après 48 h : effacées (avec leurs reprises) à chaque
+     * passage sur le marquoir ou la liste admin, faute de tâche planifiée.
+     */
+    public function purgeOldFriendlies(): void
+    {
+        $limit = (new \DateTime('now', new \DateTimeZone(self::TIMEZONE)))->modify('-48 hours')->format('Y-m-d H:i:s');
+        $this->db->table('scoreboard_matches')
+            ->where('type', 'friendly')
+            ->whereIn('status', ['finished', 'cancelled'])
+            ->where('COALESCE(finished_at, updated_at, created_at) <', $limit)
+            ->delete();
+    }
+
+    /**
      * Ce que « Nettoyer les rencontres » efface : toutes les parties terminées ou annulées, sauf celles d'une rencontre d'équipe
      * ou d'une finale qui a encore des matchs à jouer ou en cours ; les rencontres d'équipe et finales entièrement
      * terminées partent avec leurs matchs.

@@ -75,6 +75,7 @@ class ScoreboardController extends BaseController
             return redirect()->to(base_url('marquoir/match/' . $live->id));
         }
 
+        $this->matches->purgeOldFriendlies();
         $lastFinished = $this->matches->getRecentForTable($tableId);
 
         return view('public/scoreboard/table', [
