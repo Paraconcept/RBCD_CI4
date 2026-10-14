@@ -145,6 +145,69 @@ class ScoreboardMatchModel extends Model
             ->findAll();
     }
 
+    /**
+     * « Dernières parties » d'un billard : amicales des 48 dernières heures, officielles de la semaine en cours (depuis lundi).
+     */
+    public function getRecentForTable(int $tableId, int $limit = 10): array
+    {
+        $now      = new \DateTime('now', new \DateTimeZone(self::TIMEZONE));
+        $friendly = (clone $now)->modify('-48 hours')->format('Y-m-d H:i:s');
+        $monday   = (clone $now)->modify('monday this week')->format('Y-m-d 00:00:00');
+
+        return $this->where('table_id', $tableId)
+            ->where('status', 'finished')
+            ->groupStart()
+                ->groupStart()->where('type', 'friendly')->where('finished_at >=', $friendly)->groupEnd()
+                ->orGroupStart()->where('type', 'official')->where('finished_at >=', $monday)->groupEnd()
+            ->groupEnd()
+            ->orderBy('finished_at', 'DESC')
+            ->findAll($limit);
+    }
+
+    /**
+     * Ce que « Nettoyer les rencontres » efface : toutes les parties terminées ou annulées, sauf celles d'une rencontre d'équipe
+     * ou d'une finale qui a encore des matchs à jouer ou en cours ; les rencontres d'équipe et finales entièrement
+     * terminées partent avec leurs matchs.
+     *
+     * @return array{matches: list<int>, official: int, friendly: int, encounters: list<int>, finals: list<int>}
+     */
+    public function purgeable(): array
+    {
+        $open = static fn (string $col): string => "SELECT $col FROM scoreboard_matches WHERE status IN ('scheduled', 'live') AND $col IS NOT NULL";
+        $rows = $this->db->table('scoreboard_matches')
+            ->select('id, type, team_encounter_id, final_id')
+            ->whereIn('status', ['finished', 'cancelled'])
+            ->where('(team_encounter_id IS NULL OR team_encounter_id NOT IN (' . $open('team_encounter_id') . '))', null, false)
+            ->where('(final_id IS NULL OR final_id NOT IN (' . $open('final_id') . '))', null, false)
+            ->get()->getResultObject();
+
+        $out = ['matches' => [], 'official' => 0, 'friendly' => 0, 'encounters' => [], 'finals' => []];
+        foreach ($rows as $r) {
+            $out['matches'][] = (int) $r->id;
+            $out[$r->type === 'official' ? 'official' : 'friendly']++;
+            if ($r->team_encounter_id) $out['encounters'][(int) $r->team_encounter_id] = (int) $r->team_encounter_id;
+            if ($r->final_id) $out['finals'][(int) $r->final_id] = (int) $r->final_id;
+        }
+        $out['encounters'] = array_values($out['encounters']);
+        $out['finals']     = array_values($out['finals']);
+
+        return $out;
+    }
+
+    public function purgeFinished(): array
+    {
+        $p = $this->purgeable();
+        $this->db->transStart();
+        foreach (array_chunk($p['matches'], 500) as $ids) {
+            $this->db->table('scoreboard_matches')->whereIn('id', $ids)->delete();
+        }
+        if ($p['encounters']) $this->db->table('scoreboard_team_encounters')->whereIn('id', $p['encounters'])->delete();
+        if ($p['finals'])     $this->db->table('scoreboard_finals')->whereIn('id', $p['finals'])->delete();
+        $this->db->transComplete();
+
+        return $p;
+    }
+
     public function getLiveForTable(int $tableId): ?object
     {
         return $this->where('status', 'live')->where('table_id', $tableId)->orderBy('started_at', 'DESC')->first();

@@ -87,12 +87,30 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
 
 <div class="card card-outline card-primary">
   <div class="card-header">
-    <h3 class="card-title"><i class="fas fa-flag-checkered mr-2"></i>Parties terminées <small class="text-muted">(100 dernières)</small></h3>
+    <h3 class="card-title"><i class="fas fa-flag-checkered mr-2"></i>Parties officielles terminées <small class="text-muted">(<?= count($finished) ?>)</small></h3>
   </div>
   <div class="card-body">
     <?php if (!$finished): ?>
-      <p class="text-muted text-center mb-0">Aucune partie terminée.</p>
+      <p class="text-muted text-center mb-0">Aucune partie officielle terminée.</p>
     <?php else: $rows($finished); endif; ?>
+  </div>
+  <?php
+  $nb      = count($purgeable['matches']);
+  $details = [$purgeable['official'] . ' partie(s) officielle(s)', $purgeable['friendly'] . ' partie(s) amicale(s)'];
+  if ($purgeable['encounters']) $details[] = count($purgeable['encounters']) . ' rencontre(s) d\'équipe';
+  if ($purgeable['finals'])     $details[] = count($purgeable['finals']) . ' finale(s)';
+  ?>
+  <div class="card-footer d-flex align-items-center">
+    <small class="text-muted mr-3">
+      <i class="fas fa-info-circle mr-1"></i>Les parties amicales ne sont pas listées ici : elles restent 48 heures dans « Dernières parties » sur la page du billard.
+      En fin de saison, « Nettoyer les rencontres » efface toutes les parties terminées ou annulées (officielles et amicales), avec leurs feuilles de match,
+      ainsi que les rencontres d'équipe et finales entièrement terminées. Les rencontres prévues ou en cours sont conservées.
+    </small>
+    <form method="post" action="<?= base_url('admin/scoreboard/purge') ?>" class="ml-auto"
+          onsubmit="return confirm(<?= esc(json_encode("Nettoyer les rencontres ?\n\nSeront effacées définitivement :\n• " . implode("\n• ", $details) . "\n\nPensez à imprimer ou enregistrer les feuilles utiles avant. Cette action est irréversible."), 'attr') ?>)">
+      <?= csrf_field() ?>
+      <button class="btn btn-danger btn-sm text-nowrap" <?= $nb ? '' : 'disabled' ?>><i class="fas fa-broom mr-1"></i>Nettoyer les rencontres<?= $nb ? ' (' . $nb . ')' : '' ?></button>
+    </form>
   </div>
 </div>
 

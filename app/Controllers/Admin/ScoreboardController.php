@@ -32,16 +32,29 @@ class ScoreboardController extends BaseController
             ->orderBy('scheduled_at', 'ASC')
             ->findAll();
 
+        // Les amicales ne servent qu'au marquoir (48 h) : seules les officielles sont listées, jusqu'au nettoyage de fin de saison.
         $finished = $this->model->withTable()
             ->where('status', 'finished')
+            ->where('type', 'official')
             ->orderBy('finished_at', 'DESC')
-            ->findAll(100);
+            ->findAll();
 
         return view('admin/scoreboard/index', [
-            'title'    => 'Marquoir — Rencontres',
-            'upcoming' => $upcoming,
-            'finished' => $finished,
+            'title'     => 'Marquoir — Rencontres',
+            'upcoming'  => $upcoming,
+            'finished'  => $finished,
+            'purgeable' => $this->model->purgeable(),
         ]);
+    }
+
+    public function purge()
+    {
+        $p = $this->model->purgeFinished();
+        $parts = [count($p['matches']) . ' partie(s)'];
+        if ($p['encounters']) $parts[] = count($p['encounters']) . ' rencontre(s) d\'équipe';
+        if ($p['finals'])     $parts[] = count($p['finals']) . ' finale(s)';
+
+        return redirect()->to(base_url('admin/scoreboard'))->with('success', 'Nettoyage terminé, effacé : ' . implode(', ', $parts) . '.');
     }
 
     public function create(): string

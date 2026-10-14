@@ -75,8 +75,7 @@ class ScoreboardController extends BaseController
             return redirect()->to(base_url('marquoir/match/' . $live->id));
         }
 
-        $lastFinished = $this->matches->where('table_id', $tableId)->where('status', 'finished')
-                                      ->orderBy('finished_at', 'DESC')->findAll(5);
+        $lastFinished = $this->matches->getRecentForTable($tableId);
 
         return view('public/scoreboard/table', [
             'title'        => $table->name,

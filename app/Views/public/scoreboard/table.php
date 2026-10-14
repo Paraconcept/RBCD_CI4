@@ -91,6 +91,11 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
                     <span><?= esc($m->p1_last_name) ?> <b><?= M::score($m, 'p1') ?></b></span>
                     <span class="text-secondary">–</span>
                     <span><b><?= M::score($m, 'p2') ?></b> <?= esc($m->p2_last_name) ?></span>
+                    <?php if ($m->type === 'official'): ?>
+                    <span class="badge sb-badge-official ms-auto">Officielle</span>
+                    <?php else: ?>
+                    <span class="badge text-bg-secondary ms-auto">Amicale</span>
+                    <?php endif; ?>
                 </a>
             </li>
             <?php endforeach; ?>
