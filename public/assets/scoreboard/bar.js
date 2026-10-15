@@ -12,11 +12,21 @@
     const served = {}; // servis sur cette tablette : une réponse partie avant le clic ne doit pas les rallumer
     let audio = null;
 
+    // Empêche la tablette de se mettre en veille ; le verrou saute quand la page est masquée, on le reprend au retour
+    async function keepAwake() {
+        try {
+            if ('wakeLock' in navigator && document.visibilityState === 'visible') await navigator.wakeLock.request('screen');
+        } catch (e) { /* refusé (économie d'énergie…) : la veille dépend alors des réglages de la tablette */ }
+    }
+    document.addEventListener('visibilitychange', keepAwake);
+    keepAwake();
+
     // Les navigateurs n'autorisent le son qu'après un premier toucher de l'écran
     unlock.addEventListener('click', function () {
         try { audio = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audio = null; }
         unlock.hidden = true;
         if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function () {});
+        keepAwake();
     });
 
     function beep(times) {
