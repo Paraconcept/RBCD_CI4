@@ -1,0 +1,20 @@
+const puppeteer = require('puppeteer-core');
+const { CHROME } = require('../lib.cjs');
+(async () => {
+  const [url, out] = process.argv.slice(2);
+  const b = await puppeteer.launch({ executablePath: CHROME, headless: true });
+  const p = await b.newPage();
+  p.on('pageerror', e => console.log('pageerror:', e.message));
+  await p.evaluateOnNewDocument(() => document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = '#debug-icon,#debug-bar{display:none!important}'; document.head.appendChild(s); }));
+  await p.setViewport({ width: 1366, height: 900 });
+  await p.goto(url, { waitUntil: 'networkidle0' });
+  const broken = await p.$$eval('img', l => l.filter(i => !i.complete || i.naturalWidth === 0).map(i => i.src));
+  console.log('images cassées :', broken.length ? broken : 'aucune');
+  await p.screenshot({ path: out + '/web_desktop.png', fullPage: true });
+  await p.setViewport({ width: 390, height: 844, isMobile: true, deviceScaleFactor: 1 });
+  await p.reload({ waitUntil: 'networkidle0' });
+  const overflow = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  console.log('débordement horizontal mobile :', overflow);
+  await p.screenshot({ path: out + '/web_mobile.png', fullPage: true });
+  await b.close();
+})();

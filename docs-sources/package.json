@@ -1,0 +1,8 @@
+{
+  "name": "rbcd-docs-sources",
+  "private": true,
+  "description": "Génération des PDF des marquoirs (mode d'emploi, guide DS, stickers)",
+  "dependencies": {
+    "puppeteer-core": "23.11.1"
+  }
+}
