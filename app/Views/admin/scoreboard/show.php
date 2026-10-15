@@ -123,7 +123,14 @@ $ranks = $trio && $match->status === 'finished' ? M::storedRanking($match) : [];
   <div class="card-footer d-flex">
     <a href="<?= base_url('admin/scoreboard') ?>" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>Retour</a>
     <?php if ($match->type === 'official'): ?>
-    <a href="<?= base_url('admin/scoreboard/' . $match->id . '/pdf') ?>" target="_blank" class="btn btn-primary ml-auto">
+    <span class="ml-auto mr-3 align-self-center">
+      <?php if ($signature): ?>
+      <span class="badge badge-success p-2"><i class="fas fa-file-signature mr-1"></i>Signée le <?= date('d/m/Y à H:i', strtotime($signature->signed_at)) ?> — arbitre : <?= esc($signature->referee_name) ?></span>
+      <?php elseif ($match->status === 'finished'): ?>
+      <span class="badge badge-secondary p-2"><i class="fas fa-signature mr-1"></i>Non signée</span>
+      <?php endif; ?>
+    </span>
+    <a href="<?= base_url('admin/scoreboard/' . $match->id . '/pdf') ?>" target="_blank" class="btn btn-primary">
       <i class="fas fa-file-pdf mr-1"></i>Feuille de match PDF
     </a>
     <?php endif; ?>

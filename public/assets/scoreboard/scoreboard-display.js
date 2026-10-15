@@ -729,7 +729,10 @@
         const openMenu = () => {
             // Inverser n'a de sens qu'avant le premier coup (erreur au choix du joueur qui commence)
             swapForm.hidden = st.finished || st.innings.length > 0 || st.run > 0;
-            $('sbdFixBtn').hidden = st.innings.length === 0;
+            $('sbdFixBtn').hidden = st.innings.length === 0 || C.signed;
+            // Feuille signée : plus aucune modification au marquoir
+            menu.querySelector('[data-action="edit"]').hidden = C.signed;
+            $('sbdCancelForm').hidden = C.signed;
             menu.classList.add('open');
             root.classList.add('show-cursor');
             focusMenu(0);
@@ -911,8 +914,9 @@
 
             if (st.finished) {
                 if (a === 'enter') window.location.href = C.urls.table;
-                else if (a === 'minus') minus();
+                else if (a === 'minus' && !C.signed) minus();
                 else if (a === 'plus' && !e.repeat && C.urls.rematch) confirmRematch();
+                else if (a === 'plus' && !e.repeat && C.urls.sign) goSign();
                 else if (a === 'menu') openMenu();
                 return;
             }
@@ -958,6 +962,22 @@
                 })();
             });
         }
+
+        // Le résultat doit être sur le serveur avant d'être signé
+        let signing = false;
+        function goSign() {
+            if (signing) return;
+            signing = true;
+            const btn = $('sbdSignBtn');
+            if (btn) btn.disabled = true;
+            waitSynced(8000).then(function () { window.location.href = C.urls.sign; }, function () {
+                signing = false;
+                if (btn) btn.disabled = false;
+                flash('Pas de connexion :\nréessayez dans un instant');
+                render();
+            });
+        }
+        if ($('sbdSignBtn')) $('sbdSignBtn').addEventListener('click', goSign);
 
         function confirmRematch() {
             const form = $('sbdRematchForm');

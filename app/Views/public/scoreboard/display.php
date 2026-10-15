@@ -27,6 +27,7 @@ $config = [
     'players' => $byPlayer(static fn (int $n): array => ['last' => $match->{'p' . $n . '_last_name'}, 'first' => $match->{'p' . $n . '_first_name'}]),
     'server'    => $state,
     'spectator' => $spectator,
+    'signed'    => !empty($signed),
     'urls'      => [
         'save'  => base_url('marquoir/api/match/' . $match->id),
         'table' => base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'),
@@ -34,6 +35,7 @@ $config = [
         'edit'  => base_url('marquoir/match/' . $match->id . '/modifier'),
         'list'  => base_url('en-direct'),
         'rematch' => $match->type === 'friendly' && $match->table_id ? base_url('marquoir/match/' . $match->id . '/rejouer') : null,
+        'sign'    => $match->type === 'official' && !$trio && empty($signed) ? base_url('marquoir/match/' . $match->id . '/signer') : null,
     ],
 ];
 ?>
@@ -188,8 +190,15 @@ $config = [
             <div class="sbd-small">
                 <?php if ($spectator): ?>
                 <a href="<?= base_url('en-direct') ?>" class="btn btn-outline-light"><i class="fas fa-arrow-left me-2"></i>Rencontres du jour</a>
+                <?php elseif (!empty($signed)): ?>
+                <div class="sbd-signed mb-2"><i class="fas fa-file-signature me-2"></i>Feuille de match signée — résultat définitif</div>
+                <kbd>Entrée</kbd> retour au billard
                 <?php else: ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> corriger la dernière reprise
+                <?php if ($config['urls']['sign']): ?>
+                &nbsp;·&nbsp; <kbd>+</kbd> signer la feuille de match
+                <div class="mt-3"><button type="button" class="btn btn-sb btn-lg" id="sbdSignBtn"><i class="fas fa-signature me-2"></i>Signer la feuille de match</button></div>
+                <?php endif; ?>
                 <?php if ($config['urls']['rematch']): ?>
                 &nbsp;·&nbsp; <kbd>+</kbd> rejouer la même partie
                 <form method="post" id="sbdRematchForm" action="<?= esc($config['urls']['rematch']) ?>" hidden></form>

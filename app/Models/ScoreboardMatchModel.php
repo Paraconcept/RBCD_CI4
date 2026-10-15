@@ -666,6 +666,7 @@ class ScoreboardMatchModel extends Model
     {
         $this->db->transStart();
         $this->db->table('scoreboard_innings')->where('match_id', $id)->delete();
+        $this->db->table('scoreboard_signatures')->where('match_id', $id)->delete();
         $this->update($id, [
             'status' => 'scheduled', 'starting_player' => null, 'current_run' => 0, 'paused' => 0, 'winner' => null, 'absent' => 0,
             'p1_points' => 0, 'p1_innings' => 0, 'p1_high_run' => 0, 'p1_sets' => 0, 'p1_extensions_used' => 0,

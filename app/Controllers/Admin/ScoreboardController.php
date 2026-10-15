@@ -7,6 +7,7 @@ use App\Libraries\MatchSheetPdf;
 use App\Models\FrbbCategoryModel;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
+use App\Models\ScoreboardSignatureModel;
 use App\Models\ScoreboardTableModel;
 use App\Models\ScoreboardTeamEncounterModel;
 use App\Models\SiteSettingModel;
@@ -111,6 +112,7 @@ class ScoreboardController extends BaseController
             'match'       => $match,
             'table'       => $table,
             'sheets'      => MatchSheetPdf::sheets($id),
+            'signature'   => (new ScoreboardSignatureModel())->select('referee_name, signed_at')->where('match_id', $id)->first(),
         ]);
     }
 

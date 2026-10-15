@@ -8,6 +8,7 @@ use App\Filters\ScoreboardDeviceFilter;
 use App\Models\ScoreboardInningModel;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
+use App\Models\ScoreboardSignatureModel;
 use App\Models\ScoreboardTableModel;
 use App\Models\SiteSettingModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -17,9 +18,11 @@ class ScoreboardController extends BaseController
     private ScoreboardMatchModel $matches;
     private ScoreboardTableModel $tables;
     private SiteSettingModel $settings;
+    private ScoreboardSignatureModel $signatures;
 
     public function __construct()
     {
+        $this->signatures = new ScoreboardSignatureModel();
         $this->matches  = new ScoreboardMatchModel();
         $this->tables   = new ScoreboardTableModel();
         $this->settings = new SiteSettingModel();
@@ -209,7 +212,8 @@ class ScoreboardController extends BaseController
             'title' => 'Marquoir',
             'match' => $match,
             'table' => $match->table_id ? $this->tables->find($match->table_id) : null,
-            'state' => $this->matches->stateFor($match),
+            'state'  => $this->matches->stateFor($match),
+            'signed' => $this->signatures->isSigned((int) $match->id),
         ]);
     }
 
@@ -258,12 +262,74 @@ class ScoreboardController extends BaseController
     }
 
     /**
+     * Rencontre officielle terminée : signature au doigt des deux joueurs et de l'arbitre,
+     * reprises sur la feuille de match PDF. Facultative, et définitive une fois enregistrée.
+     */
+    public function sign(int $matchId)
+    {
+        $match = $this->findMatch($matchId);
+        if (!$this->signable($match)) {
+            return redirect()->to(base_url('marquoir/match/' . $matchId));
+        }
+
+        return view('public/scoreboard/sign', [
+            'title' => 'Signer la feuille de match',
+            'match' => $match,
+            'table' => $match->table_id ? $this->tables->find($match->table_id) : null,
+        ]);
+    }
+
+    public function signPost(int $matchId)
+    {
+        $match = $this->findMatch($matchId);
+        if (!$this->signable($match)) {
+            return redirect()->to(base_url('marquoir/match/' . $matchId));
+        }
+
+        $referee = trim(preg_replace('/\s+/', ' ', (string) $this->request->getPost('referee_name')));
+        $data    = [
+            'match_id'          => $matchId,
+            'referee_name'      => mb_substr($referee, 0, 100),
+            'p1_signature'      => (string) $this->request->getPost('p1_signature'),
+            'p2_signature'      => (string) $this->request->getPost('p2_signature'),
+            'referee_signature' => (string) $this->request->getPost('referee_signature'),
+            'signed_at'         => ScoreboardMatchModel::now(),
+        ];
+
+        $errors = [];
+        if ($referee === '') {
+            $errors[] = "Le nom de l'arbitre est obligatoire.";
+        }
+        foreach (['p1_signature', 'p2_signature', 'referee_signature'] as $f) {
+            if (!ScoreboardSignatureModel::isValidImage($data[$f])) {
+                $errors[] = 'Les trois signatures sont obligatoires.';
+                break;
+            }
+        }
+        // Pas de withInput() : les images ne doivent pas transiter par la session (le formulaire les vérifie déjà)
+        if ($errors) {
+            return redirect()->to(base_url('marquoir/match/' . $matchId . '/signer'))->with('errors', $errors);
+        }
+
+        $this->signatures->insert($data);
+
+        return redirect()->to(base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'))
+                         ->with('success', 'Feuille de match signée.');
+    }
+
+    private function signable(object $match): bool
+    {
+        return $match->type === 'official' && $match->status === 'finished'
+            && !ScoreboardMatchModel::isTrio($match) && !$this->signatures->isSigned((int) $match->id);
+    }
+
+    /**
      * Correction des joueurs ou des points d'une partie en cours, sans perdre les reprises jouées.
      */
     public function edit(int $matchId)
     {
         $match = $this->findMatch($matchId);
-        if (!in_array($match->status, ['live', 'finished'], true)) {
+        if (!in_array($match->status, ['live', 'finished'], true) || $this->signatures->isSigned($matchId)) {
             return redirect()->to(base_url('marquoir/match/' . $matchId));
         }
 
@@ -279,7 +345,7 @@ class ScoreboardController extends BaseController
     public function update(int $matchId)
     {
         $match = $this->findMatch($matchId);
-        if (!in_array($match->status, ['live', 'finished'], true)) {
+        if (!in_array($match->status, ['live', 'finished'], true) || $this->signatures->isSigned($matchId)) {
             return redirect()->to(base_url('marquoir/match/' . $matchId));
         }
 
@@ -338,6 +404,9 @@ class ScoreboardController extends BaseController
     public function cancel(int $matchId)
     {
         $match = $this->findMatch($matchId);
+        if ($this->signatures->isSigned($matchId)) {
+            return redirect()->to(base_url('marquoir/match/' . $matchId));
+        }
         $this->matches->resetOrCancel($match);
 
         return redirect()->to(base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'))
@@ -360,6 +429,9 @@ class ScoreboardController extends BaseController
         $match = $this->findMatch($matchId);
         if (!in_array($match->status, ['live', 'finished'], true)) {
             return $this->response->setStatusCode(409)->setJSON(['error' => 'Partie non démarrée ou annulée']);
+        }
+        if ($this->signatures->isSigned($matchId)) {
+            return $this->response->setStatusCode(409)->setJSON(['error' => 'Feuille de match signée']);
         }
 
         $rev = $this->matches->applyState($match, (array) $this->request->getJSON(true));

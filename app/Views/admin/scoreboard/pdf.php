@@ -52,6 +52,10 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
     .result tr.title td { text-align: center; font-weight: normal; border-bottom: 3px solid #000; }
     .result tr.split td { border-bottom: 2.5px solid #000; }
     .result tr.sign td { border-right: none; font-weight: normal; }
+    .result tr.sign.signed td { height: 9.5mm; vertical-align: middle; }
+    .result tr.sign img { height: 9mm; vertical-align: middle; margin-left: 2mm; }
+    .result tr.sign .signed-at { font-size: 6.5pt; color: #444; }
+    .result tr.sign .referee { font-weight: bold; margin-left: 2mm; }
     .small { font-size: 8pt; }
 </style>
 </head>
@@ -98,7 +102,8 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
         <?php if ($logo): ?><img src="<?= $logo ?>" alt=""><?php endif; ?>
     </div>
 
-    <div style="height:6mm"></div>
+    <?php // Les cases de signature remplies sont plus hautes : on reprend la place sur les espacements ?>
+    <div style="height:<?= $signature ? 2 : 6 ?>mm"></div>
     <div class="field"><b>Date :</b> <span><?= $date ? date('d/m/Y', strtotime($date)) : '' ?></span></div>
     <div class="field thick"><b>Epreuve :</b> <span><?= esc(M::competitionLabel($match) ?: ($match->type === 'friendly' ? 'Partie amicale' : '')) ?></span></div>
     <?php if (!empty($match->comment)): ?>
@@ -106,7 +111,7 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
     <?php else: ?>
     <div class="field"></div>
     <?php endif; ?>
-    <div style="height:7mm"></div>
+    <div style="height:<?= $signature ? 1 : 7 ?>mm"></div>
     <div class="field thick"><b>Mode de jeu :</b> <span><?= esc(M::disciplineLabel($match)) ?><?= $match->innings_limit ? ' — ' . (int) $match->innings_limit . ' reprises max.' : '' ?><?= M::isSets($match) ? ' — set ' . $setNo . ' (' . esc(M::distanceLabel($match)) . ')' : '' ?></span><?= $pages > 1 ? ' <span class="small">(feuille ' . ($page + 1) . '/' . $pages . ')</span>' : '' ?></div>
 
     <table class="result">
@@ -120,8 +125,19 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
         <tr><td class="lbl">Rep</td><td class="a"><?= $done ? (int) $match->p1_innings : '' ?></td><td class="b"><?= $done ? (int) $match->p2_innings : '' ?></td></tr>
         <tr><td class="lbl">Moy</td><td class="a"><?= $done ? M::average((int) $match->p1_points, (int) $match->p1_innings) : '' ?></td><td class="b"><?= $done ? M::average((int) $match->p2_points, (int) $match->p2_innings) : '' ?></td></tr>
         <tr><td class="lbl">Sér</td><td class="a"><?= $done ? (int) $match->p1_high_run : '' ?></td><td class="b"><?= $done ? (int) $match->p2_high_run : '' ?></td></tr>
+        <?php if ($signature): ?>
+        <tr class="sign signed">
+            <td class="lbl" colspan="2">&nbsp;Jr <img src="<?= $signature->p1_signature ?>" alt=""></td>
+            <td>Jr <img src="<?= $signature->p2_signature ?>" alt=""></td>
+        </tr>
+        <tr class="sign signed">
+            <td class="lbl" colspan="2">Arb. <span class="referee"><?= esc($signature->referee_name) ?></span><br><span class="signed-at">signé le <?= date('d/m/Y à H:i', strtotime($signature->signed_at)) ?></span></td>
+            <td><img src="<?= $signature->referee_signature ?>" alt=""></td>
+        </tr>
+        <?php else: ?>
         <tr class="sign"><td class="lbl" colspan="2">&nbsp;Jr</td><td>Jr</td></tr>
         <tr class="sign"><td class="lbl" colspan="3">Arb.</td></tr>
+        <?php endif; ?>
     </table>
 </td>
 </tr>

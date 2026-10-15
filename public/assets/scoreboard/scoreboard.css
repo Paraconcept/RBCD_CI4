@@ -442,3 +442,21 @@
     text-align: center; background: rgba(10, 16, 32, .94); cursor: pointer;
 }
 .bar-unlock[hidden] { display: none; }
+
+/* Signature de la feuille de match (rencontres officielles) */
+.sb-sign-summary { --bs-table-bg: transparent; font-size: 1.1rem; }
+.sb-sign-summary th { color: var(--sb-muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+.sb-sign-summary td:not(:first-child), .sb-sign-summary th:not(:first-child) { text-align: center; }
+.sb-sign-summary tr.p1 td { color: var(--sb-p1); }
+.sb-sign-summary tr.p2 td { color: var(--sb-p2); }
+.sb-sign-label {
+    display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .4rem;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 1.35rem; font-weight: 600;
+}
+.sb-sign-label.p2 b { color: var(--sb-p2); }
+.sb-sign-pad {
+    display: block; width: 100%; aspect-ratio: 3 / 1; background: #fff; border-radius: 10px;
+    border: 3px dashed var(--sb-muted); touch-action: none; cursor: crosshair;
+}
+.sb-sign-pad.signed { border-style: solid; border-color: var(--sb-green); }
+.sbd-signed { color: var(--sb-green); font-weight: 700; }

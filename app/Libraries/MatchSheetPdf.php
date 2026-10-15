@@ -3,6 +3,7 @@
 namespace App\Libraries;
 
 use App\Models\ScoreboardInningModel;
+use App\Models\ScoreboardSignatureModel;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -37,6 +38,7 @@ class MatchSheetPdf
             'match'  => $match,
             'sheets' => self::sheets((int) $match->id),
             'logo'   => is_file($logo) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logo)) : null,
+            'signature' => (new ScoreboardSignatureModel())->forMatch((int) $match->id),
         ]);
 
         $options = new Options();
