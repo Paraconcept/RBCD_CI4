@@ -387,6 +387,9 @@ class ScoreboardController extends BaseController
         if (!ScoreboardMatchModel::isSets($match)) {
             $update['innings_limit'] = $data['innings_limit'];
         }
+        if ($match->type === 'official' && !ScoreboardMatchModel::isTrio($match)) {
+            $update['signature_required'] = $this->request->getPost('signature_required') ? 1 : 0;
+        }
         if ($match->status === 'finished' && ScoreboardMatchModel::isTrio($match)) {
             $after = (object) array_merge((array) $match, $update);
             $first = array_keys(ScoreboardMatchModel::storedRanking($after), 1, true);

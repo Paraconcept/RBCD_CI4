@@ -93,6 +93,13 @@ $val  = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
                     <span class="input-group-text">reprises</span>
                 </div>
                 <?php endif; ?>
+                <?php if ($match->type === 'official' && !M::isTrio($match)): ?>
+                <div class="form-check form-switch fs-5 mt-3">
+                    <input class="form-check-input" type="checkbox" role="switch" name="signature_required" id="signature_required" value="1" <?= old('signature_required', $match->signature_required ? '1' : '') ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="signature_required">Feuille à signer</label>
+                </div>
+                <div class="form-text">Coché : les joueurs et l'arbitre peuvent signer la feuille en fin de partie.</div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
