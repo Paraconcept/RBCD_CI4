@@ -85,29 +85,6 @@
                     </a>
                 </li>
 
-                <li class="nav-header mt-4">GESTION DU CLUB</li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/opening-hours') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/opening-hours') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-clock"></i>
-                        <p>Heures d'ouverture</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/school') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/school') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-graduation-cap"></i>
-                        <p>École de billard</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/club-keys') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/club-keys') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-key"></i>
-                        <p>Clés du club</p>
-                    </a>
-                </li>
-
                 <?php
                 $isTreasuryActive = strpos(uri_string(), 'admin/treasury') === 0
                                  || strpos(uri_string(), 'admin/members/') !== false && strpos(uri_string(), '/payments') !== false;
@@ -121,58 +98,6 @@
                 $isSbActive = strpos(uri_string(), 'admin/scoreboard') === 0;
                 $sbUri = uri_string();
                 ?>
-
-                <!-- ── TRÉSORERIE (section collapsible) ── -->
-                <li class="nav-item has-treeview mt-4 <?= $isTreasuryActive ? 'menu-open' : '' ?>">
-                    <a href="#" class="nav-link nav-section <?= $isTreasuryActive ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-euro-sign"></i>
-                        <p>Trésorerie <i class="right fas fa-angle-left"></i></p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="<?= base_url('admin/treasury') ?>"
-                               class="nav-link <?= (uri_string() === 'admin/treasury' || (strpos(uri_string(), 'admin/members/') !== false && strpos(uri_string(), '/payments') !== false)) ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Cotisations &amp; Forfaits</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('admin/treasury/envelopes') ?>"
-                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/envelopes') === 0 ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Enveloppes de caisse</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('admin/treasury/expenses') ?>"
-                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/expenses') === 0 ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Dépenses &nbsp; ( <i class="fas fa-minus"></i> )</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('admin/treasury/revenues') ?>"
-                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/revenues') === 0 ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Recettes &nbsp; ( <i class="fas fa-plus"></i> )</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('admin/treasury/bilan') ?>"
-                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/bilan') === 0 ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Bilan financier</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('admin/treasury/settings') ?>"
-                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/settings') === 0 ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Paramètres financiers</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
 
                 <!-- ── DIRECTION SPORTIVE (section collapsible) ── -->
                 <li class="nav-item has-treeview mt-4 <?= $isDsActive ? 'menu-open' : '' ?>">
@@ -299,6 +224,81 @@
                             </ul>
                         </li>
                     </ul>
+                </li>
+
+                <!-- ── TRÉSORERIE (section collapsible) ── -->
+                <li class="nav-item has-treeview mt-4 <?= $isTreasuryActive ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link nav-section <?= $isTreasuryActive ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-euro-sign"></i>
+                        <p>Trésorerie <i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury') ?>"
+                               class="nav-link <?= (uri_string() === 'admin/treasury' || (strpos(uri_string(), 'admin/members/') !== false && strpos(uri_string(), '/payments') !== false)) ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Cotisations &amp; Forfaits</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/envelopes') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/envelopes') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Enveloppes de caisse</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/expenses') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/expenses') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Dépenses &nbsp; ( <i class="fas fa-minus"></i> )</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/revenues') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/revenues') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Recettes &nbsp; ( <i class="fas fa-plus"></i> )</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/bilan') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/bilan') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Bilan financier</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/treasury/settings') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/treasury/settings') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Paramètres financiers</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-header mt-4">GESTION DU CLUB</li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/opening-hours') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/opening-hours') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-clock"></i>
+                        <p>Heures d'ouverture</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/school') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/school') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-graduation-cap"></i>
+                        <p>École de billard</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/club-keys') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/club-keys') === 0) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-key"></i>
+                        <p>Clés du club</p>
+                    </a>
                 </li>
 
                 <li>&nbsp;</li>
