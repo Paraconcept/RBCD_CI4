@@ -47,18 +47,16 @@ $val  = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
                     <input type="hidden" name="<?= $p ?>_club" value="<?= esc($val($p . '_club')) ?>">
                     <input type="hidden" name="<?= $p ?>_category_id" value="<?= esc($val($p . '_category_id')) ?>">
                     <?php else: ?>
-                    <div class="<?= $sets ? 'col-12' : 'col-8' ?>">
+                    <div class="col-8">
                         <label class="form-label">Club</label>
                         <input type="text" name="<?= $p ?>_club" class="form-control form-control-lg" value="<?= esc($val($p . '_club')) ?>">
                     </div>
                     <?php endif; ?>
-                    <?php if (!$sets): ?>
                     <div class="<?= $friendly ? 'col-12' : 'col-4' ?>">
-                        <label class="form-label">Points à réaliser <span class="text-danger">*</span></label>
-                        <input type="number" name="<?= $p ?>_distance" min="<?= max(1, $scored[$n]) ?>" max="9999" required class="form-control form-control-lg" value="<?= esc($val($p . '_distance')) ?>">
-                        <small class="text-secondary">Déjà marqués : <?= $scored[$n] ?></small>
+                        <label class="form-label"><?= $sets ? 'Points par set' : 'Points à réaliser' ?> <span class="text-danger">*</span></label>
+                        <input type="number" name="<?= $p ?>_distance" min="<?= max(1, $scored[$n]) ?>" max="<?= $sets ? 999 : 9999 ?>" required class="form-control form-control-lg" value="<?= esc($val($p . '_distance')) ?>">
+                        <small class="text-secondary">Déjà marqués<?= $sets ? ' (set en cours)' : '' ?> : <?= $scored[$n] ?></small>
                     </div>
-                    <?php endif; ?>
                     <?php if (!$friendly): ?>
                     <div class="col-12">
                         <label class="form-label">Catégorie</label>
@@ -74,15 +72,7 @@ $val  = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
         <div class="col-12">
             <div class="sb-card">
                 <?php if ($sets): ?>
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label" for="set_points">Points par set</label>
-                        <div class="input-group">
-                            <input type="number" name="set_points" id="set_points" min="<?= max(1, $scored[1], $scored[2]) ?>" max="999" class="form-control form-control-lg" value="<?= esc(old('set_points', $match->p1_distance)) ?>">
-                            <span class="input-group-text">points</span>
-                        </div>
-                    </div>
-                </div>
+                <p class="text-secondary mb-0"><?= esc(M::distanceLabel($match)) ?> · reprises inégales, sans limite de reprises.</p>
                 <?php else: ?>
                 <div class="form-check form-switch fs-5">
                     <input class="form-check-input" type="checkbox" role="switch" name="innings_limit_enabled" id="innings_limit_enabled" value="1" <?= old('innings_limit_enabled', $match->innings_limit ? '1' : '') ? 'checked' : '' ?>>

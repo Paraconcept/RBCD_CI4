@@ -145,8 +145,9 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             </div>
             <div class="col-4" data-sb-distance>
               <div class="form-group mb-0">
-                <label>Points à réaliser <span class="text-danger">*</span></label>
-                <input type="number" name="<?= $p ?>_distance" class="form-control" min="1" max="9999" required value="<?= esc($val($p . '_distance')) ?>">
+                <label><span data-sb-distance-label>Points à réaliser</span> <span class="text-danger">*</span></label>
+                <input type="number" name="<?= $p ?>_distance" class="form-control" min="1" max="9999" required value="<?= esc($val($p . '_distance')) ?>"
+                       data-sb-set-default="<?= (int) $defaults['set_points'] ?>">
               </div>
             </div>
           </div>
@@ -190,14 +191,8 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <input type="checkbox" class="custom-control-input" name="sets_enabled" id="sets_enabled" value="1" <?= $setsOn ? 'checked' : '' ?>>
             <label class="custom-control-label" for="sets_enabled">Par sets</label>
           </div>
-          <small class="text-muted">Toujours à reprises inégales. Le joueur qui casse le 1<sup>er</sup> set garde la bille blanche ; les sets sont cassés à tour de rôle.</small>
-        </div>
-        <div class="col-md-4" data-sb-show-when="sets_enabled">
-          <div class="input-group" style="max-width:220px">
-            <input type="number" name="set_points" class="form-control" min="1" max="999"
-                   value="<?= esc(old('set_points', !empty($src->sets_to_win) ? $src->p1_distance : $defaults['set_points'])) ?>">
-            <div class="input-group-append"><span class="input-group-text">points / set</span></div>
-          </div>
+          <small class="text-muted">Toujours à reprises inégales. Le joueur qui casse le 1<sup>er</sup> set garde la bille blanche ; les sets sont cassés à tour de rôle.
+            Les <b>points par set</b> de chaque joueur se règlent dans sa fiche (ils peuvent être différents).</small>
         </div>
         <div class="col-md-4" data-sb-show-when="sets_enabled">
           <div class="input-group" style="max-width:220px">

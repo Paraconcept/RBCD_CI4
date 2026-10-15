@@ -47,6 +47,11 @@
             </div>
             <small class="text-muted col-12 mt-n2">Destinataire des feuilles récapitulatives des rencontres d'équipe, avec les clubs visité et visiteur (imprimé au bas du PDF).</small>
           </div>
+          <div class="form-group mt-3">
+            <label for="sets_recipient">Destinataire des feuilles de match par sets</label>
+            <input type="text" name="sets_recipient" id="sets_recipient" class="form-control" maxlength="200" value="<?= esc($setsRecipient) ?>">
+            <small class="text-muted">Imprimé au bas de la feuille de match par sets (modèle Coupe de Belgique) : « Feuilles de match à envoyer au plus tard 24 heures après les matches à : … ».</small>
+          </div>
           <div class="form-group mb-0 mt-3">
             <label for="start_window_minutes">Démarrage des rencontres programmées (minutes avant l'heure prévue)</label>
             <input type="number" name="start_window_minutes" id="start_window_minutes" class="form-control" min="0" max="720" value="<?= $startWindowMinutes ?>" style="max-width:150px">

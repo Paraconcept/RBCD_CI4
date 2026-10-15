@@ -27,8 +27,9 @@
                         <input type="text" name="<?= $p ?>_first_name" class="form-control form-control-lg" required value="<?= esc(old($p . '_first_name')) ?>">
                     </div>
                     <div class="col-4" data-sb-distance>
-                        <label class="form-label">Points <span class="text-danger">*</span></label>
-                        <input type="number" name="<?= $p ?>_distance" min="1" max="9999" required class="form-control form-control-lg" value="<?= esc(old($p . '_distance')) ?>">
+                        <label class="form-label"><span data-sb-distance-label>Points</span> <span class="text-danger">*</span></label>
+                        <input type="number" name="<?= $p ?>_distance" min="1" max="9999" required class="form-control form-control-lg" value="<?= esc(old($p . '_distance')) ?>"
+                               data-sb-set-default="<?= (int) $defaults['set_points'] ?>">
                     </div>
                 </div>
             </div>
@@ -63,13 +64,6 @@
                             <label class="form-check-label" for="sets_enabled">Par sets</label>
                         </div>
                         <small class="text-secondary">Toujours à reprises inégales. Le joueur qui casse le 1<sup>er</sup> set garde la bille blanche ; les sets sont cassés à tour de rôle.</small>
-                    </div>
-                    <div class="col-md-4" data-sb-show-when="sets_enabled">
-                        <label class="form-label" for="set_points">Points par set</label>
-                        <div class="input-group">
-                            <input type="number" name="set_points" id="set_points" min="1" max="999" class="form-control form-control-lg" value="<?= esc(old('set_points', $defaults['set_points'])) ?>">
-                            <span class="input-group-text">points</span>
-                        </div>
                     </div>
                     <div class="col-md-4" data-sb-show-when="sets_enabled">
                         <label class="form-label" for="sets_to_win">Sets gagnants</label>

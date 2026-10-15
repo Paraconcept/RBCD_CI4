@@ -323,16 +323,19 @@ class ScoreboardMatchModel extends Model
             if ($discipline !== '3bandes') {
                 $errors[] = "Le jeu par sets n'est possible qu'en 3 bandes.";
             }
-            $setPoints = (int) ($in['set_points'] ?? self::DEFAULT_SET_POINTS);
-            if ($setPoints < 1 || $setPoints > 999) {
-                $errors[] = "Les points d'un set doivent être compris entre 1 et 999.";
+            // Points d'un set propres à chaque joueur (handicap, ex. Coupe de Belgique) ; set_points = ancien champ commun
+            foreach (['p1', 'p2'] as $p) {
+                $setPoints = (int) ($in[$p . '_distance'] ?? 0) ?: (int) ($in['set_points'] ?? self::DEFAULT_SET_POINTS);
+                if ($setPoints < 1 || $setPoints > 999) {
+                    $errors[] = "Les points d'un set doivent être compris entre 1 et 999.";
+                }
+                $data[$p . '_distance'] = $setPoints;
             }
             $toWin = (int) ($in['sets_to_win'] ?? 0);
             if ($toWin < 1 || $toWin > 9) {
                 $errors[] = 'Le nombre de sets gagnants doit être compris entre 1 et 9.';
             }
             $data['sets_to_win']     = $toWin;
-            $data['p1_distance']     = $data['p2_distance'] = $setPoints;
             // Règle du jeu par sets : toujours à reprises inégales, sans limite de reprises
             $data['unequal_innings'] = 1;
             $data['innings_limit']   = null;
@@ -832,10 +835,16 @@ class ScoreboardMatchModel extends Model
     {
         if (self::isSets($m)) {
             return (int) $m->sets_to_win . ' set' . ((int) $m->sets_to_win > 1 ? 's' : '') . ' gagnant' . ((int) $m->sets_to_win > 1 ? 's' : '')
-                 . ' de ' . (int) $m->p1_distance . ' pts';
+                 . ' de ' . self::setPointsLabel($m) . ' pts';
         }
         $dist = array_map(static fn (string $p): int => (int) $m->{$p . '_distance'}, self::playerKeys($m));
         return count(array_unique($dist)) === 1 ? $dist[0] . ' pts' : implode(' / ', $dist) . ' pts';
+    }
+
+    /** Points d'un set : « 15 », ou « 15 / 12 » quand les joueurs n'ont pas les mêmes. */
+    public static function setPointsLabel(object $m): string
+    {
+        return (int) $m->p1_distance === (int) $m->p2_distance ? (string) (int) $m->p1_distance : (int) $m->p1_distance . ' / ' . (int) $m->p2_distance;
     }
 
     public static function playerLabel(object $m, string $p): string

@@ -89,7 +89,7 @@ $config = [
             <div class="sbd-box sbd-setsbox">
                 <span id="sbdSetNo">Set 1</span>
                 <b id="sbdSetsScore"></b>
-                <small>en <?= (int) $match->p1_distance ?> points</small>
+                <small>en <?= M::setPointsLabel($match) ?> points</small>
             </div>
             <?php endif; ?>
             <div class="sbd-box sbd-innings">

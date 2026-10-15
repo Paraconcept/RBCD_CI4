@@ -145,7 +145,9 @@
             // pour ne pas écraser la distance enregistrée d'un match qu'on modifie.
             const distance = sel.form.querySelector('[name="' + sel.dataset.sbCategory + '_distance"]');
             const applyPoints = function () {
-                if (!distance) return;
+                // Par sets, le champ contient les points d'un set : le barème de la catégorie ne s'applique pas
+                const setsOn = document.getElementById('sets_enabled');
+                if (!distance || (setsOn && setsOn.checked)) return;
                 const cat = CAT.list.find((c) => String(c.id) === sel.value);
                 if (cat && cat.points > 0) {
                     distance.value = cat.points;
@@ -174,13 +176,14 @@
         });
     }
 
-    // Jeu par sets (3 bandes uniquement) : reprises inégales imposées, pas de limite de reprises,
-    // les points d'un set remplacent les points à réaliser de chaque joueur
+    // Jeu par sets (3 bandes uniquement) : reprises inégales imposées, pas de limite de reprises ;
+    // le champ des points de chaque joueur devient « Points par set » (ils peuvent être différents)
     const setsCb = document.getElementById('sets_enabled');
     const setsBlock = document.querySelector('[data-sb-sets-block]');
     if (setsCb && setsBlock && discipline) {
         const unequal = document.getElementById('unequal_innings');
         const limitCb = document.getElementById('innings_limit_enabled');
+        let setsWas = setsCb.checked;
         const applySets = function () {
             const allowed = discipline.value === '3bandes';
             setsBlock.style.display = allowed ? '' : 'none';
@@ -204,10 +207,18 @@
             document.querySelectorAll('[data-sb-timeouts-label]').forEach(function (el) {
                 el.textContent = on ? 'time-outs / joueur / set' : 'time-outs / joueur';
             });
-            document.querySelectorAll('[data-sb-distance]').forEach(function (col) {
-                col.style.display = on ? 'none' : '';
-                col.querySelectorAll('input').forEach((i) => { i.disabled = on; });
+            document.querySelectorAll('[data-sb-distance-label]').forEach(function (el) {
+                if (!el.dataset.sbDefault) el.dataset.sbDefault = el.textContent;
+                el.textContent = on ? 'Points par set' : el.dataset.sbDefault;
             });
+            // Bascule faite par l'utilisateur : points d'un set par défaut, et retour aux points d'avant si on décoche
+            if (on !== setsWas) {
+                document.querySelectorAll('input[data-sb-set-default]').forEach(function (i) {
+                    if (on) { i.dataset.sbBefore = i.value; i.value = i.dataset.sbSetDefault; }
+                    else if (i.dataset.sbBefore !== undefined) { i.value = i.dataset.sbBefore; delete i.dataset.sbBefore; }
+                });
+                setsWas = on;
+            }
         };
         setsCb.addEventListener('change', applySets);
         discipline.addEventListener('change', applySets);
