@@ -410,18 +410,14 @@
 
     /*
      * Bille jouée par un joueur. À 2 : la sienne (1 = blanche, 2 = jaune). À 3, il n'y a que deux billes :
-     * elles alternent d'une série à l'autre (A blanche, B jaune, C blanche, A jaune…) ; on montre celle
-     * de la série en cours ou à venir du joueur (sa dernière une fois la partie terminée).
+     * elles alternent d'une série à l'autre (A blanche, B jaune, C blanche, A jaune…). Les couleurs ne
+     * changent qu'au début d'un tour (Entrée après le 3e joueur), pas à chaque passage de main.
      */
     function ballOf(p) {
         if (N === 2 || !p) return p || 1;
-        let k = st.innings.length;
-        if (st.finished) {
-            k--;
-            while (k > 0 && seriesPlayer(S, k) !== p) k--;
-        } else {
-            while (seriesPlayer(S, k) !== p) k++;
-        }
+        const n = st.innings.length;
+        const round = st.finished ? Math.floor(Math.max(0, n - 1) / N) : Math.floor(n / N);
+        const k = round * N + (p - S + N) % N;
         return k % 2 === 0 ? 1 : 2;
     }
     const colorOf = (p) => 'var(--sb-p' + ballOf(p) + ')';
