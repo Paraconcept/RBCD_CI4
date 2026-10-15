@@ -33,6 +33,7 @@ Les identifiants MySQL sont lus dans le `.env` du projet et le code PIN du marqu
   - `node mode-emploi/shots3.cjs mode-emploi/img` refait la page du billard, les formulaires amicaux (à 2 et à 3) et toute la partie à 3 (captures 02, 03, 21 à 25). Le script crée des rencontres de démonstration sur le billard 2 puis les efface.
   - `mode-emploi/shots.cjs` refait les captures d'origine (01, 04 à 13). Il attend un billard et une rencontre officielle de démonstration (voir l'en-tête du script). `13_direct_liste_crop.png` est un recadrage manuel de `13_direct_liste.png`.
   - `mode-emploi/upd.cjs` refait la capture de la moyenne proportionnelle (14).
+  - `node mode-emploi/shots5.cjs mode-emploi/img` refait la capture du formulaire par sets (15), avec des points par set différents pour chaque joueur. Rien n'est enregistré.
   - `node mode-emploi/shots4.cjs mode-emploi/img` refait les captures des signatures : fin de partie et signature de la feuille de match (26, 27), rencontre d'équipe du jour et clôture par les capitaines (28, 29). Données de démonstration sur les billards 2 et 3, effacées à la fin. Après un premier ajout d'image, créez son JPEG dans `public/assets/images/marquoirs-howto/` (`build.sh` ne met à jour que les JPEG existants).
   - `node mode-emploi/web.cjs <url de la page How To> build` vérifie la page web : images cassées et débordement sur mobile.
 - **Guide DS** :

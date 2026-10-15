@@ -434,19 +434,18 @@
         <div class="row g-4 mb-4">
           <div class="col-lg-7">
             <img class="mh-shot" src="<?= $img('15_sets_form') ?>" alt="Réglages d'une partie par sets">
-            <div class="mh-caption">« Par sets » coché : reprises inégales imposées, plus de limite de reprises.</div>
+            <div class="mh-caption">« Par sets » coché : chaque joueur a ses propres points par set (ici 15 et 12).</div>
           </div>
           <div class="col-lg-5">
             <ol class="mh-steps">
               <li>Choisissez la discipline <b>3 Bandes</b> : l'option <b>Par sets</b> apparaît.</li>
               <li>Cochez <b>Par sets</b>, puis indiquez :
                 <ul>
-                  <li>les <b>points par set</b> (15 proposé) ;</li>
+                  <li>les <b>points par set</b> de chaque joueur, dans sa fiche (15 proposé ; ils peuvent être différents, par ex. en Coupe de Belgique) ;</li>
                   <li>le nombre de <b>sets gagnants</b> (souvent 2 ou 3).</li>
                 </ul>
               </li>
               <li><b>Reprises inégales</b> se coche toute seule : un set s'arrête dès qu'un joueur atteint ses points, sans reprise d'égalisation.</li>
-              <li>Les points à réaliser de chaque joueur disparaissent : ce sont les <b>points par set</b> qui comptent.</li>
               <li><b>Chrono par coup</b> : le nombre de time-outs choisi vaut <b>par joueur et par set</b>.</li>
             </ol>
             <div class="mh-note orange mt-3"><b>Qui casse ?</b> — le joueur qui commence le 1<sup>er</sup> set garde la <b>bille blanche</b> toute la partie. Le joueur à la bille jaune casse le 2<sup>e</sup> set, et ainsi de suite, à tour de rôle.</div>
