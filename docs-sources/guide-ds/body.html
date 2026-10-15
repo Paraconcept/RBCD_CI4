@@ -207,9 +207,9 @@
             <ul class="steps">
                 <li><b>Nom</b>, date et heure, discipline et format.</li>
                 <li><b>Billards utilisés</b> : les matchs y sont répartis à tour de rôle.</li>
-                <li><b>3 à 7 joueurs</b> : les <b>points à jouer</b> se remplissent d'après leur catégorie.</li>
+                <li><b>3 à 7 joueurs</b> : la liste des catégories indique les <b>points à jouer</b> et la moyenne minimum (ex. « 5 A - 40 - moy. min. 1,538 ») ; les points se remplissent d'après la catégorie.</li>
                 <li><b>Règles</b> : limite de reprises, reprise d'égalisation (le <b>nul</b> est alors possible), chrono.</li>
-                <li>« Créer la finale » génère <b>tous les matchs</b> (3 joueurs : 3 matchs, 4 : 6, 5 : 10, 6 : 15, 7 : 21), dans un ordre qui évite qu'un joueur enchaîne deux matchs.</li>
+                <li>« Créer la finale » génère <b>tous les matchs</b> (3 joueurs : 3 matchs, 4 : 6, 5 : 10, 6 : 15, 7 : 21), dans un ordre qui évite qu'un joueur enchaîne deux matchs. Cet ordre se modifie ensuite sur la page de la finale.</li>
             </ul>
             <div class="note orange"><p>Tant qu'aucun match n'a commencé, tout est modifiable (les matchs sont régénérés) et la finale peut être supprimée avec ses matchs. Ensuite, seuls le nom et la date changent.</p></div>
         </div>
@@ -224,7 +224,9 @@
         <div class="col wide"><img class="shot crop" style="height:158mm" src="img/final_show.png" alt=""></div>
         <div class="col text">
             <ul class="steps">
-                <li>Le jour même, chaque match apparaît sur la page de <b>son billard</b>, dans l'ordre prévu, avec « Démarrer ».</li>
+                <li><b>Ordre des matchs</b> : glissez une ligne par sa poignée <i class="fas fa-grip-vertical"></i> pour la déplacer (ex. faire jouer d'abord deux joueurs du même club). Il est enregistré aussitôt ; les billards des matchs à jouer sont redistribués à tour de rôle.</li>
+                <li>Le bouton <i class="fas fa-pen"></i> d'un match à jouer change son <b>billard</b>, son heure ou ses points à jouer. Réglez l'ordre d'abord : un nouveau glissement redistribue les billards.</li>
+                <li>Le jour même, chaque match apparaît sur la page de <b>son billard</b>, dans cet ordre, avec « Démarrer ».</li>
                 <li><b>Classement</b> mis à jour à chaque match : 2 points de match par victoire, 1 par nul, 0 par défaite.</li>
                 <li><b>Égalité</b> : moyenne proportionnelle, puis meilleure série, puis le match entre les ex æquo.</li>
                 <li><b>Grille des résultats</b> : chaque joueur contre chaque autre (points de match, score, reprises).</li>
