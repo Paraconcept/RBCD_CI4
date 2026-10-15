@@ -73,6 +73,7 @@ class ScoreboardFinalController extends BaseController
             'standings' => ScoreboardFinalModel::standings($players, $matches),
             'grid'      => ScoreboardFinalModel::crossTable($matches),
             'tables'    => $this->tableNames($final),
+            'allTables' => (new ScoreboardTableModel())->getActive(),
             'started'   => $this->model->hasStarted($id),
         ]);
     }
@@ -145,6 +146,44 @@ class ScoreboardFinalController extends BaseController
         }
 
         return redirect()->to(base_url('admin/scoreboard/finals/' . $id) . '#ordre')->with('success', 'Ordre des matchs enregistré.');
+    }
+
+    /**
+     * Billard, horaire et points à jouer d'un match pas encore commencé. Les joueurs restent ceux
+     * générés : les changer fausserait le classement.
+     */
+    public function updateMatch(int $id, int $matchId)
+    {
+        $final = $this->find($id);
+        $back  = redirect()->to(base_url('admin/scoreboard/finals/' . $id) . '#ordre');
+        $match = (new ScoreboardMatchModel())->where('final_id', $final->id)->find($matchId);
+        if (!$match) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        if ($match->status !== 'scheduled') {
+            return $back->with('error', 'Ce match a déjà commencé : il ne peut plus être modifié ici.');
+        }
+
+        $post    = $this->request->getPost();
+        $tableId = (int) ($post['table_id'] ?? 0);
+        if ($tableId > 0 && !(new ScoreboardTableModel())->find($tableId)) {
+            return $back->with('error', 'Billard inconnu.');
+        }
+        $data = ['table_id' => $tableId > 0 ? $tableId : null];
+        foreach (['p1_distance', 'p2_distance'] as $field) {
+            $v = (int) ($post[$field] ?? 0);
+            if ($v < 1 || $v > 9999) {
+                return $back->with('error', 'Les points à jouer doivent être compris entre 1 et 9999.');
+            }
+            $data[$field] = $v;
+        }
+        $date = trim((string) ($post['scheduled_date'] ?? ''));
+        $time = trim((string) ($post['scheduled_time'] ?? '')) ?: '09:00';
+        $data['scheduled_at'] = $date !== '' ? date('Y-m-d H:i:s', strtotime($date . ' ' . $time)) : null;
+
+        (new ScoreboardMatchModel())->update($match->id, $data);
+
+        return $back->with('success', 'Match n°' . (int) $match->final_order . ' modifié.');
     }
 
     public function pdf(int $id)

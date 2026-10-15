@@ -140,7 +140,15 @@ $statusBadge = static fn (string $s): string => match ($s) {
           <td class="text-center"><?= $m->status === 'scheduled' ? '—' : max((int) $m->p1_innings, (int) $m->p2_innings) ?></td>
           <td class="text-center"><?= $statusBadge($m->status) ?></td>
           <td class="text-right text-nowrap">
-            <?php if ($m->status !== 'scheduled'): ?>
+            <?php if ($m->status === 'scheduled'): ?>
+              <button type="button" class="btn btn-xs btn-warning" title="Modifier le match" data-toggle="modal" data-target="#match-edit"
+                      data-action="<?= base_url('admin/scoreboard/finals/' . $final->id . '/matches/' . $m->id) ?>"
+                      data-title="Match n°<?= (int) $m->final_order ?> : <?= esc(M::playerLabel($m, 'p1')) ?> – <?= esc(M::playerLabel($m, 'p2')) ?>"
+                      data-p1="<?= esc(M::playerLabel($m, 'p1')) ?>" data-p2="<?= esc(M::playerLabel($m, 'p2')) ?>"
+                      data-table="<?= (int) $m->table_id ?>" data-p1-distance="<?= (int) $m->p1_distance ?>" data-p2-distance="<?= (int) $m->p2_distance ?>"
+                      data-date="<?= $m->scheduled_at ? date('Y-m-d', strtotime($m->scheduled_at)) : '' ?>"
+                      data-time="<?= $m->scheduled_at ? date('H:i', strtotime($m->scheduled_at)) : '09:00' ?>"><i class="fas fa-pen"></i></button>
+            <?php else: ?>
               <a href="<?= base_url('admin/scoreboard/' . $m->id) ?>" class="btn btn-xs btn-info" title="Feuille de match"><i class="fas fa-list-ol"></i></a>
               <a href="<?= base_url('admin/scoreboard/' . $m->id . '/pdf') ?>" target="_blank" class="btn btn-xs btn-primary" title="Feuille de match PDF"><i class="fas fa-file-pdf"></i></a>
             <?php endif; ?>
@@ -153,12 +161,58 @@ $statusBadge = static fn (string $s): string => match ($s) {
   <div class="card-footer text-muted small">
     <i class="fas fa-arrows-alt-v mr-1"></i>Glissez une ligne par la poignée pour changer l'ordre (ex. faire jouer d'abord deux joueurs du même club) ;
     il est enregistré aussitôt et les billards des matchs à jouer suivent la nouvelle position.<br>
+    <i class="fas fa-pen mr-1"></i>Le bouton <span class="badge badge-warning"><i class="fas fa-pen"></i></span> change le billard, l'heure ou les points à jouer d'un match à jouer
+    (un billard choisi à la main est redistribué si l'on change ensuite l'ordre : réglez l'ordre d'abord).<br>
     <i class="fas fa-tv mr-1"></i>Le jour même, chaque match apparaît sur la page de son billard (marquoir) avec « Démarrer », dans cet ordre.
   </div>
   <form method="post" id="match-order-form" action="<?= base_url('admin/scoreboard/finals/' . $final->id . '/reorder') ?>" class="d-none">
     <?= csrf_field() ?>
     <input type="hidden" name="order">
   </form>
+</div>
+
+<div class="modal fade" id="match-edit" tabindex="-1">
+  <div class="modal-dialog">
+    <form method="post" class="modal-content">
+      <?= csrf_field() ?>
+      <div class="modal-header">
+        <h5 class="modal-title" data-field="title"></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="me_table">Billard</label>
+          <select name="table_id" id="me_table" class="form-control">
+            <option value="0">Au choix</option>
+            <?php foreach ($allTables as $t): ?>
+            <option value="<?= (int) $t->id ?>"><?= esc($t->name) ?> (<?= esc($t->format ?? 'PB') ?>)</option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="me_date">Date et heure</label>
+          <div class="d-flex">
+            <input type="date" name="scheduled_date" id="me_date" class="form-control mr-2">
+            <input type="time" name="scheduled_time" class="form-control" style="max-width:120px">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6 form-group mb-0">
+            <label for="me_p1" data-field="p1"></label>
+            <input type="number" name="p1_distance" id="me_p1" class="form-control" min="1" max="9999" required>
+          </div>
+          <div class="col-6 form-group mb-0">
+            <label for="me_p2" data-field="p2"></label>
+            <input type="number" name="p2_distance" id="me_p2" class="form-control" min="1" max="9999" required>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary"><i class="fas fa-save mr-1"></i>Enregistrer</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div class="card card-outline card-primary" id="commentaire">
@@ -198,5 +252,20 @@ $statusBadge = static fn (string $s): string => match ($s) {
         }
     });
 })();
+
+$('#match-edit').on('show.bs.modal', function (e) {
+    const d = e.relatedTarget.dataset;
+    const f = this.querySelector('form');
+    f.action = d.action;
+    this.querySelector('[data-field="title"]').textContent = d.title;
+    this.querySelector('[data-field="p1"]').textContent = 'Pts à jouer — ' + d.p1;
+    this.querySelector('[data-field="p2"]').textContent = 'Pts à jouer — ' + d.p2;
+    f.elements.table_id.value = d.table || '0';
+    if (!f.elements.table_id.value) f.elements.table_id.value = '0';
+    f.elements.scheduled_date.value = d.date;
+    f.elements.scheduled_time.value = d.time;
+    f.elements.p1_distance.value = d.p1Distance;
+    f.elements.p2_distance.value = d.p2Distance;
+});
 </script>
 <?= $this->endSection() ?>
