@@ -208,7 +208,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
         </div>
       </div>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" name="innings_limit_enabled" id="innings_limit_enabled" value="1"
                    <?= old('innings_limit_enabled', $isEdit && $match->innings_limit ? '1' : '') ? 'checked' : '' ?>>
@@ -220,7 +220,16 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <div class="input-group-append"><span class="input-group-text">reprises</span></div>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+          <div class="custom-control custom-switch">
+            <?php // Par défaut, pas de signature pour les matchs d'une rencontre d'équipe (CDR) ?>
+            <input type="checkbox" class="custom-control-input" name="signature_required" id="signature_required" value="1"
+                   <?= old('signature_required', $isEdit ? $match->signature_required : ($team ? '' : '1')) ? 'checked' : '' ?>>
+            <label class="custom-control-label" for="signature_required">Feuille à signer</label>
+          </div>
+          <small class="text-muted">Coché : les joueurs et l'arbitre peuvent signer la feuille au marquoir en fin de partie.</small>
+        </div>
+        <div class="col-md-3">
           <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" name="unequal_innings" id="unequal_innings" value="1"
                    <?= old('unequal_innings', $match->unequal_innings ?? '') ? 'checked' : '' ?>>
@@ -228,7 +237,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
           </div>
           <small class="text-muted">Coché : le second joueur ne joue pas de reprise d'égalisation.</small>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" name="shot_clock_enabled" id="shot_clock_enabled" value="1"
                    <?= old('shot_clock_enabled', $match->shot_clock_enabled ?? '') ? 'checked' : '' ?>>

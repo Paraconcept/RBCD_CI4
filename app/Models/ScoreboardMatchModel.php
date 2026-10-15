@@ -37,7 +37,7 @@ class ScoreboardMatchModel extends Model
     protected $allowedFields = [
         'type', 'team_encounter_id', 'final_id', 'final_order', 'status', 'table_id', 'scheduled_at', 'competition',
         'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win',
-        'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start',
+        'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'signature_required',
         'p1_member_id', 'p1_final_player_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license',
         'p1_category_id', 'p1_category', 'p1_average_min', 'p1_distance',
         'p1_points', 'p1_innings', 'p1_high_run', 'p1_sets', 'p1_extensions_used',

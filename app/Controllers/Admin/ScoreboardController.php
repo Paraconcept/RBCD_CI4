@@ -240,6 +240,7 @@ class ScoreboardController extends BaseController
         $data['scheduled_at'] = $date !== '' ? date('Y-m-d H:i:s', strtotime($date . ' ' . $time)) : null;
         $competition = trim((string) ($post['competition'] ?? ''));
         $data['competition'] = $competition !== '' ? $competition : null;
+        $data['signature_required'] = !empty($post['signature_required']) ? 1 : 0;
 
         // Le champ n'existe que dans le formulaire d'un match d'équipe : absent, on ne touche pas au rattachement
         if (array_key_exists('team_encounter_id', $post)) {

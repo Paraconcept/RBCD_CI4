@@ -121,7 +121,7 @@ class ScoreboardTeamEncounterModel extends Model
         for ($i = count($matches); $i < $matchesPerEncounter; $i++) {
             $home = $side === 'home' ? null : array_shift($roster);
             $model->insert(array_merge([
-                'type' => 'official', 'team_encounter_id' => $e->id, 'scheduled_at' => $e->scheduled_at,
+                'type' => 'official', 'team_encounter_id' => $e->id, 'scheduled_at' => $e->scheduled_at, 'signature_required' => 0,
                 'discipline' => $e->discipline, 'format' => $e->format,
                 'p1_member_id' => $home->id ?? null, 'p1_license' => $home->frbb_license ?? null,
                 'p1_last_name' => $home ? mb_strtoupper($home->last_name, 'UTF-8') : ($side === 'home' ? 'ABSENT' : 'JOUEUR ' . ($i + 1)),

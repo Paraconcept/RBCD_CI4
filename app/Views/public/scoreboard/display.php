@@ -35,7 +35,7 @@ $config = [
         'edit'  => base_url('marquoir/match/' . $match->id . '/modifier'),
         'list'  => base_url('en-direct'),
         'rematch' => $match->type === 'friendly' && $match->table_id ? base_url('marquoir/match/' . $match->id . '/rejouer') : null,
-        'sign'    => $match->type === 'official' && !$trio && empty($signed) ? base_url('marquoir/match/' . $match->id . '/signer') : null,
+        'sign'    => $match->type === 'official' && !$trio && $match->signature_required && empty($signed) ? base_url('marquoir/match/' . $match->id . '/signer') : null,
     ],
 ];
 ?>

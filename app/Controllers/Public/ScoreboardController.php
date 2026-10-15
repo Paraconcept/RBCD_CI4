@@ -319,7 +319,7 @@ class ScoreboardController extends BaseController
 
     private function signable(object $match): bool
     {
-        return $match->type === 'official' && $match->status === 'finished'
+        return $match->type === 'official' && $match->status === 'finished' && $match->signature_required
             && !ScoreboardMatchModel::isTrio($match) && !$this->signatures->isSigned((int) $match->id);
     }
 

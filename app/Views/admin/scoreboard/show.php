@@ -127,7 +127,7 @@ $ranks = $trio && $match->status === 'finished' ? M::storedRanking($match) : [];
       <?php if ($signature): ?>
       <span class="badge badge-success p-2"><i class="fas fa-file-signature mr-1"></i>Signée le <?= date('d/m/Y à H:i', strtotime($signature->signed_at)) ?> — arbitre : <?= esc($signature->referee_name) ?></span>
       <?php elseif ($match->status === 'finished'): ?>
-      <span class="badge badge-secondary p-2"><i class="fas fa-signature mr-1"></i>Non signée</span>
+      <span class="badge badge-secondary p-2"><i class="fas fa-signature mr-1"></i><?= $match->signature_required ? 'Non signée' : 'Signature non demandée' ?></span>
       <?php endif; ?>
     </span>
     <a href="<?= base_url('admin/scoreboard/' . $match->id . '/pdf') ?>" target="_blank" class="btn btn-primary">
