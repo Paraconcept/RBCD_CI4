@@ -61,10 +61,17 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <span class="text-muted"><?= esc(TE::homeLabel($team)) ?><i class="fas fa-arrows-alt-h mx-2"></i><?= esc(TE::awayLabel($team)) ?></span>
           </div>
           <?php else: ?>
-          <div class="form-group">
-            <label for="competition">Compétition</label>
-            <input type="text" name="competition" id="competition" class="form-control" maxlength="150"
-                   placeholder="ex. Championnat 3 Bandes PF — 2e tour" value="<?= esc($val('competition')) ?>">
+          <div class="form-row">
+            <div class="form-group col-8">
+              <label for="competition">Compétition</label>
+              <input type="text" name="competition" id="competition" class="form-control" maxlength="150"
+                     placeholder="ex. Championnat 3 Bandes PF — 2e tour" value="<?= esc($val('competition')) ?>">
+            </div>
+            <div class="form-group col-4">
+              <label for="match_number">N° de match</label>
+              <input type="text" name="match_number" id="match_number" class="form-control" maxlength="30"
+                     placeholder="calendrier" value="<?= esc($val('match_number')) ?>">
+            </div>
           </div>
           <?php endif; ?>
         </div>

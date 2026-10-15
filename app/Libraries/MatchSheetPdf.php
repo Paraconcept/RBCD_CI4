@@ -66,7 +66,7 @@ class MatchSheetPdf
         if ($sets) {
             $expected = 1;
             $data += self::setsTitles($match) + [
-                'matchNumber' => $match->te_code ?? '',
+                'matchNumber' => $match->match_number ?: ($match->te_code ?? ''),
                 'recipient'   => (string) (new SiteSettingModel())->getSetting('scoreboard_sets_sheet_recipient', self::SETS_RECIPIENT),
             ];
         } else {

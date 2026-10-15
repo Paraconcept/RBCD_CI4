@@ -33,7 +33,7 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
           <td><?= $m->type === 'official' ? '<span class="badge" style="background:#84252B;color:#fff">Officielle</span>' : '<span class="badge badge-secondary">Amicale</span>' ?></td>
           <td>
             <?= esc(M::disciplineLabel($m)) ?> · <?= esc(M::distanceLabel($m)) ?>
-            <?php if ($competition = M::competitionLabel($m)): ?><br><small class="text-muted"><?= esc($competition) ?></small><?php endif; ?>
+            <?php if ($competition = M::competitionLabel($m)): ?><br><small class="text-muted"><?= esc($competition) ?><?= !empty($m->match_number) ? ' · n° ' . esc($m->match_number) : '' ?></small><?php endif; ?>
           </td>
           <td class="<?= $m->winner == 1 ? 'font-weight-bold' : '' ?>">
             <?= esc(M::playerLabel($m, 'p1')) ?><br><small class="text-muted"><?= esc($m->p1_club) ?></small>
