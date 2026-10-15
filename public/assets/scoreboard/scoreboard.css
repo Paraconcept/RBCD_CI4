@@ -453,7 +453,17 @@
     display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .4rem;
     font-family: 'Barlow Condensed', sans-serif; font-size: 1.35rem; font-weight: 600;
 }
-.sb-sign-label.p2 b { color: var(--sb-p2); }
+.sb-sign-role {
+    display: flex; align-items: center; gap: .75rem; text-align: left; padding: .7rem 1rem;
+    background: var(--sb-panel); border: 2px solid var(--sb-line); color: var(--sb-text);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 1.35rem; font-weight: 600; line-height: 1.1;
+}
+.sb-sign-role small { display: block; font-family: 'Barlow', sans-serif; font-size: .9rem; font-weight: 400; color: var(--sb-muted); }
+.sb-sign-role.p2 small { color: var(--sb-p2); }
+.sb-sign-role:hover { background: var(--sb-panel); color: var(--sb-text); border-color: var(--sb-muted); }
+.sb-sign-role.active, .sb-sign-role.active:hover { border-color: var(--sb-red-light); background: rgba(184, 52, 60, .18); color: #fff; }
+.sb-sign-role .sb-sign-check { font-size: 1.4rem; color: var(--sb-muted); }
+.sb-sign-role.signed .sb-sign-check { color: var(--sb-green); }
 .sb-sign-pad {
     display: block; width: 100%; aspect-ratio: 3 / 1; background: #fff; border-radius: 10px;
     border: 3px dashed var(--sb-muted); touch-action: none; cursor: crosshair;
