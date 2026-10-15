@@ -102,7 +102,9 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
   </div>
   <?php
   $nb      = count($purgeable['matches']);
-  $details = [$purgeable['official'] . ' partie(s) officielle(s)', $purgeable['friendly'] . ' partie(s) amicale(s)'];
+  // Le compteur du bouton ne reprend que les officielles : les amicales disparaissent d'elles-mêmes
+  $details = [$purgeable['official'] . ' partie(s) officielle(s)'];
+  if ($purgeable['friendly'])   $details[] = $purgeable['friendly'] . ' partie(s) amicale(s) récente(s)';
   if ($purgeable['encounters']) $details[] = count($purgeable['encounters']) . ' rencontre(s) d\'équipe';
   if ($purgeable['finals'])     $details[] = count($purgeable['finals']) . ' finale(s)';
   ?>
@@ -115,7 +117,7 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
     <form method="post" action="<?= base_url('admin/scoreboard/purge') ?>" class="ml-auto"
           onsubmit="return confirm(<?= esc(json_encode("Nettoyer les rencontres ?\n\nSeront effacées définitivement :\n• " . implode("\n• ", $details) . "\n\nPensez à imprimer ou enregistrer les feuilles utiles avant. Cette action est irréversible."), 'attr') ?>)">
       <?= csrf_field() ?>
-      <button class="btn btn-danger btn-sm text-nowrap" <?= $nb ? '' : 'disabled' ?>><i class="fas fa-broom mr-1"></i>Nettoyer les rencontres<?= $nb ? ' (' . $nb . ')' : '' ?></button>
+      <button class="btn btn-danger btn-sm text-nowrap" <?= $nb ? '' : 'disabled' ?>><i class="fas fa-broom mr-1"></i>Nettoyer les rencontres<?= $purgeable['official'] ? ' (' . $purgeable['official'] . ')' : '' ?></button>
     </form>
   </div>
 </div>
