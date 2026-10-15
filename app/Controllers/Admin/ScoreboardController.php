@@ -116,7 +116,12 @@ class ScoreboardController extends BaseController
 
     public function pdf(int $id)
     {
-        [$pdf, $filename] = MatchSheetPdf::render($this->find($id));
+        $match = $this->find($id);
+        // Pas de feuille de match pour les parties amicales
+        if ($match->type !== 'official') {
+            return redirect()->to(base_url('admin/scoreboard/' . $id));
+        }
+        [$pdf, $filename] = MatchSheetPdf::render($match);
 
         return $this->response
             ->setHeader('Content-Type', 'application/pdf')

@@ -50,7 +50,7 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
           <td class="text-right text-nowrap">
             <?php if ($m->status !== 'scheduled'): ?>
               <a href="<?= base_url('admin/scoreboard/' . $m->id) ?>" class="btn btn-xs btn-info" data-toggle="tooltip" title="Feuille de match"><i class="fas fa-list-ol"></i></a>
-              <?php if (!M::isTrio($m)): ?>
+              <?php if ($m->type === 'official'): ?>
               <a href="<?= base_url('admin/scoreboard/' . $m->id . '/pdf') ?>" target="_blank" class="btn btn-xs btn-primary" data-toggle="tooltip" title="Feuille de match PDF"><i class="fas fa-file-pdf"></i></a>
               <?php endif; ?>
             <?php endif; ?>
