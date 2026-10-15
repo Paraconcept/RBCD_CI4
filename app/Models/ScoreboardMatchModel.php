@@ -173,12 +173,12 @@ class ScoreboardMatchModel extends Model
     }
 
     /**
-     * Les amicales terminées ou annulées n'ont plus d'intérêt après 48 h : effacées (avec leurs reprises) à chaque
+     * Les amicales terminées ou annulées n'ont plus d'intérêt le lendemain : effacées (avec leurs reprises) à chaque
      * passage sur le marquoir ou la liste admin, faute de tâche planifiée.
      */
     public function purgeOldFriendlies(): void
     {
-        $limit = (new \DateTime('now', new \DateTimeZone(self::TIMEZONE)))->modify('-48 hours')->format('Y-m-d H:i:s');
+        $limit = self::now('Y-m-d 00:00:00');
         $this->db->table('scoreboard_matches')
             ->where('type', 'friendly')
             ->whereIn('status', ['finished', 'cancelled'])

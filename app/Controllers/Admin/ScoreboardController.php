@@ -33,7 +33,7 @@ class ScoreboardController extends BaseController
             ->orderBy('scheduled_at', 'ASC')
             ->findAll();
 
-        // Seules les officielles restent jusqu'au nettoyage de fin de saison (les amicales disparaissent après 48 h).
+        // Seules les officielles restent jusqu'au nettoyage de fin de saison (les amicales sont effacées le lendemain).
         $finished = $this->model->withTable()
             ->where('status', 'finished')
             ->where('type', 'official')
