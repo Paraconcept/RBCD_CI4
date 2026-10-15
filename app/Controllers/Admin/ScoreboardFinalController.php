@@ -136,6 +136,17 @@ class ScoreboardFinalController extends BaseController
         return redirect()->to(base_url('admin/scoreboard/finals/' . $id) . '#commentaire')->with('success', 'Commentaire enregistré.');
     }
 
+    public function reorder(int $id)
+    {
+        $final = $this->find($id);
+        $ids   = array_values(array_unique(array_filter(array_map('intval', explode(',', (string) $this->request->getPost('order'))))));
+        if (!$this->model->reorderMatches($final, $ids)) {
+            return redirect()->to(base_url('admin/scoreboard/finals/' . $id))->with('error', 'Ordre des matchs invalide, rechargez la page.');
+        }
+
+        return redirect()->to(base_url('admin/scoreboard/finals/' . $id) . '#ordre')->with('success', 'Ordre des matchs enregistré.');
+    }
+
     public function pdf(int $id)
     {
         $final   = $this->find($id);

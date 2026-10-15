@@ -116,20 +116,21 @@ $statusBadge = static fn (string $s): string => match ($s) {
   <div class="card-footer text-muted small">Points de match du joueur de la ligne contre celui de la colonne, puis son score.</div>
 </div>
 
-<div class="card card-outline card-primary">
+<div class="card card-outline card-primary" id="ordre">
   <div class="card-header"><h3 class="card-title"><i class="fas fa-list-ol mr-2"></i>Ordre des matchs</h3></div>
   <div class="card-body p-0">
     <table class="table table-sm table-bordered table-hover mb-0">
       <thead class="thead-rbcd">
         <tr>
-          <th width="40">#</th><th width="110">Billard</th><th>Joueur</th><th>Joueur</th>
+          <th width="30" class="text-center"><i class="fas fa-arrows-alt-v"></i></th><th width="40">#</th><th width="110">Billard</th><th>Joueur</th><th>Joueur</th>
           <th width="100" class="text-center">Pts à jouer</th><th width="90" class="text-center">Score</th>
           <th width="80" class="text-center">Reprises</th><th width="90" class="text-center">Statut</th><th width="90" class="text-right">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="match-order">
       <?php foreach ($matches as $m): ?>
-        <tr>
+        <tr data-id="<?= (int) $m->id ?>">
+          <td class="text-center align-middle sb-drag" title="Glisser pour changer l'ordre"><i class="fas fa-grip-vertical text-muted"></i></td>
           <td><?= (int) $m->final_order ?></td>
           <td><?= esc($m->table_name ?? 'au choix') ?></td>
           <td class="<?= (int) $m->winner === 1 && $m->status === 'finished' ? 'font-weight-bold' : '' ?>"><?= esc(M::playerLabel($m, 'p1')) ?></td>
@@ -150,8 +151,14 @@ $statusBadge = static fn (string $s): string => match ($s) {
     </table>
   </div>
   <div class="card-footer text-muted small">
+    <i class="fas fa-arrows-alt-v mr-1"></i>Glissez une ligne par la poignée pour changer l'ordre (ex. faire jouer d'abord deux joueurs du même club) ;
+    il est enregistré aussitôt et les billards des matchs à jouer suivent la nouvelle position.<br>
     <i class="fas fa-tv mr-1"></i>Le jour même, chaque match apparaît sur la page de son billard (marquoir) avec « Démarrer », dans cet ordre.
   </div>
+  <form method="post" id="match-order-form" action="<?= base_url('admin/scoreboard/finals/' . $final->id . '/reorder') ?>" class="d-none">
+    <?= csrf_field() ?>
+    <input type="hidden" name="order">
+  </form>
 </div>
 
 <div class="card card-outline card-primary" id="commentaire">
@@ -168,4 +175,28 @@ $statusBadge = static fn (string $s): string => match ($s) {
   </form>
 </div>
 
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<style>
+  .sb-drag { cursor: grab; }
+  .sb-ghost { background: #f8e9ea !important; opacity: .7; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script>
+(function () {
+    const body = document.getElementById('match-order');
+    const form = document.getElementById('match-order-form');
+    if (!body || !form || !window.Sortable) return;
+    Sortable.create(body, {
+        handle: '.sb-drag',
+        animation: 150,
+        ghostClass: 'sb-ghost',
+        onEnd: function (e) {
+            if (e.oldIndex === e.newIndex) return;
+            form.elements.order.value = [...body.querySelectorAll('tr[data-id]')].map((tr) => tr.dataset.id).join(',');
+            form.submit();
+        }
+    });
+})();
+</script>
 <?= $this->endSection() ?>

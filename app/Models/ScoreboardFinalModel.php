@@ -121,6 +121,34 @@ class ScoreboardFinalModel extends Model
     }
 
     /**
+     * Nouvel ordre fixé par le DS. Les billards des matchs pas encore commencés suivent la
+     * nouvelle position (rotation sur les billards cochés), les autres gardent le leur.
+     */
+    public function reorderMatches(object $f, array $matchIds): bool
+    {
+        $current = array_map(static fn ($m) => (int) $m->id, $this->getMatches((int) $f->id));
+        $sorted  = $matchIds;
+        sort($sorted);
+        sort($current);
+        if ($sorted !== $current) {
+            return false;
+        }
+
+        $tables = self::tableIds($f);
+        $this->db->transStart();
+        foreach ($matchIds as $i => $matchId) {
+            $this->db->table('scoreboard_matches')->where('id', $matchId)->update(['final_order' => $i + 1]);
+            if ($tables) {
+                $this->db->table('scoreboard_matches')->where('id', $matchId)->where('status', 'scheduled')
+                         ->update(['table_id' => $tables[$i % count($tables)]]);
+            }
+        }
+        $this->db->transComplete();
+
+        return $this->db->transStatus();
+    }
+
+    /**
      * (Re)crée les matchs de la finale. Seulement tant qu'aucun match n'a commencé.
      */
     public function generateMatches(object $f, ?int $createdBy = null): int

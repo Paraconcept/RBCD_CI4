@@ -363,6 +363,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard/finals/(:num)/update',  'Admin\ScoreboardFinalController::update/$1');
         $routes->post('scoreboard/finals/(:num)/delete',  'Admin\ScoreboardFinalController::delete/$1');
         $routes->post('scoreboard/finals/(:num)/comment', 'Admin\ScoreboardFinalController::comment/$1');
+        $routes->post('scoreboard/finals/(:num)/reorder', 'Admin\ScoreboardFinalController::reorder/$1');
         $routes->get ('scoreboard/finals/(:num)/pdf',     'Admin\ScoreboardFinalController::pdf/$1');
         $routes->get ('scoreboard/players/search',        'Admin\ScoreboardController::searchPlayers');
         $routes->get ('scoreboard/players',               'Admin\ScoreboardSetupController::players');

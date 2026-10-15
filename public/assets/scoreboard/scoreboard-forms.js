@@ -135,7 +135,7 @@
                     rows.forEach(function (c) {
                         const o = document.createElement('option');
                         o.value = c.id;
-                        o.textContent = c.label + ' — moy. min. ' + fmt(c.avg_min);
+                        o.textContent = c.label + (c.points ? ' - ' + c.points : '') + ' - moy. min. ' + fmt(c.avg_min);
                         o.selected = String(c.id) === String(current) || (!current && known[mode] === c.code);
                         parent.appendChild(o);
                     });
