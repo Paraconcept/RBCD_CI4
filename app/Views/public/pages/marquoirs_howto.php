@@ -75,6 +75,9 @@
 .mh-key.menu { background: #0d9488; }
 .mh-key.pause { background: #eab308; color: #0a1020; }
 .mh-key.zero { grid-column: span 2; }
+.mh-key.bar { background: #fde047; color: #0a1020; }
+.mh-key.bar svg { width: 1.7rem; height: 1.7rem; }
+.mh-legend .sw svg { width: 1.2rem; height: 1.2rem; }
 .mh-legend { display: grid; grid-template-columns: 64px 1fr; gap: .7rem .9rem; align-items: center; }
 .mh-legend .sw { height: 38px; border-radius: 8px; color: #fff; display: grid; place-items: center; font-family: 'Barlow Condensed'; font-weight: 800; font-size: 1.2rem; }
 .mh-legend b { font-family: 'Barlow Condensed'; font-size: 1.2rem; color: var(--navy); display: block; line-height: 1.1; }
@@ -220,7 +223,7 @@
         <div class="row g-4 align-items-start">
           <div class="col-lg-4">
             <div class="mh-pad">
-              <div class="mh-key off">Num<small>Lock</small></div>
+              <div class="mh-key bar"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.5 2h13l-.5 6.3a6 6 0 0 1-11.9 0z"/><rect x="11" y="13.6" width="2" height="5.6"/><path d="M6.8 22c0-1.3 2.3-2.3 5.2-2.3s5.2 1 5.2 2.3z"/></svg><small>appel bar</small></div>
               <div class="mh-key slash">/<small>effacer</small></div>
               <div class="mh-key star">*<small>chrono</small></div>
               <div class="mh-key menu">⌫<small>menu</small></div>
@@ -243,6 +246,7 @@
               <div class="sw" style="background:#64748b">/</div><div><b>Effacer la saisie</b>Annule une série tapée par erreur, avant <kbd>Entrée</kbd>.</div>
               <div class="sw" style="background:#0284c7">*</div><div><b>Chrono</b>Lance ou met en pause le chrono par coup (et lance l'échauffement).</div>
               <div class="sw" style="background:#eab308;color:#0a1020">.</div><div><b>Pause</b>Affiche « Pause » en grand sur la TV (et en direct sur Internet) et arrête le chrono. Appuyez à nouveau sur <kbd>.</kbd> pour reprendre.</div>
+              <div class="sw" style="background:#fde047;color:#0a1020"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.5 2h13l-.5 6.3a6 6 0 0 1-11.9 0z"/><rect x="11" y="13.6" width="2" height="5.6"/><path d="M6.8 22c0-1.3 2.3-2.3 5.2-2.3s5.2 1 5.2 2.3z"/></svg></div><div><b>Appel du bar</b>Touche <kbd>Verr. Num</kbd>, puis <kbd>Entrée</kbd> pour confirmer (<kbd>⌫</kbd> pour renoncer). Le billard s'allume sur la tablette du bar et le barman vient prendre la commande.</div>
               <div class="sw" style="background:#0d9488">⌫</div><div><b>Menu</b>Corriger une reprise, modifier la partie en cours, plein écran, inverser les joueurs, retour au billard, annuler la partie. Dans le menu : <kbd>8</kbd> <kbd>2</kbd> pour se déplacer, <kbd>Entrée</kbd> pour valider, <kbd>⌫</kbd> pour fermer.</div>
             </div>
           </div>
