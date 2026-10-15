@@ -38,19 +38,25 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
           <td class="<?= $m->winner == 1 ? 'font-weight-bold' : '' ?>">
             <?= esc(M::playerLabel($m, 'p1')) ?><br><small class="text-muted"><?= esc($m->p1_club) ?></small>
           </td>
-          <td class="text-center align-middle"><?= $m->status === 'scheduled' ? '—' : M::score($m, 'p1') . ' – ' . M::score($m, 'p2') . (M::isSets($m) ? ' sets' : '') ?></td>
-          <td class="<?= $m->winner == 2 ? 'font-weight-bold' : '' ?>">
-            <?= esc(M::playerLabel($m, 'p2')) ?><br><small class="text-muted"><?= esc($m->p2_club) ?></small>
+          <td class="text-center align-middle"><?= $m->status === 'scheduled' ? '—' : implode(' – ', array_map(static fn ($p) => M::score($m, $p), M::playerKeys($m))) . (M::isSets($m) ? ' sets' : '') ?></td>
+          <td>
+            <?php foreach (array_slice(M::playerKeys($m), 1) as $i => $p): ?>
+            <div class="<?= $m->winner == $i + 2 ? 'font-weight-bold' : '' ?>"><?= esc(M::playerLabel($m, $p)) ?><br><small class="text-muted"><?= esc($m->{$p . '_club'}) ?></small></div>
+            <?php endforeach; ?>
           </td>
-          <td class="text-center align-middle"><?= $m->status === 'scheduled' ? '—' : max((int) $m->p1_innings, (int) $m->p2_innings) ?></td>
+          <td class="text-center align-middle"><?= $m->status === 'scheduled' ? '—' : max(array_map(static fn ($p) => (int) $m->{$p . '_innings'}, M::playerKeys($m))) ?></td>
           <td><?= esc($m->table_name ?? '—') ?></td>
           <td class="text-center"><?= $statusBadge($m->status) ?></td>
           <td class="text-right text-nowrap">
             <?php if ($m->status !== 'scheduled'): ?>
               <a href="<?= base_url('admin/scoreboard/' . $m->id) ?>" class="btn btn-xs btn-info" data-toggle="tooltip" title="Feuille de match"><i class="fas fa-list-ol"></i></a>
+              <?php if (!M::isTrio($m)): ?>
               <a href="<?= base_url('admin/scoreboard/' . $m->id . '/pdf') ?>" target="_blank" class="btn btn-xs btn-primary" data-toggle="tooltip" title="Feuille de match PDF"><i class="fas fa-file-pdf"></i></a>
+              <?php endif; ?>
             <?php endif; ?>
+            <?php if (!M::isTrio($m)): ?>
             <a href="<?= base_url('admin/scoreboard/' . $m->id . '/edit') ?>" class="btn btn-xs btn-warning" data-toggle="tooltip" title="Modifier"><i class="fas fa-pen"></i></a>
+            <?php endif; ?>
             <?php if ($m->status !== 'scheduled' && $m->type === 'official'): ?>
               <form method="post" action="<?= base_url('admin/scoreboard/' . $m->id . '/reset') ?>" class="d-inline"
                     onsubmit="return confirm('Remettre cette rencontre à zéro ? Toutes les reprises seront effacées.')">

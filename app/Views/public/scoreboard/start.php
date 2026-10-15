@@ -4,6 +4,86 @@
 <span class="sb-topbar-title"><?= esc($table->name) ?></span>
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
+<?php if ($trio): ?>
+<h1 class="sb-title text-center mb-1" id="trioTitle">Qui commence la partie ?</h1>
+<p class="text-center text-secondary mb-4">
+    <?= esc(M::disciplineLabel($match)) ?> · <?= esc(M::distanceLabel($match)) ?>
+    <?= $match->innings_limit ? ' · limite ' . (int) $match->innings_limit . ' reprises' : '' ?>
+    <br><kbd>1</kbd> <kbd>2</kbd> ou <kbd>3</kbd> au pavé numérique, ou cliquez.
+    <br><span id="trioHint">Ensuite : qui joue en 2<sup>e</sup> ? Le 3<sup>e</sup> se déduit.</span>
+</p>
+<form method="post" id="startForm" action="<?= base_url('marquoir/billard/' . $table->id . '/demarrer/' . $match->id) ?>">
+    <input type="hidden" name="order" id="order">
+    <div class="row g-4 justify-content-center sb-starters">
+        <?php foreach ([1, 2, 3] as $n): $p = 'p' . $n; ?>
+        <div class="col-md-4">
+            <button type="button" class="sb-starter sb-starter-n" data-player="<?= $n ?>">
+                <span class="sb-starter-key"><?= $n ?></span>
+                <span class="sb-starter-name"><?= esc($match->{$p . '_last_name'}) ?></span>
+                <span class="sb-starter-first"><?= esc($match->{$p . '_first_name'}) ?></span>
+                <span class="badge bg-sb mt-2 fs-6"><?= (int) $match->{$p . '_distance'} ?> points à réaliser</span>
+                <span class="sb-starter-rank" data-rank></span>
+            </button>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</form>
+<div class="text-center mt-4">
+    <a href="<?= base_url('marquoir/billard/' . $table->id) ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>Retour</a>
+    <button type="button" class="btn btn-outline-light ms-2" id="trioReset" hidden><i class="fas fa-rotate-left me-2"></i>Recommencer le choix <kbd class="ms-1">−</kbd></button>
+</div>
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<script>
+(function () {
+    const form = document.getElementById('startForm');
+    const buttons = [...document.querySelectorAll('.sb-starter')];
+    const picked = [];
+    let sent = false;
+
+    function render() {
+        document.getElementById('trioTitle').textContent = picked.length === 0 ? 'Qui commence la partie ?' : 'Qui joue en 2e ?';
+        document.getElementById('trioReset').hidden = picked.length === 0;
+        buttons.forEach(function (b) {
+            const i = picked.indexOf(Number(b.dataset.player));
+            b.disabled = i !== -1;
+            b.classList.toggle('sb-starter-picked', i !== -1);
+            b.querySelector('[data-rank]').textContent = i === 0 ? 'Commence (bille blanche)' : i === 1 ? 'Joue en 2e (bille jaune)' : '';
+        });
+    }
+
+    function choose(n) {
+        if (sent || picked.indexOf(n) !== -1) return;
+        picked.push(n);
+        if (picked.length === 2) {
+            picked.push([1, 2, 3].find((x) => picked.indexOf(x) === -1));
+            sent = true;
+            render();
+            document.getElementById('order').value = picked.join(',');
+            setTimeout(() => form.submit(), 400);
+            return;
+        }
+        render();
+    }
+
+    function reset() {
+        if (sent) return;
+        picked.length = 0;
+        render();
+    }
+
+    buttons.forEach(b => b.addEventListener('click', () => choose(Number(b.dataset.player))));
+    document.getElementById('trioReset').addEventListener('click', reset);
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'NumpadSubtract' || e.key === '-' || e.key === 'Backspace') { e.preventDefault(); reset(); return; }
+        const k = e.code.replace('Numpad', '').replace('Digit', '');
+        if (k === '1' || k === '2' || k === '3') choose(Number(k));
+    });
+    render();
+})();
+</script>
+<?= $this->endSection() ?>
+<?php else: ?>
 <h1 class="sb-title text-center mb-1">Qui commence la partie ?</h1>
 <p class="text-center text-secondary mb-4">
     <?= esc(M::disciplineLabel($match)) ?> · <?= esc(M::distanceLabel($match)) ?>
@@ -137,3 +217,4 @@
 })();
 </script>
 <?= $this->endSection() ?>
+<?php endif; ?>

@@ -2,6 +2,9 @@
 use App\Models\ScoreboardMatchModel as M;
 
 $sets = M::isSets($match);
+$trio = M::isTrio($match);
+// Amicales : ni club ni catégorie à l'encodage, on garde tels quels ceux d'une ancienne partie
+$friendly = $match->type === 'friendly';
 $val  = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
 ?>
 <?= $this->extend('public/scoreboard/layout') ?>
@@ -17,11 +20,16 @@ $val  = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
 <form method="post" action="<?= base_url('marquoir/match/' . $match->id . '/modifier') ?>" autocomplete="off">
     <input type="hidden" id="discipline" value="<?= esc($match->discipline) ?>">
     <input type="hidden" id="format" value="<?= esc($match->format) ?>">
+    <input type="hidden" name="players" value="<?= M::playerCount($match) ?>">
     <div class="row g-4">
-        <?php foreach (['p1' => 'Joueur 1', 'p2' => 'Joueur 2'] as $p => $label): $n = (int) substr($p, 1); ?>
-        <div class="col-md-6">
+        <?php foreach (M::playerNumbers($match) as $n): $p = 'p' . $n; ?>
+        <div class="<?= $trio ? 'col-lg-4' : 'col-md-6' ?>">
             <div class="sb-card h-100">
-                <h2 class="h5 mb-3" style="color:var(--sb-<?= $p ?>)"><?= $label ?> <small class="text-secondary">(bille <?= $n === 1 ? 'blanche' : 'jaune' ?>)</small></h2>
+                <?php if ($trio): ?>
+                <h2 class="h5 mb-3">Joueur <?= $n ?> <small class="text-secondary">(joue en <?= $n === 1 ? '1er' : $n . 'e' ?>)</small></h2>
+                <?php else: ?>
+                <h2 class="h5 mb-3" style="color:var(--sb-<?= $p ?>)">Joueur <?= $n ?> <small class="text-secondary">(bille <?= $n === 1 ? 'blanche' : 'jaune' ?>)</small></h2>
+                <?php endif; ?>
                 <input type="hidden" name="<?= $p ?>_member_id" value="<?= esc($val($p . '_member_id')) ?>">
                 <input type="hidden" name="<?= $p ?>_license" value="<?= esc($val($p . '_license')) ?>">
                 <div class="mb-3 position-relative">
@@ -35,22 +43,29 @@ $val  = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
                     <input type="text" name="<?= $p ?>_first_name" class="form-control form-control-lg" required value="<?= esc($val($p . '_first_name')) ?>">
                 </div>
                 <div class="row g-3">
+                    <?php if ($friendly): ?>
+                    <input type="hidden" name="<?= $p ?>_club" value="<?= esc($val($p . '_club')) ?>">
+                    <input type="hidden" name="<?= $p ?>_category_id" value="<?= esc($val($p . '_category_id')) ?>">
+                    <?php else: ?>
                     <div class="<?= $sets ? 'col-12' : 'col-8' ?>">
                         <label class="form-label">Club</label>
                         <input type="text" name="<?= $p ?>_club" class="form-control form-control-lg" value="<?= esc($val($p . '_club')) ?>">
                     </div>
+                    <?php endif; ?>
                     <?php if (!$sets): ?>
-                    <div class="col-4">
+                    <div class="<?= $friendly ? 'col-12' : 'col-4' ?>">
                         <label class="form-label">Points à réaliser <span class="text-danger">*</span></label>
                         <input type="number" name="<?= $p ?>_distance" min="<?= max(1, $scored[$n]) ?>" max="9999" required class="form-control form-control-lg" value="<?= esc($val($p . '_distance')) ?>">
                         <small class="text-secondary">Déjà marqués : <?= $scored[$n] ?></small>
                     </div>
                     <?php endif; ?>
+                    <?php if (!$friendly): ?>
                     <div class="col-12">
                         <label class="form-label">Catégorie</label>
                         <select name="<?= $p ?>_category_id" class="form-select form-select-lg" data-sb-category="<?= $p ?>"
                                 data-selected="<?= esc($val($p . '_category_id')) ?>"></select>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

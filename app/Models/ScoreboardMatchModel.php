@@ -44,6 +44,9 @@ class ScoreboardMatchModel extends Model
         'p2_member_id', 'p2_final_player_id', 'p2_last_name', 'p2_first_name', 'p2_club', 'p2_license',
         'p2_category_id', 'p2_category', 'p2_average_min', 'p2_distance',
         'p2_points', 'p2_innings', 'p2_high_run', 'p2_sets', 'p2_extensions_used',
+        'p3_member_id', 'p3_last_name', 'p3_first_name', 'p3_club', 'p3_license',
+        'p3_category_id', 'p3_category', 'p3_average_min', 'p3_distance',
+        'p3_points', 'p3_innings', 'p3_high_run',
         'starting_player', 'current_run', 'paused', 'winner', 'absent', 'comment', 'rev',
         'started_at', 'finished_at', 'created_by',
     ];
@@ -103,14 +106,19 @@ class ScoreboardMatchModel extends Model
         }
         ksort($bySet);
 
+        $count   = self::playerCount($match);
         $innings = [];
         foreach ($bySet as $setNo => $byPlayer) {
             $first = self::setStarter($starter, $setNo);
-            $other = $first === 1 ? 2 : 1;
-            $count = max(count($byPlayer[1] ?? []), count($byPlayer[2] ?? []));
-            for ($n = 1; $n <= $count; $n++) {
-                if (isset($byPlayer[$first][$n])) $innings[] = $byPlayer[$first][$n];
-                if (isset($byPlayer[$other][$n])) $innings[] = $byPlayer[$other][$n];
+            $order = [];
+            for ($k = 0; $k < $count; $k++) {
+                $order[] = ($first - 1 + $k) % $count + 1;
+            }
+            $rounds = max(array_map(static fn ($p) => count($byPlayer[$p] ?? []), $order));
+            for ($n = 1; $n <= $rounds; $n++) {
+                foreach ($order as $p) {
+                    if (isset($byPlayer[$p][$n])) $innings[] = $byPlayer[$p][$n];
+                }
             }
         }
 
@@ -235,12 +243,15 @@ class ScoreboardMatchModel extends Model
     {
         $errors = [];
         $data   = [];
-        $sets   = !empty($in['sets_enabled']);
+        // Partie amicale à 3 : jamais par sets, sans chrono
+        $trio   = (int) ($in['players'] ?? 2) === 3;
+        $keys   = $trio ? ['p1', 'p2', 'p3'] : ['p1', 'p2'];
+        $sets   = !$trio && !empty($in['sets_enabled']);
         // Forfait (rencontres d'équipe) : un joueur absent n'a besoin ni de nom ni de points à réaliser
         $absent = (!empty($in['p1_absent']) ? 1 : 0) | (!empty($in['p2_absent']) ? 2 : 0);
         $data['absent'] = $absent;
 
-        foreach (['p1', 'p2'] as $i => $p) {
+        foreach ($keys as $i => $p) {
             $last  = mb_strtoupper(trim((string) ($in[$p . '_last_name'] ?? '')), 'UTF-8');
             $first = trim((string) ($in[$p . '_first_name'] ?? ''));
             $club  = trim((string) ($in[$p . '_club'] ?? ''));
@@ -280,7 +291,7 @@ class ScoreboardMatchModel extends Model
         $data['format'] = $format;
 
         $modes = FrbbCategoryModel::gameModesFor($discipline, $format);
-        foreach (['p1', 'p2'] as $i => $p) {
+        foreach ($keys as $i => $p) {
             $data[$p . '_category_id'] = $data[$p . '_category'] = $data[$p . '_average_min'] = null;
             $categoryId = (int) ($in[$p . '_category_id'] ?? 0);
             if ($categoryId <= 0) {
@@ -326,7 +337,7 @@ class ScoreboardMatchModel extends Model
             $data['unequal_innings'] = 1;
             $data['innings_limit']   = null;
         }
-        $data['shot_clock_enabled'] = !empty($in['shot_clock_enabled']) ? 1 : 0;
+        $data['shot_clock_enabled'] = !$trio && !empty($in['shot_clock_enabled']) ? 1 : 0;
         $seconds = (int) ($in['shot_clock_seconds'] ?? 40);
         $data['shot_clock_seconds'] = max(5, min(300, $seconds ?: 40));
         $data['shot_clock_extensions'] = max(0, min(10, (int) ($in['shot_clock_extensions'] ?? 3)));
@@ -343,7 +354,10 @@ class ScoreboardMatchModel extends Model
     public static function rememberExternalPlayers(array $data): void
     {
         $players = new ScoreboardPlayerModel();
-        foreach (['p1', 'p2'] as $i => $p) {
+        foreach (['p1', 'p2', 'p3'] as $i => $p) {
+            if (!array_key_exists($p . '_last_name', $data)) {
+                continue;
+            }
             if ($data[$p . '_member_id'] === null && !((int) ($data['absent'] ?? 0) & ($i + 1))) {
                 $cat = !empty($data[$p . '_category_id']) ? (new FrbbCategoryModel())->find($data[$p . '_category_id']) : null;
                 $players->remember($data[$p . '_last_name'], $data[$p . '_first_name'], $data[$p . '_club'], $data[$p . '_license'] ?? null,
@@ -364,7 +378,7 @@ class ScoreboardMatchModel extends Model
             return (int) $match->rev;
         }
 
-        $totals = [1 => ['points' => 0, 'innings' => 0, 'high' => 0], 2 => ['points' => 0, 'innings' => 0, 'high' => 0]];
+        $totals = array_fill_keys(self::playerNumbers($match), ['points' => 0, 'innings' => 0, 'high' => 0]);
         $walk   = self::walkInnings($match, array_map('intval', array_values((array) ($state['innings'] ?? []))));
         $rows   = [];
 
@@ -393,14 +407,19 @@ class ScoreboardMatchModel extends Model
             'paused'      => !empty($state['paused']) && empty($state['finished']) ? 1 : 0,
             'rev'         => $rev,
         ];
+        if (self::isTrio($match)) {
+            $update += ['p3_points' => $totals[3]['points'], 'p3_innings' => $totals[3]['innings'], 'p3_high_run' => $totals[3]['high']];
+        }
 
         if (!empty($state['finished'])) {
             $update['status']      = 'finished';
             $update['finished_at'] = self::now();
             $update['current_run'] = 0;
-            $update['winner']      = self::isSets($match)
+            $update['winner']      = self::isTrio($match)
+                ? self::trioWinner($match, $totals)
+                : (self::isSets($match)
                 ? match ($walk['won'][1] <=> $walk['won'][2]) { 1 => 1, -1 => 2, default => 0 }
-                : self::winnerOf($match, $totals[1]['points'], $totals[1]['innings'], $totals[2]['points'], $totals[2]['innings']);
+                : self::winnerOf($match, $totals[1]['points'], $totals[1]['innings'], $totals[2]['points'], $totals[2]['innings']));
         } elseif ($match->status === 'finished') {
             // Correction après la fin (touche « - » sur l'écran de résultat) : la partie reprend
             $update['status']      = 'live';
@@ -424,6 +443,29 @@ class ScoreboardMatchModel extends Model
         return !empty($m->sets_to_win);
     }
 
+    /** Partie amicale à 3 joueurs (rotation 1 → 2 → 3). */
+    public static function isTrio(object $m): bool
+    {
+        return !empty($m->p3_last_name);
+    }
+
+    public static function playerCount(object $m): int
+    {
+        return self::isTrio($m) ? 3 : 2;
+    }
+
+    /** @return list<int> */
+    public static function playerNumbers(object $m): array
+    {
+        return range(1, self::playerCount($m));
+    }
+
+    /** @return list<string> ex. ['p1', 'p2', 'p3'] */
+    public static function playerKeys(object $m): array
+    {
+        return array_map(static fn (int $n): string => 'p' . $n, self::playerNumbers($m));
+    }
+
     /** Joueur qui casse un set : celui qui a commencé la partie garde la bille blanche, les sets alternent. */
     public static function setStarter(int $starter, int $setNo): int
     {
@@ -433,7 +475,8 @@ class ScoreboardMatchModel extends Model
     /**
      * Découpe les séries chronologiques en reprises numérotées (par set en jeu par sets).
      * Un set s'arrête dès qu'un joueur atteint ses points (reprises inégales), le suivant
-     * est cassé par l'autre joueur. Doit rester identique à walk() de scoreboard-display.js.
+     * est cassé par l'autre joueur. À 3 joueurs, rotation 1 → 2 → 3 depuis celui qui casse.
+     * Doit rester identique à walk() de scoreboard-display.js.
      *
      * @return array{rows: list<array{set:int, inning:int, player:int, points:int}>, won: array{1:int, 2:int}}
      */
@@ -441,15 +484,19 @@ class ScoreboardMatchModel extends Model
     {
         $starter = (int) ($m->starting_player ?: 1);
         $toWin   = (int) ($m->sets_to_win ?? 0);
-        $dist    = [1 => (int) $m->p1_distance, 2 => (int) $m->p2_distance];
+        $count   = self::playerCount($m);
+        $dist    = [];
+        foreach (self::playerNumbers($m) as $n) {
+            $dist[$n] = (int) $m->{'p' . $n . '_distance'};
+        }
         $won     = [1 => 0, 2 => 0];
         $rows    = [];
 
         $set = 1; $inSet = 0;
-        $pts = [1 => 0, 2 => 0]; $inn = [1 => 0, 2 => 0];
+        $pts = array_fill_keys(array_keys($dist), 0); $inn = $pts;
         foreach ($innings as $v) {
             $first  = self::setStarter($starter, $set);
-            $player = $inSet % 2 === 0 ? $first : ($first === 1 ? 2 : 1);
+            $player = ($first - 1 + $inSet) % $count + 1;
             $v      = max(0, (int) $v);
             $pts[$player] += $v;
             $inn[$player]++;
@@ -477,7 +524,7 @@ class ScoreboardMatchModel extends Model
     {
         $walk = self::walkInnings($m, $this->stateFor($m)['innings']);
         $set  = $walk['rows'] ? end($walk['rows'])['set'] : 1;
-        $pts  = [1 => 0, 2 => 0];
+        $pts  = array_fill_keys(self::playerNumbers($m), 0);
         foreach ($walk['rows'] as $r) {
             if ($r['set'] === $set) {
                 $pts[$r['player']] += $r['points'];
@@ -538,6 +585,56 @@ class ScoreboardMatchModel extends Model
         return $min > 0 && $innings > 0 ? ($points / $innings) / $min : null;
     }
 
+    /**
+     * Classement d'une partie à 3 : [joueur => rang] (1 = premier, ex æquo possibles).
+     * Même règle que winnerOf() : distance atteinte par quelqu'un → pourcentage de la distance ;
+     * sinon (limite de reprises) moyenne proportionnelle si tous ont une catégorie.
+     * $totals : [joueur => ['points' => …, 'innings' => …]]. Doit rester identique à ranking() de scoreboard-display.js.
+     */
+    public static function ranking(object $m, array $totals): array
+    {
+        $reached = false;
+        $prop    = [];
+        foreach ($totals as $n => $t) {
+            $reached = $reached || $t['points'] >= (int) $m->{'p' . $n . '_distance'};
+            $prop[$n] = self::proportionalAverage($m, 'p' . $n, $t['points'], $t['innings']);
+        }
+        $useProp = !$reached && !in_array(null, $prop, true);
+
+        $cmp = static function (int $a, int $b) use ($m, $totals, $prop, $useProp): int {
+            if ($useProp) {
+                return round($prop[$a], 9) <=> round($prop[$b], 9);
+            }
+            return ($totals[$a]['points'] * (int) $m->{'p' . $b . '_distance'}) <=> ($totals[$b]['points'] * (int) $m->{'p' . $a . '_distance'});
+        };
+
+        $ranks = [];
+        foreach (array_keys($totals) as $a) {
+            $ranks[$a] = 1;
+            foreach (array_keys($totals) as $b) {
+                if ($a !== $b && $cmp($b, $a) > 0) $ranks[$a]++;
+            }
+        }
+        return $ranks;
+    }
+
+    /** Vainqueur d'une partie à 3 : seul premier du classement, 0 si ex æquo en tête. */
+    public static function trioWinner(object $m, array $totals): int
+    {
+        $first = array_keys(self::ranking($m, $totals), 1, true);
+        return count($first) === 1 ? $first[0] : 0;
+    }
+
+    /** Classement d'une partie à 3 terminée, d'après les totaux enregistrés. */
+    public static function storedRanking(object $m): array
+    {
+        $totals = [];
+        foreach ([1, 2, 3] as $n) {
+            $totals[$n] = ['points' => (int) $m->{'p' . $n . '_points'}, 'innings' => (int) $m->{'p' . $n . '_innings'}];
+        }
+        return self::ranking($m, $totals);
+    }
+
     /** Vrai si la partie terminée a été départagée à la moyenne proportionnelle. */
     public static function decidedByProportional(object $m): bool
     {
@@ -593,8 +690,9 @@ class ScoreboardMatchModel extends Model
 
     /**
      * Le joueur qui commence devient toujours le joueur 1 (à gauche, chiffres blancs).
+     * $order : à 3 joueurs, ordre de jeu complet (anciens numéros), ex. [2, 3, 1].
      */
-    public function startWith(object $match, int $starter, int $tableId): void
+    public function startWith(object $match, int $starter, int $tableId, array $order = []): void
     {
         $data = [
             'status'          => 'live',
@@ -603,11 +701,48 @@ class ScoreboardMatchModel extends Model
             'started_at'      => self::now(),
         ];
 
-        if ($starter === 2) {
+        if (self::isTrio($match)) {
+            $data += self::permutedPlayers($match, $order);
+        } elseif ($starter === 2) {
             $data += self::swappedPlayers($match);
         }
 
         $this->update($match->id, $data);
+    }
+
+    /**
+     * Partie à 3 démarrée par erreur dans le mauvais ordre : tant qu'aucun coup n'est joué, elle redevient
+     * « prévue » pour repasser par « Qui commence ? ».
+     */
+    public function backToOrderChoice(object $match): bool
+    {
+        $played = $this->db->table('scoreboard_innings')->where('match_id', $match->id)->countAllResults();
+        if (!self::isTrio($match) || $match->status !== 'live' || $played > 0 || (int) $match->current_run > 0) {
+            return false;
+        }
+
+        $this->update($match->id, ['status' => 'scheduled', 'started_at' => null, 'paused' => 0, 'rev' => (int) $match->rev + 1]);
+
+        return true;
+    }
+
+    /** Ordre de jeu valide à 3 : une permutation de 1, 2, 3. */
+    public static function validOrder(array $order): bool
+    {
+        $sorted = array_map('intval', $order);
+        sort($sorted);
+        return $sorted === [1, 2, 3];
+    }
+
+    private static function permutedPlayers(object $match, array $order): array
+    {
+        $data = [];
+        foreach (array_values($order) as $i => $from) {
+            foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'category_id', 'category', 'average_min', 'distance'] as $f) {
+                $data['p' . ($i + 1) . '_' . $f] = $match->{'p' . (int) $from . '_' . $f};
+            }
+        }
+        return $data;
     }
 
     /**
@@ -696,9 +831,8 @@ class ScoreboardMatchModel extends Model
             return (int) $m->sets_to_win . ' set' . ((int) $m->sets_to_win > 1 ? 's' : '') . ' gagnant' . ((int) $m->sets_to_win > 1 ? 's' : '')
                  . ' de ' . (int) $m->p1_distance . ' pts';
         }
-        return (int) $m->p1_distance === (int) $m->p2_distance
-            ? $m->p1_distance . ' pts'
-            : $m->p1_distance . ' / ' . $m->p2_distance . ' pts';
+        $dist = array_map(static fn (string $p): int => (int) $m->{$p . '_distance'}, self::playerKeys($m));
+        return count(array_unique($dist)) === 1 ? $dist[0] . ' pts' : implode(' / ', $dist) . ' pts';
     }
 
     public static function playerLabel(object $m, string $p): string

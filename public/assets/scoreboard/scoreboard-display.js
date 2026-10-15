@@ -8,6 +8,7 @@
  *   extPrev : par sets, time-outs des sets terminés, pour les rendre si une correction rouvre un set
  *   paused  : écran « Pause » affiché (aussi chez les spectateurs)
  *   rev     : version, incrémentée à chaque modification
+ * À 3 joueurs (amicale), les séries tournent 1 → 2 → 3 ; pas de sets ni de chrono.
  * Il est gardé dans le navigateur (survit à un rechargement / une coupure Internet)
  * et poussé au serveur dès que possible ; la version la plus récente l'emporte.
  */
@@ -15,6 +16,8 @@
     'use strict';
 
     const C = window.SB_CONFIG;
+    const N = C.count || 2;
+    const PLAYERS = N === 3 ? [1, 2, 3] : [1, 2];
     const S = C.starter;
     const O = S === 1 ? 2 : 1;
     const dist = (p) => C.distances[p];
@@ -24,12 +27,14 @@
 
     const $ = (id) => document.getElementById(id);
     const root = $('sbd');
-    const panels = { 1: $('sbdPlayer1'), 2: $('sbdPlayer2') };
+    const panels = {};
+    PLAYERS.forEach(function (p) { panels[p] = $('sbdPlayer' + p); });
+    const zeros = () => { const o = {}; PLAYERS.forEach(function (p) { o[p] = 0; }); return o; };
 
     let st = loadState();
     let buffer = '';
     let syncedRev = C.server.rev;
-    let lastScores = { 1: null, 2: null };
+    let lastScores = {};
     // N° du set qui vient de se terminer, tant que l'arbitre n'a pas lancé le suivant (Entrée)
     let setBreak = null;
 
@@ -55,7 +60,8 @@
 
     // Le joueur qui casse le 1er set garde la bille blanche ; les sets sont cassés à tour de rôle
     const setStarter = (n) => (n % 2 === 1 ? S : O);
-    const other = (p) => (p === 1 ? 2 : 1);
+    // Joueur de la k-ième série d'un set (k depuis 0) : rotation à partir de celui qui casse
+    const seriesPlayer = (first, k) => (first - 1 + k) % N + 1;
 
     /*
      * Découpe les séries en reprises (set, n° de reprise dans le set, joueur).
@@ -64,17 +70,16 @@
      */
     function walk() {
         const rows = [], won = { 1: 0, 2: 0 };
-        let set = 1, inSet = 0, pts = { 1: 0, 2: 0 }, inn = { 1: 0, 2: 0 }, over = false;
+        let set = 1, inSet = 0, pts = zeros(), inn = zeros(), over = false;
         st.innings.forEach(function (v) {
             if (over) return;
-            const first = setStarter(set);
-            const p = inSet % 2 === 0 ? first : other(first);
+            const p = seriesPlayer(setStarter(set), inSet);
             pts[p] += v; inn[p]++; inSet++;
             rows.push({ set: set, inning: inn[p], player: p, pts: v });
             if (SETS && pts[p] >= dist(p)) {
                 won[p]++;
                 if (won[p] >= SETS) { over = true; return; }
-                set++; inSet = 0; pts = { 1: 0, 2: 0 }; inn = { 1: 0, 2: 0 };
+                set++; inSet = 0; pts = zeros(); inn = zeros();
             }
         });
         return { rows: rows, won: won, set: set, inSet: inSet };
@@ -82,8 +87,7 @@
 
     function current() {
         const w = walk();
-        const first = setStarter(w.set);
-        return w.inSet % 2 === 0 ? first : other(first);
+        return seriesPlayer(setStarter(w.set), w.inSet);
     }
 
     // Toute la partie (set = null) ou un seul set
@@ -103,15 +107,18 @@
     // Reprise en cours (règles : dernière reprise, limite)
     function inningNumber() {
         const n = walk().inSet;
-        return st.finished ? Math.ceil(n / 2) : Math.floor(n / 2) + 1;
+        return st.finished ? Math.ceil(n / N) : Math.floor(n / N) + 1;
     }
 
     // Reprises affichées : le compteur avance quand le joueur qui a cassé termine sa série (Entrée vers l'adversaire),
     // comme sur les marquoirs classiques — 0 avant la première série, puis 1 pendant que l'adversaire joue, etc.
-    const inningsShown = () => Math.ceil(walk().inSet / 2);
+    const inningsShown = () => Math.ceil(walk().inSet / N);
 
+    const someoneReached = () => PLAYERS.some((p) => totals(p).pts >= dist(p));
+
+    // Tour entamé alors qu'un joueur a déjà atteint ses points : les suivants terminent le tour
     function isEqualizing() {
-        return !st.finished && !C.unequal && st.innings.length % 2 === 1 && totals(S).pts >= dist(S);
+        return !st.finished && !C.unequal && st.innings.length % N !== 0 && someoneReached();
     }
 
     function commit() {
@@ -171,14 +178,13 @@
             return;
         }
         const n = st.innings.length;
-        const s1 = totals(S).pts;
-        const s2 = totals(O).pts;
-        if (n % 2 === 1) {
-            // Le joueur qui casse vient de jouer : sans égalisation, il gagne immédiatement
-            if (s1 >= dist(S) && C.unequal) st.finished = true;
+        const reached = someoneReached();
+        if (n % N !== 0) {
+            // Tour pas terminé : sans égalisation, celui qui atteint ses points gagne immédiatement
+            if (reached && C.unequal) st.finished = true;
         } else {
-            if (s1 >= dist(S) || s2 >= dist(O)) st.finished = true;
-            if (C.inningsLimit && n / 2 >= C.inningsLimit) st.finished = true;
+            if (reached) st.finished = true;
+            if (C.inningsLimit && n / N >= C.inningsLimit) st.finished = true;
         }
     }
 
@@ -402,6 +408,24 @@
 
     // ------------------------------------------------------------ affichage
 
+    /*
+     * Bille jouée par un joueur. À 2 : la sienne (1 = blanche, 2 = jaune). À 3, il n'y a que deux billes :
+     * elles alternent d'une série à l'autre (A blanche, B jaune, C blanche, A jaune…) ; on montre celle
+     * de la série en cours ou à venir du joueur (sa dernière une fois la partie terminée).
+     */
+    function ballOf(p) {
+        if (N === 2 || !p) return p || 1;
+        let k = st.innings.length;
+        if (st.finished) {
+            k--;
+            while (k > 0 && seriesPlayer(S, k) !== p) k--;
+        } else {
+            while (seriesPlayer(S, k) !== p) k++;
+        }
+        return k % 2 === 0 ? 1 : 2;
+    }
+    const colorOf = (p) => 'var(--sb-p' + ballOf(p) + ')';
+
     const fmtAvg = (pts, inn) => (inn > 0 ? pts / inn : 0).toFixed(3).replace('.', ',');
     const name = (p) => C.players[p].last + ' ' + C.players[p].first;
 
@@ -428,7 +452,7 @@
 
     function announcePour(p, left) {
         const box = $('sbdPour');
-        box.style.setProperty('--pc', p === 2 ? 'var(--sb-p2)' : 'var(--sb-p1)');
+        box.style.setProperty('--pc', colorOf(p));
         box.querySelector('small').textContent = C.players[p].last;
         box.querySelector('b').textContent = 'Pour ' + left;
         box.classList.remove('show'); void box.offsetWidth; box.classList.add('show');
@@ -449,23 +473,24 @@
         checkPour(cur);
 
         const w = walk();
-        [1, 2].forEach(function (p) {
+        PLAYERS.forEach(function (p) {
             // La série en cours n'est ajoutée au score qu'à la validation de la reprise (Entrée).
             // Par sets : le grand chiffre est le score du set, moyenne et série max portent sur toute la partie.
             const t = totals(p);
             const ts = totals(p, w.set);
             const el = panels[p];
             el.classList.toggle('active', p === cur);
+            if (N === 3) el.style.setProperty('--pc', colorOf(p));
             const score = el.querySelector('[data-score]');
             score.textContent = ts.pts;
             score.classList.toggle('long', ts.pts >= 100);
-            if (lastScores[p] !== null && lastScores[p] !== ts.pts) {
+            if (lastScores[p] != null && lastScores[p] !== ts.pts) {
                 score.classList.remove('bump'); void score.offsetWidth; score.classList.add('bump');
             }
             lastScores[p] = ts.pts;
             el.querySelector('[data-avg]').textContent = fmtAvg(t.pts, t.inn);
             el.querySelector('[data-hr]').textContent = t.hr;
-            renderLast5(p, el.querySelector('[data-last5]'), w);
+            if (N === 2) renderLast5(p, el.querySelector('[data-last5]'), w);
             if (SETS) {
                 let dots = '';
                 for (let i = 0; i < SETS; i++) dots += '<i class="' + (i < w.won[p] ? 'fas' : 'far') + ' fa-circle"></i>';
@@ -490,7 +515,7 @@
         $('sbdInningsLimit').textContent = C.inningsLimit ? 'sur ' + C.inningsLimit : '';
 
         const runBox = $('sbdRunBox');
-        runBox.style.setProperty('--run-color', cur === 2 ? 'var(--sb-p2)' : 'var(--sb-p1)');
+        runBox.style.setProperty('--run-color', colorOf(cur));
         runBox.classList.toggle('typing', buffer !== '');
         $('sbdRun').textContent = buffer !== '' ? buffer : st.run;
         $('sbdHint').textContent = buffer !== '' ? 'Entrée pour valider la série' : '';
@@ -585,11 +610,57 @@
         return { cmp: Math.sign(t1.pts * dist(2) - t2.pts * dist(1)), proportional: false };
     }
 
+    /*
+     * Classement à 3 joueurs { ranks: {joueur: rang} } : même règle que winnerOf(), généralisée.
+     * Doit rester identique à ScoreboardMatchModel::ranking().
+     */
+    function ranking(t) {
+        const prop = {};
+        PLAYERS.forEach(function (p) { prop[p] = C.avgMin[p] > 0 && t[p].inn > 0 ? (t[p].pts / t[p].inn) / C.avgMin[p] : null; });
+        const reached = PLAYERS.some((p) => t[p].pts >= dist(p));
+        const useProp = !reached && PLAYERS.every((p) => prop[p] !== null);
+        const r = (v) => Math.round(v * 1e9);
+        const cmp = (a, b) => (useProp ? Math.sign(r(prop[a]) - r(prop[b])) : Math.sign(t[a].pts * dist(b) - t[b].pts * dist(a)));
+        const ranks = {};
+        PLAYERS.forEach(function (a) { ranks[a] = 1 + PLAYERS.filter((b) => b !== a && cmp(b, a) > 0).length; });
+        return { ranks: ranks, proportional: useProp, prop: prop };
+    }
+
+    function renderTrioResult() {
+        const t = {};
+        PLAYERS.forEach(function (p) { t[p] = totals(p); });
+        const res = ranking(t);
+        const firsts = PLAYERS.filter((p) => res.ranks[p] === 1);
+        $('sbdWinner').textContent = firsts.length === 1
+            ? 'Victoire de ' + name(firsts[0])
+            : 'Ex æquo : ' + firsts.map((p) => C.players[p].last).join(' et ');
+        $('sbdWinner').style.color = 'var(--sb-p2)';
+        $('sbdDecision').hidden = !res.proportional;
+        $('sbdPropHead').hidden = !res.proportional;
+
+        const rows = $('sbdResultRows');
+        rows.innerHTML = '';
+        PLAYERS.slice().sort((a, b) => res.ranks[a] - res.ranks[b] || a - b).forEach(function (p) {
+            const rank = res.ranks[p];
+            const cells = [(rank === 1 ? '1er' : rank + 'e') + '  ' + name(p), t[p].pts, t[p].inn, fmtAvg(t[p].pts, t[p].inn), t[p].hr];
+            if (res.proportional) cells.push(res.prop[p].toFixed(3).replace('.', ','));
+            const tr = document.createElement('tr');
+            cells.forEach(function (v) {
+                const td = document.createElement('td');
+                td.textContent = v;
+                tr.appendChild(td);
+            });
+            tr.style.color = rank === 1 ? 'var(--sb-p2)' : '#fff';
+            rows.appendChild(tr);
+        });
+    }
+
     function renderResult() {
         const box = $('sbdResult');
         box.classList.toggle('open', st.finished);
         if (!st.finished) return;
         if (SETS) { renderSetsResult(); return; }
+        if (N === 3) { renderTrioResult(); return; }
 
         const t1 = totals(1), t2 = totals(2);
         const res = winnerOf(t1, t2);
@@ -723,14 +794,15 @@
 
         function moveFix(dRow, dCol) {
             const rows = fixRows();
-            let r = rows.findIndex((x) => x.cells[1] === fix.idx || x.cells[2] === fix.idx);
-            const p = rows[r].cells[1] === fix.idx ? 1 : 2;
+            let r = rows.findIndex((x) => PLAYERS.some((q) => x.cells[q] === fix.idx));
+            const p = PLAYERS.find((q) => rows[r].cells[q] === fix.idx);
             if (dCol) {
-                const other = rows[r].cells[p === 1 ? 2 : 1];
-                if (other !== undefined) fix.idx = other;
+                const present = PLAYERS.filter((q) => rows[r].cells[q] !== undefined);
+                const j = present.indexOf(p);
+                fix.idx = rows[r].cells[present[(j + dCol + present.length) % present.length]];
             } else {
                 r = Math.max(0, Math.min(rows.length - 1, r + dRow));
-                fix.idx = rows[r].cells[p] !== undefined ? rows[r].cells[p] : rows[r].cells[p === 1 ? 2 : 1];
+                fix.idx = rows[r].cells[p] !== undefined ? rows[r].cells[p] : rows[r].cells[PLAYERS.find((q) => rows[r].cells[q] !== undefined)];
             }
             fix.msg = '';
         }
@@ -768,7 +840,8 @@
                 fix.msg = '';
             } else if (a === 'd8') moveFix(-1, 0);
             else if (a === 'd2') moveFix(1, 0);
-            else if (a === 'd4' || a === 'd6') moveFix(0, 1);
+            else if (a === 'd4') moveFix(0, -1);
+            else if (a === 'd6') moveFix(0, 1);
             renderFix();
         }
 
@@ -779,11 +852,11 @@
             let html = '', lastSet = 0;
             fixRows().forEach(function (row) {
                 if (SETS && row.set !== lastSet) {
-                    html += '<tr class="sbd-fix-set"><td colspan="3">Set ' + row.set + '</td></tr>';
+                    html += '<tr class="sbd-fix-set"><td colspan="' + (N + 1) + '">Set ' + row.set + '</td></tr>';
                     lastSet = row.set;
                 }
                 html += '<tr><td>' + row.inning + '</td>';
-                [1, 2].forEach(function (p) {
+                PLAYERS.forEach(function (p) {
                     const i = row.cells[p];
                     if (i === undefined) { html += '<td class="empty">–</td>'; return; }
                     const sel = i === fix.idx;

@@ -53,10 +53,10 @@ class BarController extends BaseController
             $tables[] = [
                 'id'      => (int) $t->id,
                 'name'    => $t->name,
-                'players' => $live ? [
-                    trim($live->p1_first_name . ' ' . $live->p1_last_name),
-                    trim($live->p2_first_name . ' ' . $live->p2_last_name),
-                ] : null,
+                'players' => $live ? array_map(
+                    static fn (string $p): string => trim($live->{$p . '_first_name'} . ' ' . $live->{$p . '_last_name'}),
+                    ScoreboardMatchModel::playerKeys($live)
+                ) : null,
                 'call'    => $call ? ['id' => (int) $call->id, 'waiting' => max(0, $now - strtotime($call->called_at))] : null,
             ];
         }

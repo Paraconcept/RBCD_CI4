@@ -1,4 +1,7 @@
-<?php use App\Models\ScoreboardMatchModel as M; ?>
+<?php use App\Models\ScoreboardMatchModel as M;
+$trio  = M::isTrio($match);
+$ranks = $trio && $match->status === 'finished' ? M::storedRanking($match) : [];
+?>
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('content') ?>
 
@@ -25,11 +28,12 @@
     <?php $prop = M::decidedByProportional($match); ?>
     <table class="table table-sm table-bordered <?= $prop ? 'mb-2' : 'mb-4' ?>" style="max-width:1000px">
       <thead class="thead-rbcd">
-        <tr><th>Joueur</th><th>Club</th><th class="text-center">Catégorie</th><th class="text-center">À réaliser</th><th class="text-center">Points</th><th class="text-center">Reprises</th><th class="text-center">Moyenne</th><th class="text-center">MS</th><?php if ($prop): ?><th class="text-center">Moy. prop.</th><?php endif; ?></tr>
+        <tr><?php if ($ranks): ?><th class="text-center">Rang</th><?php endif; ?><th>Joueur</th><th>Club</th><th class="text-center">Catégorie</th><th class="text-center">À réaliser</th><th class="text-center">Points</th><th class="text-center">Reprises</th><th class="text-center">Moyenne</th><th class="text-center">MS</th><?php if ($prop): ?><th class="text-center">Moy. prop.</th><?php endif; ?></tr>
       </thead>
       <tbody>
-        <?php foreach ([1, 2] as $n): $p = 'p' . $n; ?>
+        <?php foreach (M::playerNumbers($match) as $n): $p = 'p' . $n; ?>
         <tr class="<?= (int) $match->winner === $n ? 'font-weight-bold' : '' ?>">
+          <?php if ($ranks): ?><td class="text-center"><?= $ranks[$n] === 1 ? '1er' : $ranks[$n] . 'e' ?></td><?php endif; ?>
           <td>
             <?= (int) $match->starting_player === $n ? '<i class="fas fa-circle mr-1" title="A cassé" style="color:' . ($n === 1 ? '#bbb' : '#f5c400') . '"></i>' : '' ?>
             <?= esc(M::playerLabel($match, $p)) ?>
@@ -81,20 +85,21 @@
     <?php endif; ?>
     <?php foreach ($sheets as $setNo => $sheet): ?>
     <h5 class="mb-2"><?= M::isSets($match) ? 'Set ' . $setNo : 'Feuille de match' ?></h5>
-    <table class="table table-sm table-bordered table-striped text-center mb-4" style="max-width:600px">
+    <table class="table table-sm table-bordered table-striped text-center mb-4" style="max-width:<?= $trio ? 850 : 600 ?>px">
       <thead class="thead-rbcd">
         <tr>
           <th rowspan="2" class="align-middle">Reprise</th>
-          <th colspan="2"><?= esc($match->p1_last_name) ?></th>
-          <th colspan="2"><?= esc($match->p2_last_name) ?></th>
+          <?php foreach (M::playerKeys($match) as $p): ?>
+          <th colspan="2"><?= esc($match->{$p . '_last_name'}) ?></th>
+          <?php endforeach; ?>
         </tr>
-        <tr><th>Série</th><th>Total</th><th>Série</th><th>Total</th></tr>
+        <tr><?= str_repeat('<th>Série</th><th>Total</th>', M::playerCount($match)) ?></tr>
       </thead>
       <tbody>
         <?php foreach ($sheet as $no => $row): ?>
         <tr>
           <td><?= $no ?></td>
-          <?php foreach ([1, 2] as $n): ?>
+          <?php foreach (M::playerNumbers($match) as $n): ?>
             <?php if (isset($row[$n])): ?>
               <td><?= $row[$n]['points'] ?: '<span class="text-muted">0</span>' ?></td>
               <td class="font-weight-bold"><?= $row[$n]['total'] ?></td>
@@ -117,9 +122,11 @@
   </form>
   <div class="card-footer d-flex">
     <a href="<?= base_url('admin/scoreboard') ?>" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>Retour</a>
+    <?php if (!$trio): ?>
     <a href="<?= base_url('admin/scoreboard/' . $match->id . '/pdf') ?>" target="_blank" class="btn btn-primary ml-auto">
       <i class="fas fa-file-pdf mr-1"></i>Feuille de match PDF
     </a>
+    <?php endif; ?>
   </div>
 </div>
 

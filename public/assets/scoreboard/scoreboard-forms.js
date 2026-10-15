@@ -26,7 +26,7 @@
         const pick = (p) => {
             input.value = p.last_name;
             field('first_name').value = p.first_name || '';
-            field('club').value       = p.club || '';
+            if (field('club')) field('club').value = p.club || '';
             field('member_id').value  = p.member_id || '';
             if (field('license')) field('license').value = p.license || '';
             close();
@@ -86,7 +86,7 @@
 
         // Un joueur modifié à la main n'est plus le membre sélectionné
         ['first_name', 'club'].forEach(function (n) {
-            field(n).addEventListener('input', function () { field('member_id').value = ''; });
+            if (field(n)) field(n).addEventListener('input', function () { field('member_id').value = ''; });
         });
     });
 
@@ -98,13 +98,16 @@
         sync();
     });
 
+    // Les points du joueur 1 sont recopiés chez les autres tant qu'on ne les a pas modifiés à la main
     const d1 = document.querySelector('input[name="p1_distance"]');
-    const d2 = document.querySelector('input[name="p2_distance"]');
-    if (d1 && d2) {
-        if (d2.value !== '' && d2.value !== d1.value) d2.dataset.sbTouched = '1';
-        d2.addEventListener('input', function (e) { if (e.isTrusted) d2.dataset.sbTouched = '1'; });
-        d1.addEventListener('input', function () { if (!d2.dataset.sbTouched) d2.value = d1.value; });
-        [d1, d2].forEach((d) => d.addEventListener('input', function (e) { if (e.isTrusted) delete d.dataset.sbAuto; }));
+    const others = ['p2', 'p3'].map((p) => document.querySelector('input[name="' + p + '_distance"]')).filter(Boolean);
+    if (d1) {
+        others.forEach(function (d) {
+            if (d.value !== '' && d.value !== d1.value) d.dataset.sbTouched = '1';
+            d.addEventListener('input', function (e) { if (e.isTrusted) d.dataset.sbTouched = '1'; });
+            d1.addEventListener('input', function () { if (!d.dataset.sbTouched) d.value = d1.value; });
+        });
+        [d1].concat(others).forEach((d) => d.addEventListener('input', function (e) { if (e.isTrusted) delete d.dataset.sbAuto; }));
     }
 
     const discipline = document.getElementById('discipline');
@@ -147,13 +150,13 @@
                 if (cat && cat.points > 0) {
                     distance.value = cat.points;
                     distance.dataset.sbAuto = '1';
-                    if (sel.dataset.sbCategory === 'p2') distance.dataset.sbTouched = '1';
+                    if (sel.dataset.sbCategory !== 'p1') distance.dataset.sbTouched = '1';
                 } else if (distance.dataset.sbAuto) {
                     // Plus de catégorie : on ne laisse pas une distance d'une autre discipline
                     const d1 = sel.form.querySelector('[name="p1_distance"]');
-                    distance.value = sel.dataset.sbCategory === 'p2' && d1 ? d1.value : '';
+                    distance.value = sel.dataset.sbCategory !== 'p1' && d1 ? d1.value : '';
                     delete distance.dataset.sbAuto;
-                    if (sel.dataset.sbCategory === 'p2') delete distance.dataset.sbTouched;
+                    if (sel.dataset.sbCategory !== 'p1') delete distance.dataset.sbTouched;
                 } else {
                     return;
                 }

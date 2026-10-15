@@ -4,13 +4,15 @@
 <span class="sb-topbar-title"><?= esc($table->name) ?></span>
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<h1 class="sb-title mb-4"><i class="fas fa-handshake me-2 sb-accent"></i>Partie amicale</h1>
-<form method="post" action="<?= base_url('marquoir/billard/' . $table->id . '/amicale') ?>" autocomplete="off">
+<?php $trio = $players === 3; ?>
+<h1 class="sb-title mb-4"><i class="fas fa-<?= $trio ? 'users' : 'handshake' ?> me-2 sb-accent"></i><?= $trio ? 'Partie amicale à 3' : 'Partie amicale' ?></h1>
+<form method="post" action="<?= base_url('marquoir/billard/' . $table->id . ($trio ? '/amicale-a-3' : '/amicale')) ?>" autocomplete="off">
+    <input type="hidden" name="players" value="<?= $players ?>">
     <div class="row g-4">
-        <?php foreach (['p1' => 'Joueur 1', 'p2' => 'Joueur 2'] as $p => $label): ?>
-        <div class="col-md-6">
+        <?php for ($n = 1; $n <= $players; $n++): $p = 'p' . $n; ?>
+        <div class="<?= $trio ? 'col-lg-4' : 'col-md-6' ?>">
             <div class="sb-card h-100">
-                <h2 class="h5 mb-3"><?= $label ?></h2>
+                <h2 class="h5 mb-3">Joueur <?= $n ?></h2>
                 <input type="hidden" name="<?= $p ?>_member_id" value="<?= esc(old($p . '_member_id')) ?>">
                 <div class="mb-3 position-relative">
                     <label class="form-label">Nom <span class="text-danger">*</span></label>
@@ -19,28 +21,19 @@
                            data-sb-ac="<?= $p ?>" data-sb-ac-url="<?= base_url('marquoir/joueurs') ?>"
                            placeholder="Tapez 2 lettres pour rechercher…">
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Prénom <span class="text-danger">*</span></label>
-                    <input type="text" name="<?= $p ?>_first_name" class="form-control form-control-lg" required value="<?= esc(old($p . '_first_name')) ?>">
-                </div>
                 <div class="row g-3">
                     <div class="col-8">
-                        <label class="form-label">Club</label>
-                        <input type="text" name="<?= $p ?>_club" class="form-control form-control-lg" value="<?= esc(old($p . '_club', 'RBC Disonais')) ?>">
+                        <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                        <input type="text" name="<?= $p ?>_first_name" class="form-control form-control-lg" required value="<?= esc(old($p . '_first_name')) ?>">
                     </div>
                     <div class="col-4" data-sb-distance>
-                        <label class="form-label">Points à réaliser <span class="text-danger">*</span></label>
+                        <label class="form-label">Points <span class="text-danger">*</span></label>
                         <input type="number" name="<?= $p ?>_distance" min="1" max="9999" required class="form-control form-control-lg" value="<?= esc(old($p . '_distance')) ?>">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Catégorie</label>
-                        <select name="<?= $p ?>_category_id" class="form-select form-select-lg" data-sb-category="<?= $p ?>"
-                                data-selected="<?= esc(old($p . '_category_id')) ?>"></select>
                     </div>
                 </div>
             </div>
         </div>
-        <?php endforeach; ?>
+        <?php endfor; ?>
 
         <div class="col-12">
             <div class="sb-card">
@@ -62,6 +55,7 @@
                         </select>
                     </div>
                 </div>
+                <?php if (!$trio): ?>
                 <div class="row g-3 mt-1" data-sb-sets-block>
                     <div class="col-md-4">
                         <div class="form-check form-switch fs-5">
@@ -85,6 +79,7 @@
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
                 <hr class="my-4">
                 <div class="row g-3">
                     <div class="col-md-4">
@@ -102,8 +97,9 @@
                             <input class="form-check-input" type="checkbox" role="switch" name="unequal_innings" id="unequal_innings" value="1" <?= old('unequal_innings') ? 'checked' : '' ?>>
                             <label class="form-check-label" for="unequal_innings">Reprises inégales</label>
                         </div>
-                        <small class="text-secondary">Pas de reprise d'égalisation pour le second joueur.</small>
+                        <small class="text-secondary"><?= $trio ? 'La partie s\'arrête dès qu\'un joueur atteint ses points, sans finir le tour.' : 'Pas de reprise d\'égalisation pour le second joueur.' ?></small>
                     </div>
+                    <?php if (!$trio): ?>
                     <div class="col-md-4">
                         <div class="form-check form-switch fs-5">
                             <input class="form-check-input" type="checkbox" role="switch" name="shot_clock_enabled" id="shot_clock_enabled" value="1" <?= old('shot_clock_enabled') ? 'checked' : '' ?>>
@@ -125,6 +121,7 @@
                             <small class="text-secondary">Le chrono repart dès l'appui sur <kbd class="mx-1">Entrée</kbd>.<br>Sinon, le lancer avec <kbd class="mx-1">*</kbd> à chaque reprise.</small>
                         </div>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -136,7 +133,6 @@
 </form>
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
-<script>window.SB_CATEGORIES = <?= json_encode($categories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard-forms.js') ?>"></script>
 <?php
 $tableFormat = $table->format ?? 'PB';

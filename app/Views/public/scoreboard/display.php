@@ -3,28 +3,28 @@ use App\Models\ScoreboardMatchModel as M;
 
 // Spectateur (page publique « En direct ») : lecture seule, mise à jour par interrogation du serveur
 $spectator = $spectator ?? false;
+$trio      = M::isTrio($match);
+$numbers   = M::playerNumbers($match);
+$byPlayer  = static fn (callable $f): array => array_combine($numbers, array_map($f, $numbers));
 
 $config = [
     'id'           => (int) $match->id,
     'startedAt'    => (string) $match->started_at,
     'starter'      => (int) ($match->starting_player ?: 1),
     'discipline'   => (string) $match->discipline,
-    'distances'    => [1 => (int) $match->p1_distance, 2 => (int) $match->p2_distance],
+    'count'        => count($numbers),
+    'distances'    => $byPlayer(static fn (int $n): int => (int) $match->{'p' . $n . '_distance'}),
     'inningsLimit' => $match->innings_limit ? (int) $match->innings_limit : null,
     'unequal'      => (bool) $match->unequal_innings,
     'sets'         => M::isSets($match) ? (int) $match->sets_to_win : null,
-    'avgMin'       => [1 => $match->p1_average_min !== null ? (float) $match->p1_average_min : null,
-                       2 => $match->p2_average_min !== null ? (float) $match->p2_average_min : null],
+    'avgMin'       => $byPlayer(static fn (int $n): ?float => $match->{'p' . $n . '_average_min'} !== null ? (float) $match->{'p' . $n . '_average_min'} : null),
     'clock'        => [
         'enabled'    => (bool) $match->shot_clock_enabled,
         'seconds'    => (int) $match->shot_clock_seconds,
         'extensions' => (int) $match->shot_clock_extensions,
         'autoStart'  => $match->type === 'friendly' && !empty($match->shot_clock_auto_start),
     ],
-    'players' => [
-        1 => ['last' => $match->p1_last_name, 'first' => $match->p1_first_name],
-        2 => ['last' => $match->p2_last_name, 'first' => $match->p2_first_name],
-    ],
+    'players' => $byPlayer(static fn (int $n): array => ['last' => $match->{'p' . $n . '_last_name'}, 'first' => $match->{'p' . $n . '_first_name'}]),
     'server'    => $state,
     'spectator' => $spectator,
     'urls'      => [
@@ -42,7 +42,7 @@ $config = [
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= esc($match->p1_last_name . ' – ' . $match->p2_last_name) ?> | Marquoir RBCD</title>
+    <title><?= esc(implode(' – ', array_map(static fn (int $n) => $match->{'p' . $n . '_last_name'}, $numbers))) ?> | Marquoir RBCD</title>
     <link rel="shortcut icon" href="<?= base_url('assets/images/favicons/favicon.ico') ?>">
     <?php if (str_starts_with(uri_string(), 'marquoir')): // pas sur les pages publiques « En direct » ?>
     <link rel="manifest" href="<?= base_url('marquoir.webmanifest') ?>">
@@ -57,7 +57,7 @@ $config = [
     <link rel="stylesheet" href="<?= base_url('assets/scoreboard/scoreboard.css') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard.css') ?>">
 </head>
 <body>
-<div class="sbd<?= $spectator ? ' spectator' : '' ?><?= M::isSets($match) ? ' sets' : '' ?>" id="sbd">
+<div class="sbd<?= $spectator ? ' spectator' : '' ?><?= M::isSets($match) ? ' sets' : '' ?><?= $trio ? ' trio' : '' ?>" id="sbd">
 
     <header class="sbd-head">
         <div class="sbd-head-left">
@@ -81,9 +81,7 @@ $config = [
         </div>
     </header>
 
-    <main class="sbd-main">
-        <?php foreach ([1, 2] as $n): $p = 'p' . $n; ?>
-        <?php if ($n === 2): ?>
+    <?php ob_start(); ?>
         <section class="sbd-center">
             <?php if (M::isSets($match)): ?>
             <div class="sbd-box sbd-setsbox">
@@ -104,11 +102,14 @@ $config = [
                 <div class="sbd-hint" id="sbdHint"></div>
             </div>
         </section>
-        <?php endif; ?>
+    <?php $center = ob_get_clean(); ?>
+    <main class="sbd-main">
+        <?php foreach ($numbers as $n): $p = 'p' . $n; $right = $n === 2 && !$trio; ?>
+        <?php if ($n === 2 && !$trio) echo $center; ?>
         <section class="sbd-player <?= $p ?>" id="sbdPlayer<?= $n ?>">
             <div class="sbd-name">
-                <?php if ($n === 2): ?><span class="sbd-ball"></span><?php endif; ?>
-                <div class="sbd-name-text" style="<?= $n === 2 ? 'text-align:right;flex:1' : 'flex:1' ?>">
+                <?php if ($right): ?><span class="sbd-ball"></span><?php endif; ?>
+                <div class="sbd-name-text" style="<?= $right ? 'text-align:right;flex:1' : 'flex:1' ?>">
                     <div class="sbd-last"><?= esc($match->{$p . '_last_name'}) ?></div>
                     <div class="sbd-first"><?= esc($match->{$p . '_first_name'}) ?></div>
                     <div class="sbd-club"><?= esc($match->{$p . '_club'} ?? '') ?></div>
@@ -118,10 +119,12 @@ $config = [
                     <div class="sbd-target">À réaliser : <b><?= (int) $match->{$p . '_distance'} ?></b></div>
                     <?php endif; ?>
                 </div>
-                <?php if ($n === 1): ?><span class="sbd-ball"></span><?php endif; ?>
+                <?php if (!$right): ?><span class="sbd-ball"></span><?php endif; ?>
             </div>
             <div class="sbd-body">
+                <?php if (!$trio): ?>
                 <div class="sbd-last5" data-last5 title="5 dernières reprises (la plus récente en haut)"></div>
+                <?php endif; ?>
                 <div class="sbd-score" data-score>0</div>
             </div>
             <div class="sbd-stats">
@@ -131,6 +134,7 @@ $config = [
             <div class="sbd-ext" data-ext></div>
         </section>
         <?php endforeach; ?>
+        <?php if ($trio) echo $center; ?>
     </main>
 
     <div class="sbd-pour" id="sbdPour" aria-live="polite"><div><small></small><b></b></div></div>
@@ -219,7 +223,7 @@ $config = [
             <h2>Corriger une reprise</h2>
             <div class="sbd-fix-scroll">
                 <table>
-                    <thead><tr><th>Reprise</th><th style="color:var(--sb-p1)"><?= esc($match->p1_last_name) ?></th><th style="color:var(--sb-p2)"><?= esc($match->p2_last_name) ?></th></tr></thead>
+                    <thead><tr><th>Reprise</th><?php foreach ($numbers as $n): ?><th style="color:var(--sb-<?= $trio ? 'p1' : 'p' . $n ?>)"><?= esc($match->{'p' . $n . '_last_name'}) ?></th><?php endforeach; ?></tr></thead>
                     <tbody id="sbdFixRows"></tbody>
                 </table>
             </div>
@@ -237,7 +241,7 @@ $config = [
             <button type="button" class="btn btn-light" data-action="fullscreen"><i class="fas fa-expand me-2"></i>Plein écran</button>
             <a href="<?= esc($config['urls']['table']) ?>" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Retour au billard (la partie reste en cours)</a>
             <form method="post" id="sbdSwapForm" action="<?= base_url('marquoir/match/' . $match->id . '/inverser') ?>" hidden>
-                <button type="submit" class="btn btn-warning w-100"><i class="fas fa-right-left me-2"></i>Inverser les deux joueurs</button>
+                <button type="submit" class="btn btn-warning w-100"><i class="fas fa-right-left me-2"></i><?= $trio ? "Changer l'ordre de jeu" : 'Inverser les deux joueurs' ?></button>
             </form>
             <form method="post" id="sbdCancelForm" action="<?= base_url('marquoir/match/' . $match->id . '/annuler') ?>"
                   data-title="<?= $match->type === 'friendly' ? 'Annuler cette partie amicale ?' : 'Remettre la rencontre à zéro ?' ?>"

@@ -114,14 +114,19 @@ class ScoreboardController extends BaseController
         return $table && $table->is_active ? $table : null;
     }
 
-    public function friendly(int $tableId): string
+    public function friendly(int $tableId, int $players = 2): string
     {
         return view('public/scoreboard/friendly', [
-            'title'    => 'Partie amicale',
-            'table'      => $this->findTable($tableId),
-            'defaults'   => $this->defaults(),
-            'categories' => (new FrbbCategoryModel())->forScoreboard(),
+            'title'    => $players === 3 ? 'Partie amicale à 3' : 'Partie amicale',
+            'table'    => $this->findTable($tableId),
+            'defaults' => $this->defaults(),
+            'players'  => $players === 3 ? 3 : 2,
         ]);
+    }
+
+    public function friendlyTrio(int $tableId): string
+    {
+        return $this->friendly($tableId, 3);
     }
 
     public function friendlyStore(int $tableId)
@@ -157,6 +162,7 @@ class ScoreboardController extends BaseController
 
         return view('public/scoreboard/start', [
             'title'         => 'Qui commence la partie ?',
+            'trio'          => ScoreboardMatchModel::isTrio($match),
             'table'         => $table,
             'match'         => $match,
             'warmupMinutes' => (int) $this->settings->getSetting('scoreboard_warmup_minutes', 5),
@@ -179,8 +185,15 @@ class ScoreboardController extends BaseController
                              ->with('error', 'Une partie est déjà en cours sur ce billard.');
         }
 
+        $order = [];
+        if (ScoreboardMatchModel::isTrio($match)) {
+            $order = explode(',', (string) $this->request->getPost('order'));
+            if (!ScoreboardMatchModel::validOrder($order)) {
+                return redirect()->to(base_url('marquoir/billard/' . $tableId . '/demarrer/' . $matchId));
+            }
+        }
         $starter = (int) $this->request->getPost('starting_player') === 2 ? 2 : 1;
-        $this->matches->startWith($match, $starter, $tableId);
+        $this->matches->startWith($match, $starter, $tableId, $order);
 
         return redirect()->to(base_url('marquoir/match/' . $matchId));
     }
@@ -203,6 +216,12 @@ class ScoreboardController extends BaseController
     public function swap(int $matchId)
     {
         $match = $this->findMatch($matchId);
+        if (ScoreboardMatchModel::isTrio($match)) {
+            if ($this->matches->backToOrderChoice($match)) {
+                return redirect()->to(base_url('marquoir/billard/' . $match->table_id . '/demarrer/' . $matchId));
+            }
+            return redirect()->to(base_url('marquoir/match/' . $matchId));
+        }
         $this->matches->swapPlayers($match);
 
         return redirect()->to(base_url('marquoir/match/' . $matchId));
@@ -223,7 +242,7 @@ class ScoreboardController extends BaseController
             'competition', 'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win',
             'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'created_by',
         ];
-        foreach (['p1', 'p2'] as $p) {
+        foreach (ScoreboardMatchModel::playerKeys($match) as $p) {
             foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'category_id', 'category', 'average_min', 'distance'] as $f) {
                 $copy[] = $p . '_' . $f;
             }
@@ -275,16 +294,17 @@ class ScoreboardController extends BaseController
             'shot_clock_seconds'    => $match->shot_clock_seconds,
             'shot_clock_extensions' => $match->shot_clock_extensions,
             'table_id'              => $match->table_id,
+            'players'               => ScoreboardMatchModel::playerCount($match),
         ]);
         [$data, $errors] = ScoreboardMatchModel::dataFromInput($in);
 
         $scored = $this->matches->pointsInPlay($match);
-        foreach ([1, 2] as $n) {
+        foreach (ScoreboardMatchModel::playerNumbers($match) as $n) {
             if ($data['p' . $n . '_distance'] < $scored[$n]) {
                 $errors[] = 'Le joueur ' . $n . ' a déjà ' . $scored[$n] . ' points : ses points à réaliser ne peuvent pas être inférieurs.';
             }
         }
-        $played = max((int) $match->p1_innings, (int) $match->p2_innings);
+        $played = max(array_map(static fn (string $p): int => (int) $match->{$p . '_innings'}, ScoreboardMatchModel::playerKeys($match)));
         if ($data['innings_limit'] !== null && $data['innings_limit'] < $played) {
             $errors[] = $played . ' reprises sont déjà jouées : la limite ne peut pas être inférieure.';
         }
@@ -293,7 +313,7 @@ class ScoreboardController extends BaseController
         }
 
         $update = [];
-        foreach (['p1', 'p2'] as $p) {
+        foreach (ScoreboardMatchModel::playerKeys($match) as $p) {
             foreach (['member_id', 'last_name', 'first_name', 'club', 'license', 'distance', 'category_id', 'category', 'average_min'] as $f) {
                 $update[$p . '_' . $f] = $data[$p . '_' . $f];
             }
@@ -301,7 +321,11 @@ class ScoreboardController extends BaseController
         if (!ScoreboardMatchModel::isSets($match)) {
             $update['innings_limit'] = $data['innings_limit'];
         }
-        if ($match->status === 'finished' && !ScoreboardMatchModel::isSets($match)) {
+        if ($match->status === 'finished' && ScoreboardMatchModel::isTrio($match)) {
+            $after = (object) array_merge((array) $match, $update);
+            $first = array_keys(ScoreboardMatchModel::storedRanking($after), 1, true);
+            $update['winner'] = count($first) === 1 ? $first[0] : 0;
+        } elseif ($match->status === 'finished' && !ScoreboardMatchModel::isSets($match)) {
             $after = (object) array_merge((array) $match, $update);
             $update['winner'] = ScoreboardMatchModel::winnerOf($after, (int) $match->p1_points, (int) $match->p1_innings, (int) $match->p2_points, (int) $match->p2_innings);
         }

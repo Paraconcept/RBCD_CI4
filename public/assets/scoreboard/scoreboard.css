@@ -77,6 +77,12 @@
 }
 .sb-starter-1 .sb-starter-key { background: var(--sb-p1); color: #111; }
 .sb-starter-2 .sb-starter-key { background: var(--sb-p2); color: #111; }
+/* Partie à 3 : choix en deux temps (qui commence, puis qui joue en 2e) */
+.sb-starter-n .sb-starter-key { background: #334155; color: #fff; }
+.sb-starter-n:hover, .sb-starter-n:focus { border-color: var(--sb-red-light); }
+.sb-starter-picked { opacity: .55; border-color: var(--sb-p2); }
+.sb-starter-picked:hover, .sb-starter-picked:focus { transform: none; border-color: var(--sb-p2); }
+.sb-starter-rank { min-height: 1.5rem; margin-top: .4rem; font-weight: 700; color: var(--sb-p2); }
 .sb-starter-name { font-family: 'Barlow Condensed', sans-serif; font-size: 2.4rem; font-weight: 800; text-transform: uppercase; line-height: 1; }
 .sb-starter-first { font-size: 1.3rem; }
 .sb-starter small { color: var(--sb-muted); }
@@ -259,6 +265,22 @@
 .sbd-live i { animation: sbd-blink 1.2s infinite; }
 .sbd-live.offline { background: var(--sb-muted); }
 
+/* Partie à 3 : trois colonnes de joueurs ; reprises, message et série en bandeau dessous */
+.sbd.trio .sbd-main { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr) auto; }
+.sbd.trio .sbd-center { grid-column: 1 / -1; flex-direction: row; align-items: stretch; gap: 1.6vw; }
+.sbd.trio .sbd-center > .sbd-box { flex: 0 0 26vw; flex-direction: row; align-items: center; justify-content: center; gap: 1.5vw; padding: .4vh 1vw; }
+.sbd.trio .sbd-center > .sbd-box > span { font-size: 3.4vh; }
+.sbd.trio .sbd-innings b, .sbd.trio .sbd-run b { font-size: 11vh; }
+.sbd.trio .sbd-innings small { font-size: 3vh; }
+.sbd.trio .sbd-run .sbd-hint { min-height: 0; max-width: 8vw; line-height: 1.1; }
+.sbd.trio .sbd-run .sbd-hint:empty { display: none; }
+.sbd.trio .sbd-notice { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 3.6vh; }
+.sbd.trio .sbd-notice:empty { display: flex; visibility: hidden; }
+.sbd.trio .sbd-last { font-size: 6.4vh; }
+.sbd.trio .sbd-first { font-size: 4.4vh; }
+.sbd.trio .sbd-score { font-size: 32vh; }
+.sbd.trio .sbd-score.long { font-size: 22vh; }
+
 /* Invitation à passer en paysage : petit écran en portrait uniquement, fermable */
 .sbd-rotate-hint { display: none; }
 @media (max-width: 767.98px) and (orientation: portrait) {
@@ -316,6 +338,9 @@
     .sbd-ext { min-height: 4vw; margin-top: 1.5vw; }
     .sbd-ext i { font-size: 3.6vw; }
     .sbd.sets .sbd-innings b, .sbd.sets .sbd-run b, .sbd-setsbox b { font-size: 11vw; }
+    .sbd.trio .sbd-main { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "p1 p2 p3" "center center center"; }
+    #sbdPlayer3 { grid-area: p3; }
+    .sbd.trio .sbd-score { font-size: 16vw; }
     .sbd-setsbox small { font-size: 2.6vw; }
     .sbd-setdots i { font-size: 3.4vw; }
     .sbd-result { min-width: 92vw; padding: 5vw 4vw; }

@@ -25,9 +25,10 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
                 <?php if ($competition = M::competitionLabel($m)): ?><span><?= esc($competition) ?></span><?php endif; ?>
             </div>
             <div class="sb-match-players">
-                <div><strong><?= esc(M::playerLabel($m, 'p1')) ?></strong><small><?= esc($m->p1_club) ?></small></div>
-                <span class="sb-vs">vs</span>
-                <div><strong><?= esc(M::playerLabel($m, 'p2')) ?></strong><small><?= esc($m->p2_club) ?></small></div>
+                <?php foreach (M::playerKeys($m) as $i => $p): ?>
+                <?php if ($i > 0): ?><span class="sb-vs">vs</span><?php endif; ?>
+                <div><strong><?= esc(M::playerLabel($m, $p)) ?></strong><small><?= esc($m->{$p . '_club'}) ?></small></div>
+                <?php endforeach; ?>
             </div>
             <?php if ($today && M::canStartNow($m, $startWindow)): ?>
             <a href="<?= base_url('marquoir/billard/' . $tableId . '/demarrer/' . $m->id) ?>" class="btn btn-sb">
@@ -65,6 +66,11 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
             <span class="sb-tile-name">Partie amicale</span>
             <small class="text-secondary">Lancer une nouvelle partie</small>
         </a>
+        <a href="<?= base_url('marquoir/billard/' . $table->id . '/amicale-a-3') ?>" class="sb-tile sb-tile-cta mb-4">
+            <i class="fas fa-users"></i>
+            <span class="sb-tile-name">Partie amicale à 3</span>
+            <small class="text-secondary">Trois joueurs, à tour de rôle</small>
+        </a>
         <div class="sb-card sb-device mb-4">
             <?php if ($deviceTable && (int) $deviceTable->id === (int) $table->id): ?>
                 <p class="mb-2"><i class="fas fa-laptop me-2 sb-accent"></i>Ce Chromebook est <b><?= esc($table->name) ?></b> : le marquoir s'ouvre directement ici.</p>
@@ -88,9 +94,13 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
             <?php foreach ($lastFinished as $m): ?>
             <li>
                 <a href="<?= base_url('marquoir/match/' . $m->id) ?>">
+                    <?php if (M::isTrio($m)): ?>
+                    <span><?= implode(' <span class="text-secondary">·</span> ', array_map(static fn ($p) => esc($m->{$p . '_last_name'}) . ' <b>' . M::score($m, $p) . '</b>', M::playerKeys($m))) ?></span>
+                    <?php else: ?>
                     <span><?= esc($m->p1_last_name) ?> <b><?= M::score($m, 'p1') ?></b></span>
                     <span class="text-secondary">–</span>
                     <span><b><?= M::score($m, 'p2') ?></b> <?= esc($m->p2_last_name) ?></span>
+                    <?php endif; ?>
                     <?php if ($m->type === 'official'): ?>
                     <span class="badge sb-badge-official ms-auto">Officielle</span>
                     <?php else: ?>
