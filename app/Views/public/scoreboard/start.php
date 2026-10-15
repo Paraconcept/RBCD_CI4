@@ -43,6 +43,9 @@
 
     function render() {
         document.getElementById('trioTitle').textContent = picked.length === 0 ? 'Qui commence la partie ?' : 'Qui joue en 2e ?';
+        document.getElementById('trioHint').innerHTML = picked.length === 0
+            ? 'Ensuite : qui joue en 2<sup>e</sup> ? Le 3<sup>e</sup> se déduit.'
+            : 'Le 3<sup>e</sup> joueur se déduit tout seul.';
         document.getElementById('trioReset').hidden = picked.length === 0;
         buttons.forEach(function (b) {
             const i = picked.indexOf(Number(b.dataset.player));

@@ -128,6 +128,7 @@
       <a href="#corrections">Pause et corrections</a>
       <a href="#proportionnelle">Moyenne proportionnelle</a>
       <a href="#sets">Partie par sets</a>
+      <a href="#trois">Partie à 3</a>
       <a href="#direct">En direct</a>
     </nav>
 
@@ -137,8 +138,8 @@
       <div class="mh-body">
         <div class="row g-3 mb-4">
           <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-th-large"></i></div><h5>1. Le billard</h5><p class="mb-0">Sur le Chromebook du billard, ouvrez <b>Marquoirs</b> et choisissez votre billard (souvent déjà en favori).</p></div></div>
-          <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-play"></i></div><h5>2. La partie</h5><p class="mb-0">Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b>.</p></div></div>
-          <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-stopwatch"></i></div><h5>3. L'échauffement</h5><p class="mb-0">Deux échauffements de <b>5 minutes</b>, puis on choisit <b>qui commence</b> la partie.</p></div></div>
+          <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-play"></i></div><h5>2. La partie</h5><p class="mb-0">Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b>, à 2 ou à 3 joueurs.</p></div></div>
+          <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-stopwatch"></i></div><h5>3. L'échauffement</h5><p class="mb-0">Deux échauffements de <b>5 minutes</b>, puis on choisit <b>qui commence</b> la partie (à 3 : pas d'échauffement).</p></div></div>
           <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-calculator"></i></div><h5>4. L'arbitrage</h5><p class="mb-0">L'arbitre marque les points au <b>pavé numérique</b>. Tout s'affiche sur la TV.</p></div></div>
         </div>
         <div class="row g-4 align-items-start">
@@ -154,7 +155,7 @@
 
     <!-- 1. Billard -->
     <div class="mh-section" id="billard">
-      <div class="mh-head"><div class="num">1</div><div><h3>La page de votre billard</h3><p>Les rencontres prévues et le bouton « Partie amicale »</p></div></div>
+      <div class="mh-head"><div class="num">1</div><div><h3>La page de votre billard</h3><p>Les rencontres prévues et les boutons « Partie amicale »</p></div></div>
       <div class="mh-body">
         <div class="row g-4">
           <div class="col-lg-7"><img class="mh-shot" src="<?= $img('02_billard') ?>" alt="Page d'un billard"></div>
@@ -165,7 +166,9 @@
             <h4 class="mt-3"><i class="fas fa-calendar-alt"></i>Rencontres programmées</h4>
             <p>Les prochaines rencontres sont affichées pour information. Elles ne peuvent pas encore être démarrées.</p>
             <h4 class="mt-3"><i class="fas fa-handshake"></i>Partie amicale</h4>
-            <p class="mb-0">Pour un entraînement ou une partie entre membres, cliquez sur le grand bouton <b>Partie amicale</b>.</p>
+            <p>Pour un entraînement ou une partie entre membres, cliquez sur le grand bouton <b>Partie amicale</b>.</p>
+            <h4 class="mt-3"><i class="fas fa-users"></i>Partie amicale à 3</h4>
+            <p class="mb-0">Trois joueurs qui jouent à tour de rôle : bouton <b>Partie amicale à 3</b> (<a href="#trois">voir plus bas</a>).</p>
           </div>
         </div>
       </div>
@@ -179,9 +182,8 @@
           <div class="col-lg-7"><img class="mh-shot" src="<?= $img('03_amicale') ?>" alt="Formulaire de partie amicale"></div>
           <div class="col-lg-5">
             <ol class="mh-steps">
-              <li><b>Les joueurs</b> — tapez les deux premières lettres du nom : les membres du club et les joueurs déjà rencontrés sont proposés. Un clic remplit nom, prénom et club.</li>
-              <li><b>Points à réaliser</b> — propres à chaque joueur (handicap possible). Ceux du joueur 1 sont recopiés chez le joueur 2.</li>
-              <li><b>Catégorie</b> — proposée d'office pour les membres et les joueurs déjà rencontrés. Elle sert à départager à la limite de reprises (<a href="#proportionnelle">voir plus bas</a>).</li>
+              <li><b>Les joueurs</b> — tapez les deux premières lettres du nom : les membres du club et les joueurs déjà rencontrés sont proposés. Un clic remplit le nom et le prénom.</li>
+              <li><b>Points</b> à réaliser — propres à chaque joueur (handicap possible). Ceux du joueur 1 sont recopiés chez le joueur 2.</li>
               <li><b>Discipline et format</b> — libre, cadre, bande ou 3 bandes ; petit ou grand billard.</li>
               <li><b>Options</b> si besoin :
                 <ul>
@@ -227,11 +229,11 @@
               <div class="mh-key slash">/<small>effacer</small></div>
               <div class="mh-key star">*<small>chrono</small></div>
               <div class="mh-key menu">⌫<small>menu</small></div>
-              <div class="mh-key">7</div><div class="mh-key">8</div><div class="mh-key">9</div>
+              <div class="mh-key">7</div><div class="mh-key">8<small><i class="fas fa-arrow-up"></i></small></div><div class="mh-key">9</div>
               <div class="mh-key minus">−<small>corriger</small></div>
-              <div class="mh-key">4</div><div class="mh-key">5</div><div class="mh-key">6</div>
+              <div class="mh-key">4<small><i class="fas fa-arrow-left"></i></small></div><div class="mh-key">5</div><div class="mh-key">6<small><i class="fas fa-arrow-right"></i></small></div>
               <div class="mh-key plus">+<small>1 point</small></div>
-              <div class="mh-key">1</div><div class="mh-key">2</div><div class="mh-key">3</div>
+              <div class="mh-key">1</div><div class="mh-key">2<small><i class="fas fa-arrow-down"></i></small></div><div class="mh-key">3</div>
               <div class="mh-key enter">⏎<small>fin de reprise</small></div>
               <div class="mh-key zero">0</div>
               <div class="mh-key pause">.<small>pause</small></div>
@@ -242,12 +244,12 @@
               <div class="sw" style="background:#16a34a">+</div><div><b>Un point</b>Ajoute 1 à la série en cours. La reprise se termine seule quand le joueur atteint ses points.</div>
               <div class="sw" style="background:#84252B">⏎</div><div><b>Fin de reprise</b>La série est ajoutée au score et la main passe à l'adversaire.</div>
               <div class="sw" style="background:#d97706">−</div><div><b>Corriger</b>Retire 1 point. Si la série est à 0, rouvre la reprise précédente pour la corriger.</div>
-              <div class="sw" style="background:#2f4a7a">0-9</div><div><b>Série directe</b>Tapez la série (ex. <kbd>1</kbd><kbd>2</kbd>) puis <kbd>Entrée</kbd> : pratique pour une longue série.</div>
+              <div class="sw" style="background:#2f4a7a">0-9</div><div><b>Série directe</b>Tapez la série (ex. <kbd>1</kbd><kbd>2</kbd>) puis <kbd>Entrée</kbd> : pratique pour une longue série. Dans les menus, les flèches de <kbd>8</kbd> <kbd>2</kbd> <kbd>4</kbd> <kbd>6</kbd> servent à se déplacer.</div>
               <div class="sw" style="background:#64748b">/</div><div><b>Effacer la saisie</b>Annule une série tapée par erreur, avant <kbd>Entrée</kbd>.</div>
               <div class="sw" style="background:#0284c7">*</div><div><b>Chrono</b>Lance ou met en pause le chrono par coup (et lance l'échauffement).</div>
               <div class="sw" style="background:#eab308;color:#0a1020">.</div><div><b>Pause</b>Affiche « Pause » en grand sur la TV (et en direct sur Internet) et arrête le chrono. Appuyez à nouveau sur <kbd>.</kbd> pour reprendre.</div>
               <div class="sw" style="background:#fde047;color:#0a1020"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.5 2h13l-.5 6.3a6 6 0 0 1-11.9 0z"/><rect x="11" y="13.6" width="2" height="5.6"/><path d="M6.8 22c0-1.3 2.3-2.3 5.2-2.3s5.2 1 5.2 2.3z"/></svg></div><div><b>Appel du bar</b>Touche <kbd>Verr. Num</kbd>, puis <kbd>Entrée</kbd> pour confirmer (<kbd>⌫</kbd> pour renoncer). Le billard s'allume sur la tablette du bar et le barman vient prendre la commande.</div>
-              <div class="sw" style="background:#0d9488">⌫</div><div><b>Menu</b>Corriger une reprise, modifier la partie en cours, plein écran, inverser les joueurs, retour au billard, annuler la partie. Dans le menu : <kbd>8</kbd> <kbd>2</kbd> pour se déplacer, <kbd>Entrée</kbd> pour valider, <kbd>⌫</kbd> pour fermer.</div>
+              <div class="sw" style="background:#0d9488">⌫</div><div><b>Menu</b>Corriger une reprise, modifier la partie en cours, plein écran, inverser les joueurs (à&nbsp;3&nbsp;: changer l'ordre de jeu), retour au billard, annuler la partie. Dans le menu : <kbd>8</kbd> <kbd>2</kbd> pour se déplacer, <kbd>Entrée</kbd> pour valider, <kbd>⌫</kbd> pour fermer.</div>
             </div>
           </div>
         </div>
@@ -315,7 +317,7 @@
         <div class="row g-3">
           <div class="col-md-6">
             <div class="mh-note"><b>Reprise d'égalisation</b> — quand le joueur qui a commencé atteint ses points, l'adversaire joue encore une reprise (sauf option « reprises inégales »). S'il termine aussi, c'est un match nul.</div>
-            <div class="mh-note green"><b>Fin de partie</b> — <kbd>Entrée</kbd> ramène à la page du billard. La feuille de match est enregistrée automatiquement pour le DS.</div>
+            <div class="mh-note green"><b>Fin de partie</b> — <kbd>Entrée</kbd> ramène à la page du billard. Rencontre officielle : la feuille de match est enregistrée automatiquement pour le DS. Les parties amicales n'ont pas de feuille de match.</div>
             <div class="mh-note green"><b>Revanche (partie amicale)</b> — <kbd>+</kbd> puis <kbd>Entrée</kbd> pour confirmer : nouvelle partie avec les mêmes joueurs et le même mode de jeu. On repasse par « Qui commence la partie ? » et l'échauffement. Pour d'autres joueurs ou un autre mode de jeu, recommencez une partie amicale depuis la page du billard.</div>
           </div>
           <div class="col-md-6">
@@ -337,7 +339,7 @@
         <div class="row g-3">
           <div class="col-md-6">
             <div class="mh-note" style="border-left-color:#eab308"><b>Pause</b> — <kbd>.</kbd> affiche « Pause » sur la TV et chez ceux qui suivent en direct ; le chrono s'arrête. <kbd>.</kbd> à nouveau pour reprendre (le chrono se relance avec <kbd>*</kbd>).</div>
-            <div class="mh-note green"><b>Modifier la partie en cours</b> — <kbd>⌫</kbd> › « Modifier la partie en cours » : nom mal tapé, mauvais points à réaliser, catégorie, limite de reprises… Les reprises jouées sont conservées.</div>
+            <div class="mh-note green"><b>Modifier la partie en cours</b> — <kbd>⌫</kbd> › « Modifier la partie en cours » : nom mal tapé, mauvais points à réaliser, limite de reprises (et catégorie en rencontre officielle)… Les reprises jouées sont conservées.</div>
           </div>
           <div class="col-md-6">
             <ol class="mh-steps">
@@ -352,7 +354,7 @@
 
     <!-- Moyenne proportionnelle -->
     <div class="mh-section" id="proportionnelle">
-      <div class="mh-head"><div class="num"><i class="fas fa-balance-scale"></i></div><div><h3>Limite de reprises : la moyenne proportionnelle</h3><p>Quand personne n'a atteint ses points (ex. 60 reprises en 3 bandes)</p></div></div>
+      <div class="mh-head"><div class="num"><i class="fas fa-balance-scale"></i></div><div><h3>Limite de reprises : la moyenne proportionnelle</h3><p>Rencontre officielle : quand personne n'a atteint ses points (ex. 60 reprises en 3 bandes)</p></div></div>
       <div class="mh-body">
         <div class="row g-4">
           <div class="col-lg-7"><img class="mh-shot" src="<?= $img('14_moyenne_prop') ?>" alt="Résultat départagé à la moyenne proportionnelle"><div class="mh-caption">MARTIN a moins de points et une moins bonne moyenne, mais gagne : il a mieux joué par rapport à sa catégorie.</div></div>
@@ -366,7 +368,7 @@
               </table>
             </div>
             <div class="mh-note">Le marquoir fait le calcul tout seul et affiche <b>«&nbsp;Départagés à la moyenne proportionnelle&nbsp;»</b>.</div>
-            <div class="mh-note orange">Il faut que la <b>catégorie des deux joueurs</b> soit encodée. Sinon, le vainqueur est celui qui a réalisé le plus grand pourcentage de ses points.</div>
+            <div class="mh-note orange">Il faut que la <b>catégorie des deux joueurs</b> soit encodée (par le DS). En <b>partie amicale</b>, pas de catégorie : le vainqueur est celui qui a réalisé le plus grand pourcentage de ses points.</div>
             <div class="mh-note green">Si un joueur atteint ses points, rien ne change : il gagne (ou match nul après la reprise d'égalisation).</div>
           </div>
         </div>
@@ -415,6 +417,49 @@
           <div class="col-md-6">
             <div class="mh-note"><b>Fin d'un set</b> — l'écran affiche le résumé du set. <kbd>Entrée</kbd> lance le set suivant ; <kbd>−</kbd> corrige la dernière reprise si besoin.</div>
             <div class="mh-note green"><b>Fin de partie</b> — dès qu'un joueur a gagné le nombre de sets prévu : « Victoire de … 2 sets à 1 », avec les points (et les reprises) de chaque set.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Partie à 3 -->
+    <div class="mh-section" id="trois">
+      <div class="mh-head"><div class="num"><i class="fas fa-users"></i></div><div><h3>Partie amicale à 3 joueurs</h3><p>Trois joueurs, à tour de rôle (le dimanche matin, par exemple)</p></div></div>
+      <div class="mh-body">
+        <div class="row g-4 mb-4">
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('21_amicale3') ?>" alt="Formulaire de partie amicale à 3"><div class="mh-caption">Le formulaire : nom, prénom et points de chacun des trois joueurs.</div></div>
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('22_qui_commence3') ?>" alt="Choix de l'ordre de jeu"><div class="mh-caption">MARTIN commence ; il reste à choisir qui joue en 2<sup>e</sup>.</div></div>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <ol class="mh-steps">
+              <li>Sur la page du billard, cliquez sur <b>Partie amicale à 3</b>.</li>
+              <li>Pour chaque joueur : <b>nom</b>, <b>prénom</b> et <b>points</b> à réaliser (ceux du joueur 1 sont recopiés chez les deux autres).</li>
+              <li>Discipline, format, <b>limite de reprises</b> et <b>reprises inégales</b> comme d'habitude. Pas de chrono ni de sets à 3.</li>
+              <li><b>Continuer</b> : pas d'échauffement, on passe directement au choix de l'ordre de jeu.</li>
+              <li><b>Qui commence ?</b> <kbd>1</kbd>, <kbd>2</kbd> ou <kbd>3</kbd>. Puis <b>Qui joue en 2<sup>e</sup> ?</b> Le 3<sup>e</sup> se déduit tout seul.</li>
+            </ol>
+          </div>
+          <div class="col-md-6">
+            <div class="mh-note orange"><b>Trompé ?</b> — avant le 2<sup>e</sup> choix, <kbd>−</kbd> recommence. Une fois la partie lancée : <kbd>⌫</kbd> › <b>« Changer l'ordre de jeu »</b>, tant qu'aucun coup n'a été joué.</div>
+          </div>
+        </div>
+        <div class="row g-4 mb-3">
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('23_marquoir3') ?>" alt="Marquoir à 3 joueurs"><div class="mh-caption">Trois colonnes, reprises et série en bas. LECOMTE joue avec la blanche.</div></div>
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('24_egalisation3') ?>" alt="Fin du tour"><div class="mh-caption">MARTIN a fini : les deux autres terminent le tour.</div></div>
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('25_resultat3') ?>" alt="Classement d'une partie à 3"><div class="mh-caption">Le classement : 1<sup>er</sup>, 2<sup>e</sup>, 3<sup>e</sup>.</div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <ol class="mh-steps">
+              <li><kbd>Entrée</kbd> passe au joueur suivant : <b>1 → 2 → 3 → 1</b>. <kbd>−</kbd> revient au joueur précédent. Le reste du pavé fonctionne comme à deux.</li>
+              <li><b>Deux billes pour trois</b> : elles alternent (A blanche, B jaune, C blanche, puis A jaune…). Les couleurs changent au début de chaque <b>tour</b>, après le 3<sup>e</sup> joueur.</li>
+              <li>« Corriger une reprise » : <kbd>4</kbd> <kbd>6</kbd> passent d'un joueur à l'autre parmi les trois.</li>
+            </ol>
+          </div>
+          <div class="col-md-6">
+            <div class="mh-note"><b>Fin du tour</b> — quand un joueur atteint ses points, les suivants jouent encore leur reprise : la partie s'arrête à la fin du tour. Avec « reprises inégales », elle s'arrête tout de suite.</div>
+            <div class="mh-note green"><b>Classement</b> — au pourcentage des points réalisés (ex æquo possibles). <kbd>+</kbd> rejoue la même partie à trois.</div>
           </div>
         </div>
       </div>
