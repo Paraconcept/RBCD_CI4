@@ -13,6 +13,8 @@ use Dompdf\Options;
  */
 class TeamRecapPdf
 {
+    private const MAX_COMPACT = 3;
+
     /** Responsable CDR, destinataire de la feuille. */
     public static function cdr(): object
     {
@@ -35,21 +37,28 @@ class TeamRecapPdf
             return is_file($path) ? 'data:image/png;base64,' . base64_encode(file_get_contents($path)) : null;
         };
 
-        $html = view('admin/scoreboard/teams/pdf', [
+        $data = [
             'encounter' => $encounter,
             'result'    => $result,
             'logoFrbb'  => $logo('frbb_kbbb_logo_100.png'),
             'logoLL'    => $logo('Ecusson_FRBB-LL.png'),
             'cdr'       => self::cdr(),
             'signature' => (new ScoreboardTeamSignatureModel())->forEncounter((int) $encounter->id),
-        ]);
+        ];
 
-        $options = new Options();
-        $options->set('defaultFont', 'Times');
-        $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html, 'UTF-8');
-        $dompdf->setPaper('A4', 'landscape');
-        $dompdf->render();
+        // La feuille doit tenir sur une page : on la recompose de plus en plus serrée tant qu'elle déborde
+        // (long commentaire, signatures, plus de 3 matchs)
+        for ($compact = 0; $compact <= self::MAX_COMPACT; $compact++) {
+            $options = new Options();
+            $options->set('defaultFont', 'Times');
+            $dompdf = new Dompdf($options);
+            $dompdf->loadHtml(view('admin/scoreboard/teams/pdf', $data + ['compact' => $compact]), 'UTF-8');
+            $dompdf->setPaper('A4', 'landscape');
+            $dompdf->render();
+            if ($dompdf->getCanvas()->get_page_count() <= 1) {
+                break;
+            }
+        }
 
         return [
             $dompdf->output(),

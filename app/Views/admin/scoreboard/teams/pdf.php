@@ -41,6 +41,32 @@ $rowsCount = max(3, $result['total']);
     .sign { width: 100%; border: 2px solid #000; margin-top: 3mm; height: 17mm; }
     .sign td { vertical-align: top; padding: 1.5mm 2mm; font-size: 10pt; }
     .footer { font-family: Helvetica, Arial, sans-serif; font-size: 8.5pt; margin-top: 1mm; }
+<?php // Niveaux de compactage appliqués par TeamRecapPdf tant que la feuille dépasse une page ?>
+<?php if (($compact ?? 0) >= 1): ?>
+    .head { margin-bottom: 2mm; }
+    .head img { height: 18mm !important; }
+    .team { margin-top: 3mm; }
+    .final { margin-top: 2mm; }
+    .sign { margin-top: 2mm; }
+    .comment td { font-size: 9.5pt; padding: 1.5mm 2.5mm !important; }
+<?php endif; ?>
+<?php if (($compact ?? 0) >= 2): ?>
+    @page { margin: 7mm 10mm; }
+    .head { margin-bottom: 1mm; }
+    .head img { height: 14mm !important; }
+    .head .titles { font-size: 10pt; line-height: 1.15; }
+    .team td { height: 4.6mm; padding: .3mm 1mm; }
+    .team tr.total td { height: 7mm; }
+    .comment td { font-size: 8.5pt; line-height: 1.15; }
+    .sign img { height: 11mm !important; }
+<?php endif; ?>
+<?php if (($compact ?? 0) >= 3): ?>
+    body { font-size: 9.5pt; }
+    .team { margin-top: 2mm; }
+    .team td, .team th { font-size: 9pt; }
+    .comment td { font-size: 7.5pt; line-height: 1.1; padding: 1mm 2mm !important; }
+    .sign img { height: 9mm !important; }
+<?php endif; ?>
 </style>
 </head>
 <body>
@@ -123,8 +149,10 @@ $rowsCount = max(3, $result['total']);
 </table>
 
 <?php if (!empty($encounter->recap_comment)): ?>
-<table class="sign" style="height:auto">
-    <tr><td style="padding:2mm 3mm"><b>Commentaire :</b> <?= nl2br(esc($encounter->recap_comment)) ?></td></tr>
+<table class="sign comment" style="height:auto">
+    <tr><td style="padding:2mm 3mm"><b>Commentaire :</b> <?= ($compact ?? 0) >= 3
+        ? esc(implode(' / ', preg_split('/\s*\R\s*/', trim($encounter->recap_comment))))
+        : nl2br(esc(preg_replace('/(\R\s*){2,}/', "\n", trim($encounter->recap_comment)))) ?></td></tr>
 </table>
 <?php endif; ?>
 <?php if ($signature): ?>
