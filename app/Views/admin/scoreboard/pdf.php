@@ -1,7 +1,7 @@
 <?php
 use App\Models\ScoreboardMatchModel as M;
 
-$perPage    = 75;
+$perPage    = \App\Libraries\MatchSheetPdf::INNINGS_PER_PAGE;
 $date       = $match->started_at ?? $match->scheduled_at;
 // Provisoire pour le jeu par sets (modèle de feuille à venir) : une feuille par set
 $sheets     = $sheets ?: [1 => []];
@@ -57,6 +57,28 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
     .result tr.sign .signed-at { font-size: 6.5pt; color: #444; }
     .result tr.sign .referee { font-weight: bold; margin-left: 2mm; }
     .small { font-size: 8pt; }
+<?php // Niveaux de compactage appliqués par MatchSheetPdf tant qu'une feuille déborde sur la page suivante ?>
+<?php if (($compact ?? 0) >= 1): ?>
+    .federation { margin: 0 0 3mm; }
+    .club { height: 35mm; padding-top: 1mm; }
+    .club .line { line-height: 5.6mm; }
+    .club img { top: 7mm; width: 18mm; }
+    .spacer { height: 1mm !important; }
+    .remarks { font-size: 7.5pt !important; line-height: 1.15; }
+<?php endif; ?>
+<?php if (($compact ?? 0) >= 2): ?>
+    .field { height: 6mm; padding-top: 1mm; }
+    .result td { height: 6.2mm; }
+    .result tr.sign.signed td { height: 8.5mm; }
+    .result tr.sign img { height: 8mm; }
+    .remarks { font-size: 6.8pt !important; }
+<?php endif; ?>
+<?php if (($compact ?? 0) >= 3): ?>
+    .club { height: 32mm; }
+    .club .line { line-height: 4.8mm; font-size: 9pt; }
+    .club img { width: 15mm; }
+    .remarks { font-size: 6pt !important; line-height: 1.05; }
+<?php endif; ?>
 </style>
 </head>
 <body>
@@ -103,15 +125,17 @@ $cell = static function (array $sheet, int $n, int $p, string $key): string {
     </div>
 
     <?php // Les cases de signature remplies sont plus hautes : on reprend la place sur les espacements ?>
-    <div style="height:<?= $signature ? 2 : 6 ?>mm"></div>
+    <div class="spacer" style="height:<?= $signature ? 2 : 6 ?>mm"></div>
     <div class="field"><b>Date :</b> <span><?= $date ? date('d/m/Y', strtotime($date)) : '' ?></span></div>
     <div class="field thick"><b>Epreuve :</b> <span><?= esc(M::competitionLabel($match) ?: ($match->type === 'friendly' ? 'Partie amicale' : '')) ?></span></div>
     <?php if (!empty($match->comment)): ?>
-    <div class="field" style="height:auto;min-height:7mm;font-size:8.5pt;padding-bottom:1mm"><b>Remarques :</b> <?= nl2br(esc($match->comment)) ?></div>
+    <div class="field remarks" style="height:auto;min-height:7mm;font-size:8.5pt;padding-bottom:1mm"><b>Remarques :</b> <?= ($compact ?? 0) >= 3
+        ? esc(implode(' / ', preg_split('/\s*\R\s*/', trim($match->comment))))
+        : nl2br(esc(preg_replace('/(\R\s*){2,}/', "\n", trim($match->comment)))) ?></div>
     <?php else: ?>
     <div class="field"></div>
     <?php endif; ?>
-    <div style="height:<?= $signature ? 1 : 7 ?>mm"></div>
+    <div class="spacer" style="height:<?= $signature ? 1 : 7 ?>mm"></div>
     <div class="field thick"><b>Mode de jeu :</b> <span><?= esc(M::disciplineLabel($match)) ?><?= $match->innings_limit ? ' — ' . (int) $match->innings_limit . ' reprises max.' : '' ?><?= M::isSets($match) ? ' — set ' . $setNo . ' (' . esc(M::distanceLabel($match)) . ')' : '' ?></span><?= $pages > 1 ? ' <span class="small">(feuille ' . ($page + 1) . '/' . $pages . ')</span>' : '' ?></div>
 
     <table class="result">
