@@ -3,7 +3,11 @@ ob_start();
 chdir('/Applications/MAMP/htdocs/RBCD/CI4_2026');
 define('HOMEPATH', getcwd() . '/');
 // Le banc de test de CI4 utilise le groupe « tests » : on le fait pointer sur la base MySQL locale
-$env = parse_ini_file(getcwd() . '/.env', false, INI_SCANNER_RAW);
+// Lecture ligne à ligne : parse_ini_file() échoue sur certaines valeurs du .env (jetons contenant « $ »)
+$env = [];
+foreach (file(getcwd() . '/.env') as $line) {
+    if (preg_match('/^\s*([\w.]+)\s*=\s*(.*?)\s*$/', $line, $m)) $env[$m[1]] = $m[2];
+}
 $cfg = static fn (string $k, string $d) => trim((string) ($env['database.default.' . $k] ?? $d), "'\" ");
 foreach (['hostname' => '127.0.0.1', 'database' => $cfg('database', 'rbcd_ci4_2026'), 'username' => $cfg('username', 'root'), 'password' => $cfg('password', ''), 'DBDriver' => 'MySQLi', 'DBPrefix' => '', 'port' => $cfg('port', '8889')] as $k => $v) {
     $_SERVER['database.tests.' . $k] = $_ENV['database.tests.' . $k] = $v; putenv("database.tests.$k=$v");
@@ -13,6 +17,7 @@ use App\Models\ScoreboardFinalModel as F;
 use App\Models\ScoreboardMatchModel as M;
 use App\Models\ScoreboardTeamEncounterModel as TE;
 $out = __DIR__ . '/pages/';
+is_dir($out) || mkdir($out, 0777, true);
 $log = fn (...$a) => fwrite(STDERR, implode('', $a) . "\n");
 $db  = db_connect();
 $maxPlayer = (int) $db->query('select coalesce(max(id),0) m from scoreboard_players')->getRow()->m;
@@ -61,12 +66,32 @@ try {
         $mid = $mm->insert(['type' => 'official', 'status' => 'scheduled', 'team_encounter_id' => $teId, 'scheduled_at' => "$today 19:30:00", 'discipline' => 'libre', 'format' => 'PB',
             'table_id' => $i + 1, 'p1_member_id' => $r->id, 'p1_license' => $r->frbb_license, 'p1_last_name' => mb_strtoupper($r->last_name), 'p1_first_name' => $r->first_name,
             'p1_club' => 'RBC Disonais 1', 'p1_distance' => [60, 50, 40][$i], 'p2_last_name' => ['MARTIN', 'LEGRAND', 'ABSENT'][$i], 'p2_first_name' => ['Paul', 'Luc', ''][$i],
-            'p2_club' => 'B.C. Herve 2', 'p2_distance' => [55, 50, 0][$i], 'p2_license' => ['4521', '3987', null][$i]]);
+            'p2_club' => 'B.C. Herve 2', 'p2_distance' => [55, 50, 0][$i], 'p2_license' => ['4521', '3987', null][$i], 'signature_required' => 0]);
         $ids['matches'][] = $mid;
         if ($i === 0) $play($mid, $sim(60, 55, [0, 1, 1, 2, 3, 4, 5, 7, 9], 11));
         if ($i === 1) $play($mid, $sim(50, 50, [0, 1, 2, 2, 3, 4, 6, 8], 23));
         if ($i === 2) $mm->update($mid, M::forfeitData(2, "$today 19:30:00"));
     }
+
+    // Signatures de démonstration : feuille de match de $b (joueurs + arbitre) et feuille récapitulative (capitaines)
+    $sig = function (float $seed): string {
+        $im = imagecreatetruecolor(900, 300);
+        imagesavealpha($im, true);
+        imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
+        imagesetthickness($im, 6);
+        $ink = imagecolorallocate($im, 0, 0, 0);
+        for ($x = 100; $x < 760; $x += 6) {
+            $y  = (int) (160 - 70 * sin(($x / 60) * (1 + $seed)) * (1 - ($x - 100) / 1400));
+            $y2 = (int) (160 - 70 * sin((($x + 6) / 60) * (1 + $seed)) * (1 - ($x - 94) / 1400));
+            imageline($im, $x, $y, $x + 6, $y2, $ink);
+        }
+        imageline($im, 220, 240, 700, 232, $ink);
+        ob_start(); imagepng($im);
+        return 'data:image/png;base64,' . base64_encode(ob_get_clean());
+    };
+    $db->table('scoreboard_signatures')->insert(['match_id' => $b, 'referee_name' => 'Pierre GOFFIN', 'p1_signature' => $sig(0.1),
+        'p2_signature' => $sig(0.5), 'referee_signature' => $sig(0.9), 'signed_at' => M::now()]);
+    $db->table('scoreboard_team_signatures')->insert(['encounter_id' => $teId, 'home_signature' => $sig(0.3), 'away_signature' => $sig(0.7), 'signed_at' => M::now()]);
 
     // Finale (4 joueurs, 2 billards), rendue avant puis pendant
     $cats = $db->query("select id, points from categories_new where game_mode='B3PF' order by average_min desc limit 4")->getResult();

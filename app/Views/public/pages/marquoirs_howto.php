@@ -126,6 +126,8 @@
       <a href="#chrono">Chrono et time-outs</a>
       <a href="#fin">Fin de partie</a>
       <a href="#corrections">Pause et corrections</a>
+      <a href="#signature">Signer la feuille</a>
+      <a href="#cloture">Rencontre d'équipe</a>
       <a href="#proportionnelle">Moyenne proportionnelle</a>
       <a href="#sets">Partie par sets</a>
       <a href="#trois">Partie à 3</a>
@@ -317,7 +319,7 @@
         <div class="row g-3">
           <div class="col-md-6">
             <div class="mh-note"><b>Reprise d'égalisation</b> — quand le joueur qui a commencé atteint ses points, l'adversaire joue encore une reprise (sauf option « reprises inégales »). S'il termine aussi, c'est un match nul.</div>
-            <div class="mh-note green"><b>Fin de partie</b> — <kbd>Entrée</kbd> ramène à la page du billard. Rencontre officielle : la feuille de match est enregistrée automatiquement pour le DS. Les parties amicales n'ont pas de feuille de match.</div>
+            <div class="mh-note green"><b>Fin de partie</b> — <kbd>Entrée</kbd> ramène à la page du billard. Rencontre officielle : la feuille de match est enregistrée automatiquement pour le DS, et <kbd>+</kbd> permet de la signer (<a href="#signature">voir plus bas</a>). Les parties amicales n'ont pas de feuille de match.</div>
             <div class="mh-note green"><b>Revanche (partie amicale)</b> — <kbd>+</kbd> puis <kbd>Entrée</kbd> pour confirmer : nouvelle partie avec les mêmes joueurs et le même mode de jeu. On repasse par « Qui commence la partie ? » et l'échauffement. Pour d'autres joueurs ou un autre mode de jeu, recommencez une partie amicale depuis la page du billard.</div>
           </div>
           <div class="col-md-6">
@@ -347,6 +349,56 @@
               <li><kbd>8</kbd> <kbd>2</kbd> choisissent la reprise, <kbd>4</kbd> <kbd>6</kbd> le joueur.</li>
               <li><kbd>Entrée</kbd>, tapez la bonne série, puis <kbd>Entrée</kbd> : tout est recalculé. <kbd>⌫</kbd> ferme l'écran.</li>
             </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signature de la feuille de match -->
+    <div class="mh-section" id="signature">
+      <div class="mh-head"><div class="num"><i class="fas fa-signature"></i></div><div><h3>Signer la feuille de match</h3><p>Rencontre officielle : les deux joueurs et l'arbitre signent sur le Chromebook</p></div></div>
+      <div class="mh-body">
+        <div class="row g-4 mb-3">
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('26_resultat_signer') ?>" alt="Partie terminée : signer la feuille de match"><div class="mh-caption">Partie terminée : <kbd>+</kbd> ou le bouton « Signer la feuille de match ».</div></div>
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('27_signature') ?>" alt="Écran de signature"><div class="mh-caption">Un seul grand cadre ; à droite, qui signe. La coche verte : c'est signé.</div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <ol class="mh-steps">
+              <li>Le <b>joueur A</b> signe du doigt dans le grand cadre blanc (un stylet capacitif est plus précis ; la main posée sur l'écran est ignorée).</li>
+              <li>Touchez « <b>Joueur B</b> », puis « <b>Arbitre</b> » : chacun signe dans le même cadre. « Effacer » recommence la signature affichée.</li>
+              <li>Tapez le <b>nom de l'arbitre</b> (obligatoire), puis « <b>Enregistrer</b> » : retour à la page du billard.</li>
+            </ol>
+          </div>
+          <div class="col-md-6">
+            <div class="mh-note green"><b>Facultatif</b> — <kbd>Entrée</kbd> ramène au billard sans signer. Les signatures sont imprimées sur la feuille de match PDF. Le DS choisit quelles rencontres sont à signer.</div>
+            <div class="mh-note orange"><b>Définitif</b> — une fois enregistrée, la feuille est verrouillée : plus de correction ni de modification de la partie au marquoir.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clôture d'une rencontre d'équipe -->
+    <div class="mh-section" id="cloture">
+      <div class="mh-head"><div class="num"><i class="fas fa-flag-checkered"></i></div><div><h3>Clôturer une rencontre d'équipe</h3><p>Coupe des Régions : signature des capitaines et feuille récapitulative</p></div></div>
+      <div class="mh-body">
+        <div class="row g-4 mb-3">
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('28_billard_rencontre') ?>" alt="Rencontre d'équipe du jour sur la page du billard"><div class="mh-caption">Sur chaque billard, le jour même : l'état des matchs de la rencontre.</div></div>
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('29_cloture') ?>" alt="Clôture de la rencontre"><div class="mh-caption">Le récapitulatif, le commentaire et la signature des deux capitaines.</div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <ol class="mh-steps">
+              <li>Quand les matchs sont <b>terminés</b> (et leurs feuilles signées si c'est demandé), touchez « <b>Clôturer la rencontre</b> » sur la page d'un des billards.</li>
+              <li>Vérifiez le récapitulatif ; ajoutez un <b>commentaire</b> si nécessaire.</li>
+              <li>Chaque <b>capitaine</b> touche le bouton de son équipe et signe, puis « <b>Enregistrer les signatures</b> ».</li>
+              <li>« <b>Feuille récapitulative PDF</b> » l'ouvre pour l'imprimer.</li>
+            </ol>
+          </div>
+          <div class="col-md-6">
+            <div class="mh-note green"><b>L'envoi par e-mail</b> (club adverse et responsable CDR) est fait par le <b>directeur sportif</b>, depuis l'administration.</div>
+            <div class="mh-note orange"><b>Définitif</b> — une fois signée, la rencontre est verrouillée : plus de correction de ses matchs ni du commentaire au marquoir.</div>
+            <div class="mh-note"><b>Le jour même uniquement</b> — le lendemain, le bloc disparaît des billards : tout se fait alors dans l'administration.</div>
           </div>
         </div>
       </div>
