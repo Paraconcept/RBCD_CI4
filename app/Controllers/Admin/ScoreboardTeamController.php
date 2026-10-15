@@ -4,12 +4,12 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Libraries\MatchSheetPdf;
+use App\Libraries\TeamRecapPdf;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardTeamEncounterModel;
+use App\Models\ScoreboardTeamSignatureModel;
 use App\Models\SiteSettingModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 
 class ScoreboardTeamController extends BaseController
 {
@@ -71,12 +71,13 @@ class ScoreboardTeamController extends BaseController
             'attachable' => $attachable,
             'result'     => ScoreboardTeamEncounterModel::computeResult($encounter, $matches),
             'recipients' => $this->recapRecipients($encounter),
+            'recapSignedAt' => (new ScoreboardTeamSignatureModel())->signedAt($id),
         ]);
     }
 
     public function pdf(int $id)
     {
-        [$pdf, $filename] = $this->renderRecapPdf($this->find($id));
+        [$pdf, $filename] = TeamRecapPdf::render($this->find($id));
 
         return $this->response
             ->setHeader('Content-Type', 'application/pdf')
@@ -98,7 +99,7 @@ class ScoreboardTeamController extends BaseController
             return $back->with('error', 'Aucune adresse e-mail valide pour envoyer la feuille récapitulative.');
         }
 
-        [$pdf, $filename] = $this->renderRecapPdf($encounter);
+        [$pdf, $filename] = TeamRecapPdf::render($encounter);
         $sheets = array_map(static fn ($m) => MatchSheetPdf::render($m),
             array_filter($this->model->getMatches($id), static fn ($m) => $m->status === 'finished'));
 
@@ -128,42 +129,11 @@ class ScoreboardTeamController extends BaseController
 
     private function recapRecipients(object $encounter): array
     {
-        $emails = [$encounter->team_email, $encounter->opponent_email, $this->cdr()->email];
+        $emails = [$encounter->team_email, $encounter->opponent_email, TeamRecapPdf::cdr()->email];
         $emails = array_filter(array_map(static fn ($e) => strtolower(trim((string) $e)), $emails),
             static fn ($e) => filter_var($e, FILTER_VALIDATE_EMAIL));
 
         return array_values(array_unique($emails));
-    }
-
-    /** @return array{0: string, 1: string} PDF binaire et nom de fichier */
-    private function renderRecapPdf(object $encounter): array
-    {
-        $result = ScoreboardTeamEncounterModel::computeResult($encounter, $this->model->getMatches((int) $encounter->id));
-
-        $logo = static function (string $file): ?string {
-            $path = FCPATH . 'assets/images/' . $file;
-            return is_file($path) ? 'data:image/png;base64,' . base64_encode(file_get_contents($path)) : null;
-        };
-
-        $html = view('admin/scoreboard/teams/pdf', [
-            'encounter' => $encounter,
-            'result'    => $result,
-            'logoFrbb'  => $logo('frbb_kbbb_logo_100.png'),
-            'logoLL'    => $logo('Ecusson_FRBB-LL.png'),
-            'cdr'       => $this->cdr(),
-        ]);
-
-        $options = new Options();
-        $options->set('defaultFont', 'Times');
-        $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html, 'UTF-8');
-        $dompdf->setPaper('A4', 'landscape');
-        $dompdf->render();
-
-        return [
-            $dompdf->output(),
-            'recapitulatif_' . url_title($encounter->competition . '-' . $encounter->code, '-', true) . '.pdf',
-        ];
     }
 
     public function forfeit(int $id)
@@ -263,18 +233,8 @@ class ScoreboardTeamController extends BaseController
             'teams'       => $this->model->getCdrTeams(),
             'clubEmail'   => (string) (new SiteSettingModel())->getSetting('scoreboard_club_email', 'ds@rbcd.be'),
             'knownEmails' => $this->model->knownOpponentEmails(),
-            'cdr'         => $this->cdr(),
+            'cdr'         => TeamRecapPdf::cdr(),
         ]);
-    }
-
-    private function cdr(): object
-    {
-        $s = new SiteSettingModel();
-
-        return (object) [
-            'name'  => (string) $s->getSetting('scoreboard_cdr_name', 'Christian JEUNEAU'),
-            'email' => (string) $s->getSetting('scoreboard_cdr_email', 'cdregions@gmail.com'),
-        ];
     }
 
     private function buildData(?object $current): array
@@ -347,6 +307,7 @@ class ScoreboardTeamController extends BaseController
             'discipline'    => $team->discipline ?? 'libre',
             'format'        => $team->format ?? 'PB',
             'notes'         => $notes !== '' ? $notes : null,
+            'recap_signature_required' => !empty($post['recap_signature_required']) ? 1 : 0,
         ], $errors];
     }
 

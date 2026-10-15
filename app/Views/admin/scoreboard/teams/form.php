@@ -126,6 +126,14 @@ $sched  = $encounter->scheduled_at ?? null;
                value="<?= esc(trim($cdr->name . ' — ' . $cdr->email, ' —')) ?>">
         <small class="text-muted">Défini dans <a href="<?= base_url('admin/scoreboard/settings') ?>">Marquoir › Paramètres</a> ; commun à toutes les rencontres.</small>
       </div>
+      <div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" name="recap_signature_required" id="recap_signature_required" value="1"
+                 <?= old('recap_signature_required', $isEdit ? $encounter->recap_signature_required : '1') ? 'checked' : '' ?>>
+          <label class="custom-control-label" for="recap_signature_required">Feuille récapitulative à signer</label>
+        </div>
+        <small class="text-muted">Coché : les deux capitaines signent la feuille récapitulative sur un Chromebook du marquoir, le jour de la rencontre, avant de pouvoir l'imprimer.</small>
+      </div>
       <div class="form-group mb-0">
         <label for="notes">Remarques</label>
         <textarea name="notes" id="notes" class="form-control" rows="2"><?= esc($val('notes')) ?></textarea>

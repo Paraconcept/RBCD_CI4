@@ -127,9 +127,23 @@ $rowsCount = max(3, $result['total']);
     <tr><td style="padding:2mm 3mm"><b>Commentaire :</b> <?= nl2br(esc($encounter->recap_comment)) ?></td></tr>
 </table>
 <?php endif; ?>
+<?php if ($signature): ?>
+<table class="sign" style="height:auto">
+    <tr>
+        <?php foreach (['home' => TE::homeLabel($encounter), 'away' => TE::awayLabel($encounter)] as $side => $label): ?>
+        <td style="width:20%;vertical-align:middle;<?= $side === 'away' ? 'border-left:1px solid #000' : '' ?>">
+            <b>Capitaine</b><br><?= esc($label) ?>
+            <?php if ($side === 'home'): ?><br><span style="font-size:8pt">signée le <?= date('d/m/Y à H:i', strtotime($signature->signed_at)) ?></span><?php endif; ?>
+        </td>
+        <td style="width:30%;vertical-align:middle;padding:1mm"><img src="<?= $signature->{$side . '_signature'} ?>" style="height:13mm"></td>
+        <?php endforeach; ?>
+    </tr>
+</table>
+<?php else: ?>
 <table class="sign">
     <tr><td style="height:16mm"><b>Signatures :</b> (facultatif pour l'envoi par mail. Conservez les feuilles de match en cas de litige)</td></tr>
 </table>
+<?php endif; ?>
 <div class="footer">
     Envoyer à <?= esc($cdr->name) ?><span style="margin-left:30mm"><?= esc($cdr->email) ?></span>
 </div>

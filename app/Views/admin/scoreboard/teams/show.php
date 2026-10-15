@@ -152,6 +152,19 @@ $statusBadge = static fn (string $s, int $absent = 0): string => $absent ? '<spa
       <?php endif; ?>
     </div>
   </div>
+  <?php if ($result['complete']): ?>
+  <div class="px-3 pt-3 mb-n2">
+    <div class="alert alert-light border mb-2 py-2">
+      <?php if ($recapSignedAt): ?>
+      <i class="fas fa-file-signature text-success mr-2"></i>Feuille récapitulative signée par les capitaines le <strong><?= date('d/m/Y à H:i', strtotime($recapSignedAt)) ?></strong>.
+      <?php elseif ($encounter->recap_signature_required): ?>
+      <i class="fas fa-signature text-muted mr-2"></i>Feuille récapitulative non signée par les capitaines.
+      <?php else: ?>
+      <i class="fas fa-signature text-muted mr-2"></i>Signature des capitaines non demandée.
+      <?php endif; ?>
+    </div>
+  </div>
+  <?php endif; ?>
   <?php if ($encounter->recap_sent_at): ?>
   <div class="px-3 pt-3 mb-n2">
     <div class="alert alert-light border mb-0 py-2">

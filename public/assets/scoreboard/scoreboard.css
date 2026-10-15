@@ -470,3 +470,15 @@
 }
 .sb-sign-pad.signed { border-style: solid; border-color: var(--sb-green); }
 .sbd-signed { color: var(--sb-green); font-weight: 700; }
+
+/* Clôture d'une rencontre d'équipe */
+.sb-team-recap { --bs-table-bg: transparent; font-size: .95rem; }
+.sb-team-recap th { color: var(--sb-muted); font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; }
+.sb-team-recap td, .sb-team-recap th { text-align: center; white-space: nowrap; }
+.sb-team-recap td.name, .sb-team-recap th:nth-child(2), .sb-team-recap th:nth-child(7) { text-align: left; white-space: normal; }
+.sb-team-recap td.pm { font-weight: 700; color: var(--sb-p2); }
+.sb-team-recap tr.state td { text-align: left; font-size: .8rem; color: var(--sb-muted); padding-top: 0; border-bottom: 1px solid var(--sb-line); }
+.sb-team-recap tfoot td { font-weight: 700; border-top: 2px solid var(--sb-line); }
+.sb-encounter .sb-encounter-match { display: flex; gap: .5rem; align-items: baseline; font-size: .9rem; padding: .2rem 0; }
+.sb-encounter .sb-encounter-match small { color: var(--sb-muted); }
+.sbd-encounter-hint { color: var(--sb-p2); font-weight: 600; }

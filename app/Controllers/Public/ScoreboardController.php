@@ -10,6 +10,8 @@ use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
 use App\Models\ScoreboardSignatureModel;
 use App\Models\ScoreboardTableModel;
+use App\Models\ScoreboardTeamEncounterModel;
+use App\Models\ScoreboardTeamSignatureModel;
 use App\Models\SiteSettingModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
@@ -81,12 +83,20 @@ class ScoreboardController extends BaseController
         $this->matches->purgeOldFriendlies();
         $lastFinished = $this->matches->getRecentForTable($tableId);
 
+        $teamModel  = new ScoreboardTeamEncounterModel();
+        $teamSigned = new ScoreboardTeamSignatureModel();
+        $encounters = [];
+        foreach ($teamModel->getToday() as $e) {
+            $encounters[] = ['encounter' => $e, 'state' => $teamModel->closingState($e), 'signedAt' => $teamSigned->signedAt((int) $e->id)];
+        }
+
         return view('public/scoreboard/table', [
             'title'        => $table->name,
             'table'        => $table,
             'startable'    => $this->matches->getStartableForTable($tableId),
             'upcoming'     => $this->matches->getUpcomingForTable($tableId),
             'lastFinished' => $lastFinished,
+            'encounters'   => $encounters,
             'startWindow'  => $this->startWindow(),
             'deviceTable'  => $this->deviceTable(),
         ]);
@@ -213,7 +223,9 @@ class ScoreboardController extends BaseController
             'match' => $match,
             'table' => $match->table_id ? $this->tables->find($match->table_id) : null,
             'state'  => $this->matches->stateFor($match),
-            'signed' => $this->signatures->isSigned((int) $match->id),
+            'signed'    => $this->signatures->isSigned((int) $match->id),
+            'locked'    => $this->locked($match),
+            'encounter' => $this->lastOfEncounter($match),
         ]);
     }
 
@@ -320,7 +332,33 @@ class ScoreboardController extends BaseController
     private function signable(object $match): bool
     {
         return $match->type === 'official' && $match->status === 'finished' && $match->signature_required
-            && !ScoreboardMatchModel::isTrio($match) && !$this->signatures->isSigned((int) $match->id);
+            && !ScoreboardMatchModel::isTrio($match) && !$this->locked($match);
+    }
+
+    /** Feuille de match signée, ou rencontre d'équipe clôturée (signée par les capitaines) : résultat définitif. */
+    private function locked(object $match): bool
+    {
+        return $this->signatures->isSigned((int) $match->id)
+            || (new ScoreboardTeamSignatureModel())->isSigned($match->team_encounter_id ? (int) $match->team_encounter_id : null);
+    }
+
+    /** Rencontre d'équipe dont tous les autres matchs sont terminés (et signés si demandé) : celui-ci est le dernier. */
+    private function lastOfEncounter(object $match): ?object
+    {
+        if (!$match->team_encounter_id) {
+            return null;
+        }
+        $teams     = new ScoreboardTeamEncounterModel();
+        $encounter = $teams->find((int) $match->team_encounter_id);
+        if (!$encounter) {
+            return null;
+        }
+        foreach ($teams->closingState($encounter)['matches'] as $item) {
+            if ((int) $item['match']->id !== (int) $match->id && !in_array($item['state'], ['signed', 'done', 'forfeit'], true)) {
+                return null;
+            }
+        }
+        return $encounter;
     }
 
     /**
@@ -329,7 +367,7 @@ class ScoreboardController extends BaseController
     public function edit(int $matchId)
     {
         $match = $this->findMatch($matchId);
-        if (!in_array($match->status, ['live', 'finished'], true) || $this->signatures->isSigned($matchId)) {
+        if (!in_array($match->status, ['live', 'finished'], true) || $this->locked($match)) {
             return redirect()->to(base_url('marquoir/match/' . $matchId));
         }
 
@@ -345,7 +383,7 @@ class ScoreboardController extends BaseController
     public function update(int $matchId)
     {
         $match = $this->findMatch($matchId);
-        if (!in_array($match->status, ['live', 'finished'], true) || $this->signatures->isSigned($matchId)) {
+        if (!in_array($match->status, ['live', 'finished'], true) || $this->locked($match)) {
             return redirect()->to(base_url('marquoir/match/' . $matchId));
         }
 
@@ -407,7 +445,7 @@ class ScoreboardController extends BaseController
     public function cancel(int $matchId)
     {
         $match = $this->findMatch($matchId);
-        if ($this->signatures->isSigned($matchId)) {
+        if ($this->locked($match)) {
             return redirect()->to(base_url('marquoir/match/' . $matchId));
         }
         $this->matches->resetOrCancel($match);
@@ -433,7 +471,7 @@ class ScoreboardController extends BaseController
         if (!in_array($match->status, ['live', 'finished'], true)) {
             return $this->response->setStatusCode(409)->setJSON(['error' => 'Partie non démarrée ou annulée']);
         }
-        if ($this->signatures->isSigned($matchId)) {
+        if ($this->locked($match)) {
             return $this->response->setStatusCode(409)->setJSON(['error' => 'Feuille de match signée']);
         }
 

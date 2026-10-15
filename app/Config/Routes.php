@@ -111,6 +111,10 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->post('match/(:num)/signer',           'Public\ScoreboardController::signPost/$1');
     $routes->get ('match/(:num)/modifier',         'Public\ScoreboardController::edit/$1');
     $routes->post('match/(:num)/modifier',         'Public\ScoreboardController::update/$1');
+    $routes->get ('rencontre/(:num)',              'Public\ScoreboardTeamController::show/$1');
+    $routes->post('rencontre/(:num)/commentaire',  'Public\ScoreboardTeamController::comment/$1');
+    $routes->post('rencontre/(:num)/signer',       'Public\ScoreboardTeamController::sign/$1');
+    $routes->get ('rencontre/(:num)/pdf',          'Public\ScoreboardTeamController::pdf/$1');
     $routes->get ('joueurs',                       'Public\ScoreboardController::searchPlayers');
     $routes->get ('bar',                           'Public\BarController::index');
     $routes->get ('api/bar',                       'Public\BarController::state');

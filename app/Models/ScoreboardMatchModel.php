@@ -667,6 +667,8 @@ class ScoreboardMatchModel extends Model
         $this->db->transStart();
         $this->db->table('scoreboard_innings')->where('match_id', $id)->delete();
         $this->db->table('scoreboard_signatures')->where('match_id', $id)->delete();
+        // Le résultat de la rencontre d'équipe change : la feuille récapitulative signée n'est plus valable
+        $this->db->query('DELETE s FROM scoreboard_team_signatures s JOIN scoreboard_matches m ON m.team_encounter_id = s.encounter_id WHERE m.id = ?', [$id]);
         $this->update($id, [
             'status' => 'scheduled', 'starting_player' => null, 'current_run' => 0, 'paused' => 0, 'winner' => null, 'absent' => 0,
             'p1_points' => 0, 'p1_innings' => 0, 'p1_high_run' => 0, 'p1_sets' => 0, 'p1_extensions_used' => 0,

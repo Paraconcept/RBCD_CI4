@@ -24,7 +24,7 @@ class ScoreboardTeamEncounterModel extends Model
 
     protected $allowedFields = [
         'code', 'competition', 'team_id', 'team_name', 'team_club', 'team_number', 'team_email', 'opponent_club', 'opponent_number', 'opponent_email',
-        'scheduled_at', 'discipline', 'format', 'notes', 'recap_comment', 'recap_sent_at', 'recap_sent_to', 'created_by',
+        'scheduled_at', 'discipline', 'format', 'notes', 'recap_comment', 'recap_signature_required', 'recap_sent_at', 'recap_sent_to', 'created_by',
     ];
 
     protected $useTimestamps = true;
@@ -52,6 +52,48 @@ class ScoreboardTeamEncounterModel extends Model
             ->orderBy('scheduled_at', 'ASC')
             ->orderBy('scoreboard_matches.id', 'ASC')
             ->findAll();
+    }
+
+    /** Rencontres programmées aujourd'hui (bloc « Rencontre d'équipe du jour » des Chromebooks). */
+    public function getToday(): array
+    {
+        return $this->where('scheduled_at >=', ScoreboardMatchModel::now('Y-m-d 00:00:00'))
+            ->where('scheduled_at <=', ScoreboardMatchModel::now('Y-m-d 23:59:59'))
+            ->orderBy('scheduled_at', 'ASC')
+            ->findAll();
+    }
+
+    /**
+     * État de clôture au marquoir : chaque match (à jouer, en cours, à signer, signé, terminé, forfait)
+     * et « ready » quand tous sont terminés et signés là où la signature est demandée.
+     */
+    public function closingState(object $e): array
+    {
+        $matches  = $this->getMatches((int) $e->id);
+        $signed   = [];
+        if ($matches) {
+            $rows   = $this->db->table('scoreboard_signatures')->select('match_id')
+                ->whereIn('match_id', array_map(static fn ($m) => (int) $m->id, $matches))->get()->getResult();
+            $signed = array_map(static fn ($r) => (int) $r->match_id, $rows);
+        }
+
+        $items = [];
+        $ready = (bool) $matches;
+        foreach ($matches as $m) {
+            if ($m->status === 'finished' && (int) $m->absent > 0) {
+                $state = 'forfeit';
+            } elseif ($m->status === 'finished' && in_array((int) $m->id, $signed, true)) {
+                $state = 'signed';
+            } elseif ($m->status === 'finished') {
+                $state = $m->signature_required ? 'to_sign' : 'done';
+            } else {
+                $state = $m->status;
+            }
+            $ready   = $ready && in_array($state, ['forfeit', 'signed', 'done'], true);
+            $items[] = ['match' => $m, 'state' => $state];
+        }
+
+        return ['matches' => $items, 'ready' => $ready, 'result' => self::computeResult($e, $matches)];
     }
 
     /**

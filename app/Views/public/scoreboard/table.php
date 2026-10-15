@@ -61,6 +61,29 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
         <?php endif; ?>
     </div>
     <div class="col-lg-4">
+        <?php foreach ($encounters as $enc): $e = $enc['encounter']; $st = $enc['state']; ?>
+        <?php $labels = ['scheduled' => 'à jouer', 'live' => 'en cours', 'to_sign' => 'terminé — à signer', 'signed' => 'terminé, signé', 'done' => 'terminé', 'forfeit' => 'forfait']; ?>
+        <div class="sb-card sb-encounter mb-4">
+            <div class="sb-match-meta mb-1">
+                <span class="badge bg-sb"><?= esc($e->competition) ?> · <?= esc($e->code) ?></span>
+                <span>Rencontre d'équipe du jour</span>
+            </div>
+            <div class="sb-tile-name mb-2"><?= esc(\App\Models\ScoreboardTeamEncounterModel::homeLabel($e)) ?> – <?= esc(\App\Models\ScoreboardTeamEncounterModel::awayLabel($e)) ?></div>
+            <?php foreach ($st['matches'] as $i => $item): $ok = in_array($item['state'], ['signed', 'done', 'forfeit'], true); ?>
+            <div class="sb-encounter-match">
+                <i class="<?= $ok ? 'fas fa-circle-check text-success' : ($item['state'] === 'live' ? 'fas fa-play text-warning' : ($item['state'] === 'to_sign' ? 'fas fa-signature text-warning' : 'far fa-clock text-secondary')) ?>"></i>
+                <span>Match <?= $i + 1 ?></span> <small><?= $labels[$item['state']] ?></small>
+            </div>
+            <?php endforeach; ?>
+            <?php if ($enc['signedAt']): ?>
+            <a href="<?= base_url('marquoir/rencontre/' . $e->id . '?billard=' . $table->id) ?>" class="btn btn-outline-success w-100 mt-3"><i class="fas fa-file-signature me-2"></i>Clôturée — feuille récapitulative</a>
+            <?php elseif ($st['ready']): ?>
+            <a href="<?= base_url('marquoir/rencontre/' . $e->id . '?billard=' . $table->id) ?>" class="btn btn-sb w-100 mt-3"><i class="fas fa-flag-checkered me-2"></i>Clôturer la rencontre</a>
+            <?php else: ?>
+            <a href="<?= base_url('marquoir/rencontre/' . $e->id . '?billard=' . $table->id) ?>" class="btn btn-outline-secondary w-100 mt-3"><i class="fas fa-lock me-2"></i>Clôture après les <?= count($st['matches']) ?> matchs</a>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
         <a href="<?= base_url('marquoir/billard/' . $table->id . '/amicale') ?>" class="sb-tile sb-tile-cta mb-4">
             <i class="fas fa-handshake"></i>
             <span class="sb-tile-name">Partie amicale</span>
