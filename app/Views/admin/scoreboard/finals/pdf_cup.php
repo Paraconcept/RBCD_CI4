@@ -15,7 +15,15 @@ $lastDay  = $final->day2_at ?? $final->scheduled_at;
     @page { margin: 10mm 12mm; }
     body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; color: #000; margin: 0; }
     table { border-collapse: collapse; }
-    .sheet { width: 100%; border: 2px solid #000; }
+    .sheet { border: 2px solid #000; }
+    .grid { table-layout: fixed; }
+    .grid .w-who { width: 25%; } .grid .w-opp { width: 23%; } .grid .w-last { width: 11%; }
+    .grid.next { border-top: 0; }
+    /* Un joueur n'est jamais coupé entre deux pages */
+    .player { page-break-inside: avoid; }
+    /* Beaucoup de matchs (5 à 7 joueurs) : lignes resserrées pour tenir sur une page */
+    body.compact .grid td { padding-top: .1mm; padding-bottom: .1mm; font-size: 9pt; }
+    body.compact .grid td.rank { font-size: 22pt; }
     .head td { padding: 1.5mm 3mm; vertical-align: middle; }
     .head .club, .head .season { font-weight: bold; font-size: 10.5pt; white-space: nowrap; }
     .head .title { font-weight: bold; font-size: 16pt; text-align: center; }
@@ -33,10 +41,10 @@ $lastDay  = $final->day2_at ?? $final->scheduled_at;
     .note { font-size: 8.5pt; margin-top: 4mm; }
 </style>
 </head>
-<body>
+<?php $rowsTotal = array_sum(array_map(static fn ($l) => count($l) + 1, $lines)); ?>
+<body class="<?= $rowsTotal > 25 ? 'compact' : '' ?>">
 
-<table class="sheet">
-    <tr><td>
+<div class="sheet">
         <table class="head" style="width:100%">
             <tr>
                 <td class="club" colspan="2">RBC Disonais</td>
@@ -50,10 +58,11 @@ $lastDay  = $final->day2_at ?? $final->scheduled_at;
         </table>
 
         <table class="grid">
-            <tr>
-                <th class="big">NOMS &nbsp; CLUBS</th><th class="big">ADVERSAIRES</th>
-                <th>Points de<br>Matches</th><th>Points<br>Réalisés</th><th>Reprises</th><th>Moyenne</th><th>Série</th><th>Moyenne<br>Proportion.</th>
-            </tr>
+            <thead><tr>
+                <th class="big w-who">NOMS &nbsp; CLUBS</th><th class="big w-opp">ADVERSAIRES</th>
+                <th>Points de<br>Matches</th><th>Points<br>Réalisés</th><th>Reprises</th><th>Moyenne</th><th>Série</th><th class="w-last">Moyenne<br>Proportion.</th>
+            </tr></thead>
+        </table>
             <?php foreach ($standings as $r):
                 $p    = $r['player'];
                 $min  = (float) ($p->average_min ?? 0);
@@ -63,6 +72,7 @@ $lastDay  = $final->day2_at ?? $final->scheduled_at;
                 $who  = ['<b>' . esc(trim(mb_strtoupper($p->last_name) . ' ' . $p->first_name)) . '</b>', esc($p->license ?? ''), esc($p->category ?? ''),
                          $min > 0 ? $num($min) : '', $max > 0 ? $num($max) : '', esc($p->club ?? '')];
             ?>
+            <div class="player"><table class="grid next">
                 <?php foreach ($rows ?: [null] as $i => $l):
                     $m    = $l['match'] ?? null;
                     $done = $m && $m->status === 'finished';
@@ -90,10 +100,9 @@ $lastDay  = $final->day2_at ?? $final->scheduled_at;
                     <td><?= $r['high_run'] ?></td>
                     <td><?= $r['proportional'] !== null ? $num($r['proportional']) : '' ?></td>
                 </tr>
+            </table></div>
             <?php endforeach; ?>
-        </table>
-    </td></tr>
-</table>
+</div>
 
 <div style="text-align:center;margin-top:10mm;font-size:9pt">Dison, le <?= date('d.m.Y', strtotime($lastDay ?? 'now')) ?></div>
 <table class="foot">

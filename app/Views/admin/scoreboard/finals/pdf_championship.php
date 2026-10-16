@@ -33,7 +33,15 @@ foreach ($standings as $r) {
     .fed td { vertical-align: middle; text-align: center; }
     .fed .t { font-family: Helvetica, Arial, sans-serif; font-size: 9pt; line-height: 1.35; }
     .fed .t b { font-size: 10.5pt; }
-    .sheet { width: 100%; border: 2px solid #000; }
+    .sheet { border: 2px solid #000; }
+    .grid { table-layout: fixed; }
+    .grid .w-who { width: 22%; } .grid .w-opp { width: 17%; } .grid .w-last { width: 10%; }
+    .grid.next { border-top: 0; }
+    /* Un joueur n'est jamais coupé entre deux pages */
+    .player { page-break-inside: avoid; }
+    /* Beaucoup de matchs (5 à 7 joueurs) : lignes resserrées pour tenir sur une page */
+    body.compact .grid td { padding-top: .1mm; padding-bottom: .1mm; font-size: 10pt; }
+    body.compact .grid td.rank { font-size: 22pt; }
     .info td { padding: 1.5mm 3mm; font-style: italic; }
     .info a { color: #1a4fb4; }
     .title { font-size: 15pt; font-weight: bold; text-decoration: underline; }
@@ -52,7 +60,8 @@ foreach ($standings as $r) {
     .note { font-size: 8.5pt; margin-top: 2mm; font-style: italic; }
 </style>
 </head>
-<body>
+<?php $rowsTotal = array_sum(array_map(static fn ($l) => count($l) + 1, $lines)); ?>
+<body class="<?= $rowsTotal > 25 ? 'compact' : '' ?>">
 
 <table class="fed">
     <tr>
@@ -66,8 +75,7 @@ foreach ($standings as $r) {
     </tr>
 </table>
 
-<table class="sheet">
-    <tr><td>
+<div class="sheet">
         <table class="info" style="width:100%">
             <tr>
                 <td colspan="2"><a href="http://www.frbb-liège-lux.be">http://www.frbb-liège-lux.be</a></td>
@@ -85,13 +93,14 @@ foreach ($standings as $r) {
         </table>
 
         <table class="grid">
-            <tr>
-                <th class="big">Nom &amp; Prénom<br>Licence &amp; Club</th>
-                <th style="font-size:12pt">Adversaires</th>
+            <thead><tr>
+                <th class="big w-who">Nom &amp; Prénom<br>Licence &amp; Club</th>
+                <th class="w-opp" style="font-size:12pt">Adversaires</th>
                 <th>Points de<br>Matchs</th><th>Caramb.<br>Réalisées</th><th>Reprises</th>
                 <th>Moyenne<br>Général</th><th>Série</th><th>Moyenne<br>Prop</th>
-                <th style="font-size:11pt">Classement</th>
-            </tr>
+                <th class="w-last" style="font-size:11pt">Classement</th>
+            </tr></thead>
+        </table>
             <?php foreach ($standings as $r):
                 $p    = $r['player'];
                 $min  = (float) ($p->average_min ?? 0);
@@ -99,6 +108,7 @@ foreach ($standings as $r) {
                 $span = max(1, count($rows));
                 $who  = [esc(mb_convert_case(mb_strtolower($p->last_name), MB_CASE_TITLE)), esc($p->first_name), esc($p->license ?? ''), esc($p->club_code ?? ''), esc($p->club ?? '')];
             ?>
+            <div class="player"><table class="grid next">
                 <?php foreach ($rows ?: [null] as $i => $l):
                     $m    = $l['match'] ?? null;
                     $done = $m && $m->status === 'finished';
@@ -133,8 +143,8 @@ foreach ($standings as $r) {
                     <td><?= $r['proportional'] !== null ? $num($r['proportional'], 3) : '' ?></td>
                     <td class="label"><?= F::ratingLabel(F::rating($r, $levels[(int) $p->id] ?? null), 'championship') ?></td>
                 </tr>
+            </table></div>
             <?php endforeach; ?>
-        </table>
 
         <table class="foot">
             <tr><td style="width:28%">Meilleur match:</td><td style="width:22%"><?= $num($best['match'], 2) ?></td><td></td><td></td></tr>
@@ -143,8 +153,7 @@ foreach ($standings as $r) {
             <tr><td>Total reprises:</td><td><?= $best['innings'] ?></td><td></td><td></td></tr>
             <tr><td>Direction sportive:</td><td colspan="2" style="text-align:center">R.B.C. Disonais</td><td style="text-align:right"><?= $lastDay ? date('d-m-y', strtotime($lastDay)) : '' ?></td></tr>
         </table>
-    </td></tr>
-</table>
+</div>
 
 <table class="foot">
     <tr><td style="width:28%">Directeur sportif régional</td><td><?= esc($dsr['email']) ?></td></tr>
