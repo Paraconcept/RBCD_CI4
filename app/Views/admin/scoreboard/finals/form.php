@@ -91,14 +91,6 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
             <small class="text-muted">Choisit le modèle de la feuille de classement PDF.</small>
           </div>
         </div>
-        <div class="col-md-7" data-sb-kind="championship">
-          <div class="form-group">
-            <label for="regional_contact">Directeur sportif régional</label>
-            <input type="text" name="regional_contact" id="regional_contact" class="form-control" maxlength="150"
-                   placeholder="ex. stephane.willemsen@gmail.com" value="<?= esc($val('regional_contact')) ?>">
-            <small class="text-muted">Imprimé en bas de la feuille de classement FRBB.</small>
-          </div>
-        </div>
       </div>
       <div class="row">
         <div class="col-md-5">
@@ -263,10 +255,6 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
     document.addEventListener('focusout', fillCodes);
     fillCodes();
 
-    const kind = document.getElementById('kind');
-    const showKind = () => document.querySelectorAll('[data-sb-kind]').forEach((el) => { el.style.display = el.dataset.sbKind === kind.value ? '' : 'none'; });
-    kind.addEventListener('change', showKind);
-    showKind();
     document.addEventListener('input', counts);
     document.addEventListener('change', counts);
     counts();

@@ -222,6 +222,7 @@ class ScoreboardFinalController extends BaseController
                     'club'   => $this->image('Ecusson_RBCD.png'),
                 ],
                 'signatories' => [$this->signatory('Président'), $this->signatory('Directeur Sportif')],
+                'dsr'         => \App\Libraries\MatchSheetPdf::regionalDirector(),
             ];
         }
 
@@ -370,10 +371,7 @@ class ScoreboardFinalController extends BaseController
     private function postedKind(): array
     {
         $kind = (string) $this->request->getPost('kind');
-        return [
-            'kind'             => isset(ScoreboardFinalModel::KINDS[$kind]) ? $kind : 'poule',
-            'regional_contact' => mb_substr(trim((string) $this->request->getPost('regional_contact')), 0, 150) ?: null,
-        ];
+        return ['kind' => isset(ScoreboardFinalModel::KINDS[$kind]) ? $kind : 'poule'];
     }
 
     private function postedDateTime(string $prefix, string $defaultTime = '09:00'): ?string

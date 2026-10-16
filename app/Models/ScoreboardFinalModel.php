@@ -28,7 +28,7 @@ class ScoreboardFinalModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'name', 'kind', 'regional_contact', 'scheduled_at', 'day2_at', 'day2_from', 'discipline', 'format', 'innings_limit', 'unequal_innings',
+        'name', 'kind', 'scheduled_at', 'day2_at', 'day2_from', 'discipline', 'format', 'innings_limit', 'unequal_innings',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'table_ids',
         'placement_matches', 'results_ordered_at', 'comment', 'created_by',
     ];

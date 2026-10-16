@@ -147,7 +147,7 @@ foreach ($standings as $r) {
 </table>
 
 <table class="foot">
-    <tr><td style="width:28%">Directeur sportif régional</td><td><?= esc($final->regional_contact ?? '') ?></td></tr>
+    <tr><td style="width:28%">Directeur sportif régional</td><td><?= esc($dsr['email']) ?></td></tr>
 </table>
 
 <?php if (!empty($final->comment)): ?>

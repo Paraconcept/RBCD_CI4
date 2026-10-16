@@ -125,7 +125,7 @@ class ScoreboardSetupController extends BaseController
             'clubEmail'           => (string) $s->getSetting('scoreboard_club_email', 'ds@rbcd.be'),
             'cdrName'             => (string) $s->getSetting('scoreboard_cdr_name', 'Christian JEUNEAU'),
             'cdrEmail'            => (string) $s->getSetting('scoreboard_cdr_email', 'cdregions@gmail.com'),
-            'setsRecipient'       => (string) $s->getSetting('scoreboard_sets_sheet_recipient', \App\Libraries\MatchSheetPdf::SETS_RECIPIENT),
+            'dsr'                 => \App\Libraries\MatchSheetPdf::regionalDirector(),
             'pin'                 => (string) $s->getSetting('scoreboard_pin', ''),
         ]);
     }
@@ -145,6 +145,10 @@ class ScoreboardSetupController extends BaseController
         if ($cdrEmail !== '' && !filter_var($cdrEmail, FILTER_VALIDATE_EMAIL)) {
             return redirect()->back()->with('error', "L'adresse e-mail du responsable CDR est invalide.");
         }
+        $dsrEmail = trim((string) $this->request->getPost('dsr_email'));
+        if ($dsrEmail !== '' && !filter_var($dsrEmail, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->with('error', "L'adresse e-mail du directeur sportif régional est invalide.");
+        }
 
         $s->setSetting('scoreboard_shot_clock_seconds', max(5, min(300, (int) $this->request->getPost('shot_clock_seconds'))));
         $s->setSetting('scoreboard_shot_clock_extensions', max(0, min(10, (int) $this->request->getPost('shot_clock_extensions'))));
@@ -153,7 +157,9 @@ class ScoreboardSetupController extends BaseController
         $s->setSetting('scoreboard_club_email', $clubEmail);
         $s->setSetting('scoreboard_cdr_name', trim((string) $this->request->getPost('cdr_name')));
         $s->setSetting('scoreboard_cdr_email', $cdrEmail);
-        $s->setSetting('scoreboard_sets_sheet_recipient', mb_substr(trim((string) $this->request->getPost('sets_recipient')), 0, 200));
+        $s->setSetting('scoreboard_dsr_name', mb_substr(trim((string) $this->request->getPost('dsr_name')), 0, 100));
+        $s->setSetting('scoreboard_dsr_email', $dsrEmail);
+        $s->setSetting('scoreboard_dsr_mobile', mb_substr(trim((string) $this->request->getPost('dsr_mobile')), 0, 30));
         $s->setSetting('scoreboard_start_window_minutes', max(0, min(720, (int) $this->request->getPost('start_window_minutes'))));
         $s->setSetting('scoreboard_pin', $pin);
 

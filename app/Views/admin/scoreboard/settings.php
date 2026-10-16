@@ -47,10 +47,20 @@
             </div>
             <small class="text-muted col-12 mt-n2">Destinataire des feuilles récapitulatives des rencontres d'équipe, avec les clubs visité et visiteur (imprimé au bas du PDF).</small>
           </div>
-          <div class="form-group mt-3">
-            <label for="sets_recipient">Destinataire des feuilles de match par sets</label>
-            <input type="text" name="sets_recipient" id="sets_recipient" class="form-control" maxlength="200" value="<?= esc($setsRecipient) ?>">
-            <small class="text-muted">Imprimé au bas de la feuille de match par sets (modèle Coupe de Belgique) : « Feuilles de match à envoyer au plus tard 24 heures après les matches à : … ».</small>
+          <div class="form-row mt-3">
+            <div class="form-group col-sm-5">
+              <label for="dsr_name">Directeur Sportif Régional</label>
+              <input type="text" name="dsr_name" id="dsr_name" class="form-control" maxlength="100" value="<?= esc($dsr['name']) ?>">
+            </div>
+            <div class="form-group col-sm-4">
+              <label for="dsr_email">E-mail du DSR</label>
+              <input type="email" name="dsr_email" id="dsr_email" class="form-control" maxlength="150" value="<?= esc($dsr['email']) ?>">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="dsr_mobile">GSM du DSR</label>
+              <input type="text" name="dsr_mobile" id="dsr_mobile" class="form-control" maxlength="30" value="<?= esc($dsr['mobile']) ?>">
+            </div>
+            <small class="text-muted col-12 mt-n2">Imprimé au bas de la feuille de match par sets (modèle Coupe de Belgique, destinataire des feuilles) et de la feuille de classement des finales de championnat régional.</small>
           </div>
           <div class="form-group mb-0 mt-3">
             <label for="start_window_minutes">Démarrage des rencontres programmées (minutes avant l'heure prévue)</label>

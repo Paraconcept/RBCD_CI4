@@ -16,14 +16,36 @@ use Dompdf\Options;
 class MatchSheetPdf
 {
     public const INNINGS_PER_PAGE = 75;
-    // Pied de la feuille par sets (modèle FRBB Coupe de Belgique), modifiable dans Marquoir › Paramètres
-    public const SETS_RECIPIENT = 'Willemsen Stéphane - D.S.R. Liège - Luxembourg · stephane.willemsen@gmail.com · Gsm : 0499 23 22 26';
+    // Directeur sportif régional par défaut, modifiable dans Marquoir › Paramètres
+    public const DSR = ['name' => 'Willemsen Stéphane', 'email' => 'stephane.willemsen@gmail.com', 'mobile' => '0499 23 22 26'];
     private const MAX_COMPACT = 3;
 
     /**
      * Reprises par set puis par numéro : [set => [n° => [joueur => ['points' => série, 'total' => cumul du set]]]].
      * Une partie classique n'a qu'un set (1).
      */
+    /** @return array{name: string, email: string, mobile: string} */
+    public static function regionalDirector(): array
+    {
+        $s = new SiteSettingModel();
+        $dsr = [];
+        foreach (self::DSR as $field => $default) {
+            $dsr[$field] = (string) $s->getSetting('scoreboard_dsr_' . $field, $default);
+        }
+        return $dsr;
+    }
+
+    /** Pied de la feuille par sets (modèle FRBB Coupe de Belgique) : « Willemsen Stéphane - D.S.R. Liège - Luxembourg · e-mail · Gsm : … ». */
+    private static function setsRecipient(): string
+    {
+        $dsr = self::regionalDirector();
+        return implode(' · ', array_filter([
+            $dsr['name'] !== '' ? $dsr['name'] . ' - D.S.R. Liège - Luxembourg' : '',
+            $dsr['email'],
+            $dsr['mobile'] !== '' ? 'Gsm : ' . $dsr['mobile'] : '',
+        ]));
+    }
+
     public static function sheets(int $matchId): array
     {
         $sheets = [];
@@ -67,7 +89,7 @@ class MatchSheetPdf
             $expected = 1;
             $data += self::setsTitles($match) + [
                 'matchNumber' => $match->match_number ?: ($match->te_code ?? ''),
-                'recipient'   => (string) (new SiteSettingModel())->getSetting('scoreboard_sets_sheet_recipient', self::SETS_RECIPIENT),
+                'recipient'   => self::setsRecipient(),
             ];
         } else {
             $expected = 0;
