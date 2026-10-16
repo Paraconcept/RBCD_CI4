@@ -162,7 +162,7 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
                      placeholder="<?= $k <= F::MIN_PLAYERS ? 'Tapez 2 lettres…' : '(facultatif)' ?>" value="<?= esc($pv('last_name')) ?>">
             </td>
             <td><input type="text" name="<?= $f ?>_first_name" class="form-control form-control-sm" <?= $locked ?> value="<?= esc($pv('first_name')) ?>"></td>
-            <td><input type="text" name="<?= $f ?>_club" class="form-control form-control-sm" <?= $locked ?> value="<?= esc($pv('club') ?: 'RBC Disonais') ?>"></td>
+            <td><input type="text" name="<?= $f ?>_club" class="form-control form-control-sm" <?= $locked ?> value="<?= esc($pv('club')) ?>"></td>
             <td><input type="text" name="<?= $f ?>_club_code" class="form-control form-control-sm" maxlength="10" style="text-transform:uppercase" <?= $started && !$pl ? 'disabled' : '' ?>
                        placeholder="ex. LLL 30" value="<?= esc($pv('club_code')) ?>"></td>
             <td><select name="<?= $f ?>_category_id" class="form-control form-control-sm" data-sb-category="<?= $f ?>" <?= $locked ?> data-selected="<?= esc($pv('category_id')) ?>"></select></td>
@@ -248,11 +248,14 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
     const fillCodes = () => document.querySelectorAll('input[name$="_club_code"]').forEach((code) => {
         const club = document.querySelector('input[name="' + code.name.replace('_club_code', '_club') + '"]');
         if (!club || code.disabled || (code.value !== '' && !code.dataset.sbAuto)) return;
-        const found = codes[key(club.value)] || '';
+        const name = document.querySelector('input[name="' + code.name.replace('_club_code', '_last_name') + '"]');
+        const found = name && name.value.trim() !== '' ? codes[key(club.value)] || '' : '';
         if (code.value !== found) { code.value = found; code.dataset.sbAuto = '1'; }
     });
     document.querySelectorAll('input[name$="_club_code"]').forEach((code) => code.addEventListener('input', () => delete code.dataset.sbAuto));
     document.addEventListener('focusout', fillCodes);
+    // Choix dans l'auto-complétion : le club est rempli juste après le clic ou la touche Entrée
+    ['click', 'keyup'].forEach((ev) => document.addEventListener(ev, () => setTimeout(fillCodes)));
     fillCodes();
 
     document.addEventListener('input', counts);
