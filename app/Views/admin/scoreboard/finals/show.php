@@ -29,12 +29,12 @@ $statusBadge = static fn (string $s): string => match ($s) {
     <div class="ml-auto">
       <a href="<?= base_url('admin/scoreboard/finals/' . $final->id . '/edit') ?>" class="btn btn-warning btn-sm"><i class="fas fa-pen mr-1"></i>Modifier</a>
       <a href="<?= base_url('admin/scoreboard/finals/' . $final->id . '/pdf') ?>" target="_blank" class="btn btn-primary btn-sm ml-1">
-        <i class="fas fa-file-pdf mr-1"></i>Feuille récapitulative<?= $complete ? '' : ' (provisoire)' ?>
+        <i class="fas fa-file-pdf mr-1"></i><?= ($final->kind ?? 'poule') === 'poule' ? 'Feuille récapitulative' : 'Feuille de classement' ?><?= $complete ? '' : ' (provisoire)' ?>
       </a>
     </div>
   </div>
   <div class="card-body py-2 text-muted">
-    <?= count($players) ?> joueurs · <?= $total ?> matchs<?= $final->placement_matches ? ' dont ' . count(F::placementPairs(count($players))) . ' de classement' : '' ?>
+    <?= esc(F::KINDS[$final->kind] ?? '') ?> · <?= count($players) ?> joueurs · <?= $total ?> matchs<?= $final->placement_matches ? ' dont ' . count(F::placementPairs(count($players))) . ' de classement' : '' ?>
     <?= $final->day2_at ? ' · deux jours (jour 2 dès le match n°' . (int) $final->day2_from . ')' : '' ?>
     <?= $final->innings_limit ? ' · limite ' . (int) $final->innings_limit . ' reprises' : '' ?>
     <?= $final->unequal_innings ? ' · reprises inégales' : ' · reprise d\'égalisation' ?>

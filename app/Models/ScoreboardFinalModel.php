@@ -16,12 +16,19 @@ class ScoreboardFinalModel extends Model
     public const MIN_PLAYERS = 3;
     public const MAX_PLAYERS = 7;
 
+    /** Type de finale : choisit le modèle de la feuille de classement PDF. */
+    public const KINDS = [
+        'poule'        => 'Finale du club ou poule',
+        'championship' => 'Finale de championnat régional (FRBB)',
+        'cup'          => 'Finale de coupe',
+    ];
+
     protected $table      = 'scoreboard_finals';
     protected $primaryKey = 'id';
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'name', 'scheduled_at', 'day2_at', 'day2_from', 'discipline', 'format', 'innings_limit', 'unequal_innings',
+        'name', 'kind', 'regional_contact', 'scheduled_at', 'day2_at', 'day2_from', 'discipline', 'format', 'innings_limit', 'unequal_innings',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'table_ids',
         'placement_matches', 'results_ordered_at', 'comment', 'created_by',
     ];
@@ -436,6 +443,72 @@ class ScoreboardFinalModel extends Model
         unset($r);
 
         return $rows;
+    }
+
+    /**
+     * Mention de fin de finale d'après la moyenne générale : SM (sous la moyenne), M (dans la moyenne),
+     * RECLASSE (au-dessus de la sous-catégorie), PROMU (au-dessus de la catégorie), DP (double promotion).
+     * $levels : FrbbCategoryModel::levels() de la catégorie du joueur.
+     */
+    public static function rating(array $row, ?array $levels): ?string
+    {
+        if (!$row['played']) {
+            return null;
+        }
+        if (!$row['in_average']) {
+            return 'SM';
+        }
+        $avg = round($row['average'], 3);
+        return match (true) {
+            $levels && $levels['dp'] !== null && $avg > $levels['dp']               => 'DP',
+            $levels && $levels['group_max'] !== null && $avg > $levels['group_max'] => 'PROMU',
+            $levels && $levels['max'] !== null && $avg > $levels['max']             => 'RECLASSE',
+            default                                                                 => 'M',
+        };
+    }
+
+    /** Libellé imprimé : bilingue (Gemiddeld / Onder Gemiddeld) sur la feuille FRBB, court sur celle de la coupe. */
+    public static function ratingLabel(?string $rating, string $kind): string
+    {
+        return match ($rating) {
+            null       => '',
+            'SM'       => $kind === 'championship' ? 'SM/OG' : 'S/M',
+            'M'        => $kind === 'championship' ? 'M/G' : 'M',
+            'RECLASSE' => 'RECLASSÉ',
+            default    => $rating,
+        };
+    }
+
+    /**
+     * Matchs de chaque joueur dans l'ordre de jeu, pour les feuilles de classement :
+     * [id joueur => list<array{match: object, side: int, opponent: ?object}>]. Les matchs de classement
+     * encore sans joueurs n'y figurent pas.
+     */
+    public static function playerLines(array $players, array $matches): array
+    {
+        $byId  = [];
+        $lines = [];
+        foreach ($players as $p) {
+            $byId[(int) $p->id] = $p;
+            $lines[(int) $p->id] = [];
+        }
+        foreach ($matches as $m) {
+            foreach ([1, 2] as $n) {
+                $id = (int) $m->{'p' . $n . '_final_player_id'};
+                if (isset($lines[$id])) {
+                    $lines[$id][] = ['match' => $m, 'side' => $n, 'opponent' => $byId[(int) $m->{'p' . (3 - $n) . '_final_player_id'}] ?? null];
+                }
+            }
+        }
+        return $lines;
+    }
+
+    /** Saison sportive d'une date : de juillet à juin, ex. « 2026-2027 ». */
+    public static function season(?string $date): string
+    {
+        $t = strtotime($date ?? 'now');
+        $y = (int) date('Y', $t) - ((int) date('n', $t) < 7 ? 1 : 0);
+        return $y . '-' . ($y + 1);
     }
 
     /** Résultats croisés de la poule : [id joueur][id adversaire] = match terminé (ou en cours). */

@@ -93,7 +93,7 @@ class ScoreboardFinalController extends BaseController
             // Une fois la finale commencée, seuls le nom et les dates changent (joueurs et règles sont figés)
             $name   = trim((string) $this->request->getPost('name'));
             $errors = $name === '' ? ['Le nom de la finale est obligatoire.'] : [];
-            $data   = ['name' => $name, 'scheduled_at' => $this->postedDateTime('scheduled')];
+            $data   = ['name' => $name, 'scheduled_at' => $this->postedDateTime('scheduled')] + $this->postedKind();
             [$days, $e] = $this->buildDays($data['scheduled_at'], count($this->model->getMatches($id)));
             if ($errors = array_merge($errors, $e)) {
                 return redirect()->back()->withInput()->with('errors', $errors);
@@ -191,22 +191,41 @@ class ScoreboardFinalController extends BaseController
         $final   = $this->find($id);
         $players = $this->players->getForFinal($id);
         $matches = $this->model->getMatches($id);
-
-        $logo = FCPATH . 'assets/images/Ecusson_RBCD.png';
-        $html = view('admin/scoreboard/finals/pdf', [
+        $data    = [
             'final'     => $final,
             'players'   => $players,
             'matches'   => $matches,
             'standings' => ScoreboardFinalModel::standings($players, $matches),
-            'grid'      => ScoreboardFinalModel::crossTable($matches),
-            'logo'      => is_file($logo) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logo)) : null,
-        ]);
+        ];
+
+        if ($final->kind === 'poule') {
+            $view = 'admin/scoreboard/finals/pdf';
+            $data += ['grid' => ScoreboardFinalModel::crossTable($matches), 'logo' => $this->image('Ecusson_RBCD.png')];
+        } else {
+            $view   = 'admin/scoreboard/finals/pdf_' . $final->kind;
+            $levels = [];
+            $cats   = new FrbbCategoryModel();
+            foreach ($players as $p) {
+                $levels[(int) $p->id] = $p->category_id ? $cats->levels((int) $p->category_id) : null;
+            }
+            $data += [
+                'lines'  => ScoreboardFinalModel::playerLines($players, $matches),
+                'levels' => $levels,
+                'logos'  => [
+                    'frbb'   => $this->image('frbb_kbbb_logo_100.png'),
+                    'region' => $this->image('Ecusson_FRBB-LL.png'),
+                    'club'   => $this->image('Ecusson_RBCD.png'),
+                    'dison'  => $this->image('logo_dison.png'),
+                ],
+                'signatories' => [$this->signatory('Président'), $this->signatory('Directeur Sportif')],
+            ];
+        }
 
         $options = new Options();
         $options->set('defaultFont', 'Helvetica');
         $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html, 'UTF-8');
-        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->loadHtml(view($view, $data), 'UTF-8');
+        $dompdf->setPaper('A4', $final->kind === 'poule' ? 'landscape' : 'portrait');
         $dompdf->render();
 
         $filename = 'finale_' . date('Y-m-d', strtotime($final->scheduled_at ?? 'now')) . '_' . url_title($final->name, '-', true) . '.pdf';
@@ -215,6 +234,31 @@ class ScoreboardFinalController extends BaseController
             ->setHeader('Content-Type', 'application/pdf')
             ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
             ->setBody($dompdf->output());
+    }
+
+    private function image(string $file): ?string
+    {
+        $path = FCPATH . 'assets/images/' . $file;
+        return is_file($path) ? 'data:image/png;base64,' . base64_encode(file_get_contents($path)) : null;
+    }
+
+    /**
+     * Signataire de la feuille de coupe d'après les rôles du comité : « La Présidente : CAVELIER Nathalie ».
+     */
+    private function signatory(string $role): ?string
+    {
+        $m = $this->db()->table('admin_user_roles r')->select('m.last_name, m.first_name, m.gender')
+                  ->join('members m', 'm.id = r.member_id')->where('r.role', $role)->where('m.is_active', 1)
+                  ->orderBy('r.sort_order', 'ASC')->get()->getRow();
+        if (!$m) {
+            return null;
+        }
+        $female = $m->gender === 'F';
+        $title  = match ($role) {
+            'Président' => $female ? 'La Présidente' : 'Le Président',
+            default     => $female ? 'La Directrice Sportive' : 'Le Directeur Sportif',
+        };
+        return $title . ' : ' . mb_strtoupper($m->last_name) . ' ' . $m->first_name;
     }
 
     private function form(?object $final): string
@@ -280,6 +324,7 @@ class ScoreboardFinalController extends BaseController
                 'member_id' => $d['p1_member_id'], 'last_name' => $d['p1_last_name'], 'first_name' => $d['p1_first_name'],
                 'club' => $d['p1_club'], 'license' => $d['p1_license'], 'distance' => $d['p1_distance'],
                 'category_id' => $d['p1_category_id'], 'category' => $d['p1_category'], 'average_min' => $d['p1_average_min'],
+                'average_max' => $d['p1_category_id'] ? ((float) (new FrbbCategoryModel())->find($d['p1_category_id'])->average_max ?: null) : null,
             ];
         }
         if (count($players) < ScoreboardFinalModel::MIN_PLAYERS) {
@@ -297,7 +342,7 @@ class ScoreboardFinalController extends BaseController
         [$days, $e] = $this->buildDays($start, ScoreboardFinalModel::matchCount(count($players), (bool) $placement));
         $errors = array_merge($errors, $e);
 
-        $data = $days + [
+        $data = $days + $this->postedKind() + [
             'name'                  => $name,
             'scheduled_at'          => $start,
             'discipline'            => $rules['discipline'],
@@ -312,6 +357,15 @@ class ScoreboardFinalController extends BaseController
         ];
 
         return [$data, $players, array_values(array_unique($errors))];
+    }
+
+    private function postedKind(): array
+    {
+        $kind = (string) $this->request->getPost('kind');
+        return [
+            'kind'             => isset(ScoreboardFinalModel::KINDS[$kind]) ? $kind : 'poule',
+            'regional_contact' => mb_substr(trim((string) $this->request->getPost('regional_contact')), 0, 150) ?: null,
+        ];
     }
 
     private function postedDateTime(string $prefix, string $defaultTime = '09:00'): ?string

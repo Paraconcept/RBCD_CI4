@@ -12,7 +12,7 @@ class ScoreboardFinalPlayerModel extends Model
 
     protected $allowedFields = [
         'final_id', 'position', 'member_id', 'last_name', 'first_name', 'club', 'license',
-        'category_id', 'category', 'average_min', 'distance',
+        'category_id', 'category', 'average_min', 'average_max', 'distance',
     ];
 
     public function getForFinal(int $finalId): array

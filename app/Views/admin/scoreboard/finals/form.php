@@ -82,6 +82,27 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
       <div class="row">
         <div class="col-md-5">
           <div class="form-group">
+            <label for="kind">Type de finale</label>
+            <select name="kind" id="kind" class="form-control">
+              <?php foreach (F::KINDS as $k => $v): ?>
+              <option value="<?= $k ?>" <?= $val('kind', 'poule') === $k ? 'selected' : '' ?>><?= $v ?></option>
+              <?php endforeach; ?>
+            </select>
+            <small class="text-muted">Choisit le modèle de la feuille de classement PDF.</small>
+          </div>
+        </div>
+        <div class="col-md-7" data-sb-kind="championship">
+          <div class="form-group">
+            <label for="regional_contact">Directeur sportif régional</label>
+            <input type="text" name="regional_contact" id="regional_contact" class="form-control" maxlength="150"
+                   placeholder="ex. stephane.willemsen@gmail.com" value="<?= esc($val('regional_contact')) ?>">
+            <small class="text-muted">Imprimé en bas de la feuille de classement FRBB.</small>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-5">
+          <div class="form-group">
             <label>Modèle</label>
             <div class="custom-control custom-radio">
               <input type="radio" class="custom-control-input" name="placement_matches" id="placement_0" value="0" <?= $locked ?> <?= $placed ? '' : 'checked' ?>>
@@ -227,6 +248,10 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
         document.querySelector('[data-sb-count="0"]').textContent = n >= 2 ? rr + ' matchs.' : '';
         document.querySelector('[data-sb-count="1"]').textContent = n >= 2 ? (rr + Math.floor(n / 2)) + ' matchs.' : '';
     };
+    const kind = document.getElementById('kind');
+    const showKind = () => document.querySelectorAll('[data-sb-kind]').forEach((el) => { el.style.display = el.dataset.sbKind === kind.value ? '' : 'none'; });
+    kind.addEventListener('change', showKind);
+    showKind();
     document.addEventListener('input', counts);
     document.addEventListener('change', counts);
     counts();

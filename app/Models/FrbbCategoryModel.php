@@ -160,6 +160,55 @@ class FrbbCategoryModel extends Model
         return $out;
     }
 
+    /**
+     * Seuils d'une sous-catégorie pour les feuilles de classement FRBB : au-delà de sa moyenne maximum le joueur
+     * est reclassé (même catégorie, ex. 3B → 3A), au-delà du maximum de la catégorie il est promu, au-delà du
+     * maximum de la catégorie supérieure c'est une double promotion.
+     *
+     * @return array{code: string, group: string, min: float, max: ?float, group_min: float, group_max: ?float, dp: ?float}|null
+     */
+    public function levels(int $categoryId): ?array
+    {
+        static $cache = [];
+        $cat = $this->find($categoryId);
+        if (!$cat) {
+            return null;
+        }
+        $cache[$cat->game_mode] ??= $this->where('game_mode', $cat->game_mode)->findAll();
+
+        $groupOf = static fn (string $code): string => preg_match('/^(\d+)/', $code, $m) ? $m[1] : explode('-', $code)[0];
+        $groups  = [];
+        foreach ($cache[$cat->game_mode] as $r) {
+            $g   = $groupOf($r->categories);
+            $max = (float) $r->average_max > 0 ? (float) $r->average_max : null;
+            $groups[$g]['min'] = min($groups[$g]['min'] ?? PHP_FLOAT_MAX, (float) $r->average_min);
+            $groups[$g]['maxes'][] = $max;
+        }
+        foreach ($groups as &$gr) {
+            // Une sous-catégorie sans maximum (Honneur) : la catégorie n'a pas de plafond
+            $gr['max'] = in_array(null, $gr['maxes'], true) ? null : max($gr['maxes']);
+        }
+        unset($gr);
+        $group = $groupOf($cat->categories);
+        $own   = $groups[$group];
+        $next  = null;
+        foreach ($groups as $g) {
+            if ($g['min'] > $own['min'] && ($next === null || $g['min'] < $next['min'])) {
+                $next = $g;
+            }
+        }
+
+        return [
+            'code'      => $cat->categories,
+            'group'     => ctype_digit($group) ? $group . ($group === '1' ? 'ère' : 'ème') : $group,
+            'min'       => (float) $cat->average_min,
+            'max'       => (float) $cat->average_max > 0 ? (float) $cat->average_max : null,
+            'group_min' => $own['min'],
+            'group_max' => $own['max'],
+            'dp'        => $next['max'] ?? null,
+        ];
+    }
+
     private static function scoreboardGameModes(): array
     {
         $modes = [];
