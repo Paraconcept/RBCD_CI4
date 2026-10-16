@@ -85,7 +85,7 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
             <label for="kind">Type de finale</label>
             <select name="kind" id="kind" class="form-control">
               <?php foreach (F::KINDS as $k => $v): ?>
-              <option value="<?= $k ?>" <?= $val('kind', 'poule') === $k ? 'selected' : '' ?>><?= $v ?></option>
+              <option value="<?= $k ?>" <?= $val('kind', 'championship') === $k ? 'selected' : '' ?>><?= $v ?></option>
               <?php endforeach; ?>
             </select>
             <small class="text-muted">Choisit le modèle de la feuille de classement PDF.</small>

@@ -29,7 +29,7 @@ $statusBadge = static fn (string $s): string => match ($s) {
     <div class="ml-auto">
       <a href="<?= base_url('admin/scoreboard/finals/' . $final->id . '/edit') ?>" class="btn btn-warning btn-sm"><i class="fas fa-pen mr-1"></i>Modifier</a>
       <a href="<?= base_url('admin/scoreboard/finals/' . $final->id . '/pdf') ?>" target="_blank" class="btn btn-primary btn-sm ml-1">
-        <i class="fas fa-file-pdf mr-1"></i><?= ($final->kind ?? 'poule') === 'poule' ? 'Feuille récapitulative' : 'Feuille de classement' ?><?= $complete ? '' : ' (provisoire)' ?>
+        <i class="fas fa-file-pdf mr-1"></i>Feuille de classement<?= $complete ? '' : ' (provisoire)' ?>
       </a>
     </div>
   </div>
@@ -234,12 +234,12 @@ $statusBadge = static fn (string $s): string => match ($s) {
 </div>
 
 <div class="card card-outline card-primary" id="commentaire">
-  <div class="card-header"><h3 class="card-title"><i class="fas fa-comment-dots mr-2"></i>Commentaire pour la feuille récapitulative</h3></div>
+  <div class="card-header"><h3 class="card-title"><i class="fas fa-comment-dots mr-2"></i>Commentaire pour la feuille de classement</h3></div>
   <form method="post" action="<?= base_url('admin/scoreboard/finals/' . $final->id . '/comment') ?>">
     <?= csrf_field() ?>
     <div class="card-body">
       <textarea name="comment" class="form-control" rows="3" maxlength="1000"
-                placeholder="Incident, réserve, remarque de l'arbitre… (imprimé sur la feuille récapitulative)"><?= esc($final->comment ?? '') ?></textarea>
+                placeholder="Incident, réserve, remarque de l'arbitre… (imprimé sur la feuille de classement)"><?= esc($final->comment ?? '') ?></textarea>
     </div>
     <div class="card-footer text-right">
       <button class="btn btn-primary btn-sm"><i class="fas fa-save mr-1"></i>Enregistrer le commentaire</button>

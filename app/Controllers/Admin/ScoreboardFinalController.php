@@ -203,34 +203,29 @@ class ScoreboardFinalController extends BaseController
             'standings' => ScoreboardFinalModel::standings($players, $matches),
         ];
 
-        if ($final->kind === 'poule') {
-            $view = 'admin/scoreboard/finals/pdf';
-            $data += ['grid' => ScoreboardFinalModel::crossTable($matches), 'logo' => $this->image('Ecusson_RBCD.png')];
-        } else {
-            $view   = 'admin/scoreboard/finals/pdf_' . $final->kind;
-            $levels = [];
-            $cats   = new FrbbCategoryModel();
-            foreach ($players as $p) {
-                $levels[(int) $p->id] = $p->category_id ? $cats->levels((int) $p->category_id) : null;
-            }
-            $data += [
-                'lines'  => ScoreboardFinalModel::playerLines($players, $matches),
-                'levels' => $levels,
-                'logos'  => [
-                    'frbb'   => $this->image('frbb_kbbb_logo_100.png'),
-                    'region' => $this->image('Ecusson_FRBB-LL.png'),
-                    'club'   => $this->image('Ecusson_RBCD.png'),
-                ],
-                'signatories' => [$this->signatory('Président'), $this->signatory('Directeur Sportif')],
-                'dsr'         => \App\Libraries\MatchSheetPdf::regionalDirector(),
-            ];
+        $levels = [];
+        $cats   = new FrbbCategoryModel();
+        foreach ($players as $p) {
+            $levels[(int) $p->id] = $p->category_id ? $cats->levels((int) $p->category_id) : null;
         }
+        $data += [
+            'lines'  => ScoreboardFinalModel::playerLines($players, $matches),
+            'levels' => $levels,
+            'logos'  => [
+                'frbb'   => $this->image('frbb_kbbb_logo_100.png'),
+                'region' => $this->image('Ecusson_FRBB-LL.png'),
+                'club'   => $this->image('Ecusson_RBCD.png'),
+            ],
+            'signatories' => [$this->signatory('Président'), $this->signatory('Directeur Sportif')],
+            'dsr'         => \App\Libraries\MatchSheetPdf::regionalDirector(),
+        ];
+        $view = 'admin/scoreboard/finals/pdf_' . ($final->kind === 'cup' ? 'cup' : 'championship');
 
         $options = new Options();
         $options->set('defaultFont', 'Helvetica');
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml(view($view, $data), 'UTF-8');
-        $dompdf->setPaper('A4', $final->kind === 'poule' ? 'landscape' : 'portrait');
+        $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
         $filename = 'finale_' . date('Y-m-d', strtotime($final->scheduled_at ?? 'now')) . '_' . url_title($final->name, '-', true) . '.pdf';
@@ -371,7 +366,7 @@ class ScoreboardFinalController extends BaseController
     private function postedKind(): array
     {
         $kind = (string) $this->request->getPost('kind');
-        return ['kind' => isset(ScoreboardFinalModel::KINDS[$kind]) ? $kind : 'poule'];
+        return ['kind' => isset(ScoreboardFinalModel::KINDS[$kind]) ? $kind : 'championship'];
     }
 
     private function postedDateTime(string $prefix, string $defaultTime = '09:00'): ?string

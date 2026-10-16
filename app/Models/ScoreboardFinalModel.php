@@ -18,7 +18,6 @@ class ScoreboardFinalModel extends Model
 
     /** Type de finale : choisit le modèle de la feuille de classement PDF. */
     public const KINDS = [
-        'poule'        => 'Finale du club ou poule',
         'championship' => 'Finale de championnat régional (FRBB)',
         'cup'          => 'Finale de coupe',
     ];
