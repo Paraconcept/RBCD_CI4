@@ -169,6 +169,10 @@ class ScoreboardController extends BaseController
         if ($match->status !== 'scheduled') {
             return redirect()->to(base_url('marquoir/billard/' . $tableId));
         }
+        if (ScoreboardMatchModel::isPendingPlacement($match)) {
+            return redirect()->to(base_url('marquoir/billard/' . $tableId))
+                             ->with('error', 'Match de classement : les joueurs seront connus à la fin de la poule.');
+        }
         if ($tooEarly = $this->tooEarly($match, $tableId)) {
             return $tooEarly;
         }
@@ -189,6 +193,10 @@ class ScoreboardController extends BaseController
 
         if ($match->status !== 'scheduled') {
             return redirect()->to(base_url('marquoir/billard/' . $tableId));
+        }
+        if (ScoreboardMatchModel::isPendingPlacement($match)) {
+            return redirect()->to(base_url('marquoir/billard/' . $tableId))
+                             ->with('error', 'Match de classement : les joueurs seront connus à la fin de la poule.');
         }
         if ($tooEarly = $this->tooEarly($match, $tableId)) {
             return $tooEarly;

@@ -21,7 +21,7 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
                 <?php if ($m->scheduled_at): ?>
                 <span><i class="far fa-clock me-1"></i><?= date('Y-m-d', strtotime($m->scheduled_at)) === M::now('Y-m-d') ? date('H:i', strtotime($m->scheduled_at)) : $frDate($m->scheduled_at) ?></span>
                 <?php endif; ?>
-                <span><?= esc(M::disciplineLabel($m)) ?> · <?= esc(M::distanceLabel($m)) ?><?= $m->innings_limit ? ' · ' . (int) $m->innings_limit . ' rep.' : '' ?></span>
+                <span><?= esc(M::disciplineLabel($m)) ?><?= M::isPendingPlacement($m) ? '' : ' · ' . esc(M::distanceLabel($m)) ?><?= $m->innings_limit ? ' · ' . (int) $m->innings_limit . ' rep.' : '' ?></span>
                 <?php if ($competition = M::competitionLabel($m)): ?><span><?= esc($competition) ?></span><?php endif; ?>
             </div>
             <div class="sb-match-players">
@@ -30,7 +30,11 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
                 <div><strong><?= esc(M::playerLabel($m, $p)) ?></strong><small><?= esc($m->{$p . '_club'}) ?></small></div>
                 <?php endforeach; ?>
             </div>
-            <?php if ($today && M::canStartNow($m, $startWindow)): ?>
+            <?php if ($today && M::isPendingPlacement($m)): ?>
+            <span class="btn btn-outline-secondary disabled sb-start-locked">
+                <i class="fas fa-hourglass-half me-2"></i>En attente du classement de la poule
+            </span>
+            <?php elseif ($today && M::canStartNow($m, $startWindow)): ?>
             <a href="<?= base_url('marquoir/billard/' . $tableId . '/demarrer/' . $m->id) ?>" class="btn btn-sb">
                 <i class="fas fa-play me-2"></i>Démarrer
             </a>
@@ -138,10 +142,15 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
 </div>
 <?php
 $unlocks = [];
+$pending = false;
 foreach ($startable as $m) {
-    if (!M::canStartNow($m, $startWindow)) $unlocks[] = M::startAllowedAt($m, $startWindow);
+    if (M::isPendingPlacement($m)) $pending = true;
+    elseif (!M::canStartNow($m, $startWindow)) $unlocks[] = M::startAllowedAt($m, $startWindow);
 }
 ?>
+<?php if ($pending): ?>
+<script>setTimeout(() => location.reload(), 60 * 1000);</script>
+<?php endif; ?>
 <?php if ($unlocks): ?>
 <script>setTimeout(() => location.reload(), <?= max(5, min($unlocks) - M::nowTs() + 2) ?> * 1000);</script>
 <?php endif; ?>

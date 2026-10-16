@@ -40,7 +40,7 @@ $fmt      = static fn (?float $v): string => $v === null ? '' : number_format($v
         <td style="width:28%"><?php if ($logo): ?><img src="<?= $logo ?>" style="height:18mm;vertical-align:middle;margin-right:3mm"><?php endif; ?><span class="club">RBC Disonais</span></td>
         <td class="title">
             <?= esc($final->name) ?>
-            <small><?= $final->scheduled_at ? date('d/m/Y', strtotime($final->scheduled_at)) . ' · ' : '' ?><?= esc(M::disciplineLabel($final)) ?><?= $final->innings_limit ? ' · ' . (int) $final->innings_limit . ' reprises max.' : '' ?></small>
+            <small><?= $final->scheduled_at ? date('d/m/Y', strtotime($final->scheduled_at)) . ($final->day2_at ? ' et ' . date('d/m/Y', strtotime($final->day2_at)) : '') . ' · ' : '' ?><?= esc(M::disciplineLabel($final)) ?><?= $final->innings_limit ? ' · ' . (int) $final->innings_limit . ' reprises max.' : '' ?></small>
         </td>
         <td class="status" style="width:28%">FEUILLE RÉCAPITULATIVE<br><?= $complete ? 'Résultat final' : 'Provisoire : ' . $finished . ' / ' . $total . ' matchs terminés' ?></td>
     </tr>
@@ -50,7 +50,7 @@ $fmt      = static fn (?float $v): string => $v === null ? '' : number_format($v
 <table class="grid">
     <tr>
         <th style="width:6%">Rang</th><th class="name">Joueur</th><th>Club</th><th>Cat.</th><th>Pts à jouer</th>
-        <th>J</th><th>G</th><th>N</th><th>P</th><th>Pts match</th><th>Points</th><th>Reprises</th><th>Moyenne</th><th>Moy. prop.</th><th>MS</th>
+        <th>J</th><th>G</th><th>N</th><th>P</th><th>Pts match</th><th>Points</th><th>Reprises</th><th>Moyenne</th><th>Moy. prop.</th><th>MS</th><th>M · S/M</th>
     </tr>
     <?php foreach ($standings as $r): $p = $r['player']; ?>
     <tr class="<?= $complete && $r['rank'] === 1 ? 'first' : '' ?>">
@@ -65,12 +65,13 @@ $fmt      = static fn (?float $v): string => $v === null ? '' : number_format($v
         <td><?= number_format($r['average'], 3, ',', '') ?></td>
         <td><?= $fmt($r['proportional']) ?></td>
         <td><?= $r['high_run'] ?></td>
+        <td><?= $r['played'] ? ($r['in_average'] ? 'M' : 'S/M') : '' ?></td>
     </tr>
     <?php endforeach; ?>
 </table>
-<div class="note">Victoire 2 pts · nul 1 pt · défaite 0 pt. Égalité : moyenne proportionnelle (moyenne ÷ moyenne minimum de la catégorie), puis meilleure série, puis match entre les ex æquo.</div>
+<div class="note">Victoire 2 pts · nul 1 pt · défaite 0 pt. Joueurs dans la moyenne de leur catégorie (M) classés avant ceux sous la moyenne (S/M), puis aux points de match. Égalité : moyenne proportionnelle (moyenne ÷ moyenne minimum de la catégorie), puis meilleures moyennes particulières, puis meilleures séries.</div>
 
-<h2>Grille des résultats</h2>
+<h2>Grille des résultats<?= $final->placement_matches ? ' (poule)' : '' ?></h2>
 <table class="grid">
     <tr>
         <th class="name" style="width:20%">Joueur</th>
@@ -95,6 +96,23 @@ $fmt      = static fn (?float $v): string => $v === null ? '' : number_format($v
     <?php endforeach; ?>
 </table>
 <div class="note">Points de match du joueur de la ligne contre celui de la colonne, puis son score.</div>
+
+<?php $placements = array_filter($matches, static fn ($m) => !empty($m->final_placement)); ?>
+<?php if ($placements): ?>
+<h2>Matchs de classement</h2>
+<table class="grid">
+    <tr><th style="width:12%">Match</th><th class="name">Joueur</th><th>Score</th><th class="name">Joueur</th><th>Reprises</th></tr>
+    <?php foreach ($placements as $m): $done = $m->status === 'finished'; ?>
+    <tr>
+        <td>n°<?= (int) $m->final_order ?> · <?= esc($m->final_placement) ?></td>
+        <td class="name"<?= $done && (int) $m->winner === 1 ? ' style="font-weight:bold"' : '' ?>><?= esc(M::playerLabel($m, 'p1')) ?></td>
+        <td><?= $done ? (int) $m->p1_points . ' – ' . (int) $m->p2_points : '' ?></td>
+        <td class="name"<?= $done && (int) $m->winner === 2 ? ' style="font-weight:bold"' : '' ?>><?= esc(M::playerLabel($m, 'p2')) ?></td>
+        <td><?= $done ? max((int) $m->p1_innings, (int) $m->p2_innings) : '' ?></td>
+    </tr>
+    <?php endforeach; ?>
+</table>
+<?php endif; ?>
 
 <?php if (!empty($final->comment)): ?>
 <table class="box"><tr><td><b>Commentaire :</b> <?= nl2br(esc($final->comment)) ?></td></tr></table>

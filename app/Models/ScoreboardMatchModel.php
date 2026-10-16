@@ -35,7 +35,7 @@ class ScoreboardMatchModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'type', 'team_encounter_id', 'final_id', 'final_order', 'status', 'table_id', 'scheduled_at', 'competition', 'match_number',
+        'type', 'team_encounter_id', 'final_id', 'final_order', 'final_placement', 'status', 'table_id', 'scheduled_at', 'competition', 'match_number',
         'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'signature_required',
         'p1_member_id', 'p1_final_player_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license',
@@ -438,6 +438,11 @@ class ScoreboardMatchModel extends Model
         $this->update($match->id, $update);
         $this->db->transComplete();
 
+        // Fin (ou correction) d'un match de finale : ordre des matchs 3 à 6 et matchs de classement à jour
+        if ($match->final_id && (isset($update['winner']) || $match->status === 'finished')) {
+            (new ScoreboardFinalModel())->sync((int) $match->final_id);
+        }
+
         return $rev;
     }
 
@@ -804,8 +809,17 @@ class ScoreboardMatchModel extends Model
         return $m->scheduled_at ? strtotime($m->scheduled_at) - $windowMinutes * 60 : null;
     }
 
+    /** Match de classement d'une finale dont les joueurs dépendent du classement de la poule, pas encore terminée. */
+    public static function isPendingPlacement(object $m): bool
+    {
+        return !empty($m->final_placement) && empty($m->p1_final_player_id);
+    }
+
     public static function canStartNow(object $m, int $windowMinutes): bool
     {
+        if (self::isPendingPlacement($m)) {
+            return false;
+        }
         $from = self::startAllowedAt($m, $windowMinutes);
         return $from === null || self::nowTs() >= $from;
     }

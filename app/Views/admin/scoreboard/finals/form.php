@@ -7,6 +7,9 @@ $val     = static fn (string $f, $default = '') => old($f, $final->$f ?? $defaul
 $sched   = $final->scheduled_at ?? null;
 $chosen  = array_map('intval', (array) old('table_ids', $final ? F::tableIds($final) : []));
 $locked  = $started ? 'disabled' : '';
+$day2    = $final->day2_at ?? null;
+$twoDays = (bool) old('two_days', $day2 ? '1' : '');
+$placed  = (string) old('placement_matches', $final->placement_matches ?? '0') === '1';
 ?>
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('content') ?>
@@ -22,7 +25,7 @@ $locked  = $started ? 'disabled' : '';
 
 <?php if ($started): ?>
   <div class="alert alert-warning">
-    <i class="fas fa-lock mr-2"></i>La finale a commencé : les joueurs et les règles ne peuvent plus changer. Seuls le nom et la date restent modifiables.
+    <i class="fas fa-lock mr-2"></i>La finale a commencé : les joueurs et les règles ne peuvent plus changer. Seuls le nom et les dates restent modifiables.
   </div>
 <?php elseif ($isEdit): ?>
   <div class="alert alert-info">
@@ -46,7 +49,7 @@ $locked  = $started ? 'disabled' : '';
         </div>
         <div class="col-md-3">
           <div class="form-group">
-            <label for="scheduled_date">Date et heure</label>
+            <label for="scheduled_date">Date et heure <span data-sb-show-when="two_days">(jour 1)</span></label>
             <div class="d-flex">
               <input type="date" name="scheduled_date" id="scheduled_date" class="form-control mr-2"
                      value="<?= esc(old('scheduled_date', $sched ? date('Y-m-d', strtotime($sched)) : '')) ?>">
@@ -73,6 +76,39 @@ $locked  = $started ? 'disabled' : '';
               <option value="<?= $k ?>" <?= $val('format', 'PB') === $k ? 'selected' : '' ?>><?= $v ?></option>
               <?php endforeach; ?>
             </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-5">
+          <div class="form-group">
+            <label>Modèle</label>
+            <div class="custom-control custom-radio">
+              <input type="radio" class="custom-control-input" name="placement_matches" id="placement_0" value="0" <?= $locked ?> <?= $placed ? '' : 'checked' ?>>
+              <label class="custom-control-label" for="placement_0"><b data-sb-count="0"></b> Après éliminatoires : chacun contre chacun</label>
+            </div>
+            <div class="custom-control custom-radio">
+              <input type="radio" class="custom-control-input" name="placement_matches" id="placement_1" value="1" <?= $locked ?> <?= $placed ? 'checked' : '' ?>>
+              <label class="custom-control-label" for="placement_1"><b data-sb-count="1"></b> Sans éliminatoires : chacun contre chacun + matchs de classement 1er-2e, 3e-4e…</label>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="form-group">
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" name="two_days" id="two_days" value="1" <?= $twoDays ? 'checked' : '' ?>>
+              <label class="custom-control-label" for="two_days">Finale sur deux jours</label>
+            </div>
+            <div class="d-flex flex-wrap align-items-center mt-2" data-sb-show-when="two_days">
+              <span class="mr-2">Jour 2 :</span>
+              <input type="date" name="day2_date" class="form-control mr-2" style="max-width:170px"
+                     value="<?= esc(old('day2_date', $day2 ? date('Y-m-d', strtotime($day2)) : '')) ?>">
+              <input type="time" name="day2_time" class="form-control mr-3" style="max-width:120px"
+                     value="<?= esc(old('day2_time', $day2 ? date('H:i', strtotime($day2)) : '14:00')) ?>">
+              <span class="mr-2">à partir du match n°</span>
+              <input type="number" name="day2_from" class="form-control" style="max-width:80px" min="2" max="99"
+                     placeholder="auto" value="<?= esc(old('day2_from', $final->day2_from ?? '')) ?>">
+            </div>
           </div>
         </div>
       </div>
@@ -123,7 +159,9 @@ $locked  = $started ? 'disabled' : '';
     </div>
     <div class="card-footer text-muted small">
       <i class="fas fa-info-circle mr-1"></i>Les points à jouer sont repris du barème de la catégorie de chaque joueur (modifiables).
+      Inscrivez les joueurs dans l'ordre des moyennes du tour précédent.
       Chacun rencontre chacun une fois ; l'ordre des matchs évite qu'un joueur enchaîne deux matchs.
+      À 4 joueurs, calendrier fédéral : 1-2 et 3-4, puis les matchs 3 à 6 se placent d'après leurs résultats (gagnant 1 – perdant 2…).
     </div>
   </div>
 
@@ -180,5 +218,19 @@ $locked  = $started ? 'disabled' : '';
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script>window.SB_CATEGORIES = <?= json_encode($categories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;</script>
+<script>
+(function () {
+    // Nombre de matchs de chaque modèle d'après les joueurs saisis
+    const counts = () => {
+        const n = [...document.querySelectorAll('input[name$="_last_name"]')].filter((i) => i.value.trim() !== '').length;
+        const rr = n * (n - 1) / 2;
+        document.querySelector('[data-sb-count="0"]').textContent = n >= 2 ? rr + ' matchs.' : '';
+        document.querySelector('[data-sb-count="1"]').textContent = n >= 2 ? (rr + Math.floor(n / 2)) + ' matchs.' : '';
+    };
+    document.addEventListener('input', counts);
+    document.addEventListener('change', counts);
+    counts();
+})();
+</script>
 <script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard-forms.js') ?>"></script>
 <?= $this->endSection() ?>

@@ -1,10 +1,13 @@
 <?php
+use App\Models\ScoreboardFinalModel as F;
 use App\Models\ScoreboardMatchModel as M;
 
 $total    = count($matches);
 $finished = count(array_filter($matches, static fn ($m) => $m->status === 'finished'));
 $complete = $total > 0 && $finished === $total;
 $fmt      = static fn (?float $v): string => $v === null ? '—' : number_format($v, 3, ',', '');
+$dayNames = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+$when     = static fn (?string $dt): string => $dt ? $dayNames[(int) date('w', strtotime($dt))] . ' ' . date('d/m H:i', strtotime($dt)) : '—';
 $statusBadge = static fn (string $s): string => match ($s) {
     'live'      => '<span class="badge badge-danger"><i class="fas fa-circle mr-1"></i>En cours</span>',
     'scheduled' => '<span class="badge badge-info">À jouer</span>',
@@ -20,6 +23,7 @@ $statusBadge = static fn (string $s): string => match ($s) {
     <h3 class="card-title">
       <i class="fas fa-trophy mr-2"></i><strong><?= esc($final->name) ?></strong>
       <?= $final->scheduled_at ? ' · ' . date('d/m/Y H:i', strtotime($final->scheduled_at)) : '' ?>
+      <?= $final->day2_at ? ' et ' . date('d/m/Y H:i', strtotime($final->day2_at)) : '' ?>
       · <?= esc(M::disciplineLabel($final)) ?>
     </h3>
     <div class="ml-auto">
@@ -30,7 +34,8 @@ $statusBadge = static fn (string $s): string => match ($s) {
     </div>
   </div>
   <div class="card-body py-2 text-muted">
-    <?= count($players) ?> joueurs · <?= $total ?> matchs
+    <?= count($players) ?> joueurs · <?= $total ?> matchs<?= $final->placement_matches ? ' dont ' . count(F::placementPairs(count($players))) . ' de classement' : '' ?>
+    <?= $final->day2_at ? ' · deux jours (jour 2 dès le match n°' . (int) $final->day2_from . ')' : '' ?>
     <?= $final->innings_limit ? ' · limite ' . (int) $final->innings_limit . ' reprises' : '' ?>
     <?= $final->unequal_innings ? ' · reprises inégales' : ' · reprise d\'égalisation' ?>
     · billards : <?= $tables ? esc(implode(', ', $tables)) : 'au choix' ?>
@@ -49,7 +54,7 @@ $statusBadge = static fn (string $s): string => match ($s) {
           <th width="50" class="text-center">Rang</th><th>Joueur</th><th class="text-center">Cat.</th><th class="text-center">Pts à jouer</th>
           <th class="text-center">J</th><th class="text-center">G</th><th class="text-center">N</th><th class="text-center">P</th>
           <th class="text-center">Pts match</th><th class="text-center">Points</th><th class="text-center">Reprises</th>
-          <th class="text-center">Moyenne</th><th class="text-center">Moy. prop.</th><th class="text-center">MS</th>
+          <th class="text-center">Moyenne</th><th class="text-center">Moy. prop.</th><th class="text-center">MS</th><th class="text-center" title="M : dans la moyenne · S/M : sous la moyenne">M · S/M</th>
         </tr>
       </thead>
       <tbody>
@@ -69,6 +74,7 @@ $statusBadge = static fn (string $s): string => match ($s) {
           <td class="text-center"><?= number_format($r['average'], 3, ',', '') ?></td>
           <td class="text-center"><?= $fmt($r['proportional']) ?></td>
           <td class="text-center"><?= $r['high_run'] ?></td>
+          <td class="text-center"><?= $r['played'] ? ($r['in_average'] ? 'M' : '<span class="text-danger">S/M</span>') : '—' ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>
@@ -76,12 +82,13 @@ $statusBadge = static fn (string $s): string => match ($s) {
   </div>
   <div class="card-footer text-muted small">
     <i class="fas fa-balance-scale mr-1"></i>2 points de match pour une victoire, 1 pour un nul, 0 pour une défaite.
-    Égalité : moyenne proportionnelle (moyenne ÷ moyenne minimum de la catégorie), puis meilleure série, puis match entre les ex æquo.
+    Les joueurs dans (ou au-dessus de) la moyenne de leur catégorie (M) sont classés avant ceux sous la moyenne (S/M), puis aux points de match.
+    Égalité : moyenne proportionnelle (moyenne ÷ moyenne minimum de la catégorie), puis meilleures moyennes particulières, puis meilleures séries.
   </div>
 </div>
 
 <div class="card card-outline card-primary">
-  <div class="card-header"><h3 class="card-title"><i class="fas fa-th mr-2"></i>Grille des résultats</h3></div>
+  <div class="card-header"><h3 class="card-title"><i class="fas fa-th mr-2"></i>Grille des résultats<?= $final->placement_matches ? ' (poule)' : '' ?></h3></div>
   <div class="card-body p-0 table-responsive">
     <table class="table table-sm table-bordered text-center mb-0">
       <thead class="thead-rbcd">
@@ -122,7 +129,7 @@ $statusBadge = static fn (string $s): string => match ($s) {
     <table class="table table-sm table-bordered table-hover mb-0">
       <thead class="thead-rbcd">
         <tr>
-          <th width="30" class="text-center"><i class="fas fa-arrows-alt-v"></i></th><th width="40">#</th><th width="110">Billard</th><th>Joueur</th><th>Joueur</th>
+          <th width="30" class="text-center"><i class="fas fa-arrows-alt-v"></i></th><th width="40">#</th><th width="120">Prévu</th><th width="110">Billard</th><th>Joueur</th><th>Joueur</th>
           <th width="100" class="text-center">Pts à jouer</th><th width="90" class="text-center">Score</th>
           <th width="80" class="text-center">Reprises</th><th width="90" class="text-center">Statut</th><th width="90" class="text-right">Actions</th>
         </tr>
@@ -132,10 +139,13 @@ $statusBadge = static fn (string $s): string => match ($s) {
         <tr data-id="<?= (int) $m->id ?>">
           <td class="text-center align-middle sb-drag" title="Glisser pour changer l'ordre"><i class="fas fa-grip-vertical text-muted"></i></td>
           <td><?= (int) $m->final_order ?></td>
+          <td class="text-nowrap"><?= $when($m->scheduled_at) ?></td>
           <td><?= esc($m->table_name ?? 'au choix') ?></td>
-          <td class="<?= (int) $m->winner === 1 && $m->status === 'finished' ? 'font-weight-bold' : '' ?>"><?= esc(M::playerLabel($m, 'p1')) ?></td>
+          <td class="<?= (int) $m->winner === 1 && $m->status === 'finished' ? 'font-weight-bold' : '' ?>">
+            <?php if ($m->final_placement): ?><span class="badge badge-secondary mr-1">Classement <?= esc($m->final_placement) ?></span><?php endif; ?>
+            <?= esc(M::playerLabel($m, 'p1')) ?></td>
           <td class="<?= (int) $m->winner === 2 && $m->status === 'finished' ? 'font-weight-bold' : '' ?>"><?= esc(M::playerLabel($m, 'p2')) ?></td>
-          <td class="text-center"><?= (int) $m->p1_distance ?> / <?= (int) $m->p2_distance ?></td>
+          <td class="text-center"><?= M::isPendingPlacement($m) ? '—' : (int) $m->p1_distance . ' / ' . (int) $m->p2_distance ?></td>
           <td class="text-center"><?= $m->status === 'scheduled' ? '—' : (int) $m->p1_points . ' – ' . (int) $m->p2_points ?></td>
           <td class="text-center"><?= $m->status === 'scheduled' ? '—' : max((int) $m->p1_innings, (int) $m->p2_innings) ?></td>
           <td class="text-center"><?= $statusBadge($m->status) ?></td>
@@ -144,6 +154,7 @@ $statusBadge = static fn (string $s): string => match ($s) {
               <button type="button" class="btn btn-xs btn-warning" title="Modifier le match" data-toggle="modal" data-target="#match-edit"
                       data-action="<?= base_url('admin/scoreboard/finals/' . $final->id . '/matches/' . $m->id) ?>"
                       data-title="Match n°<?= (int) $m->final_order ?> : <?= esc(M::playerLabel($m, 'p1')) ?> – <?= esc(M::playerLabel($m, 'p2')) ?>"
+                      data-pending="<?= M::isPendingPlacement($m) ? 1 : 0 ?>"
                       data-p1="<?= esc(M::playerLabel($m, 'p1')) ?>" data-p2="<?= esc(M::playerLabel($m, 'p2')) ?>"
                       data-table="<?= (int) $m->table_id ?>" data-p1-distance="<?= (int) $m->p1_distance ?>" data-p2-distance="<?= (int) $m->p2_distance ?>"
                       data-date="<?= $m->scheduled_at ? date('Y-m-d', strtotime($m->scheduled_at)) : '' ?>"
@@ -163,7 +174,14 @@ $statusBadge = static fn (string $s): string => match ($s) {
     il est enregistré aussitôt et les billards des matchs à jouer suivent la nouvelle position.<br>
     <i class="fas fa-pen mr-1"></i>Le bouton <span class="badge badge-warning"><i class="fas fa-pen"></i></span> change le billard, l'heure ou les points à jouer d'un match à jouer
     (un billard choisi à la main est redistribué si l'on change ensuite l'ordre : réglez l'ordre d'abord).<br>
-    <i class="fas fa-tv mr-1"></i>Le jour même, chaque match apparaît sur la page de son billard (marquoir) avec « Démarrer », dans cet ordre.
+    <?php if (count($players) === 4): ?>
+    <i class="fas fa-random mr-1"></i>Calendrier fédéral : dès que les matchs 1 et 2 sont terminés, les matchs 3 à 6 se placent d'après leurs résultats
+    (3. gagnant 1 – perdant 2, 4. gagnant 2 – perdant 1, 5. gagnants, 6. perdants). En cas de match nul, réglez l'ordre à la main.<br>
+    <?php endif; ?>
+    <?php if ($final->placement_matches): ?>
+    <i class="fas fa-medal mr-1"></i>Les matchs de classement restent en fin de liste ; leurs joueurs et points à jouer sont désignés à la fin de la poule, d'après son classement.<br>
+    <?php endif; ?>
+    <i class="fas fa-tv mr-1"></i>Le jour prévu, chaque match apparaît sur la page de son billard (marquoir) avec « Démarrer », dans cet ordre<?= $final->day2_at ? ' ; un match déplacé vers l\'autre jour en prend la date' : '' ?>.
   </div>
   <form method="post" id="match-order-form" action="<?= base_url('admin/scoreboard/finals/' . $final->id . '/reorder') ?>" class="d-none">
     <?= csrf_field() ?>
@@ -196,7 +214,7 @@ $statusBadge = static fn (string $s): string => match ($s) {
             <input type="time" name="scheduled_time" class="form-control" style="max-width:120px">
           </div>
         </div>
-        <div class="row">
+        <div class="row" data-field="distances">
           <div class="col-6 form-group mb-0">
             <label for="me_p1" data-field="p1"></label>
             <input type="number" name="p1_distance" id="me_p1" class="form-control" min="1" max="9999" required>
@@ -264,6 +282,9 @@ $('#match-edit').on('show.bs.modal', function (e) {
     if (!f.elements.table_id.value) f.elements.table_id.value = '0';
     f.elements.scheduled_date.value = d.date;
     f.elements.scheduled_time.value = d.time;
+    const pending = d.pending === '1';
+    this.querySelector('[data-field="distances"]').style.display = pending ? 'none' : '';
+    f.elements.p1_distance.disabled = f.elements.p2_distance.disabled = pending;
     f.elements.p1_distance.value = d.p1Distance;
     f.elements.p2_distance.value = d.p2Distance;
 });

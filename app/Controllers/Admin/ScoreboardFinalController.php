@@ -57,6 +57,7 @@ class ScoreboardFinalController extends BaseController
     public function show(int $id): string
     {
         $final   = $this->find($id);
+        $this->model->sync($id);
         $players = $this->players->getForFinal($id);
         $matches = $this->model->getMatches($id);
 
@@ -89,17 +90,17 @@ class ScoreboardFinalController extends BaseController
         $started = $this->model->hasStarted($id);
 
         if ($started) {
-            // Une fois la finale commencée, seuls le nom et la date changent (joueurs et règles sont figés)
-            $name = trim((string) $this->request->getPost('name'));
-            if ($name === '') {
-                return redirect()->back()->withInput()->with('errors', ['Le nom de la finale est obligatoire.']);
+            // Une fois la finale commencée, seuls le nom et les dates changent (joueurs et règles sont figés)
+            $name   = trim((string) $this->request->getPost('name'));
+            $errors = $name === '' ? ['Le nom de la finale est obligatoire.'] : [];
+            $data   = ['name' => $name, 'scheduled_at' => $this->postedDateTime('scheduled')];
+            [$days, $e] = $this->buildDays($data['scheduled_at'], count($this->model->getMatches($id)));
+            if ($errors = array_merge($errors, $e)) {
+                return redirect()->back()->withInput()->with('errors', $errors);
             }
-            $date = trim((string) $this->request->getPost('scheduled_date'));
-            $time = trim((string) $this->request->getPost('scheduled_time')) ?: '09:00';
-            $data = ['name' => $name, 'scheduled_at' => $date !== '' ? date('Y-m-d H:i:s', strtotime($date . ' ' . $time)) : null];
-            $this->model->update($id, $data);
-            $this->db()->table('scoreboard_matches')->where('final_id', $id)->update(['competition' => $data['name']]);
-            $this->db()->table('scoreboard_matches')->where('final_id', $id)->where('status', 'scheduled')->update(['scheduled_at' => $data['scheduled_at']]);
+            $this->model->update($id, $data + $days);
+            $this->db()->table('scoreboard_matches')->where('final_id', $id)->update(['competition' => $name]);
+            $this->model->applyDays($this->model->find($id), $final);
             return redirect()->to(base_url('admin/scoreboard/finals/' . $id))->with('success', 'Finale modifiée.');
         }
 
@@ -170,16 +171,15 @@ class ScoreboardFinalController extends BaseController
             return $back->with('error', 'Billard inconnu.');
         }
         $data = ['table_id' => $tableId > 0 ? $tableId : null];
-        foreach (['p1_distance', 'p2_distance'] as $field) {
+        // Match de classement en attente : les points à jouer viendront avec les joueurs
+        foreach (ScoreboardMatchModel::isPendingPlacement($match) ? [] : ['p1_distance', 'p2_distance'] as $field) {
             $v = (int) ($post[$field] ?? 0);
             if ($v < 1 || $v > 9999) {
                 return $back->with('error', 'Les points à jouer doivent être compris entre 1 et 9999.');
             }
             $data[$field] = $v;
         }
-        $date = trim((string) ($post['scheduled_date'] ?? ''));
-        $time = trim((string) ($post['scheduled_time'] ?? '')) ?: '09:00';
-        $data['scheduled_at'] = $date !== '' ? date('Y-m-d H:i:s', strtotime($date . ' ' . $time)) : null;
+        $data['scheduled_at'] = $this->postedDateTime('scheduled');
 
         (new ScoreboardMatchModel())->update($match->id, $data);
 
@@ -253,9 +253,6 @@ class ScoreboardFinalController extends BaseController
         if ($name === '') {
             $errors[] = 'Le nom de la finale est obligatoire.';
         }
-        $date = trim((string) ($post['scheduled_date'] ?? ''));
-        $time = trim((string) ($post['scheduled_time'] ?? '')) ?: '09:00';
-
         $players = [];
         $seen    = [];
         for ($k = 1; $k <= ScoreboardFinalModel::MAX_PLAYERS; $k++) {
@@ -294,11 +291,15 @@ class ScoreboardFinalController extends BaseController
                                                                    'p2_last_name' => '-', 'p2_first_name' => '-', 'p2_distance' => 1]);
         $errors = array_merge($errors, $e);
 
-        $tableIds = array_values(array_filter(array_map('intval', (array) ($post['table_ids'] ?? []))));
+        $tableIds  = array_values(array_filter(array_map('intval', (array) ($post['table_ids'] ?? []))));
+        $placement = !empty($post['placement_matches']) ? 1 : 0;
+        $start     = $this->postedDateTime('scheduled');
+        [$days, $e] = $this->buildDays($start, ScoreboardFinalModel::matchCount(count($players), (bool) $placement));
+        $errors = array_merge($errors, $e);
 
-        $data = [
+        $data = $days + [
             'name'                  => $name,
-            'scheduled_at'          => $date !== '' ? date('Y-m-d H:i:s', strtotime($date . ' ' . $time)) : null,
+            'scheduled_at'          => $start,
             'discipline'            => $rules['discipline'],
             'format'                => $rules['format'],
             'innings_limit'         => $rules['innings_limit'],
@@ -307,9 +308,41 @@ class ScoreboardFinalController extends BaseController
             'shot_clock_seconds'    => $rules['shot_clock_seconds'],
             'shot_clock_extensions' => $rules['shot_clock_extensions'],
             'table_ids'             => $tableIds ? implode(',', $tableIds) : null,
+            'placement_matches'     => $placement,
         ];
 
         return [$data, $players, array_values(array_unique($errors))];
+    }
+
+    private function postedDateTime(string $prefix, string $defaultTime = '09:00'): ?string
+    {
+        $date = trim((string) $this->request->getPost($prefix . '_date'));
+        $time = trim((string) $this->request->getPost($prefix . '_time')) ?: $defaultTime;
+        return $date !== '' ? date('Y-m-d H:i:s', strtotime($date . ' ' . $time)) : null;
+    }
+
+    /**
+     * Retourne [day2_at et day2_from, erreurs] : sur deux jours, les matchs à partir du n° indiqué
+     * (par défaut la seconde moitié) se jouent le jour 2.
+     */
+    private function buildDays(?string $start, int $total): array
+    {
+        $none = ['day2_at' => null, 'day2_from' => null];
+        if (!$this->request->getPost('two_days')) {
+            return [$none, []];
+        }
+        $day2 = $this->postedDateTime('day2', '14:00');
+        $from = (int) $this->request->getPost('day2_from') ?: intdiv($total, 2) + 1;
+        $errors = [];
+        if ($start === null || $day2 === null) {
+            $errors[] = 'Sur deux jours, la date du jour 1 et celle du jour 2 sont obligatoires.';
+        } elseif (substr($day2, 0, 10) <= substr($start, 0, 10)) {
+            $errors[] = 'Le jour 2 doit être postérieur au jour 1.';
+        }
+        if ($from < 2 || $from > $total) {
+            $errors[] = 'Le jour 2 doit commencer entre le match n°2 et le match n°' . $total . '.';
+        }
+        return [$errors ? $none : ['day2_at' => $day2, 'day2_from' => $from], $errors];
     }
 
     private function savePlayers(int $finalId, array $players): void
