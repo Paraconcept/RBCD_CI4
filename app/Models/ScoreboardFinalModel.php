@@ -13,12 +13,17 @@ use CodeIgniter\Model;
  */
 class ScoreboardFinalModel extends Model
 {
+    /** Types prévus mais pas encore disponibles : affichés grisés dans la liste. */
+    public const KINDS_SOON = [
+        'national' => 'Finale de championnat national (FRBB)',
+    ];
+
     public const MIN_PLAYERS = 3;
     public const MAX_PLAYERS = 7;
 
     /** Type de finale : choisit le modèle de la feuille de classement PDF. */
     public const KINDS = [
-        'championship' => 'Finale de championnat régional (FRBB)',
+        'championship' => 'Finale de championnat régional (FRBB-LL)',
         'cup'          => 'Finale de coupe',
     ];
 

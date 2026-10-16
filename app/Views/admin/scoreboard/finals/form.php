@@ -87,6 +87,9 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
               <?php foreach (F::KINDS as $k => $v): ?>
               <option value="<?= $k ?>" <?= $val('kind', 'championship') === $k ? 'selected' : '' ?>><?= $v ?></option>
               <?php endforeach; ?>
+              <?php foreach (F::KINDS_SOON as $k => $v): ?>
+              <option value="<?= $k ?>" disabled><?= $v ?> — bientôt</option>
+              <?php endforeach; ?>
             </select>
             <small class="text-muted">Choisit le modèle de la feuille de classement PDF.</small>
           </div>
