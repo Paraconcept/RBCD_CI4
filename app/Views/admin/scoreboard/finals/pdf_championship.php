@@ -97,7 +97,7 @@ foreach ($standings as $r) {
                 $min  = (float) ($p->average_min ?? 0);
                 $rows = $lines[(int) $p->id] ?? [];
                 $span = max(1, count($rows));
-                $who  = [esc(mb_convert_case(mb_strtolower($p->last_name), MB_CASE_TITLE)), esc($p->first_name), esc($p->license ?? ''), esc($p->category ?? ''), esc($p->club ?? '')];
+                $who  = [esc(mb_convert_case(mb_strtolower($p->last_name), MB_CASE_TITLE)), esc($p->first_name), esc($p->license ?? ''), esc($p->club_code ?? ''), esc($p->club ?? '')];
             ?>
                 <?php foreach ($rows ?: [null] as $i => $l):
                     $m    = $l['match'] ?? null;

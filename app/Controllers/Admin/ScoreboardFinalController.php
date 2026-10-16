@@ -99,6 +99,11 @@ class ScoreboardFinalController extends BaseController
                 return redirect()->back()->withInput()->with('errors', $errors);
             }
             $this->model->update($id, $data + $days);
+            // Le code club n'est qu'imprimé : il reste modifiable une fois la finale commencée
+            foreach ($this->players->getForFinal($id) as $p) {
+                $code = mb_substr(mb_strtoupper(trim((string) $this->request->getPost('f' . (int) $p->position . '_club_code'))), 0, 10);
+                $this->players->update($p->id, ['club_code' => $code !== '' ? $code : null]);
+            }
             $this->db()->table('scoreboard_matches')->where('final_id', $id)->update(['competition' => $name]);
             $this->model->applyDays($this->model->find($id), $final);
             return redirect()->to(base_url('admin/scoreboard/finals/' . $id))->with('success', 'Finale modifiée.');
@@ -215,7 +220,6 @@ class ScoreboardFinalController extends BaseController
                     'frbb'   => $this->image('frbb_kbbb_logo_100.png'),
                     'region' => $this->image('Ecusson_FRBB-LL.png'),
                     'club'   => $this->image('Ecusson_RBCD.png'),
-                    'dison'  => $this->image('logo_dison.png'),
                 ],
                 'signatories' => [$this->signatory('Président'), $this->signatory('Directeur Sportif')],
             ];
@@ -277,6 +281,7 @@ class ScoreboardFinalController extends BaseController
             'started'    => $final ? $this->model->hasStarted((int) $final->id) : false,
             'tables'     => (new ScoreboardTableModel())->getActive(),
             'categories' => (new FrbbCategoryModel())->forScoreboard(),
+            'clubCodes'  => $this->players->clubCodes(),
             'defaults'   => [
                 'shot_clock_seconds'    => (int) $settings->getSetting('scoreboard_shot_clock_seconds', 40),
                 'shot_clock_extensions' => (int) $settings->getSetting('scoreboard_shot_clock_extensions', 3),
@@ -299,6 +304,7 @@ class ScoreboardFinalController extends BaseController
         }
         $players = [];
         $seen    = [];
+        $codes   = $this->players->clubCodes();
         for ($k = 1; $k <= ScoreboardFinalModel::MAX_PLAYERS; $k++) {
             $f = 'f' . $k . '_';
             if (trim((string) ($post[$f . 'last_name'] ?? '')) === '') {
@@ -323,6 +329,8 @@ class ScoreboardFinalController extends BaseController
             $players[] = [
                 'member_id' => $d['p1_member_id'], 'last_name' => $d['p1_last_name'], 'first_name' => $d['p1_first_name'],
                 'club' => $d['p1_club'], 'license' => $d['p1_license'], 'distance' => $d['p1_distance'],
+                'club_code' => mb_substr(mb_strtoupper(trim((string) ($post[$f . 'club_code'] ?? ''))), 0, 10)
+                               ?: ($codes[ScoreboardFinalPlayerModel::clubKey((string) $d['p1_club'])] ?? null),
                 'category_id' => $d['p1_category_id'], 'category' => $d['p1_category'], 'average_min' => $d['p1_average_min'],
                 'average_max' => $d['p1_category_id'] ? ((float) (new FrbbCategoryModel())->find($d['p1_category_id'])->average_max ?: null) : null,
             ];

@@ -45,7 +45,7 @@ $lastDay  = $final->day2_at ?? $final->scheduled_at;
             <tr>
                 <td style="width:16%"><?php if ($logos['club']): ?><img src="<?= $logos['club'] ?>" style="height:16mm"><?php endif; ?></td>
                 <td class="title"><?= esc($final->name) ?><?= $complete ? '' : '<br><small style="font-size:9pt;font-weight:normal">Provisoire : ' . $finished . ' / ' . $total . ' matchs terminés</small>' ?></td>
-                <td style="width:16%;text-align:right"><?php if ($logos['dison']): ?><img src="<?= $logos['dison'] ?>" style="height:12mm"><?php endif; ?></td>
+                <td style="width:16%"></td>
             </tr>
         </table>
 

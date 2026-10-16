@@ -25,7 +25,7 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
 
 <?php if ($started): ?>
   <div class="alert alert-warning">
-    <i class="fas fa-lock mr-2"></i>La finale a commencé : les joueurs et les règles ne peuvent plus changer. Seuls le nom et les dates restent modifiables.
+    <i class="fas fa-lock mr-2"></i>La finale a commencé : les joueurs et les règles ne peuvent plus changer. Seuls le nom, les dates, le type de finale et les codes club restent modifiables.
   </div>
 <?php elseif ($isEdit): ?>
   <div class="alert alert-info">
@@ -156,7 +156,7 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
     <div class="card-body p-0">
       <table class="table table-sm mb-0">
         <thead class="thead-rbcd">
-          <tr><th width="40" class="text-center">N°</th><th>Nom</th><th>Prénom</th><th>Club</th><th width="260">Catégorie</th><th width="110">Pts à jouer</th></tr>
+          <tr><th width="40" class="text-center">N°</th><th>Nom</th><th>Prénom</th><th>Club</th><th width="95" title="Code FRBB du club, imprimé sur la feuille du championnat régional">Code club</th><th width="260">Catégorie</th><th width="110">Pts à jouer</th></tr>
         </thead>
         <tbody>
         <?php for ($k = 1; $k <= F::MAX_PLAYERS; $k++): $f = 'f' . $k; $pl = $players[$k - 1] ?? null; $pv = static fn (string $n) => old($f . '_' . $n, $pl->$n ?? ''); ?>
@@ -171,6 +171,8 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
             </td>
             <td><input type="text" name="<?= $f ?>_first_name" class="form-control form-control-sm" <?= $locked ?> value="<?= esc($pv('first_name')) ?>"></td>
             <td><input type="text" name="<?= $f ?>_club" class="form-control form-control-sm" <?= $locked ?> value="<?= esc($pv('club') ?: 'RBC Disonais') ?>"></td>
+            <td><input type="text" name="<?= $f ?>_club_code" class="form-control form-control-sm" maxlength="10" style="text-transform:uppercase" <?= $started && !$pl ? 'disabled' : '' ?>
+                       placeholder="ex. LLL 30" value="<?= esc($pv('club_code')) ?>"></td>
             <td><select name="<?= $f ?>_category_id" class="form-control form-control-sm" data-sb-category="<?= $f ?>" <?= $locked ?> data-selected="<?= esc($pv('category_id')) ?>"></select></td>
             <td><input type="number" name="<?= $f ?>_distance" class="form-control form-control-sm" min="1" max="9999" <?= $locked ?> value="<?= esc($pv('distance')) ?>"></td>
           </tr>
@@ -248,6 +250,19 @@ $placed  = (string) old('placement_matches', $final->placement_matches ?? '0') =
         document.querySelector('[data-sb-count="0"]').textContent = n >= 2 ? rr + ' matchs.' : '';
         document.querySelector('[data-sb-count="1"]').textContent = n >= 2 ? (rr + Math.floor(n / 2)) + ' matchs.' : '';
     };
+    // Code club repris d'après le nom du club (codes déjà saisis), tant qu'il n'a pas été tapé à la main
+    const codes = <?= json_encode($clubCodes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
+    const key = (club) => club.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const fillCodes = () => document.querySelectorAll('input[name$="_club_code"]').forEach((code) => {
+        const club = document.querySelector('input[name="' + code.name.replace('_club_code', '_club') + '"]');
+        if (!club || code.disabled || (code.value !== '' && !code.dataset.sbAuto)) return;
+        const found = codes[key(club.value)] || '';
+        if (code.value !== found) { code.value = found; code.dataset.sbAuto = '1'; }
+    });
+    document.querySelectorAll('input[name$="_club_code"]').forEach((code) => code.addEventListener('input', () => delete code.dataset.sbAuto));
+    document.addEventListener('focusout', fillCodes);
+    fillCodes();
+
     const kind = document.getElementById('kind');
     const showKind = () => document.querySelectorAll('[data-sb-kind]').forEach((el) => { el.style.display = el.dataset.sbKind === kind.value ? '' : 'none'; });
     kind.addEventListener('change', showKind);
