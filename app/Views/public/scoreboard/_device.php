@@ -12,7 +12,8 @@ $device = D::device();
 <?php else: ?>
 <div class="sb-card mb-4" style="border-color:#f59e0b">
     <p class="mb-2"><i class="fas fa-shield-halved me-2 text-warning"></i><b>Cet appareil n'est pas autorisé.</b>
-        Vous y avez accès parce que vous êtes connecté (comité). Chromebook d'un billard ou tablette du bar : autorisez-le pour qu'il garde l'accès après votre déconnexion.</p>
+        Vous y avez accès parce que vous êtes connecté (comité). L'autoriser lui garde l'accès après votre déconnexion.<br>
+        <b>À n'utiliser que pour les appareils du club (Chromebooks des billards, tablette du bar)</b>, jamais pour un ordinateur ou un téléphone personnel.</p>
     <form method="post" action="<?= base_url('marquoir/appareil/autoriser') ?>" class="d-flex flex-wrap gap-2">
         <?= csrf_field() ?>
         <input type="hidden" name="back" value="<?= esc(current_url()) ?>">
