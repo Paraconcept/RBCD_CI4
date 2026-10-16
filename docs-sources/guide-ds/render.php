@@ -47,26 +47,26 @@ try {
     $save('players', $ctl(\App\Controllers\Admin\ScoreboardSetupController::class)->players());
     $today = date('Y-m-d');
     // Rencontres individuelles officielles
-    $base = ['type' => 'official', 'status' => 'scheduled', 'format' => 'PB', 'p1_club' => 'RBC Disonais'];
+    $base = ['type' => 'official', 'status' => 'scheduled', 'format' => 'PB', 'p1_club' => 'RBC DISONAIS'];
     $ids['matches'][] = $a = $mm->insert($base + ['scheduled_at' => "$today 20:00:00", 'competition' => 'Championnat Libre PF', 'discipline' => 'libre', 'table_id' => 3,
-        'p1_last_name' => 'DUPONT', 'p1_first_name' => 'Jean', 'p1_distance' => 60, 'p2_last_name' => 'LAMBERT', 'p2_first_name' => 'Marc', 'p2_club' => 'B.C. Herve', 'p2_distance' => 60]);
+        'p1_last_name' => 'DUPONT', 'p1_first_name' => 'Jean', 'p1_distance' => 60, 'p2_last_name' => 'LAMBERT', 'p2_first_name' => 'Marc', 'p2_club' => 'B.C. HERVE', 'p2_distance' => 60]);
     $ids['matches'][] = $b = $mm->insert($base + ['scheduled_at' => "$today 19:30:00", 'competition' => 'Championnat 3 Bandes PF', 'discipline' => '3bandes', 'table_id' => 4, 'innings_limit' => 50,
-        'p1_last_name' => 'RENARD', 'p1_first_name' => 'Louis', 'p1_distance' => 25, 'p2_last_name' => 'SIMON', 'p2_first_name' => 'Éric', 'p2_club' => 'B.C. Eupen', 'p2_distance' => 25,
+        'p1_last_name' => 'RENARD', 'p1_first_name' => 'Louis', 'p1_distance' => 25, 'p2_last_name' => 'SIMON', 'p2_first_name' => 'Éric', 'p2_club' => 'B.C. EUPEN', 'p2_distance' => 25,
         'comment' => 'Partie interrompue 10 minutes (éclairage du billard 4).']);
     $play($b, $sim(25, 25, [0, 0, 0, 0, 1, 1, 1, 2, 3], 7, 50));
 
     // Rencontre d'équipe CDR
     $team = $db->table('cdr_teams')->orderBy('id', 'DESC')->get()->getRow();
-    $ids['te'] = $teId = $te->insert(['code' => 'LPF099', 'competition' => 'CDR', 'team_id' => $team->id, 'team_name' => $team->name, 'team_club' => 'RBC Disonais',
-        'team_number' => '1', 'opponent_club' => 'B.C. Herve', 'opponent_number' => '2', 'team_email' => 'club@rbcd.be', 'opponent_email' => 'secretariat@bc-herve.be',
+    $ids['te'] = $teId = $te->insert(['code' => 'LPF099', 'competition' => 'CDR', 'team_id' => $team->id, 'team_name' => $team->name, 'team_club' => 'RBC DISONAIS',
+        'team_number' => '1', 'opponent_club' => 'B.C. HERVE', 'opponent_number' => '2', 'team_email' => 'club@rbcd.be', 'opponent_email' => 'secretariat@bc-herve.be',
         'scheduled_at' => "$today 19:30:00", 'discipline' => 'libre', 'format' => 'PB', 'recap_comment' => 'Rencontre jouée sans incident.']);
     $e = $te->find($teId);
     $roster = $te->getRoster((int) $team->id);
     foreach (array_slice($roster, 0, 3) as $i => $r) {
         $mid = $mm->insert(['type' => 'official', 'status' => 'scheduled', 'team_encounter_id' => $teId, 'scheduled_at' => "$today 19:30:00", 'discipline' => 'libre', 'format' => 'PB',
             'table_id' => $i + 1, 'p1_member_id' => $r->id, 'p1_license' => $r->frbb_license, 'p1_last_name' => mb_strtoupper($r->last_name), 'p1_first_name' => $r->first_name,
-            'p1_club' => 'RBC Disonais 1', 'p1_distance' => [60, 50, 40][$i], 'p2_last_name' => ['MARTIN', 'LEGRAND', 'ABSENT'][$i], 'p2_first_name' => ['Paul', 'Luc', ''][$i],
-            'p2_club' => 'B.C. Herve 2', 'p2_distance' => [55, 50, 0][$i], 'p2_license' => ['4521', '3987', null][$i], 'signature_required' => 0]);
+            'p1_club' => 'RBC DISONAIS 1', 'p1_distance' => [60, 50, 40][$i], 'p2_last_name' => ['MARTIN', 'LEGRAND', 'ABSENT'][$i], 'p2_first_name' => ['Paul', 'Luc', ''][$i],
+            'p2_club' => 'B.C. HERVE 2', 'p2_distance' => [55, 50, 0][$i], 'p2_license' => ['4521', '3987', null][$i], 'signature_required' => 0]);
         $ids['matches'][] = $mid;
         if ($i === 0) $play($mid, $sim(60, 55, [0, 1, 1, 2, 3, 4, 5, 7, 9], 11));
         if ($i === 1) $play($mid, $sim(50, 50, [0, 1, 2, 2, 3, 4, 6, 8], 23));
@@ -93,17 +93,23 @@ try {
         'p2_signature' => $sig(0.5), 'referee_signature' => $sig(0.9), 'signed_at' => M::now()]);
     $db->table('scoreboard_team_signatures')->insert(['encounter_id' => $teId, 'home_signature' => $sig(0.3), 'away_signature' => $sig(0.7), 'signed_at' => M::now()]);
 
-    // Finale (4 joueurs, 2 billards), rendue avant puis pendant
-    $cats = $db->query("select id, points from categories_new where game_mode='B3PF' order by average_min desc limit 4")->getResult();
-    $post = ['name' => 'Finale du club 3 Bandes PF', 'scheduled_date' => $today, 'scheduled_time' => '09:00', 'discipline' => '3bandes', 'format' => 'PB', 'table_ids' => ['3', '4'],
-             'innings_limit_enabled' => '1', 'innings_limit' => '50'];
-    foreach ([['HUPPERTZ', 'Robert'], ['GILLET', 'Georges'], ['CAVELIER', 'Nathalie'], ['RANDAXHE', 'Patrick']] as $i => [$ln, $fn]) {
+    // Finale de championnat régional sans éliminatoires (4 joueurs, 8 matchs sur deux jours, 2 billards),
+    // rendue avant puis pendant ; ses feuilles de classement (championnat et coupe) une fois terminée
+    $tomorrow = date('Y-m-d', strtotime('+1 day'));
+    $post = ['name' => 'Finale régionale 3ème Libre GF', 'kind' => 'championship', 'placement_matches' => '1',
+             'scheduled_date' => $today, 'scheduled_time' => '19:30', 'two_days' => '1', 'day2_date' => $tomorrow, 'day2_time' => '14:00', 'day2_from' => '5',
+             'discipline' => 'libre', 'format' => 'GB', 'table_ids' => ['1', '2']];
+    $finalPlayers = [['HUPPERTZ', 'Robert', '3B', 'RBC DISONAIS', 'LLV 06', '4210'], ['MASSET', 'Luc', '3C', 'B.C.HERSTALIEN', 'LLL 30', '4047'],
+                     ['GILLET', 'Georges', '3C', 'RBC DISONAIS', '', '9489'], ['BERNARD', 'Thierry', '3D', 'B.C.ST-SÉVERIN', 'LLH 24', '6084']];
+    foreach ($finalPlayers as $i => [$ln, $fn, $code, $club, $clubCode, $lic]) {
         $k = $i + 1;
-        $post += ["f{$k}_last_name" => $ln, "f{$k}_first_name" => $fn, "f{$k}_club" => 'RBC Disonais', "f{$k}_category_id" => $cats[$i]->id, "f{$k}_distance" => $cats[$i]->points];
+        $cat = $db->query("select id, points from categories_new where game_mode='PLGF' and categories='$code'")->getRow();
+        $post += ["f{$k}_last_name" => $ln, "f{$k}_first_name" => $fn, "f{$k}_club" => $club, "f{$k}_club_code" => $clubCode, "f{$k}_license" => $lic,
+                  "f{$k}_category_id" => $cat->id, "f{$k}_distance" => $cat->points];
     }
     service('request')->setGlobal('post', $post);
     $ctl(\App\Controllers\Admin\ScoreboardFinalController::class)->store();
-    $final = $fm->where('name', 'Finale du club 3 Bandes PF')->orderBy('id', 'DESC')->first();
+    $final = $fm->where('name', 'Finale régionale 3ème Libre GF')->orderBy('id', 'DESC')->first();
     $ids['final'] = $final->id;
     service('request')->setGlobal('post', []);
     session()->remove('success'); session()->remove('__ci_vars');
@@ -111,11 +117,14 @@ try {
     service('renderer')->resetData();
     $fc = $ctl(\App\Controllers\Admin\ScoreboardFinalController::class);
     $save('final_form', $fc->edit($final->id));
-    $fms = $fm->getMatches($final->id);
-    foreach (array_slice($fms, 0, 4) as $i => $m) {
-        $play((int) $m->id, $sim((int) $m->p1_distance, (int) $m->p2_distance, [0, 0, 0, 0, 1, 1, 1, 2, 3], 100 + $i, 50));
-    }
-    $mm->update($fms[4]->id, ['status' => 'live', 'starting_player' => 1, 'started_at' => M::now(), 'p1_points' => 14, 'p2_points' => 11, 'p1_innings' => 19, 'p2_innings' => 18]);
+    $playFinal = function (int $order) use ($fm, $final, $play, $sim) {
+        $m = array_values(array_filter($fm->getMatches($final->id), static fn ($x) => (int) $x->final_order === $order))[0];
+        $play((int) $m->id, $sim((int) $m->p1_distance, (int) $m->p2_distance, [0, 1, 1, 2, 3, 4, 5, 6, 8, 11], 200 + $order));
+    };
+    // Matchs 1 et 2 joués : les matchs 3 à 6 se placent d'après leurs résultats ; puis toute la poule
+    foreach (range(1, 6) as $o) $playFinal($o);
+    $m7 = array_values(array_filter($fm->getMatches($final->id), static fn ($x) => (int) $x->final_order === 7))[0];
+    $mm->update($m7->id, ['status' => 'live', 'starting_player' => 1, 'started_at' => M::now(), 'p1_points' => 31, 'p2_points' => 22, 'p1_innings' => 9, 'p2_innings' => 9]);
 
     // Pages
     $sc = $ctl(\App\Controllers\Admin\ScoreboardController::class);
@@ -131,7 +140,12 @@ try {
     file_put_contents($out . 'match.pdf', $sc->pdf($b)->getBody());
     $save('finals_index', $fc->index());
     $save('final_show', $fc->show($final->id));
-    file_put_contents($out . 'final.pdf', $fc->pdf($final->id)->getBody());
+    $mm->update($m7->id, ['status' => 'scheduled', 'started_at' => null]);
+    $playFinal(7);
+    $playFinal(8);
+    file_put_contents($out . 'final_championship.pdf', $fc->pdf($final->id)->getBody());
+    $fm->update($final->id, ['kind' => 'cup', 'name' => "Finale Coupe de l'Échevine des Sports"]);
+    file_put_contents($out . 'final_cup.pdf', $fc->pdf($final->id)->getBody());
     $st = $ctl(\App\Controllers\Admin\ScoreboardSetupController::class);
     $save('tables', $st->tables());
     $save('settings', $st->settings());

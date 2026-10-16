@@ -26,7 +26,7 @@
           <td data-order="<?= esc($p->last_name) ?>"><input type="text" name="last_name" form="pl<?= $p->id ?>" class="form-control form-control-sm" style="text-transform:uppercase" value="<?= esc($p->last_name) ?>" required></td>
           <td data-order="<?= esc($p->first_name) ?>"><input type="text" name="first_name" form="pl<?= $p->id ?>" class="form-control form-control-sm" value="<?= esc($p->first_name) ?>" required></td>
           <td data-order="<?= esc($p->club) ?>"><input type="text" name="club" form="pl<?= $p->id ?>" class="form-control form-control-sm" style="text-transform:uppercase" value="<?= esc($p->club) ?>"></td>
-          <td data-order="<?= esc($p->club_code ?? '') ?>"><input type="text" name="club_code" form="pl<?= $p->id ?>" class="form-control form-control-sm" maxlength="10" style="text-transform:uppercase" placeholder="ex. LLL 30" value="<?= esc($p->club_code ?? '') ?>"></td>
+          <td data-order="<?= esc($p->club_code ?? '') ?>"><input type="text" name="club_code" form="pl<?= $p->id ?>" class="form-control form-control-sm" maxlength="10" style="text-transform:uppercase" placeholder="LLL 30" value="<?= esc($p->club_code ?? '') ?>"></td>
           <td data-order="<?= esc($p->license ?? '') ?>"><input type="text" name="license" form="pl<?= $p->id ?>" class="form-control form-control-sm" maxlength="25" value="<?= esc($p->license ?? '') ?>"></td>
           <td class="text-right text-nowrap align-middle">
             <button form="pl<?= $p->id ?>" class="btn btn-xs btn-warning" title="Enregistrer"><i class="fas fa-save"></i></button>

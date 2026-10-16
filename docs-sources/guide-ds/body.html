@@ -26,7 +26,7 @@
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-gear"></i></div><h3>Une fois pour toutes</h3>
                 <p><b>Paramètres</b> : valeurs par défaut, e-mails, code PIN des Chromebooks.<br><b>Billards</b> : noms, format petit/grand billard.</p></div>
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-calendar-plus"></i></div><h3>Avant chaque compétition</h3>
-                <p><b>Rencontres</b> : un match officiel individuel.<br><b>Rencontres d'équipe</b> : la Coupe des Régions (3 matchs).<br><b>Finales et poules</b> : 3 à 7 joueurs, chacun contre chacun.</p></div>
+                <p><b>Rencontres</b> : un match officiel individuel.<br><b>Rencontres d'équipe</b> : la Coupe des Régions (3 matchs).<br><b>Finales et poules</b> : 3 à 7 joueurs, chacun contre chacun, avec ou sans matchs de classement.</p></div>
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-file-pdf"></i></div><h3>Pendant et après</h3>
                 <p>Suivi en direct des scores, <b>feuilles de match</b> et <b>feuilles récapitulatives</b> en PDF, envoi par e-mail, commentaires, forfaits.</p></div>
         </div>
@@ -205,13 +205,14 @@
         <div class="col wide"><img class="shot crop" style="height:158mm" src="img/final_form.png" alt=""></div>
         <div class="col text">
             <ul class="steps">
-                <li><b>Nom</b>, date et heure, discipline et format.</li>
+                <li><b>Nom</b>, date et heure, discipline, format ; <b>type de finale</b> : championnat régional (FRBB-LL) ou coupe. Il choisit la feuille de classement PDF.</li>
+                <li><b>Modèle</b> : après éliminatoires (chacun contre chacun) ou <b>sans éliminatoires</b> (+ matchs de classement 1er-2e, 3e-4e…). À 4 joueurs : 6 ou 8 matchs.</li>
+                <li><b>Finale sur deux jours</b> : date et heure du jour 2 et premier match du jour 2 (par défaut, la seconde moitié).</li>
                 <li><b>Billards utilisés</b> : les matchs y sont répartis à tour de rôle.</li>
-                <li><b>3 à 7 joueurs</b> : la liste des catégories indique les <b>points à jouer</b> et la moyenne minimum (ex. « 5 A - 40 - moy. min. 1,538 ») ; les points se remplissent d'après la catégorie.</li>
+                <li><b>3 à 7 joueurs</b>, dans l'ordre des moyennes du tour précédent. La catégorie remplit les points à jouer ; le <b>code club</b> (LLV 06, LLL 30…) est repris d'après le club.</li>
                 <li><b>Règles</b> : limite de reprises, reprise d'égalisation (le <b>nul</b> est alors possible), chrono.</li>
-                <li>« Créer la finale » génère <b>tous les matchs</b> (3 joueurs : 3 matchs, 4 : 6, 5 : 10, 6 : 15, 7 : 21), dans un ordre qui évite qu'un joueur enchaîne deux matchs. Cet ordre se modifie ensuite sur la page de la finale.</li>
             </ul>
-            <div class="note orange"><p>Tant qu'aucun match n'a commencé, tout est modifiable (les matchs sont régénérés) et la finale peut être supprimée avec ses matchs. Ensuite, seuls le nom et la date changent.</p></div>
+            <div class="note orange"><p>Tant qu'aucun match n'a commencé, tout est modifiable (les matchs sont régénérés). Ensuite, seuls le nom, les dates, le type et les codes club changent.</p></div>
         </div>
     </div>
     <footer class="foot"><span>RBC Disonais · <b>Guide du directeur sportif</b></span><span>11</span></footer>
@@ -219,30 +220,49 @@
 
 <!-- ============================ 12. FINALES : SUIVI ============================ -->
 <section class="page">
-    <header class="head"><div class="num">10</div><div><h1>Finales et poules : le classement</h1><p>La page de la finale</p></div><img src="img/ecusson.png" alt=""></header>
+    <header class="head"><div class="num">10</div><div><h1>Finales et poules : le déroulement</h1><p>La page de la finale</p></div><img src="img/ecusson.png" alt=""></header>
     <div class="body">
         <div class="col wide"><img class="shot crop" style="height:158mm" src="img/final_show.png" alt=""></div>
         <div class="col text">
             <ul class="steps">
-                <li><b>Ordre des matchs</b> : glissez une ligne par sa poignée <i class="fas fa-grip-vertical"></i> pour la déplacer (ex. faire jouer d'abord deux joueurs du même club). Il est enregistré aussitôt ; les billards des matchs à jouer sont redistribués à tour de rôle.</li>
-                <li>Le bouton <i class="fas fa-pen"></i> d'un match à jouer change son <b>billard</b>, son heure ou ses points à jouer. Réglez l'ordre d'abord : un nouveau glissement redistribue les billards.</li>
-                <li>Le jour même, chaque match apparaît sur la page de <b>son billard</b>, dans cet ordre, avec « Démarrer ».</li>
-                <li><b>Classement</b> mis à jour à chaque match : 2 points de match par victoire, 1 par nul, 0 par défaite.</li>
-                <li><b>Égalité</b> : moyenne proportionnelle, puis meilleure série, puis le match entre les ex æquo.</li>
-                <li><b>Grille des résultats</b> : chaque joueur contre chaque autre (points de match, score, reprises).</li>
-                <li><b>Feuille récapitulative</b> PDF (provisoire tant que tout n'est pas joué) avec le <b>commentaire</b>.</li>
+                <li><b>Ordre des matchs</b> : glissez une ligne par sa poignée <i class="fas fa-grip-vertical"></i>. Les billards suivent la nouvelle position ; un match qui change de jour en prend la date.</li>
+                <li><b>À 4 joueurs</b>, calendrier fédéral : 1-2 et 3-4, puis dès leur fin les matchs 3 à 6 se placent seuls (gagnant 1 – perdant 2…). Après un nul, réglez l'ordre à la main.</li>
+                <li><b>Matchs de classement</b> : toujours en fin de liste ; leurs joueurs sont désignés à la fin de la poule (au billard : « En attente du classement » d'ici là).</li>
+                <li><i class="fas fa-pen"></i> : billard, jour et heure (19h30, 21h00…), points à jouer d'un match à jouer.</li>
+                <li><b>Classement</b> : les joueurs dans la moyenne (<b>M</b>) avant ceux sous la moyenne (<b>S/M</b>), puis points de match, moyenne proportionnelle, meilleures moyennes particulières, meilleures séries.</li>
             </ul>
+            <div class="note"><p>Les matchs de classement comptent dans les points et les moyennes : ils ne donnent pas la place à eux seuls.</p></div>
         </div>
     </div>
     <footer class="foot"><span>RBC Disonais · <b>Guide du directeur sportif</b></span><span>12</span></footer>
+</section>
+
+<!-- ============================ 12 bis. FINALES : FEUILLES DE CLASSEMENT ============================ -->
+<section class="page">
+    <header class="head"><div class="num">11</div><div><h1>Finales : les feuilles de classement</h1><p>Page de la finale › « Feuille de classement »</p></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="col" style="flex:0 0 96mm"><img class="shot" style="width:96mm" src="img/final_pdf_championship.png" alt="">
+            <div class="caption">Championnat régional (FRBB-LL)</div></div>
+        <div class="col" style="flex:0 0 96mm"><img class="shot" style="width:96mm" src="img/final_pdf_cup.png" alt="">
+            <div class="caption">Coupe (RBC Disonais)</div></div>
+        <div class="col wide">
+            <ul class="steps">
+                <li><b>Championnat</b> : modèle FRBB Liège-Luxembourg, chaque match par joueur, statistiques de l'épreuve, e-mail du <b>DSR</b> (Paramètres).</li>
+                <li><b>Coupe</b> : catégorie et moyennes min./max. de chaque joueur, signée par la présidence et le DS (rôles du comité).</li>
+                <li><b>Mentions</b> : M/G, SM/OG (M, S/M en coupe), <b>RECLASSÉ</b>, <b>PROMU</b>, <b>DP</b> (double promotion).</li>
+                <li><b>Provisoire</b> tant que tout n'est pas joué ; le <b>commentaire</b> de la page y est imprimé.</li>
+            </ul>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>Guide du directeur sportif</b></span><span>13</span></footer>
 </section>
 
 <!-- ============================ 13. JOUEURS EXTERNES ET QUESTIONS ============================ -->
 <section class="page">
     <header class="head"><div class="num"><i class="fas fa-circle-question"></i></div><div><h1>Joueurs externes et questions fréquentes</h1><p>Marquoirs › Joueurs externes</p></div><img src="img/ecusson.png" alt=""></header>
     <div class="body">
-        <div class="col" style="flex:0 0 118mm"><img class="shot crop" style="height:118mm" src="img/players.png" alt="">
-            <div class="caption">Les joueurs d'autres clubs, retenus pour l'auto-complétion : corrigez une faute de frappe ou supprimez un doublon.</div></div>
+        <div class="col" style="flex:0 0 118mm"><img class="shot" src="img/players.png" alt="">
+            <div class="caption">Les joueurs d'autres clubs, retenus pour l'auto-complétion avec leur club, code club et licence : corrigez une faute de frappe ou supprimez un doublon.</div></div>
         <div class="col wide">
             <div class="note"><p><b>Un joueur s'est trompé de score</b> — au billard : <kbd>⌫</kbd> › « Corriger une reprise ». Pas besoin de l'administration.</p></div>
             <div class="note"><p><b>Mauvais nom ou mauvais points à réaliser</b> pendant la partie — au billard : <kbd>⌫</kbd> › « Modifier la partie en cours » (les reprises sont gardées), ou ici avec <i class="fas fa-pen"></i>.</p></div>
@@ -252,7 +272,7 @@
             <div class="note green"><p><b>En direct</b> — les rencontres officielles du jour sont visibles sur le site (Saison › En direct), jamais les amicales.</p></div>
         </div>
     </div>
-    <footer class="foot"><span>RBC Disonais · <b>Guide du directeur sportif</b> · Une question ? ds@rbcd.be</span><span>13</span></footer>
+    <footer class="foot"><span>RBC Disonais · <b>Guide du directeur sportif</b> · Une question ? ds@rbcd.be</span><span>14</span></footer>
 </section>
 
 </body>
