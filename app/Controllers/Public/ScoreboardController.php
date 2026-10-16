@@ -30,27 +30,26 @@ class ScoreboardController extends BaseController
         $this->settings = new SiteSettingModel();
     }
 
-    public function access()
+    /** Un membre du comité connecté autorise ce Chromebook (ou la tablette du bar) : il garde l'accès après sa déconnexion. */
+    public function authorizeDevice()
     {
-        if (ScoreboardDeviceFilter::isAuthorized()) {
-            return redirect()->to(base_url('marquoir'));
+        if (!ScoreboardDeviceFilter::isCommittee()) {
+            return redirect()->to(base_url('/'));
+        }
+        $back = (string) $this->request->getPost('back');
+        $back = str_starts_with($back, base_url('marquoir')) ? $back : base_url('marquoir');
+        $name = mb_substr(trim((string) $this->request->getPost('name')), 0, 60);
+        if ($name === '') {
+            return redirect()->to($back)->with('error', "Donnez un nom à l'appareil (ex. « Billard 3 »).");
+        }
+        if (ScoreboardDeviceFilter::device()) {
+            return redirect()->to($back);
         }
 
-        return view('public/scoreboard/access', [
-            'title'      => 'Accès au marquoir',
-            'pinDefined' => (string) $this->settings->getSetting('scoreboard_pin', '') !== '',
-        ]);
-    }
+        $response = redirect()->to($back)->with('success', 'Appareil « ' . $name . ' » autorisé : il garde l\'accès au marquoir après votre déconnexion.');
+        ScoreboardDeviceFilter::authorize($response, $name, (int) session()->get('member_id') ?: null);
 
-    public function accessPost()
-    {
-        $pin = (string) $this->settings->getSetting('scoreboard_pin', '');
-        if ($pin === '' || !hash_equals($pin, trim((string) $this->request->getPost('pin')))) {
-            return redirect()->to(base_url('marquoir/acces'))->with('error', 'Code PIN incorrect.');
-        }
-
-        return redirect()->to(base_url('marquoir'))
-            ->setCookie(ScoreboardDeviceFilter::COOKIE, ScoreboardDeviceFilter::tokenFor($pin), 5 * 365 * 86400);
+        return $response;
     }
 
     public function index()

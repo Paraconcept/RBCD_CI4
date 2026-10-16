@@ -3,6 +3,7 @@
 <span id="barOffline" class="badge bg-danger ms-auto" hidden><i class="fas fa-wifi me-1"></i>Connexion perdue</span>
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
+<?= view('public/scoreboard/_device', ['suggestedName' => 'Tablette du bar']) ?>
 <div class="bar-grid" id="barGrid"></div>
 <p class="text-secondary small mt-4 mb-0 text-center">
     <i class="fas fa-hand-pointer me-1"></i>Touchez un billard allumé une fois le service terminé.

@@ -27,7 +27,7 @@ Le script régénère les deux PDF à leur place dans le projet, ainsi que les J
 
 ## Refaire des captures d'écran
 
-Les identifiants MySQL sont lus dans le `.env` du projet et le code PIN du marquoir dans la base (`lib.cjs`) : rien n'est écrit en dur.
+Les identifiants MySQL sont lus dans le `.env` du projet et la clé d'accès au marquoir est créée en base à chaque lancement, comme appareil « Captures documentation » (`lib.cjs`) : rien n'est écrit en dur.
 
 - **Mode d'emploi** :
   - `node mode-emploi/shots3.cjs mode-emploi/img` refait la page du billard, les formulaires amicaux (à 2 et à 3) et toute la partie à 3 (captures 02, 03, 21 à 25). Le script crée des rencontres de démonstration sur le billard 2 puis les efface.

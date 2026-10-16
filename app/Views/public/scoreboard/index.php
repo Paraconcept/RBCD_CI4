@@ -1,5 +1,6 @@
 <?= $this->extend('public/scoreboard/layout') ?>
 <?= $this->section('content') ?>
+<?= $this->include('public/scoreboard/_device') ?>
 <h1 class="sb-title mb-4">Choisissez votre billard</h1>
 <?php if (!$tables): ?>
     <p class="text-secondary">Aucun billard n'est configuré. Le DS peut les ajouter dans l'administration.</p>

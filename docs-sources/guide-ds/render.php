@@ -146,11 +146,18 @@ try {
     file_put_contents($out . 'final_championship.pdf', $fc->pdf($final->id)->getBody());
     $fm->update($final->id, ['kind' => 'cup', 'name' => "Finale Coupe de l'Échevine des Sports"]);
     file_put_contents($out . 'final_cup.pdf', $fc->pdf($final->id)->getBody());
+    // Appareils autorisés de démonstration pour la capture des paramètres
+    $ds = $db->query("select member_id from admin_user_roles where role='Directeur Sportif' limit 1")->getRow();
+    foreach (['Billard 1', 'Billard 2', 'Billard 3', 'Tablette du bar'] as $i => $name) {
+        $ids['devices'][] = (new \App\Models\ScoreboardDeviceModel())->insert(['name' => $name, 'token_hash' => hash('sha256', 'demo-' . $name),
+            'created_by' => $ds->member_id ?? null, 'last_seen_at' => date('Y-m-d H:i:s', strtotime('-' . ($i * 7 + 3) . ' minutes')), 'last_ip' => '81.243.12.45']);
+    }
     $st = $ctl(\App\Controllers\Admin\ScoreboardSetupController::class);
     $save('tables', $st->tables());
     $save('settings', $st->settings());
     $log('ok');
 } finally {
+    if (!empty($ids['devices'])) $db->table('scoreboard_devices')->whereIn('id', $ids['devices'])->delete();
     if ($ids['final']) $fm->delete($ids['final']);
     if ($ids['te']) { $db->table('scoreboard_matches')->where('team_encounter_id', $ids['te'])->delete(); $te->delete($ids['te']); }
     if ($ids['matches']) $db->table('scoreboard_matches')->whereIn('id', $ids['matches'])->delete();

@@ -47,6 +47,7 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
     <?php return (string) ob_get_clean();
 };
 ?>
+<?= view('public/scoreboard/_device', ['suggestedName' => $table->name]) ?>
 <div class="row g-4">
     <div class="col-lg-8">
         <h2 class="sb-title mb-3"><i class="fas fa-calendar-check me-2 sb-accent"></i>Rencontres du jour</h2>

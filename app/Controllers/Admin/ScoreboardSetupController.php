@@ -90,6 +90,18 @@ class ScoreboardSetupController extends BaseController
         return redirect()->to(base_url('admin/scoreboard/players'))->with('success', 'Joueur modifié.');
     }
 
+    public function deleteDevice(int $id)
+    {
+        $model  = new \App\Models\ScoreboardDeviceModel();
+        $device = $model->find($id);
+        if ($device) {
+            $model->delete($id);
+        }
+
+        return redirect()->to(base_url('admin/scoreboard/settings') . '#appareils')
+                         ->with('success', $device ? 'Appareil « ' . $device->name . ' » retiré : il n\'a plus accès au marquoir.' : 'Appareil déjà retiré.');
+    }
+
     public function deletePlayer(int $id)
     {
         (new ScoreboardPlayerModel())->delete($id);
@@ -129,17 +141,13 @@ class ScoreboardSetupController extends BaseController
             'cdrName'             => (string) $s->getSetting('scoreboard_cdr_name', 'Christian JEUNEAU'),
             'cdrEmail'            => (string) $s->getSetting('scoreboard_cdr_email', 'cdregions@gmail.com'),
             'dsr'                 => \App\Libraries\MatchSheetPdf::regionalDirector(),
-            'pin'                 => (string) $s->getSetting('scoreboard_pin', ''),
+            'devices'             => (new \App\Models\ScoreboardDeviceModel())->listWithAuthor(),
         ]);
     }
 
     public function saveSettings()
     {
         $s   = new SiteSettingModel();
-        $pin = trim((string) $this->request->getPost('pin'));
-        if ($pin !== '' && !preg_match('/^\d{4,8}$/', $pin)) {
-            return redirect()->back()->with('error', 'Le code PIN doit contenir de 4 à 8 chiffres.');
-        }
         $clubEmail = trim((string) $this->request->getPost('club_email'));
         if ($clubEmail !== '' && !filter_var($clubEmail, FILTER_VALIDATE_EMAIL)) {
             return redirect()->back()->with('error', "L'adresse e-mail du club est invalide.");
@@ -164,7 +172,6 @@ class ScoreboardSetupController extends BaseController
         $s->setSetting('scoreboard_dsr_email', $dsrEmail);
         $s->setSetting('scoreboard_dsr_mobile', mb_substr(trim((string) $this->request->getPost('dsr_mobile')), 0, 30));
         $s->setSetting('scoreboard_start_window_minutes', max(0, min(720, (int) $this->request->getPost('start_window_minutes'))));
-        $s->setSetting('scoreboard_pin', $pin);
 
         return redirect()->to(base_url('admin/scoreboard/settings'))->with('success', 'Paramètres du marquoir enregistrés.');
     }

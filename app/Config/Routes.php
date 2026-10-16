@@ -86,14 +86,15 @@ $routes->get('en-direct',              'Public\LiveController::index');
 $routes->get('en-direct/(:num)',       'Public\LiveController::watch/$1');
 $routes->get('en-direct/api/(:num)',   'Public\LiveController::state/$1');
 
-// Marquoir (Chromebooks des billards) — accès par code PIN mémorisé sur l'appareil
-$routes->get ('marquoir/acces', 'Public\ScoreboardController::access');
+// Marquoir et page du bar : membres du comité connectés et appareils du club autorisés (ScoreboardDeviceFilter)
+// Ancienne adresse du code PIN, gardée pour les favoris : le filtre décide
+$routes->get ('marquoir/acces', static fn () => redirect()->to(base_url('marquoir')));
 // Hors du filtre PIN : Chrome lit le manifeste sans les cookies de l'appareil
 $routes->get ('marquoir.webmanifest', 'Public\ManifestController::marquoir');
 $routes->get ('site.webmanifest',     'Public\ManifestController::site');
-$routes->post('marquoir/acces', 'Public\ScoreboardController::accessPost');
 $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($routes) {
     $routes->get ('/',                             'Public\ScoreboardController::index');
+    $routes->post('appareil/autoriser',            'Public\ScoreboardController::authorizeDevice');
     $routes->get ('billard/(:num)',                'Public\ScoreboardController::table/$1');
     $routes->post('billard/(:num)/ce-chromebook',  'Public\ScoreboardController::rememberTable/$1');
     $routes->post('billard/oublier',               'Public\ScoreboardController::forgetTable');
@@ -370,6 +371,7 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('scoreboard/players',               'Admin\ScoreboardSetupController::players');
         $routes->post('scoreboard/players/(:num)/update', 'Admin\ScoreboardSetupController::updatePlayer/$1');
         $routes->post('scoreboard/players/(:num)/delete', 'Admin\ScoreboardSetupController::deletePlayer/$1');
+        $routes->post('scoreboard/devices/(:num)/delete', 'Admin\ScoreboardSetupController::deleteDevice/$1');
         $routes->get ('scoreboard/tables',                'Admin\ScoreboardSetupController::tables');
         $routes->post('scoreboard/tables',                'Admin\ScoreboardSetupController::storeTable');
         $routes->post('scoreboard/tables/(:num)/update',  'Admin\ScoreboardSetupController::updateTable/$1');

@@ -71,24 +71,38 @@
       </div>
     </div>
     <div class="col-lg-6">
-      <div class="card card-outline card-primary">
+      <div class="card card-outline card-primary" id="appareils">
         <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-lock mr-2"></i>Accès des Chromebooks</h3>
+          <h3 class="card-title"><i class="fas fa-shield-halved mr-2"></i>Appareils autorisés (Chromebooks, tablette du bar)</h3>
         </div>
         <div class="card-body">
-          <div class="form-group">
-            <label for="pin">Code PIN du marquoir</label>
-            <input type="text" name="pin" id="pin" class="form-control" inputmode="numeric" pattern="\d{4,8}" maxlength="8"
-                   value="<?= esc($pin) ?>" style="max-width:150px">
-          </div>
-          <p class="text-muted small mb-0">
-            Demandé une seule fois sur chaque Chromebook, puis retenu.
-            Il empêche quiconque de modifier une partie depuis Internet.
-            <strong>Changer le code déconnecte tous les Chromebooks</strong>, qui devront le ressaisir.
-            Un membre du comité connecté à l'administration a toujours accès au marquoir.
+          <p class="text-muted small">
+            Le marquoir (<b>rbcd.be/marquoir</b>) et la page du bar (<b>rbcd.be/marquoir/bar</b>) ne s'ouvrent qu'aux membres du comité connectés et aux appareils ci-dessous.
+            Pour en ajouter un : au club, connectez-vous sur l'appareil, ouvrez le marquoir (ou la page du bar) et cliquez sur « Autoriser cet appareil » ; vous pouvez ensuite vous déconnecter.
+            <b>Retirer</b> un appareil lui coupe l'accès immédiatement.
           </p>
-          <?php if ($pin === ''): ?>
-            <div class="alert alert-warning mt-3 mb-0"><i class="fas fa-exclamation-triangle mr-2"></i>Aucun code défini : seuls les membres du comité connectés peuvent utiliser le marquoir.</div>
+          <?php if (!$devices): ?>
+            <div class="alert alert-warning mb-0"><i class="fas fa-exclamation-triangle mr-2"></i>Aucun appareil autorisé : seuls les membres du comité connectés peuvent utiliser le marquoir.</div>
+          <?php else: ?>
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="thead-rbcd">
+              <tr><th>Appareil</th><th>Autorisé par</th><th>Le</th><th>Dernière utilisation</th><th width="90" class="text-right">Actions</th></tr>
+            </thead>
+            <tbody>
+              <?php foreach ($devices as $d): ?>
+              <tr>
+                <td><?= esc($d->name) ?></td>
+                <td><?= esc($d->author ?? '—') ?></td>
+                <td><?= $d->created_at ? date('d/m/Y', strtotime($d->created_at)) : '—' ?></td>
+                <td><?= $d->last_seen_at ? date('d/m/Y H:i', strtotime($d->last_seen_at)) : '—' ?> <small class="text-muted"><?= esc($d->last_ip ?? '') ?></small></td>
+                <td class="text-right">
+                  <button form="dev<?= $d->id ?>" class="btn btn-xs btn-danger"
+                          onclick="return confirm('Retirer « <?= esc($d->name, 'js') ?> » ? Il n\'aura plus accès au marquoir.')"><i class="fas fa-trash mr-1"></i>Retirer</button>
+                </td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
           <?php endif; ?>
         </div>
       </div>
@@ -96,5 +110,8 @@
   </div>
   <button class="btn btn-primary"><i class="fas fa-save mr-1"></i>Enregistrer</button>
 </form>
+<?php foreach ($devices as $d): ?>
+<form method="post" action="<?= base_url('admin/scoreboard/devices/' . $d->id . '/delete') ?>" id="dev<?= $d->id ?>" class="d-none"><?= csrf_field() ?></form>
+<?php endforeach; ?>
 
 <?= $this->endSection() ?>
