@@ -254,7 +254,7 @@ class ScoreboardMatchModel extends Model
         foreach ($keys as $i => $p) {
             $last  = mb_strtoupper(trim((string) ($in[$p . '_last_name'] ?? '')), 'UTF-8');
             $first = trim((string) ($in[$p . '_first_name'] ?? ''));
-            $club  = trim((string) ($in[$p . '_club'] ?? ''));
+            $club  = mb_strtoupper(trim((string) ($in[$p . '_club'] ?? '')), 'UTF-8');
             $isAbsent = (bool) ($absent & ($i + 1));
             if ($isAbsent && $last === '') {
                 $last = 'ABSENT';
@@ -364,7 +364,7 @@ class ScoreboardMatchModel extends Model
             if ($data[$p . '_member_id'] === null && !((int) ($data['absent'] ?? 0) & ($i + 1))) {
                 $cat = !empty($data[$p . '_category_id']) ? (new FrbbCategoryModel())->find($data[$p . '_category_id']) : null;
                 $players->remember($data[$p . '_last_name'], $data[$p . '_first_name'], $data[$p . '_club'], $data[$p . '_license'] ?? null,
-                                   $cat ? [$cat->game_mode => $cat->categories] : []);
+                                   $cat ? [$cat->game_mode => $cat->categories] : [], $data[$p . '_club_code'] ?? null);
             }
         }
     }

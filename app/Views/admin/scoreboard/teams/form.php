@@ -75,8 +75,8 @@ $sched  = $encounter->scheduled_at ?? null;
         <div class="col-md-5">
           <div class="form-group">
             <label for="team_club">Club visité (notre club)</label>
-            <input type="text" name="team_club" id="team_club" class="form-control" maxlength="100"
-                   value="<?= esc($val('team_club', 'RBC Disonais')) ?>">
+            <input type="text" name="team_club" id="team_club" class="form-control" maxlength="100" style="text-transform:uppercase"
+                   value="<?= esc($val('team_club', \App\Models\ScoreboardPlayerModel::HOME_CLUB)) ?>">
           </div>
         </div>
         <div class="col-md-2">
@@ -91,8 +91,8 @@ $sched  = $encounter->scheduled_at ?? null;
         <div class="col-md-5 offset-md-5">
           <div class="form-group">
             <label for="opponent_club">Club visiteur <span class="text-danger">*</span></label>
-            <input type="text" name="opponent_club" id="opponent_club" class="form-control" maxlength="100" required
-                   placeholder="ex. B.C. Grâce-Hollogne" value="<?= esc($val('opponent_club')) ?>">
+            <input type="text" name="opponent_club" id="opponent_club" class="form-control" maxlength="100" required style="text-transform:uppercase"
+                   placeholder="ex. B.C. GRÂCE-HOLLOGNE" value="<?= esc($val('opponent_club')) ?>">
           </div>
         </div>
         <div class="col-md-2">

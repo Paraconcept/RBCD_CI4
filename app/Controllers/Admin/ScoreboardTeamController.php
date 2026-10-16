@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Libraries\MatchSheetPdf;
 use App\Libraries\TeamRecapPdf;
 use App\Models\ScoreboardMatchModel;
+use App\Models\ScoreboardPlayerModel;
 use App\Models\ScoreboardTeamEncounterModel;
 use App\Models\ScoreboardTeamSignatureModel;
 use App\Models\SiteSettingModel;
@@ -270,11 +271,11 @@ class ScoreboardTeamController extends BaseController
             $errors[] = 'Choisissez notre équipe.';
         }
 
-        $opponent = trim((string) ($post['opponent_club'] ?? ''));
+        $opponent = mb_strtoupper(trim((string) ($post['opponent_club'] ?? '')), 'UTF-8');
         if ($opponent === '') {
             $errors[] = 'Le club adverse est obligatoire.';
         }
-        $teamClub = trim((string) ($post['team_club'] ?? '')) ?: 'RBC Disonais';
+        $teamClub = mb_strtoupper(trim((string) ($post['team_club'] ?? '')), 'UTF-8') ?: ScoreboardPlayerModel::HOME_CLUB;
         $number   = static fn ($v): ?int => (int) $v > 0 ? min(255, (int) $v) : null;
         $email    = static function ($v) use (&$errors): ?string {
             $v = trim((string) $v);

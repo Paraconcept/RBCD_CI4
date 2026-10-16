@@ -73,13 +73,16 @@ class ScoreboardSetupController extends BaseController
     {
         $last  = mb_strtoupper(trim((string) $this->request->getPost('last_name')), 'UTF-8');
         $first = trim((string) $this->request->getPost('first_name'));
-        $club  = trim((string) $this->request->getPost('club'));
+        $club  = mb_strtoupper(trim((string) $this->request->getPost('club')), 'UTF-8');
+        $code  = mb_substr(mb_strtoupper(trim((string) $this->request->getPost('club_code')), 'UTF-8'), 0, 10);
+        $lic   = mb_substr(trim((string) $this->request->getPost('license')), 0, 25);
         if ($last === '' || $first === '') {
             return redirect()->back()->with('error', 'Nom et prénom obligatoires.');
         }
 
         try {
-            (new ScoreboardPlayerModel())->update($id, ['last_name' => $last, 'first_name' => $first, 'club' => $club !== '' ? $club : null]);
+            (new ScoreboardPlayerModel())->update($id, ['last_name' => $last, 'first_name' => $first, 'club' => $club !== '' ? $club : null,
+                                                        'club_code' => $code !== '' ? $code : null, 'license' => $lic !== '' ? $lic : null]);
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Ce joueur existe déjà.');
         }

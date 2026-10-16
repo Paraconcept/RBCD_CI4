@@ -410,7 +410,7 @@ class ScoreboardFinalController extends BaseController
             if ($p['member_id'] === null) {
                 ScoreboardMatchModel::rememberExternalPlayers([
                     'p1_member_id' => null, 'p1_last_name' => $p['last_name'], 'p1_first_name' => $p['first_name'],
-                    'p1_club' => $p['club'], 'p1_license' => $p['license'], 'p1_category_id' => $p['category_id'],
+                    'p1_club' => $p['club'], 'p1_club_code' => $p['club_code'], 'p1_license' => $p['license'], 'p1_category_id' => $p['category_id'],
                     'p2_member_id' => 0,
                 ]);
             }

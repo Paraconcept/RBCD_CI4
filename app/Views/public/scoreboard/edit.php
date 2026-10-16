@@ -49,7 +49,7 @@ $val  = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
                     <?php else: ?>
                     <div class="col-8">
                         <label class="form-label">Club</label>
-                        <input type="text" name="<?= $p ?>_club" class="form-control form-control-lg" value="<?= esc($val($p . '_club')) ?>">
+                        <input type="text" name="<?= $p ?>_club" class="form-control form-control-lg" style="text-transform:uppercase" value="<?= esc($val($p . '_club')) ?>">
                     </div>
                     <?php endif; ?>
                     <div class="<?= $friendly ? 'col-12' : 'col-4' ?>">

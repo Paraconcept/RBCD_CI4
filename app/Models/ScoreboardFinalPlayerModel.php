@@ -21,7 +21,10 @@ class ScoreboardFinalPlayerModel extends Model
      */
     public function clubCodes(): array
     {
-        $codes = [self::clubKey('RBC Disonais') => (new SiteSettingModel())->getSetting('frbb_club_code', '')];
+        $codes = [self::clubKey(ScoreboardPlayerModel::HOME_CLUB) => (new SiteSettingModel())->getSetting('frbb_club_code', '')];
+        foreach ((new ScoreboardPlayerModel())->select('club, club_code')->where('club_code IS NOT NULL')->where('club IS NOT NULL')->findAll() as $r) {
+            $codes[self::clubKey($r->club)] = $r->club_code;
+        }
         foreach ($this->select('club, club_code')->where('club_code IS NOT NULL')->where('club IS NOT NULL')->orderBy('id', 'ASC')->findAll() as $r) {
             $codes[self::clubKey($r->club)] = $r->club_code;
         }

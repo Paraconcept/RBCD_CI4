@@ -165,6 +165,7 @@
             <h4><i class="fas fa-calendar-check"></i>Rencontres du jour</h4>
             <p>Les rencontres officielles encodées par le DS apparaissent ici le jour même. Cliquez sur <b>Démarrer</b>.</p>
             <div class="mh-note orange">Le bouton se déverrouille <b>une heure avant</b> l'heure prévue : on ne peut pas lancer une rencontre officielle par erreur l'après-midi.</div>
+            <div class="mh-note">En <b>finale</b>, un match de classement (« Classé 1er – Classé 2e ») reste <b>en attente du classement de la poule</b> : ses joueurs s'affichent d'eux-mêmes dès la fin du dernier match de poule.</div>
             <h4 class="mt-3"><i class="fas fa-calendar-alt"></i>Rencontres programmées</h4>
             <p>Les prochaines rencontres sont affichées pour information. Elles ne peuvent pas encore être démarrées.</p>
             <h4 class="mt-3"><i class="fas fa-handshake"></i>Partie amicale</h4>

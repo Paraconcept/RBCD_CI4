@@ -29,6 +29,7 @@
             if (field('club')) field('club').value = p.club || '';
             field('member_id').value  = p.member_id || '';
             if (field('license')) field('license').value = p.license || '';
+            if (field('club_code')) { field('club_code').value = p.club_code || ''; field('club_code').dataset.sbAuto = '1'; }
             close();
             input.dispatchEvent(new CustomEvent('sb:player', { detail: p.categories || {} }));
             field('first_name').dispatchEvent(new Event('change'));

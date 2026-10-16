@@ -131,7 +131,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <div class="col-8">
               <div class="form-group">
                 <label>Club</label>
-                <input type="text" name="<?= $p ?>_club" class="form-control" value="<?= esc($val($p . '_club', 'RBC Disonais')) ?>">
+                <input type="text" name="<?= $p ?>_club" class="form-control" style="text-transform:uppercase" value="<?= esc($val($p . '_club', \App\Models\ScoreboardPlayerModel::HOME_CLUB)) ?>">
               </div>
             </div>
             <div class="col-4">
