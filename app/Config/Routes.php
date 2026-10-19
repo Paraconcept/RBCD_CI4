@@ -125,6 +125,24 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->post('api/match/(:num)',              'Public\ScoreboardController::saveState/$1');
 });
 
+// Caisse du bar : même accès que le marquoir (la tablette du bar est un appareil autorisé)
+$routes->group('caisse', ['filter' => 'scoreboardDevice'], static function ($routes) {
+    $routes->get ('/',                              'Public\CashRegisterController::index');
+    $routes->get ('api/etat',                       'Public\CashRegisterController::state');
+    $routes->get ('api/clients',                    'Public\CashRegisterController::clients');
+    $routes->get ('api/barmans',                    'Public\CashRegisterController::bartenders');
+    $routes->post('api/service',                    'Public\CashRegisterController::openService');
+    $routes->get ('api/service/resume',             'Public\CashRegisterController::summary');
+    $routes->post('api/service/cloturer',           'Public\CashRegisterController::closeService');
+    $routes->get ('api/historique',                 'Public\CashRegisterController::history');
+    $routes->post('api/tickets',                    'Public\CashRegisterController::createTicket');
+    $routes->post('api/tickets/(:num)/ligne',       'Public\CashRegisterController::changeLine/$1');
+    $routes->post('api/tickets/(:num)/valider',     'Public\CashRegisterController::pay/$1');
+    $routes->post('api/tickets/(:num)/annuler',     'Public\CashRegisterController::cancel/$1');
+    $routes->get ('service/(:num)/recapitulatif',   'Public\CashRegisterController::serviceRecap/$1');
+    $routes->get ('ticket/(:num)/imprimer',         'Public\CashRegisterController::ticketPrint/$1');
+});
+
 // ----------------------------------------------------------------
 // Administration
 // ----------------------------------------------------------------
@@ -180,6 +198,22 @@ $routes->group('admin', static function ($routes) {
         $routes->get('treasury/export', 'Admin\TreasuryController::export');
         $routes->get ('treasury/settings',      'Admin\TreasuryController::settings');
         $routes->post('treasury/settings/save', 'Admin\TreasuryController::saveSettings');
+
+        // Caisse du bar
+        $routes->get ('caisse/catalogue',                          'Admin\BarCatalogController::index');
+        $routes->post('caisse/catalogue/categories',               'Admin\BarCatalogController::storeCategory');
+        $routes->post('caisse/catalogue/categories/(:num)/update', 'Admin\BarCatalogController::updateCategory/$1');
+        $routes->post('caisse/catalogue/categories/(:num)/delete', 'Admin\BarCatalogController::deleteCategory/$1');
+        $routes->post('caisse/catalogue/produits',                 'Admin\BarCatalogController::storeProduct');
+        $routes->post('caisse/catalogue/produits/(:num)/update',   'Admin\BarCatalogController::updateProduct/$1');
+        $routes->post('caisse/catalogue/produits/(:num)/delete',   'Admin\BarCatalogController::deleteProduct/$1');
+        $routes->get ('caisse/clients',                            'Admin\BarClientsController::index');
+        $routes->post('caisse/clients/synchroniser',               'Admin\BarClientsController::sync');
+        $routes->post('caisse/clients/(:num)/update',              'Admin\BarClientsController::update/$1');
+        $routes->post('caisse/clients/(:num)/fusionner',           'Admin\BarClientsController::merge/$1');
+        $routes->post('caisse/clients/(:num)/delete',              'Admin\BarClientsController::delete/$1');
+        $routes->get ('caisse/services',                           'Admin\BarServicesController::index');
+        $routes->post('caisse/services/(:num)/cloturer',           'Admin\BarServicesController::close/$1');
 
         // Trésorerie — enveloppes de caisse
         $routes->get ('treasury/envelopes',                'Admin\TreasuryEnvelopesController::index');

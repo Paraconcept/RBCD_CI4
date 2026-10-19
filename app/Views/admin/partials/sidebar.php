@@ -278,6 +278,44 @@
                     </ul>
                 </li>
 
+                <!-- ── CAISSE DU BAR (section collapsible) ── -->
+                <?php $isBarActive = strpos(uri_string(), 'admin/caisse') === 0; ?>
+                <li class="nav-item has-treeview mt-4 <?= $isBarActive ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link nav-section <?= $isBarActive ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-cash-register"></i>
+                        <p>Caisse du bar <i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/caisse/services') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/caisse/services') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Services &amp; enveloppes</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/caisse/catalogue') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/caisse/catalogue') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Catalogue</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/caisse/clients') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/caisse/clients') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Clients</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('caisse') ?>" target="_blank" class="nav-link">
+                                <i class="fas fa-external-link-alt nav-icon"></i>
+                                <p>Ouvrir la caisse</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 <li class="nav-header mt-4">GESTION DU CLUB</li>
 
                 <li class="nav-item">

@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Controllers\Admin;
+
+use App\Controllers\BaseController;
+use App\Models\BarClientModel;
+
+/**
+ * Clients de la caisse : ajoutés à la volée au bar, et un par membre actif (synchronisés automatiquement).
+ */
+class BarClientsController extends BaseController
+{
+    private BarClientModel $clients;
+
+    public function __construct()
+    {
+        $this->clients = new BarClientModel();
+    }
+
+    public function index(): string
+    {
+        return view('admin/bar_clients/index', [
+            'title'       => 'Caisse — Clients',
+            'breadcrumbs' => [['title' => 'Caisse'], ['title' => 'Clients']],
+            'clients'     => $this->clients->getForAdmin(),
+        ]);
+    }
+
+    public function update(int $id)
+    {
+        $client = $this->clients->find($id);
+        if (!$client) {
+            return redirect()->back()->with('error', 'Client introuvable.');
+        }
+        if ($client->member_id) {
+            return redirect()->back()->with('error', 'Le nom d\'un membre se modifie sur sa fiche membre : la caisse le reprend automatiquement.');
+        }
+        $name = BarClientModel::normalize((string) $this->request->getPost('name'));
+        if (mb_strlen($name) < 2) {
+            return redirect()->back()->with('error', 'Le nom doit compter au moins 2 lettres.');
+        }
+        $this->clients->update($id, ['name' => $name]);
+
+        return redirect()->to(base_url('admin/caisse/clients'))->with('success', 'Client renommé : ' . esc($name) . '.');
+    }
+
+    public function merge(int $id)
+    {
+        $into = (int) $this->request->getPost('into_id');
+        $from = $this->clients->find($id);
+        $to   = $this->clients->find($into);
+        if (!$from || !$to || $id === $into) {
+            return redirect()->back()->with('error', 'Choisissez le client à conserver.');
+        }
+        if ($from->member_id && $to->member_id) {
+            return redirect()->back()->with('error', 'Deux membres différents ne peuvent pas être fusionnés.');
+        }
+        $this->clients->merge($id, $into);
+
+        return redirect()->to(base_url('admin/caisse/clients'))->with('success', '« ' . esc($from->name) . ' » fusionné dans « ' . esc($to->name) . ' » : ses tickets lui sont rattachés.');
+    }
+
+    public function delete(int $id)
+    {
+        $client = $this->clients->find($id);
+        if (!$client) {
+            return redirect()->back();
+        }
+        if (db_connect()->table('bar_tickets')->where('client_id', $id)->countAllResults()) {
+            return redirect()->back()->with('error', '« ' . esc($client->name) . ' » a des tickets : fusionnez-le plutôt dans le bon client.');
+        }
+        if ($client->member_id) {
+            return redirect()->back()->with('error', 'Un membre actif reste client de la caisse.');
+        }
+        $this->clients->delete($id);
+
+        return redirect()->to(base_url('admin/caisse/clients'))->with('success', 'Client supprimé.');
+    }
+
+    public function sync()
+    {
+        [$added, $renamed] = $this->clients->syncMembers();
+
+        return redirect()->to(base_url('admin/caisse/clients'))
+            ->with('success', $added || $renamed
+                ? 'Synchronisation faite : ' . $added . ' membre(s) ajouté(s), ' . $renamed . ' nom(s) mis à jour.'
+                : 'Tous les membres actifs sont déjà clients de la caisse.');
+    }
+}

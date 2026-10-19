@@ -58,7 +58,7 @@ class ScoreboardDeviceFilter implements FilterInterface
             return null;
         }
 
-        if ($request->isAJAX() || str_contains($request->getUri()->getPath(), 'marquoir/api/')) {
+        if ($request->isAJAX() || str_contains($request->getUri()->getPath(), 'marquoir/api/') || str_contains($request->getUri()->getPath(), 'caisse/api/')) {
             return service('response')->setStatusCode(403)->setJSON(['error' => 'Appareil non autorisé']);
         }
 

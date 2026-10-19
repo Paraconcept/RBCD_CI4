@@ -24,4 +24,17 @@ class MemberModel extends Model
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+
+    // Tout membre actif est client de la caisse du bar, sous son nom tenu à jour
+    protected $afterInsert = ['syncBarClient'];
+    protected $afterUpdate = ['syncBarClient'];
+
+    protected function syncBarClient(array $data): array
+    {
+        $ids = (array) ($data['id'] ?? []);
+        if ($ids) {
+            (new BarClientModel())->syncMembers($ids);
+        }
+        return $data;
+    }
 }

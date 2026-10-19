@@ -37,7 +37,7 @@ class ScoreboardController extends BaseController
             return redirect()->to(base_url('/'));
         }
         $back = (string) $this->request->getPost('back');
-        $back = str_starts_with($back, base_url('marquoir')) ? $back : base_url('marquoir');
+        $back = str_starts_with($back, base_url('marquoir')) || str_starts_with($back, base_url('caisse')) ? $back : base_url('marquoir');
         $name = mb_substr(trim((string) $this->request->getPost('name')), 0, 60);
         if ($name === '') {
             return redirect()->to($back)->with('error', "Donnez un nom à l'appareil (ex. « Billard 3 »).");
