@@ -52,11 +52,16 @@
           <td class="text-right text-nowrap align-middle">
             <?php if (!$c->member_id): ?>
             <button form="cl<?= $c->id ?>" class="btn btn-xs btn-warning" title="Enregistrer"><i class="fas fa-save"></i></button>
-            <?php if (!(int) $c->ticket_count): ?>
-            <form method="post" action="<?= base_url('admin/caisse/clients/' . $c->id . '/delete') ?>" class="d-inline" onsubmit="return confirm('Supprimer ce client ?')">
-              <?= csrf_field() ?><button class="btn btn-xs btn-danger" title="Supprimer"><i class="fas fa-trash"></i></button>
-            </form>
             <?php endif; ?>
+            <?php if ((int) $c->ticket_count): ?>
+            <span class="d-inline-block" tabindex="0" title="A des tickets : ne peut pas être supprimé (fusionnez-le plutôt dans le bon client)">
+              <button class="btn btn-xs btn-danger" disabled style="pointer-events:none"><i class="fas fa-trash"></i></button>
+            </span>
+            <?php else: ?>
+            <form method="post" action="<?= base_url('admin/caisse/clients/' . $c->id . '/delete') ?>" class="d-inline"
+                  onsubmit="return confirm('Retirer « <?= esc($c->name, 'js') ?> » de la liste des clients ?<?= $c->member_id ? '\n\nC\'est un membre : il reviendra si sa fiche est réactivée, ou avec « Synchroniser avec les membres ».' : '' ?>')">
+              <?= csrf_field() ?><button class="btn btn-xs btn-danger" title="Supprimer de la liste"><i class="fas fa-trash"></i></button>
+            </form>
             <?php endif; ?>
           </td>
         </tr>

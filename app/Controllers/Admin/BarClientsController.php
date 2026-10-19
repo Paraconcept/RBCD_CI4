@@ -66,15 +66,14 @@ class BarClientsController extends BaseController
         if (!$client) {
             return redirect()->back();
         }
+        // Les tickets gardent leur client : l'historique ne doit jamais perdre un nom
         if (db_connect()->table('bar_tickets')->where('client_id', $id)->countAllResults()) {
-            return redirect()->back()->with('error', '« ' . esc($client->name) . ' » a des tickets : fusionnez-le plutôt dans le bon client.');
-        }
-        if ($client->member_id) {
-            return redirect()->back()->with('error', 'Un membre actif reste client de la caisse.');
+            return redirect()->back()->with('error', '« ' . esc($client->name) . ' » a des tickets : il ne peut pas être supprimé. Fusionnez-le plutôt dans le bon client.');
         }
         $this->clients->delete($id);
 
-        return redirect()->to(base_url('admin/caisse/clients'))->with('success', 'Client supprimé.');
+        return redirect()->to(base_url('admin/caisse/clients'))->with('success', '« ' . esc($client->name) . ' » est retiré de la liste des clients.'
+            . ($client->member_id ? ' Il reviendra si sa fiche membre est réactivée, ou avec « Synchroniser avec les membres ».' : ''));
     }
 
     public function sync()

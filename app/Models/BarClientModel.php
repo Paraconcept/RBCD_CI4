@@ -47,9 +47,14 @@ class BarClientModel extends Model
         return $this->find($id);
     }
 
-    /** Un client par membre actif (tous, ou ceux de $memberIds), au nom « NOM PRÉNOM » tenu à jour. Retourne [ajoutés, renommés]. */
-    public function syncMembers(?array $memberIds = null): array
+    /**
+     * Membres actifs (tous, ou ceux de $memberIds) : nom « NOM PRÉNOM » tenu à jour, et client créé s'il manque.
+     * Avec $addOnly, seuls ces membres-là sont ajoutés (les autres membres retirés de la caisse n'y reviennent pas).
+     * Retourne [ajoutés, renommés].
+     */
+    public function syncMembers(?array $memberIds = null, ?array $addOnly = null): array
     {
+        $addOnly = $addOnly !== null ? array_flip(array_map('intval', $addOnly)) : null;
         $added = $renamed = 0;
         $builder = $this->db->table('members')->select('id, last_name, first_name')->where('is_active', 1);
         if ($memberIds !== null) {
@@ -68,6 +73,9 @@ class BarClientModel extends Model
             $name   = self::normalize($m->last_name . ' ' . $m->first_name);
             $client = $byMember[(int) $m->id] ?? null;
             if (!$client) {
+                if ($addOnly !== null && !isset($addOnly[(int) $m->id])) {
+                    continue;
+                }
                 $this->insert(['name' => $name, 'member_id' => $m->id]);
                 $added++;
             } elseif ($client->name !== $name) {
