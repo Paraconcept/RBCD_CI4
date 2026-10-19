@@ -138,7 +138,7 @@ class TreasuryEnvelopesController extends BaseController
             return redirect()->back()->withInput()->with('errors', $cashErrors);
         }
 
-        $name = 'E' . date('d.m.', strtotime($post['date'])) . $post['name_seq'];
+        $name = 'E' . date('d-m-', strtotime($post['date'])) . $post['name_seq'];
 
         if ($this->model->where('name', $name)->countAllResults() > 0) {
             return redirect()->back()->withInput()

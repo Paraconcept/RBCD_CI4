@@ -24,10 +24,10 @@ class BarServiceModel extends Model
         'cash_total', 'bancontact_total', 'vat_b_total', 'vat_g_total',
     ];
 
-    /** Même nomenclature que Trésorerie › Enveloppes : E + JJ.MM. + numéro du service dans la journée. */
+    /** Même nomenclature que Trésorerie › Enveloppes : E + JJ-MM- + numéro du service dans la journée (ex. E20-10-01). */
     public static function envelopeCode(string $date, int $number): string
     {
-        return 'E' . date('d.m.', strtotime($date)) . str_pad((string) $number, 2, '0', STR_PAD_LEFT);
+        return 'E' . date('d-m-', strtotime($date)) . str_pad((string) $number, 2, '0', STR_PAD_LEFT);
     }
 
     /**

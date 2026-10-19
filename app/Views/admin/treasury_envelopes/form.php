@@ -15,7 +15,7 @@ if ($isEdit) {
     $ecartClass    = $ecartVal == 0 ? 'badge-success' : 'badge-danger';
     $ecartText     = $ecartSign . number_format($ecartVal, 2, ',', ' ') . ' €';
 }
-$todayPrefix = 'E' . date('d.m.');
+$todayPrefix = 'E' . date('d-m-');
 $withdrawalHasAmount = (float) $v('amount_cash_withdrawal', 0) > 0;
 $additionHasAmount   = (float) $v('amount_cash_addition', 0) > 0;
 ?>
@@ -281,7 +281,7 @@ $(function () {
         const dateVal = $('#envelopeDate').val();
         if (!dateVal) return;
         const parts  = dateVal.split('-');
-        const prefix = 'E' + parts[2] + '.' + parts[1] + '.';
+        const prefix = 'E' + parts[2] + '-' + parts[1] + '-';
         $('#namePrefix').text(prefix);
 
         const current = forceFirst ? null : $('#nameSeq').val();

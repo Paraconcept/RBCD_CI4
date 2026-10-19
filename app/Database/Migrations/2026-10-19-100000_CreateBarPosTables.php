@@ -74,7 +74,7 @@ class CreateBarPosTables extends Migration
             'updated_at'          => ['type' => 'DATETIME', 'null' => true],
         ]);
         $this->forge->addKey('id', true);
-        // Le nom d'enveloppe (EJJ.MM.NN, comme dans la trésorerie) n'a pas d'année : l'unicité porte sur la date
+        // Le nom d'enveloppe (EJJ-MM-NN, comme dans la trésorerie) n'a pas d'année : l'unicité porte sur la date
         $this->forge->addUniqueKey(['service_date', 'number']);
         $this->forge->addKey('envelope_code');
         $this->forge->addForeignKey('bartender_member_id', 'members', 'id', 'CASCADE', 'SET NULL');
