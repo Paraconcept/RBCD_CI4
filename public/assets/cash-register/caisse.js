@@ -188,6 +188,12 @@
         if (S.mode === 'open') { S.bmPicked = null; renderBartenders(); } else renderName();
     });
 
+    // Un long nom rapetisse (et passe à la ligne au besoin) au lieu de déborder de la colonne
+    function sizeName(box, text) {
+        box.classList.toggle('long', text.length > 14 && text.length <= 22);
+        box.classList.toggle('xlong', text.length > 22);
+    }
+
     // ------------------------------------------------------------------ ouverture du service
 
     function enterOpen() {
@@ -231,6 +237,7 @@
 
     function renderBartenders() {
         $('bmBox').innerHTML = (S.bm ? esc(S.bm) : '<span class="ph">Tape ton nom…</span>') + '<i class="caret"></i>';
+        sizeName($('bmBox'), S.bm);
         const q = plain(S.bm.trim());
         let hits, found;
         if (q.length >= 2) {
@@ -249,7 +256,7 @@
                 `<span><mark>${esc(b.name.slice(0, k))}</mark>${esc(b.name.slice(k))}</span>${b.planned ? '<span class="mb">prévu au planning</span>' : ''}</button>`;
         }).join('');
         $('btnOpen').disabled = !S.bmPicked;
-        $('btnOpen').textContent = S.bmPicked ? 'Ouvrir le service · ' + S.bmPicked.name : 'Ouvrir le service';
+        $('btnOpen').innerHTML = 'Ouvrir le service' + (S.bmPicked ? '<small>' + esc(S.bmPicked.name) + '</small>' : '');
     }
 
     $('bmSugg').addEventListener('click', e => {
@@ -452,6 +459,7 @@
     function renderName() {
         $('newLabel').textContent = 'Nouveau ticket n° ' + S.nextNumber + ' · nom du client';
         $('nameBox').innerHTML = (S.name ? esc(S.name) : '<span class="ph">Tape le nom du client…</span>') + '<i class="caret"></i>';
+        sizeName($('nameBox'), S.name);
         const q = S.name.trim();
         if (q.length < 2) {
             hits = [];
