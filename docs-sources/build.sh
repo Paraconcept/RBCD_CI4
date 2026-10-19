@@ -11,6 +11,10 @@ node pdf.cjs mode-emploi/howto.html "$ROOT/public/assets/docs/Marquoirs_RBCD_mod
 cat guide-ds/head.html guide-ds/body.html > guide-ds/guide.html
 node pdf.cjs guide-ds/guide.html "$ROOT/app/Docs/Marquoirs_RBCD_guide_DS.pdf" build/apercus-guide-ds
 
+# Caisse du bar : guide du comité (How to admin) et mode d'emploi du barman (How to caisse), servis aux membres connectés
+node pdf.cjs caisse/admin.html "$ROOT/app/Docs/Caisse_RBCD_guide_admin.pdf" build/apercus-caisse-admin
+node pdf.cjs caisse/barman.html "$ROOT/app/Docs/Caisse_RBCD_mode_emploi_barman.pdf" build/apercus-caisse-barman
+
 python3 stickers/make.py stickers/stickers.html
 node pdf.cjs stickers/stickers.html build/Stickers_pave_RBCD.pdf build/apercu-stickers
 

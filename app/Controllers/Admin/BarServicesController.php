@@ -46,6 +46,24 @@ class BarServicesController extends BaseController
         ]);
     }
 
+    /**
+     * Les deux modes d'emploi en PDF : celui du comité (admin) et celui du barman (caisse, imprimé et posé près de la tablette).
+     * Sources et génération : docs-sources/caisse (voir docs-sources/README.md).
+     */
+    public function howto(string $which)
+    {
+        $file = $which === 'caisse' ? 'Caisse_RBCD_mode_emploi_barman.pdf' : 'Caisse_RBCD_guide_admin.pdf';
+        $path = APPPATH . 'Docs/' . $file;
+        if (!is_file($path)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $file . '"')
+            ->setBody(file_get_contents($path));
+    }
+
     /** Clôture d'un service oublié, par un membre du comité. */
     public function close(int $id)
     {

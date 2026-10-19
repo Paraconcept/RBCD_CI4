@@ -75,7 +75,12 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
                 <button class="btn" type="button" data-m="bancontact">Bancontact</button>
                 <button class="btn danger" type="button" id="btnCancel">Annuler</button>
             </div>
-            <button class="btn primary validate" type="button" id="btnValidate">Valider</button>
+            <div class="act">
+                <button class="btn primary validate" type="button" id="btnValidate">Valider</button>
+                <button class="btn validate" type="button" id="btnPrint" aria-label="Imprimer le ticket" title="Imprimer le ticket (pas encore d'imprimante à tickets)" disabled>
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/><circle cx="17.5" cy="12" r=".6" fill="currentColor"/></svg>
+                </button>
+            </div>
         </aside>
 
         <!-- nouveau ticket -->
@@ -111,7 +116,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
                 <div class="btns"><button class="btn" type="button" data-go="ticket">Retour à la caisse</button></div>
             </div>
             <div class="scroll" id="histWrap"></div>
-            <div class="note ok"><i></i>Tickets réglés et annulés de ce service. Un ticket se réimprime à la demande du client.</div>
+            <div class="note ok"><i></i>Tickets réglés et annulés de ce service, du plus récent au plus ancien.</div>
         </section>
 
         <!-- clôture -->

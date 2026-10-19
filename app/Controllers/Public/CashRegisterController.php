@@ -24,6 +24,9 @@ class CashRegisterController extends BaseController
     // Un ticket ouvert depuis plus longtemps est signalé dans « Tickets en cours »
     public const LATE_AFTER_MINUTES = 60;
 
+    // Pas encore d'imprimante à tickets (80 mm) au bar : les boutons d'impression du ticket client restent grisés
+    public const TICKET_PRINTER = false;
+
     private BarRegister $register;
     private BarServiceModel $services;
     private BarTicketModel $tickets;
@@ -54,6 +57,7 @@ class CashRegisterController extends BaseController
                 'catalog'     => $catalog,
                 'slots'       => BarProductModel::SLOTS,
                 'lateAfter'   => self::LATE_AFTER_MINUTES,
+                'ticketPrinter' => self::TICKET_PRINTER,
                 'eveningFrom' => BarServiceModel::EVENING_FROM,
                 'api'         => base_url('caisse/api/'),
                 'print'       => base_url('caisse/'),

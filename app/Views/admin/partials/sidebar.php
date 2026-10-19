@@ -313,6 +313,18 @@
                                 <p>Ouvrir la caisse</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/caisse/howto') ?>" target="_blank" class="nav-link">
+                                <i class="far fa-file-pdf nav-icon"></i>
+                                <p>How to admin</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/caisse/howto-caisse') ?>" target="_blank" class="nav-link">
+                                <i class="far fa-file-pdf nav-icon"></i>
+                                <p>How to caisse</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 

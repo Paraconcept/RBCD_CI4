@@ -338,6 +338,7 @@
         $('btnValidate').textContent = 'Valider · ' + eur(total);
         $('btnValidate').disabled = !t || !lines.length;
         $('btnCancel').disabled = !t;
+        $('btnPrint').disabled = !C.ticketPrinter || !t || !lines.length;
         $('pay').querySelectorAll('[data-m]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === S.method)));
     }
 
@@ -405,8 +406,16 @@
             renderGrid();
             renderTicket();
             toast('Ticket n° ' + d.ticket.number + ' réglé : ' + eur(d.ticket.total) + ' en ' + METHODS[d.ticket.method] + '.', false,
-                { label: 'Imprimer le ticket', run: () => printTicket(d.ticket.id) });
+                C.ticketPrinter ? { label: 'Imprimer le ticket', run: () => printTicket(d.ticket.id) } : null);
         } catch (e) { renderTicket(); }
+    });
+
+    // Imprime le ticket affiché tel quel (addition), sans le valider
+    $('btnPrint').addEventListener('click', async () => {
+        const t = currentTicket();
+        if (!t) return;
+        await queue;
+        printTicket(t.id);
     });
 
     $('btnCancel').addEventListener('click', () => {
@@ -565,7 +574,7 @@
                 return `<tr class="${x ? 'x' : ''}"><td>${t.number}</td><td>${x ? t.cancelledAt : t.paidAt}</td><td class="cl">${esc(t.client)}</td>` +
                     `<td style="font-size:.82rem;color:var(--muted)">${esc(items) || '—'}</td>` +
                     `<td>${x ? 'Annulé' + (t.reason ? ' · ' + esc(t.reason) : '') : cap(METHODS[t.method])}</td><td class="r">${x ? '—' : eur(t.total)}</td>` +
-                    `<td class="r">${x ? '' : `<button class="btn" type="button" data-print="${t.id}">Imprimer</button>`}</td></tr>`;
+                    `<td class="r">${x || !C.ticketPrinter ? '' : `<button class="btn" type="button" data-print="${t.id}">Imprimer</button>`}</td></tr>`;
             }).join('') + '</tbody></table>';
     }
 
@@ -756,5 +765,10 @@
     setInterval(() => {
         if (!pending && $('modal').hidden && ['ticket', 'list'].includes(S.mode)) refresh(true).catch(() => {});
     }, 20000);
-    refresh(false).catch(() => setMode('open'));
+    // Retour d'une impression : on rouvre le ticket qui était affiché
+    const back = new URLSearchParams(location.search).get('ticket');
+    if (back) history.replaceState(null, '', location.pathname);
+    refresh(false).then(() => {
+        if (back && S.tickets.some(t => t.id === +back)) { S.current = +back; setMode('ticket'); }
+    }).catch(() => setMode('open'));
 })();

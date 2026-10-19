@@ -83,7 +83,9 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .pay { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; }
 .pay .btn { height: 2.75rem; font-size: .85rem; }
 .pay .btn[aria-pressed="true"] { border-color: var(--sel); background: var(--soft); }
+.act { display: grid; grid-template-columns: 2fr 1fr; gap: .5rem; }
 .validate { height: 3.25rem; font-size: 1.1rem; width: 100%; }
+#btnPrint svg { width: 1.75rem; height: 1.75rem; }
 
 /* ---------- clavier intégré (nom du client, nom du barman) ---------- */
 .kb { display: grid; grid-template-rows: auto 1fr; gap: .75rem; padding: 1rem 1.1rem .9rem 1.25rem; min-height: 0; }
@@ -211,7 +213,7 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 
 .toast { position: fixed; left: 50%; top: 4.6rem; pointer-events: none; transform: translateX(-50%); background: var(--hd); color: #fff; border-radius: .9rem; padding: .8rem 1.1rem; display: flex; align-items: center; gap: 1rem; font-weight: 600; z-index: 60; box-shadow: 0 .75rem 2rem rgba(0,0,0,.3); max-width: 90vw; }
 .toast.err { background: var(--danger); }
-.toast .btn { height: 2.4rem; font-size: .85rem; pointer-events: auto; }
+.toast .btn { height: 2.4rem; font-size: .85rem; pointer-events: auto; background: #fff; border-color: #fff; color: var(--fg); }
 
 .unlock { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; text-align: center; background: rgba(11,16,32,.94); color: #fff; cursor: pointer; }
 .unlock .big { font: 700 2.2rem var(--f-display); }

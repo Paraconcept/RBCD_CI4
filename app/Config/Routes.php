@@ -214,6 +214,8 @@ $routes->group('admin', static function ($routes) {
         $routes->post('caisse/clients/(:num)/delete',              'Admin\BarClientsController::delete/$1');
         $routes->get ('caisse/services',                           'Admin\BarServicesController::index');
         $routes->post('caisse/services/(:num)/cloturer',           'Admin\BarServicesController::close/$1');
+        $routes->get ('caisse/howto',                              'Admin\BarServicesController::howto/admin');
+        $routes->get ('caisse/howto-caisse',                       'Admin\BarServicesController::howto/caisse');
 
         // Trésorerie — enveloppes de caisse
         $routes->get ('treasury/envelopes',                'Admin\TreasuryEnvelopesController::index');
