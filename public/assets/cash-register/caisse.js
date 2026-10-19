@@ -18,7 +18,7 @@
         mode: null, service: null, tickets: [], current: null, nextNumber: '0001', lastClosed: null,
         cat: C.catalog.length ? C.catalog[0].id : null, method: 'cash', clockSkew: 0,
         name: '', bm: '', bmPicked: null, period: null, bartenders: [], accents: false,
-        closedService: null, usedToday: [], periodDone: false,
+        closedService: null, nextEnvelope: null,
     };
 
     // ------------------------------------------------------------------ échanges avec le serveur
@@ -59,7 +59,7 @@
         S.tickets = d.tickets;
         S.nextNumber = d.nextNumber;
         S.lastClosed = d.lastClosed || null;
-        S.usedToday = d.usedToday || [];
+        S.nextEnvelope = d.nextEnvelope || null;
         S.clockSkew = d.nowTs - Math.floor(Date.now() / 1000);
         if (S.current && !S.tickets.some(t => t.id === S.current)) S.current = null;
         renderHeader();
@@ -190,17 +190,10 @@
 
     // ------------------------------------------------------------------ ouverture du service
 
-    function envelopeFor(period) {
-        const d = new Date();
-        return 'E' + String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + (period === 'am' ? '01' : '02');
-    }
-
     function enterOpen() {
         const now = new Date();
         const hm = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
         if (!S.period) S.period = hm >= C.eveningFrom ? 'soir' : 'am';
-        // Un service déjà fait aujourd'hui ne peut plus être rouvert : on propose l'autre
-        if (S.usedToday.includes(S.period)) S.period = S.period === 'am' ? 'soir' : 'am';
         $('openDate').textContent = cap(now.toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
         const lc = S.lastClosed;
         $('lastClosed').hidden = !lc;
@@ -215,13 +208,9 @@
     }
 
     function renderPeriod() {
-        $('seg').querySelectorAll('.btn').forEach(b => {
-            b.setAttribute('aria-pressed', String(b.dataset.p === S.period));
-            b.disabled = S.usedToday.includes(b.dataset.p);
-        });
-        const done = S.usedToday.includes(S.period);
-        $('envCode').textContent = done ? '—' : envelopeFor(S.period);
-        S.periodDone = done;
+        $('seg').querySelectorAll('.btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === S.period)));
+        // Numéro = rang du service dans la journée (01 pour le premier ouvert, après-midi ou soir)
+        $('envCode').textContent = S.nextEnvelope || '—';
     }
 
     $('seg').addEventListener('click', e => {
@@ -259,9 +248,8 @@
             return `<button class="sg${S.bmPicked && S.bmPicked.id === b.id ? ' sel' : ''}" type="button" data-id="${b.id}">` +
                 `<span><mark>${esc(b.name.slice(0, k))}</mark>${esc(b.name.slice(k))}</span>${b.planned ? '<span class="mb">prévu au planning</span>' : ''}</button>`;
         }).join('');
-        $('btnOpen').disabled = !S.bmPicked || S.periodDone;
-        $('btnOpen').textContent = S.periodDone ? 'Les deux services du jour sont faits'
-            : S.bmPicked ? 'Ouvrir le service · ' + S.bmPicked.name : 'Ouvrir le service';
+        $('btnOpen').disabled = !S.bmPicked;
+        $('btnOpen').textContent = S.bmPicked ? 'Ouvrir le service · ' + S.bmPicked.name : 'Ouvrir le service';
     }
 
     $('bmSugg').addEventListener('click', e => {

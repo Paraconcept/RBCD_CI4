@@ -81,7 +81,7 @@ class CashRegisterController extends BaseController
             $lines = (new BarTicketLineModel())->forTickets(array_map(static fn ($t) => (int) $t->id, $open));
             $data['tickets'] = array_map(fn ($t) => $this->ticketJson($t, $lines[(int) $t->id] ?? []), $open);
         } else {
-            $data['usedToday'] = array_column($this->services->select('period')->where('service_date', date('Y-m-d'))->findAll(), 'period');
+            $data['nextEnvelope'] = BarServiceModel::envelopeCode(date('Y-m-d'), $this->services->nextNumberFor(date('Y-m-d')));
             $last = $this->services->getLastClosed();
             $data['lastClosed'] = $last ? [
                 'envelope'  => $last->envelope_code,

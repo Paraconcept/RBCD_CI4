@@ -11,6 +11,9 @@ class BarServiceModel extends Model
     // Après cette heure, la caisse propose le service du soir par défaut
     public const EVENING_FROM = '17:00';
 
+    // Le formulaire Trésorerie › Enveloppes accepte les numéros 01 à 05
+    public const MAX_PER_DAY = 5;
+
     protected $table         = 'bar_services';
     protected $primaryKey    = 'id';
     protected $returnType    = 'object';
@@ -27,9 +30,14 @@ class BarServiceModel extends Model
         return 'E' . date('d.m.', strtotime($date)) . str_pad((string) $number, 2, '0', STR_PAD_LEFT);
     }
 
-    public static function numberFor(string $period): int
+    /**
+     * Le numéro d'enveloppe est le rang du service dans la journée, quelle que soit la période :
+     * soirée seule → 01 ; après-midi puis soirée → 01 puis 02.
+     */
+    public function nextNumberFor(string $date): int
     {
-        return $period === 'am' ? 1 : 2;
+        $row = $this->selectMax('number')->where('service_date', $date)->first();
+        return (int) ($row->number ?? 0) + 1;
     }
 
     public static function periodLabel(string $period): string

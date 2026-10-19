@@ -56,9 +56,9 @@ class BarRegister
         }
 
         $date   = $date ?? date('Y-m-d');
-        $number = BarServiceModel::numberFor($period);
-        if ($this->services->where('service_date', $date)->where('number', $number)->countAllResults()) {
-            throw new BarRegisterException('Le ' . BarServiceModel::periodLabel($period) . ' d\'aujourd\'hui a déjà été ouvert et clôturé.');
+        $number = $this->services->nextNumberFor($date);
+        if ($number > BarServiceModel::MAX_PER_DAY) {
+            throw new BarRegisterException('Déjà ' . BarServiceModel::MAX_PER_DAY . ' services aujourd\'hui : impossible d\'en ouvrir un de plus.');
         }
 
         try {
