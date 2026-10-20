@@ -11,7 +11,8 @@ use CodeIgniter\Database\BaseConnection;
 
 /**
  * Règles de la caisse du bar. Un service = une enveloppe ; une fois clôturé, plus rien n'y change.
- * Les tickets ne sont jamais supprimés (annulés et tracés) et leurs numéros se suivent sans trou.
+ * Les tickets ne sont jamais supprimés (annulés et tracés) et leurs numéros se suivent sans trou ;
+ * seule exception : le dernier service, effacé en entier s'il n'était qu'un essai.
  * Chaque erreur prévue est une BarRegisterException au message prêt à afficher au barman.
  */
 class BarRegister
@@ -159,6 +160,64 @@ class BarRegister
         $this->db->transComplete();
 
         return $this->services->getWithNames($serviceId);
+    }
+
+    /** Dernier service enregistré : le seul qu'on peut supprimer. */
+    public function lastServiceId(): ?int
+    {
+        $row = $this->services->selectMax('id')->first();
+        return $row && $row->id ? (int) $row->id : null;
+    }
+
+    /**
+     * Efface un service d'essai avec ses tickets, ainsi que les clients créés pour l'occasion.
+     * Seulement le dernier service : les numéros de ticket et d'enveloppe repartent alors sans trou.
+     */
+    public function deleteService(int $serviceId): object
+    {
+        $service = $this->services->getWithNames($serviceId);
+        if (!$service) {
+            throw new BarRegisterException('Service introuvable.');
+        }
+        if ($serviceId !== $this->lastServiceId()) {
+            throw new BarRegisterException('Seul le dernier service peut être supprimé : supprimez d\'abord les services plus récents.');
+        }
+
+        $ticketIds = array_map('intval', array_column(
+            $this->db->table('bar_tickets')->select('id')->where('service_id', $serviceId)->get()->getResultArray(), 'id'
+        ));
+        $clientIds = array_map('intval', array_column(
+            $this->db->table('bar_tickets')->distinct()->select('client_id')->where('service_id', $serviceId)->get()->getResultArray(), 'client_id'
+        ));
+
+        $this->db->transStart();
+        if ($ticketIds) {
+            $this->db->table('bar_ticket_lines')->whereIn('ticket_id', $ticketIds)->delete();
+            $this->db->table('bar_tickets')->whereIn('id', $ticketIds)->delete();
+        }
+        $this->db->table('bar_services')->where('id', $serviceId)->delete();
+
+        foreach ($clientIds as $clientId) {
+            $client = $this->clients->find($clientId);
+            if (!$client) {
+                continue;
+            }
+            $last = $this->db->table('bar_tickets')->selectMax('opened_at')->where('client_id', $clientId)->get()->getRowObject();
+            $lastVisit = $last->opened_at ?? null;
+            // Un nom tapé pendant l'essai, qui n'a servi qu'à lui, disparaît ; un membre reste, avec sa vraie dernière visite
+            if ($lastVisit === null && $client->member_id === null && $client->created_at >= $service->opened_at) {
+                $this->clients->delete($clientId);
+            } else {
+                $this->clients->update($clientId, ['last_visit_at' => $lastVisit]);
+            }
+        }
+        $this->db->transComplete();
+
+        if (!$this->db->transStatus()) {
+            throw new BarRegisterException('La suppression a échoué : rien n\'a été effacé.');
+        }
+
+        return $service;
     }
 
     // ------------------------------------------------------------------ tickets

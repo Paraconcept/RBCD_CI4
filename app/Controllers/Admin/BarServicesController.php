@@ -43,6 +43,7 @@ class BarServicesController extends BaseController
             'services'    => $services,
             'years'       => $years,
             'year'        => $year,
+            'lastId'      => $register->lastServiceId(),
         ]);
     }
 
@@ -74,5 +75,18 @@ class BarServicesController extends BaseController
         }
 
         return redirect()->to(base_url('admin/caisse/services'))->with('success', 'Service ' . $service->envelope_code . ' clôturé.');
+    }
+
+    /** Suppression d'un service d'essai (démonstration, test d'une tablette). */
+    public function delete(int $id)
+    {
+        try {
+            $service = (new BarRegister())->deleteService($id);
+        } catch (BarRegisterException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->to(base_url('admin/caisse/services?year=' . substr($service->service_date, 0, 4)))
+            ->with('success', 'Service ' . $service->envelope_code . ' supprimé, avec ses tickets.');
     }
 }

@@ -23,6 +23,7 @@ $totals = ['cash' => 0.0, 'bc' => 0.0, 'paid' => 0];
     <p class="text-muted">
       Un service (après-midi ou soir) correspond à une enveloppe. Les espèces attendues sont à comparer au montant trouvé dans l'enveloppe
       (Trésorerie › Enveloppes de caisse). Le récapitulatif est le document glissé dans l'enveloppe.
+      Un service d'essai (démonstration, test d'une tablette) s'efface avec <i class="fas fa-trash text-danger"></i> : seul le dernier service peut l'être, à répéter pour en effacer plusieurs.
     </p>
     <?php if (!$services): ?>
       <p class="text-muted text-center mb-0">Aucun service en <?= $year ?>.</p>
@@ -63,6 +64,12 @@ $totals = ['cash' => 0.0, 'bc' => 0.0, 'paid' => 0];
             <form method="post" action="<?= base_url('admin/caisse/services/' . $s->id . '/cloturer') ?>" class="d-inline"
                   onsubmit="return confirm('Clôturer le service <?= esc($s->envelope_code, 'js') ?> ? Plus aucun ticket ne pourra y être ajouté ni modifié.')">
               <?= csrf_field() ?><button class="btn btn-xs btn-warning" title="Clôturer ce service oublié"><i class="fas fa-lock"></i></button>
+            </form>
+            <?php endif; ?>
+            <?php if ((int) $s->id === $lastId): ?>
+            <form method="post" action="<?= base_url('admin/caisse/services/' . $s->id . '/supprimer') ?>" class="d-inline"
+                  onsubmit="return confirm('Supprimer le service <?= esc($s->envelope_code, 'js') ?> du <?= date('d/m/Y', strtotime($s->service_date)) ?> ?\n\nSes <?= (int) $s->paid_count + (int) $s->cancelled_count + (int) ($s->open_tickets ?? 0) ?> ticket(s) seront effacés définitivement, ainsi que les clients créés pendant ce service.\n\nÀ réserver aux services d\'essai : un vrai service doit rester pour la trésorerie.')">
+              <?= csrf_field() ?><button class="btn btn-xs btn-danger" title="Supprimer ce service d'essai (le dernier seulement)"><i class="fas fa-trash"></i></button>
             </form>
             <?php endif; ?>
           </td>
