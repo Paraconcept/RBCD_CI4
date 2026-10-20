@@ -180,8 +180,8 @@
 .sbd-stat { background: rgba(0,0,0,.3); border-radius: 1.2vh; padding: .6vh .5vw; }
 .sbd-stat span { display: block; font-size: 2.2vh; color: var(--sb-muted); text-transform: uppercase; letter-spacing: .08em; }
 .sbd-stat b { display: block; font-size: 5.5vh; line-height: 1.05; font-weight: 700; }
-.sbd-ext { display: flex; justify-content: center; gap: .6vw; margin-top: 1vh; min-height: 2.6vh; }
-.sbd-ext i { font-size: 2.4vh; color: var(--sb-green); }
+.sbd-ext { display: flex; justify-content: center; gap: .9vw; margin-top: 1vh; min-height: 3.8vh; }
+.sbd-ext i { font-size: 3.6vh; color: var(--sb-green); }
 .sbd-ext i.used { color: var(--sb-danger); }
 
 .sbd-center { display: flex; flex-direction: column; gap: 1.6vh; min-height: 0; }
