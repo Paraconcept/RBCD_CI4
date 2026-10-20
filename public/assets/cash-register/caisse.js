@@ -691,7 +691,7 @@
         if (S.closedService) return; // écran « service clôturé » : on ne recharge pas
         $('btnClose').hidden = false;
         $('btnRecap').hidden = true;
-        $('btnCloseBack').textContent = 'Retour à la caisse';
+        $('btnCloseBack').textContent = 'Retour aux tickets en cours';
         $('cWarn').textContent = 'Après la clôture, plus aucun ticket ne peut être ajouté, modifié ou supprimé pour ce service.';
         $('cHint').hidden = false;
         try {
@@ -733,7 +733,7 @@
             S.closedService = null;
             refresh(false).catch(() => {});
         } else {
-            setMode('ticket');
+            setMode('list');
         }
     });
 

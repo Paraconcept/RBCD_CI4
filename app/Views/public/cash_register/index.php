@@ -56,10 +56,6 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
         <section class="left" id="left" hidden>
             <div class="cats" id="cats"></div>
             <div class="grid" id="grid"></div>
-            <div class="foot">
-                <button class="ghost" type="button" data-go="history">Historique du service</button>
-                <button class="ghost" type="button" data-go="close">Clôturer le service</button>
-            </div>
         </section>
         <aside class="side ticket" id="sideTicket" hidden>
             <div class="row2">
@@ -101,13 +97,17 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
             </div>
             <div class="scroll" id="cardsWrap"><div class="cards" id="cards"></div></div>
             <div class="note"><i></i>Chaque ticket ouvert doit être réglé ou annulé avant la clôture du service.</div>
+            <div class="foot">
+                <button class="ghost" type="button" data-go="history">Historique du service</button>
+                <button class="ghost" type="button" data-go="close">Clôturer le service</button>
+            </div>
         </section>
 
         <!-- historique du service -->
         <section class="full" id="history" hidden>
             <div class="full-hd">
                 <div><h2>Historique du service</h2><p id="histSub"></p></div>
-                <div class="btns"><button class="btn" type="button" data-go="ticket">Retour à la caisse</button></div>
+                <div class="btns"><button class="btn" type="button" data-go="list">Retour aux tickets en cours</button></div>
             </div>
             <div class="scroll" id="histWrap"></div>
             <div class="note ok"><i></i>Tickets réglés et annulés de ce service, du plus récent au plus ancien.</div>
@@ -144,7 +144,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
                 <div class="warn" id="cWarn">Après la clôture, plus aucun ticket ne peut être ajouté, modifié ou supprimé pour ce service.</div>
                 <button class="btn orange" type="button" id="btnClose">Clôturer le service</button>
                 <button class="btn outline" type="button" id="btnRecap" hidden>Imprimer le récapitulatif</button>
-                <button class="btn link" type="button" id="btnCloseBack">Retour à la caisse</button>
+                <button class="btn link" type="button" id="btnCloseBack">Retour aux tickets en cours</button>
             </div>
         </section>
     </div>

@@ -146,24 +146,23 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     await shot('c06_payer');
     await tap('#payModal [data-m="cash"]');
     await wait(500);
-    await tap('#list [data-go="ticket"]');
     const dupontTicket = +sql(`select id from bar_tickets where client_id = ${clientId['DUPONT JEAN']} order by id desc limit 1`);
 
     // 7. Historique
-    await tap('#left [data-go="history"]');
+    await tap('#list [data-go="history"]');
     await wait(500);
     await shot('c07_historique');
 
     // 8. Clôture refusée tant qu'il reste des tickets ouverts
-    await tap('#history [data-go="ticket"]');
-    await tap('#left [data-go="close"]');
+    await tap('#history [data-go="list"]');
+    await tap('#list [data-go="close"]');
     await wait(700);
     await shot('c08_cloture_bloquee');
 
     // Les tickets ouverts sont réglés, puis clôture
     for (const id of sql("select id from bar_tickets where status = 'open'").split('\n').filter(Boolean)) await api(`tickets/${id}/valider`, { method: id == late ? 'bancontact' : 'cash' });
     await tap('#btnCloseBack');
-    await tap('#left [data-go="close"]');
+    await tap('#list [data-go="close"]');
     await wait(700);
     await shot('c09_cloture');
     await tap('#btnClose');
