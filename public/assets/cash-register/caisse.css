@@ -48,7 +48,8 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .prod .q { position: absolute; top: -.5rem; right: -.5rem; min-width: 1.75rem; height: 1.75rem; border-radius: 999px; background: var(--badge); color: var(--badge-fg); font: 800 .9rem/1.75rem var(--f-body); text-align: center; padding: 0 .4rem; }
 .slot { border: .125rem dashed var(--empty); border-radius: .9rem; opacity: .6; }
 .foot { display: grid; grid-template-columns: 1fr 1fr; gap: .62rem; }
-.ghost { height: 3.1rem; border-radius: .75rem; border: .125rem solid var(--line); background: var(--panel); font: 600 1rem var(--f-body); cursor: pointer; }
+.ghost { height: 3.1rem; border-radius: .75rem; border: .125rem solid var(--line); background: var(--panel); font: 600 1rem var(--f-body); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .6rem; }
+.ghost[disabled] { background: #f3f3f7; color: #a3a7b6; cursor: default; }
 
 .side { display: grid; grid-template-columns: minmax(0, 1fr); gap: .62rem; padding: 1rem 1.25rem .9rem 1.1rem; border-left: .06rem solid var(--line); background: var(--side); min-height: 0; min-width: 0; overflow: hidden; align-content: start; }
 .side.ticket { grid-template-rows: auto auto auto 1fr auto auto auto; align-content: stretch; }

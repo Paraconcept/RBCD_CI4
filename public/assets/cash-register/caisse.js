@@ -160,6 +160,8 @@
             el.textContent = S.tickets.length;
             el.classList.toggle('zero', !S.tickets.length);
         });
+        // Même règle que le serveur : pas de clôture tant qu'un ticket est ouvert
+        $('btnGoClose').disabled = S.tickets.length > 0;
     }
 
     function tickClock() {
