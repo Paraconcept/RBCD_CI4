@@ -128,7 +128,7 @@
         if (m === 'open') enterOpen();
         if (m === 'ticket') { renderCats(); renderGrid(); renderTicket(); }
         if (m === 'new') { S.name = ''; renderKeys(); renderName(); }
-        if (m === 'list') renderList();
+        if (m === 'list') { renderList(); loadPaid(); }
         if (m === 'history') loadHistory();
         if (m === 'close') loadClose();
     }
@@ -565,21 +565,32 @@
 
     const cardsEl = $('cards'); // retiré du DOM quand la liste est vide, on garde la référence
 
+    // Tickets payés de ce service, affichés sous les tickets ouverts pour une vue de toute la journée
+    let paidTickets = [];
+
+    async function loadPaid() {
+        try {
+            const d = await api('historique');
+            paidTickets = d.tickets.filter(t => t.status === 'paid');
+        } catch (e) { return; }
+        if (S.mode === 'list') renderList();
+    }
+
     function renderList() {
         const n = S.tickets.length;
-        $('listSub').textContent = n
-            ? n + ' ticket' + (n > 1 ? 's' : '') + ' ouvert' + (n > 1 ? 's' : '') + ' sur ce service · touche un ticket pour y ajouter des consommations'
-            : 'Aucun ticket ouvert sur ce service.';
+        const np = paidTickets.length;
+        $('listSub').textContent = (n ? n + ' ticket' + (n > 1 ? 's' : '') + ' ouvert' + (n > 1 ? 's' : '') : 'Aucun ticket ouvert') +
+            (np ? ' · ' + np + ' déjà payé' + (np > 1 ? 's' : '') : '') + ' · touche « Ouvrir » pour ajouter des consommations';
         const now = Math.floor(Date.now() / 1000) + S.clockSkew;
         const cards = cardsEl;
-        cards.classList.toggle('few', n <= 4);
-        if (!n) {
+        cards.classList.toggle('few', n <= 4 && !np);
+        if (!n && !np) {
             cards.innerHTML = '';
             $('cardsWrap').innerHTML = '<div class="empty-state" style="height:100%">Aucun ticket ouvert.<br>Touche « Créer un nouveau » pour servir un client.</div>';
             return;
         }
         if (!$('cardsWrap').contains(cards)) { $('cardsWrap').innerHTML = ''; $('cardsWrap').appendChild(cards); }
-        cards.innerHTML = S.tickets.map(t => {
+        const open = S.tickets.map(t => {
             const count = t.lines.reduce((s, l) => s + l.qty, 0);
             const cur = t.id === S.current;
             const late = now - t.openedTs > C.lateAfter * 60;
@@ -588,7 +599,17 @@
                 <div class="card-top"><div style="min-width:0"><small class="label">Ticket n° ${t.number} · ouvert à ${t.openedAt}</small><strong>${esc(t.client)}</strong><span class="flag">${flag}</span></div>
                 <div class="amt"><b>${eur(t.total)}</b><span>${count} article${count > 1 ? 's' : ''}</span></div></div><div></div>
                 <div class="card-btns"><button class="btn primary" type="button" data-open="${t.id}">Ouvrir</button><button class="btn" type="button" data-cancel="${t.id}">Annuler le ticket</button></div></div>`;
-        }).join('');
+        });
+        if (!n) open.push('<div class="cards-none">Aucun ticket ouvert : touche « Créer un nouveau » pour servir un client.</div>');
+        const paid = paidTickets.map(t => {
+            const count = t.lines.reduce((s, l) => s + l.qty, 0);
+            const items = t.lines.map(l => l.qty + ' × ' + l.name).join(', ');
+            return `<div class="card paid">
+                <div class="card-top"><div style="min-width:0"><small class="label">Ticket n° ${t.number} · ouvert à ${t.openedAt}</small><strong>${esc(t.client)}</strong><span class="flag"><span class="paid-tag">Payé</span>${t.method === 'cash' ? 'en espèces' : 'par Bancontact'} à ${t.paidAt}</span></div>
+                <div class="amt"><b>${eur(t.total)}</b><span>${count} article${count > 1 ? 's' : ''}</span></div></div>
+                <div class="items">${esc(items)}</div></div>`;
+        });
+        cards.innerHTML = open.join('') + (np ? `<div class="cards-sep">Déjà payés sur ce service <span>${np}</span></div>` + paid.join('') : '');
     }
 
     $('list').addEventListener('click', e => {
