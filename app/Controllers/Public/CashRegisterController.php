@@ -156,7 +156,12 @@ class CashRegisterController extends BaseController
         if (!$closerId) {
             return $this->fail('Choisissez dans la liste la personne qui clôture.');
         }
-        return $this->run(fn () => ['service' => $this->serviceJson($this->register->closeService((int) $service->id, $closerId))]);
+        if (!is_numeric($this->input('closing_float'))) {
+            return $this->fail('Comptez le fond de caisse et encodez le montant trouvé.');
+        }
+        return $this->run(fn () => ['service' => $this->serviceJson(
+            $this->register->closeService((int) $service->id, $closerId, (float) $this->input('closing_float'))
+        )]);
     }
 
     public function history()

@@ -31,7 +31,7 @@
         mode: null, service: null, tickets: [], current: null, nextNumber: '0001', lastClosed: null,
         cat: C.catalog.length ? C.catalog[0].id : null, clockSkew: 0,
         name: '', bm: '', bmPicked: null, period: null, bartenders: [], accents: false,
-        kb: 'bm', fund: '', cl: '', clPicked: null, closers: [],
+        kb: 'bm', fund: '', cl: '', clPicked: null, closers: [], clFund: '',
         closedService: null, nextEnvelope: null,
     };
 
@@ -219,13 +219,14 @@
     const ROWS = [['A','Z','E','R','T','Y','U','I','O','P'], ['Q','S','D','F','G','H','J','K','L','M'], ['W','X','C','V','B','N', "'", '-']];
     const ACCENTS = ['É','È','Ê','Ë','Ç','Ï','Î','Ô','Û','Ü'];
 
-    const numpad = () => S.mode === 'open' && S.kb === 'fund';
+    const numpad = () => (S.mode === 'open' && S.kb === 'fund') || (S.mode === 'closer' && S.kb === 'clFund');
 
     function renderKeys() {
-        $('kbTitle').textContent = numpad() ? 'Fond de caisse compté (en euros)'
-            : S.mode === 'open' ? 'Qui ouvre ?' : S.mode === 'closer' ? 'Qui clôture ?' : 'Nom du client';
-        $('kbTitle').nextElementSibling.textContent = numpad() ? 'Compte les billets et les pièces du tiroir, puis encode le total'
-            : 'Majuscules uniquement · la recherche ignore les accents';
+        const closing = S.mode === 'closer';
+        $('kbTitle').textContent = numpad() ? (closing ? 'Fond de caisse laissé dans le tiroir (en euros)' : 'Fond de caisse compté (en euros)')
+            : S.mode === 'open' ? 'Qui ouvre ?' : closing ? 'Qui clôture ?' : 'Nom du client';
+        $('kbTitle').nextElementSibling.textContent = !numpad() ? 'Majuscules uniquement · la recherche ignore les accents'
+            : closing ? 'Retire les espèces attendues pour l’enveloppe, puis compte ce qui reste' : 'Compte les billets et les pièces du tiroir, puis encode le total';
         const k = (label, cls = '', act = label) => `<button class="key ${cls}" type="button" data-k="${esc(act)}">${esc(label)}</button>`;
         $('keys').classList.toggle('numpad', numpad());
         if (numpad()) {
@@ -344,17 +345,24 @@
         renderFund();
     }
 
-    const fundValue = () => (/^\d+(,\d{1,2})?$/.test(S.fund) ? parseFloat(S.fund.replace(',', '.')) : null);
+    // Fond de caisse : compté par celui qui ouvre (S.fund) et par celui qui clôture (S.clFund), même saisie
+    const amount = s => (/^\d+(,\d{1,2})?$/.test(s) ? parseFloat(s.replace(',', '.')) : null);
+    const fundValue = () => amount(S.fund);
+
+    function renderFundBox(text, active, label, box, found, labelText) {
+        const v = amount(text);
+        label.textContent = labelText + ' · attendu ' + eur(C.openingFloat).replace(',00', '');
+        box.innerHTML = (text ? esc(text) + ' €' : '<span class="ph">Touche ici, compte le tiroir et encode le montant…</span>') + (active ? '<i class="caret"></i>' : '');
+        box.classList.toggle('idle', !active);
+        const ok = v !== null && Math.abs(v - C.openingFloat) < 0.005;
+        found.className = 'found' + (v === null ? '' : ok ? ' good' : ' warn');
+        found.textContent = v === null ? '' : ok ? 'Fond de caisse complet.'
+            : 'Différent de ' + eur(C.openingFloat) + ' : recompte, et si c’est bien ce montant, préviens le trésorier.';
+        return v;
+    }
 
     function renderFund() {
-        const v = fundValue();
-        $('fundLabel').textContent = '2 · Fond de caisse compté · attendu ' + eur(C.openingFloat).replace(',00', '');
-        $('fundBox').innerHTML = (S.fund ? esc(S.fund) + ' €' : '<span class="ph">Touche ici, compte le tiroir et encode le montant…</span>') + (S.kb === 'fund' ? '<i class="caret"></i>' : '');
-        $('fundBox').classList.toggle('idle', S.kb !== 'fund');
-        const ok = v !== null && Math.abs(v - C.openingFloat) < 0.005;
-        $('fundFound').className = 'found' + (v === null ? '' : ok ? ' good' : ' warn');
-        $('fundFound').textContent = v === null ? '' : ok ? 'Fond de caisse complet.'
-            : 'Différent de ' + eur(C.openingFloat) + ' : recompte, et si c’est bien ce montant, préviens le trésorier.';
+        const v = renderFundBox(S.fund, S.kb === 'fund', $('fundLabel'), $('fundBox'), $('fundFound'), '2 · Fond de caisse compté');
         const ready = S.bmPicked && v !== null;
         $('btnOpen').disabled = !ready;
         $('btnOpen').innerHTML = 'Ouvrir le service' + (ready ? '<small>' + esc(S.bmPicked.name) + ' · fond de caisse ' + eur(v) + '</small>'
@@ -362,15 +370,16 @@
     }
 
     function typeFund(k) {
-        let v = S.fund;
+        const field = S.mode === 'closer' ? 'clFund' : 'fund';
+        let v = S[field];
         if (k === 'BACK') v = v.slice(0, -1);
         else if (k === ',') { if (v && !v.includes(',')) v += ','; }
         else if (/^\d$/.test(k)) {
             const dec = v.includes(',') ? v.split(',')[1].length : -1;
             if (dec < 2 && v.replace(',', '').length < 7) v = (v === '0' ? '' : v) + k;
         }
-        S.fund = v;
-        renderFund();
+        S[field] = v;
+        if (S.mode === 'closer') renderClosers(); else renderFund();
     }
 
     function setKb(target) {
@@ -378,7 +387,7 @@
         S.kb = target;
         S.accents = false;
         renderKeys();
-        renderBartenders();
+        if (S.mode === 'closer') renderClosers(); else renderBartenders();
     }
 
     $('bmBox').addEventListener('click', () => setKb('bm'));
@@ -788,6 +797,9 @@
         S.accents = false;
         S.clPicked = S.service.bartenderId ? { id: S.service.bartenderId, name: S.service.bartender } : null;
         S.cl = S.clPicked ? S.clPicked.name : '';
+        S.clFund = '';
+        // Le nom est déjà rempli : on commence par le comptage du tiroir
+        S.kb = S.clPicked ? 'clFund' : 'cl';
         $('clSvc').textContent = cap(S.service.label) + ' · ouvert à ' + S.service.openedAt;
         $('clEnv').textContent = S.service.envelope;
         renderKeys();
@@ -803,29 +815,35 @@
         const opener = S.service ? S.service.bartenderId : null;
         renderPicker({
             box: $('clBox'), found: $('clFound'), sugg: $('clSugg'), text: S.cl, picked: S.clPicked, list: S.closers,
-            active: true, isDefault: b => b.id === opener, defaultLabel: 'A ouvert le service :',
+            active: S.kb === 'cl', isDefault: b => b.id === opener, defaultLabel: 'A ouvert le service :',
             tag: b => b.id === opener ? 'a ouvert le service' : '',
         });
-        $('btnCloseGo').disabled = !S.clPicked;
+        const v = renderFundBox(S.clFund, S.kb === 'clFund', $('clFundLabel'), $('clFundBox'), $('clFundFound'), '2 · Fond de caisse laissé dans le tiroir');
+        $('btnCloseGo').disabled = !S.clPicked || v === null;
     }
+
+    $('clBox').addEventListener('click', () => setKb('cl'));
+    $('clFundBox').addEventListener('click', () => setKb('clFund'));
 
     $('clSugg').addEventListener('click', e => {
         const b = e.target.closest('.sg');
         if (!b) return;
         S.clPicked = S.closers.find(x => x.id === +b.dataset.id) || S.clPicked;
         if (S.clPicked) S.cl = S.clPicked.name;
+        if (S.clPicked && !S.clFund) { setKb('clFund'); return; }
         renderClosers();
     });
 
     $('btnCloseGo').addEventListener('click', async () => {
-        if (!S.clPicked) return;
+        const fund = amount(S.clFund);
+        if (!S.clPicked || fund === null) return;
         const s = S.closeSummary;
         const ok = await confirmBox('Clôturer le service ?',
-            'Clôturé par ' + S.clPicked.name + '. Espèces attendues dans l’enveloppe ' + S.service.envelope + ' : ' + eur(s ? s.cash : 0) + '. Après la clôture, plus aucun ticket ne pourra être ajouté ni modifié.',
+            'Clôturé par ' + S.clPicked.name + ', fond de caisse laissé : ' + eur(fund) + '. Espèces attendues dans l’enveloppe ' + S.service.envelope + ' : ' + eur(s ? s.cash : 0) + '. Après la clôture, plus aucun ticket ne pourra être ajouté ni modifié.',
             'Oui, clôturer', false);
         if (!ok) return;
         try {
-            const d = await api('service/cloturer', { member_id: S.clPicked.id });
+            const d = await api('service/cloturer', { member_id: S.clPicked.id, closing_float: fund });
             S.closedService = d.service;
             S.service = null;
             S.tickets = [];

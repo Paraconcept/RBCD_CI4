@@ -23,7 +23,7 @@ class BarServiceModel extends Model
     protected $useTimestamps = true;
     protected $allowedFields = [
         'service_date', 'period', 'number', 'envelope_code', 'status', 'bartender_member_id', 'opening_float',
-        'opened_at', 'closed_at', 'closed_by_member_id', 'paid_count', 'cancelled_count',
+        'opened_at', 'closed_at', 'closed_by_member_id', 'closing_float', 'paid_count', 'cancelled_count',
         'cash_total', 'bancontact_total', 'vat_b_total', 'vat_g_total',
     ];
 

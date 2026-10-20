@@ -63,10 +63,13 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
                 <div class="d" id="clSvc"></div>
                 <div class="env"><span>Enveloppe</span><b id="clEnv"></b></div>
             </div>
-            <div class="nlabel">Qui clôture ? · ton nom</div>
+            <div class="nlabel">1 · Qui clôture ? · ton nom</div>
             <div class="namebox small" id="clBox"></div>
             <div class="found" id="clFound"></div>
             <div class="sugg" id="clSugg"></div>
+            <div class="nlabel" id="clFundLabel"></div>
+            <div class="namebox small" id="clFundBox"></div>
+            <div class="found" id="clFundFound"></div>
             <button class="btn orange big" type="button" id="btnCloseGo" disabled><span><i class="fas fa-key"></i> Clôturer le service</span></button>
             <button class="btn" type="button" data-go="close">Retour au résumé</button>
         </aside>

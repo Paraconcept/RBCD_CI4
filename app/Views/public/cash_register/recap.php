@@ -109,9 +109,11 @@ td, th { vertical-align: top; }
                 <tr><td>Date</td><td class="r"><?= esc($date) ?></td></tr>
                 <tr><td>Ouvert par</td><td class="r"><b><?= esc(mb_strtoupper((string) $service->bartender_name, 'UTF-8')) ?></b> · <?= $fmt($service->opened_at) ?></td></tr>
                 <tr><td>Clôturé par</td><td class="r"><b><?= esc(mb_strtoupper((string) ($service->closer_name ?: '—'), 'UTF-8')) ?></b> · <?= $fmt($service->closed_at) ?></td></tr>
-                <?php if ($service->opening_float !== null): $floatOk = abs((float) $service->opening_float - BarServiceModel::OPENING_FLOAT) < 0.005; ?>
-                <tr><td>Fond de caisse compté</td><td class="r b"<?= $floatOk ? '' : ' style="color:#b45309"' ?>><?= $eur((float) $service->opening_float) ?><?= $floatOk ? '' : ' (≠ ' . $eur(BarServiceModel::OPENING_FLOAT) . ')' ?></td></tr>
-                <?php endif; ?>
+                <?php foreach (['opening_float' => 'Fond de caisse ouverture', 'closing_float' => 'Fond de caisse clôture'] as $col => $label):
+                    if ($service->$col === null) continue;
+                    $floatOk = abs((float) $service->$col - BarServiceModel::OPENING_FLOAT) < 0.005; ?>
+                <tr><td><?= $label ?></td><td class="r b"<?= $floatOk ? '' : ' style="color:#b45309"' ?>><?= $eur((float) $service->$col) ?><?= $floatOk ? '' : ' (≠ ' . $eur(BarServiceModel::OPENING_FLOAT) . ')' ?></td></tr>
+                <?php endforeach; ?>
                 <tr><td>1<sup>er</sup> / dernier ticket</td><td class="r"><?= $fmt($s['first_at']) ?> / <?= $fmt($s['last_at']) ?></td></tr>
                 <tr><td>Tickets n°</td><td class="r"><?= $s['first_number'] ? BarTicketModel::formatNumber($s['first_number']) . ' à ' . BarTicketModel::formatNumber($s['last_number']) : '—' ?></td></tr>
                 <tr><td>Validés / annulés</td><td class="r b"><?= $s['paid'] ?> / <?= $s['cancelled'] ?></td></tr>

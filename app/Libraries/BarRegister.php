@@ -138,11 +138,15 @@ class BarRegister
             ->get()->getResultObject();
     }
 
-    public function closeService(int $serviceId, ?int $closerId = null): object
+    /** $closingFloat est null pour une clôture depuis l'administration (service oublié : personne n'a compté le tiroir). */
+    public function closeService(int $serviceId, ?int $closerId = null, ?float $closingFloat = null): object
     {
         $service = $this->openServiceOrFail($serviceId);
         if ($closerId && !$this->db->table('members')->where('id', $closerId)->countAllResults()) {
             throw new BarRegisterException('Choisissez dans la liste la personne qui clôture.');
+        }
+        if ($closingFloat !== null && ($closingFloat < 0 || $closingFloat > 10000)) {
+            throw new BarRegisterException('Comptez le fond de caisse et encodez le montant trouvé.');
         }
 
         $this->db->transStart();
@@ -157,6 +161,7 @@ class BarRegister
             'status'              => 'closed',
             'closed_at'           => self::now(),
             'closed_by_member_id' => $closerId ?: $service->bartender_member_id,
+            'closing_float'       => $closingFloat === null ? null : round($closingFloat, 2),
             'paid_count'          => $s['paid'],
             'cancelled_count'     => $s['cancelled'],
             'cash_total'          => $s['cash'],
