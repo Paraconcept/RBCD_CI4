@@ -168,5 +168,6 @@ $(function() {
 
 <?= $this->renderSection('scripts') ?>
 
+<script src="<?= base_url('assets/js/password-toggle.js') ?>?v=<?= @filemtime(FCPATH . 'assets/js/password-toggle.js') ?>"></script>
 </body>
 </html>
