@@ -54,7 +54,7 @@
 
     function result(cls, t, html) {
         show('result', cls, t, html);
-        timer = setTimeout(hide, cls === 'ok' ? 2000 : 4000);
+        timer = setTimeout(hide, cls === 'ok' ? 1500 : 4000);
     }
 
     function send() {
