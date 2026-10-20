@@ -137,6 +137,9 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
 
     // 5. Tickets en cours
     await tap('#sideTicket [data-go="list"]');
+    await wait(600);
+    // Défile jusqu'aux tickets déjà payés, pour montrer leur bouton d'impression
+    await p.evaluate(() => { const w = document.getElementById('cardsWrap'); w.scrollTop = w.scrollHeight; });
     await shot('c05_tickets_en_cours');
 
     // 6. Régler : retour au ticket de DUPONT, Payer, fenêtre du mode de paiement, Espèces
