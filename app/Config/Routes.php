@@ -119,6 +119,7 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->get ('joueurs',                       'Public\ScoreboardController::searchPlayers');
     $routes->get ('bar',                           'Public\BarController::index');
     $routes->get ('api/bar',                       'Public\BarController::state');
+    $routes->get ('api/bar/appel/(:num)',          'Public\BarController::pending/$1');
     $routes->post('api/bar/appel/(:num)',          'Public\BarController::call/$1');
     $routes->post('api/bar/servi/(:num)',          'Public\BarController::serve/$1');
     $routes->get ('api/match/(:num)',              'Public\ScoreboardController::state/$1');

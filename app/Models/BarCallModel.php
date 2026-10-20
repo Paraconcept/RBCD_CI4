@@ -33,11 +33,16 @@ class BarCallModel extends Model
         return $byTable;
     }
 
+    public function pendingForTable(int $tableId): ?object
+    {
+        return $this->where('table_id', $tableId)->where('served_at', null)
+            ->where('called_at >=', $this->since())->first();
+    }
+
     /** Appelle le bar ; un deuxième appui pendant un appel en attente ne crée pas de doublon. Retourne [appel, nouveau ?]. */
     public function call(int $tableId): array
     {
-        $existing = $this->where('table_id', $tableId)->where('served_at', null)
-            ->where('called_at >=', $this->since())->first();
+        $existing = $this->pendingForTable($tableId);
         if ($existing) {
             return [$existing, false];
         }

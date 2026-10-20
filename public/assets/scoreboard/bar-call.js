@@ -28,7 +28,7 @@
     document.body.appendChild(box);
     const title = box.querySelector('.sbbar-title'), text = box.querySelector('.sbbar-text');
 
-    let mode = null; // 'ask' | 'sending' | 'result'
+    let mode = null; // 'checking' | 'ask' | 'sending' | 'result'
 
     let timer = null;
 
@@ -57,13 +57,38 @@
         timer = setTimeout(hide, cls === 'ok' ? 1500 : 4000);
     }
 
+    function alreadyCalled(waiting) {
+        result('ok', '<i class="fas fa-bell me-2"></i>Déjà appelé', 'Le barman est prévenu depuis ' + Math.max(1, Math.round(waiting / 60)) + ' min.');
+    }
+
+    function ask() {
+        show('ask', '', '<i class="fas fa-beer-mug-empty me-2"></i>Appeler le bar ?',
+            '<div class="sbbar-btns">' +
+            '<button type="button" class="sbbar-btn yes" data-bar="yes"><kbd>Entrée</kbd>Oui</button>' +
+            '<button type="button" class="sbbar-btn no" data-bar="no"><kbd>⌫</kbd>Non</button>' +
+            '</div>');
+        timer = setTimeout(hide, 10000);
+    }
+
+    // Si un appel attend déjà, inutile de demander confirmation ; en cas de souci réseau on pose la question quand même
+    function check() {
+        mode = 'checking';
+        const ctrl = new AbortController();
+        const abort = setTimeout(function () { ctrl.abort(); }, 2000);
+        fetch(C.url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: ctrl.signal })
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(function (d) { if (d.pending) alreadyCalled(d.waiting); else ask(); })
+            .catch(ask)
+            .finally(function () { clearTimeout(abort); });
+    }
+
     function send() {
         show('sending', '', '<i class="fas fa-spinner fa-spin"></i>', 'Envoi de l\'appel…');
         fetch(C.url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
             .then(function (d) {
                 if (d.created) result('ok', '<i class="fas fa-check me-2"></i>Le bar est appelé', 'Le barman arrive au ' + C.table + '.');
-                else result('ok', '<i class="fas fa-bell me-2"></i>Déjà appelé', 'Le barman est prévenu depuis ' + Math.max(1, Math.round(d.waiting / 60)) + ' min.');
+                else alreadyCalled(d.waiting);
             })
             .catch(function () {
                 result('err', '<i class="fas fa-triangle-exclamation me-2"></i>Appel non envoyé', 'Problème de connexion : réessayez avec <kbd>Verr. Num</kbd>.');
@@ -78,17 +103,9 @@
 
         e.preventDefault();
         e.stopImmediatePropagation();
-        if (e.repeat || mode === 'sending') return;
+        if (e.repeat || mode === 'sending' || mode === 'checking') return;
 
-        if (mode === null) {
-            show('ask', '', '<i class="fas fa-beer-mug-empty me-2"></i>Appeler le bar ?',
-                '<div class="sbbar-btns">' +
-                '<button type="button" class="sbbar-btn yes" data-bar="yes"><kbd>Entrée</kbd>Oui</button>' +
-                '<button type="button" class="sbbar-btn no" data-bar="no"><kbd>⌫</kbd>Non</button>' +
-                '</div>');
-            timer = setTimeout(hide, 10000);
-            return;
-        }
+        if (mode === null) { check(); return; }
         if (e.code === 'NumpadEnter' || e.key === 'Enter') send();
         else if (e.key === 'Backspace' || e.key === 'Escape' || isNumLock) hide();
     }, true);

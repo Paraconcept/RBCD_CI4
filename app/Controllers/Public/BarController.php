@@ -64,6 +64,16 @@ class BarController extends BaseController
         return $this->response->setJSON(['tables' => $tables]);
     }
 
+    public function pending(int $tableId)
+    {
+        $call = $this->calls->pendingForTable($tableId);
+
+        return $this->response->setJSON([
+            'pending' => (bool) $call,
+            'waiting' => $call ? max(0, ScoreboardMatchModel::nowTs() - strtotime($call->called_at)) : 0,
+        ]);
+    }
+
     public function call(int $tableId)
     {
         $table = $this->tables->find($tableId);
