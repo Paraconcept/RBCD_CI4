@@ -138,7 +138,7 @@ class BarRegister
             ->get()->getResultObject();
     }
 
-    /** $closingFloat est null pour une clôture depuis l'administration (service oublié : personne n'a compté le tiroir). */
+    /** $closingFloat est null pour une clôture depuis l'administration (service oublié : personne n'a compté la caisse). */
     public function closeService(int $serviceId, ?int $closerId = null, ?float $closingFloat = null): object
     {
         $service = $this->openServiceOrFail($serviceId);

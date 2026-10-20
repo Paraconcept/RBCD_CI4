@@ -223,10 +223,10 @@
 
     function renderKeys() {
         const closing = S.mode === 'closer';
-        $('kbTitle').textContent = numpad() ? (closing ? 'Fond de caisse laissé dans le tiroir (en euros)' : 'Fond de caisse compté (en euros)')
+        $('kbTitle').textContent = numpad() ? (closing ? 'Fond de caisse laissé dans la caisse (en euros)' : 'Fond de caisse compté (en euros)')
             : S.mode === 'open' ? 'Qui ouvre ?' : closing ? 'Qui clôture ?' : 'Nom du client';
         $('kbTitle').nextElementSibling.textContent = !numpad() ? 'Majuscules uniquement · la recherche ignore les accents'
-            : closing ? 'Retire les espèces attendues pour l’enveloppe, puis compte ce qui reste' : 'Compte les billets et les pièces du tiroir, puis encode le total';
+            : closing ? 'Retire les espèces attendues pour l’enveloppe, puis compte ce qui reste' : 'Compte les billets et les pièces de la caisse, puis encode le total';
         const k = (label, cls = '', act = label) => `<button class="key ${cls}" type="button" data-k="${esc(act)}">${esc(label)}</button>`;
         $('keys').classList.toggle('numpad', numpad());
         if (numpad()) {
@@ -352,7 +352,7 @@
     function renderFundBox(text, active, label, box, found, labelText) {
         const v = amount(text);
         label.textContent = labelText + ' · attendu ' + eur(C.openingFloat).replace(',00', '');
-        box.innerHTML = (text ? esc(text) + ' €' : '<span class="ph">Touche ici, compte le tiroir et encode le montant…</span>') + (active ? '<i class="caret"></i>' : '');
+        box.innerHTML = (text ? esc(text) + ' €' : '<span class="ph">Touche ici, compte la caisse et encode le montant…</span>') + (active ? '<i class="caret"></i>' : '');
         box.classList.toggle('idle', !active);
         const ok = v !== null && Math.abs(v - C.openingFloat) < 0.005;
         found.className = 'found' + (v === null ? '' : ok ? ' good' : ' warn');
@@ -781,7 +781,7 @@
         $('btnCloseBack').textContent = 'Retour aux tickets en cours';
         $('cWarn').textContent = 'Après la clôture, plus aucun ticket ne peut être ajouté, modifié ou supprimé pour ce service.';
         $('cHint').hidden = false;
-        $('cHint').textContent = 'Compte le tiroir : le fond de caisse de ' + eur(C.openingFloat) + ' y reste. Glisse les espèces attendues et le récapitulatif dans l’enveloppe, puis note son numéro dessus.';
+        $('cHint').textContent = 'Compte la caisse : le fond de caisse de ' + eur(C.openingFloat) + ' y reste. Glisse les espèces attendues et le récapitulatif dans l’enveloppe, puis note son numéro dessus.';
         try {
             const d = await api('service/resume');
             const s = fillClose(d.service, d.summary);
@@ -798,7 +798,7 @@
         S.clPicked = S.service.bartenderId ? { id: S.service.bartenderId, name: S.service.bartender } : null;
         S.cl = S.clPicked ? S.clPicked.name : '';
         S.clFund = '';
-        // Le nom est déjà rempli : on commence par le comptage du tiroir
+        // Le nom est déjà rempli : on commence par le comptage de la caisse
         S.kb = S.clPicked ? 'clFund' : 'cl';
         $('clSvc').textContent = cap(S.service.label) + ' · ouvert à ' + S.service.openedAt;
         $('clEnv').textContent = S.service.envelope;
@@ -818,7 +818,7 @@
             active: S.kb === 'cl', isDefault: b => b.id === opener, defaultLabel: 'A ouvert le service :',
             tag: b => b.id === opener ? 'a ouvert le service' : '',
         });
-        const v = renderFundBox(S.clFund, S.kb === 'clFund', $('clFundLabel'), $('clFundBox'), $('clFundFound'), '2 · Fond de caisse laissé dans le tiroir');
+        const v = renderFundBox(S.clFund, S.kb === 'clFund', $('clFundLabel'), $('clFundBox'), $('clFundFound'), '2 · Fond de caisse laissé dans la caisse');
         $('btnCloseGo').disabled = !S.clPicked || v === null;
     }
 

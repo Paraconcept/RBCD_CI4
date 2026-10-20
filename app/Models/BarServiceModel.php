@@ -14,7 +14,7 @@ class BarServiceModel extends Model
     // Le formulaire Trésorerie › Enveloppes accepte les numéros 01 à 05
     public const MAX_PER_DAY = 5;
 
-    // Fond de caisse qui reste dans le tiroir d'un service à l'autre, compté à chaque ouverture
+    // Fond de caisse qui reste dans la caisse d'un service à l'autre, compté à chaque ouverture
     public const OPENING_FLOAT = 200.00;
 
     protected $table         = 'bar_services';

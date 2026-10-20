@@ -168,7 +168,7 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     await tap('#list [data-go="close"]');
     await wait(700);
     await shot('c09_cloture');
-    // « Qui clôture ? » : celui qui a ouvert est pré-rempli ; ici, un autre détenteur de clé prend le relais et compte le tiroir
+    // « Qui clôture ? » : celui qui a ouvert est pré-rempli ; ici, un autre détenteur de clé prend le relais et compte la caisse
     await tap('#btnClose');
     await wait(600);
     await tap('#clBox');
