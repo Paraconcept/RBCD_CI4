@@ -221,6 +221,15 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .toast.err { background: var(--danger); }
 .toast .btn { height: 2.4rem; font-size: .85rem; pointer-events: auto; background: #fff; border-color: #fff; color: var(--fg); }
 
+/* Au-dessus des confirmations et des messages, mais sous l'écran de démarrage (qui doit rester touchable) */
+.offline { position: fixed; inset: 0; z-index: 65; display: grid; place-items: center; background: #b91c1c; color: #fff; padding: 1.5rem; }
+.offline-box { max-width: 46rem; text-align: center; }
+.offline-icon { width: 5.5rem; height: 5.5rem; margin: 0 auto 1rem; border-radius: 50%; background: #fff; color: #b91c1c; font: 800 4rem/5.5rem var(--f-display); animation: offline-pulse 1.6s ease-in-out infinite; }
+.offline h2 { margin: 0 0 .4rem; font: 800 3.4rem/1.05 var(--f-display); text-transform: uppercase; letter-spacing: .02em; }
+.offline .lead { margin: 0 0 1.4rem; font-size: 1.5rem; font-weight: 700; }
+.offline ol { text-align: left; margin: 0 auto; padding: 1.1rem 1.4rem 1.1rem 3rem; background: rgba(0,0,0,.18); border-radius: 1rem; font-size: 1.2rem; line-height: 1.5; display: grid; gap: .5rem; }
+.offline .since { margin: 1.2rem 0 0; font-size: 1rem; opacity: .85; }
+@keyframes offline-pulse { 50% { transform: scale(1.08); } }
 .unlock { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; text-align: center; background: rgba(11,16,32,.94); color: #fff; cursor: pointer; }
 .unlock .big { font: 700 2.2rem var(--f-display); }
 .unlock p { color: var(--hd-muted); }

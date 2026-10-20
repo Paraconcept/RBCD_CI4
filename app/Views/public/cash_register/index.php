@@ -177,6 +177,20 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
 
 <div class="toast" id="toast" hidden><span id="toastText"></span><button class="btn" type="button" id="toastAction" hidden></button></div>
 
+<div class="offline" id="offline" hidden>
+    <div class="offline-box">
+        <div class="offline-icon">!</div>
+        <h2>Pas de connexion Internet</h2>
+        <p class="lead">La caisse est bloquée tant que le Wi-Fi est coupé.</p>
+        <ol>
+            <li><b>Notez les consommations sur papier</b> : nom du client, produits, mode de paiement.</li>
+            <li>Vérifiez le Wi-Fi de la tablette.</li>
+            <li>La caisse se débloque <b>toute seule</b> au retour de la connexion : encodez alors ce qui a été noté.</li>
+        </ol>
+        <p class="since" id="offlineSince"></p>
+    </div>
+</div>
+
 <div class="unlock" id="unlock">
     <div>
         <div class="big">Touchez l'écran pour démarrer la caisse</div>

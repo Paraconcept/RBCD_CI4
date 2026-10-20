@@ -28,6 +28,43 @@
         $('net').lastElementChild.textContent = ok ? 'Connectée' : 'Hors ligne';
     }
 
+    // Sans connexion, rien ne peut être enregistré : la caisse est bloquée et le barman passe au papier.
+    // Au retour du réseau, l'écran est rechargé depuis le serveur, ce qui retire les touches non enregistrées.
+    let offline = false;
+    let netFails = 0;
+
+    function goOffline() {
+        setNet(false);
+        if (offline) return;
+        offline = true;
+        const d = new Date();
+        $('offlineSince').textContent = 'Coupure depuis ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ' · nouvel essai toutes les 2 secondes';
+        $('toast').hidden = true;
+        $('offline').hidden = false;
+    }
+
+    function goOnline() {
+        netFails = 0;
+        setNet(true);
+        if (!offline) return;
+        offline = false;
+        $('offline').hidden = true;
+        refresh(true)
+            .then(() => toast('Connexion rétablie. Vérifiez le ticket affiché, puis encodez ce qui a été noté sur papier.'))
+            .catch(() => {});
+    }
+
+    // Un Wi-Fi « muet » ne renvoie jamais d'erreur : sans délai maximal, la caisse attendrait indéfiniment
+    async function netFetch(url, opt, ms) {
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(), ms);
+        try {
+            return await fetch(url, { ...opt, signal: ctl.signal });
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
     async function api(path, body) {
         const opt = { cache: 'no-store', headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } };
         if (body !== undefined) {
@@ -37,13 +74,12 @@
         }
         let r;
         try {
-            r = await fetch(C.api + path, opt);
+            r = await netFetch(C.api + path, opt, 10000);
         } catch (e) {
-            setNet(false);
-            toast('Connexion perdue : vérifiez le Wi-Fi, puis réessayez.', true);
+            goOffline();
             throw e;
         }
-        setNet(true);
+        goOnline();
         const d = await r.json().catch(() => ({}));
         if (!r.ok) {
             const msg = d.error || ('Erreur ' + r.status + ' : réessayez.');
@@ -750,10 +786,14 @@
     }
 
     function pollBar() {
-        fetch(B.state, { cache: 'no-store', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        netFetch(B.state, { cache: 'no-store', headers: { 'X-Requested-With': 'XMLHttpRequest' } }, 6000)
+            .catch(e => {
+                // Deux échecs de suite avant de bloquer : un raté isolé du Wi-Fi ne doit pas faire clignoter l'écran rouge
+                if (++netFails >= 2 || offline) goOffline();
+                throw e;
+            })
+            .then(r => { goOnline(); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
             .then(d => {
-                setNet(true);
                 tables = d.tables;
                 tables.forEach(t => { if (t.call && served[t.call.id]) t.call = null; });
                 fetchedAt = Date.now();
@@ -769,6 +809,8 @@
     setInterval(tickClock, 10000);
     pollBar();
     setInterval(pollBar, 2000);
+    window.addEventListener('offline', goOffline);
+    window.addEventListener('online', pollBar);
     // Rafraîchit la liste des tickets si un autre appareil a travaillé sur le même service
     setInterval(() => {
         if (!pending && $('modal').hidden && ['ticket', 'list'].includes(S.mode)) refresh(true).catch(() => {});
