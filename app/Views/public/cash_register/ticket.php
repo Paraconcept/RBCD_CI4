@@ -43,7 +43,7 @@ td { padding: .6mm 0; vertical-align: top; }
 <body>
 <div class="toolbar">
     <button class="print" type="button" onclick="window.print()">Imprimer</button>
-    <a class="back" href="<?= base_url('caisse') . ($ticket->status === 'open' ? '?ticket=' . (int) $ticket->id : '') ?>">Retour à la caisse</a>
+    <a class="back" href="<?= base_url('caisse') . ($ticket->status === 'open' ? '?ticket=' . (int) $ticket->id : '?vue=tickets') ?>">Retour à la caisse</a>
 </div>
 <div class="ticket">
     <div class="c">

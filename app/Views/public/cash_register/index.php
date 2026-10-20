@@ -74,9 +74,6 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
             <div class="act">
                 <button class="btn danger validate" type="button" id="btnCancel">Annuler</button>
                 <button class="btn primary validate" type="button" id="btnValidate">Payer</button>
-                <button class="btn validate" type="button" id="btnPrint" aria-label="Imprimer le ticket" title="Imprimer le ticket (pas encore d'imprimante à tickets)" disabled>
-                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/><circle cx="17.5" cy="12" r=".6" fill="currentColor"/></svg>
-                </button>
             </div>
         </aside>
 

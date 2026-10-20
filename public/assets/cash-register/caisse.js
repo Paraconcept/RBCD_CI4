@@ -22,6 +22,7 @@
         return esc(name.slice(0, i)) + '<mark>' + esc(name.slice(i, i + q.length)) + '</mark>' + esc(name.slice(i + q.length));
     };
     const METHODS = { cash: 'espèces', bancontact: 'Bancontact' };
+    const PRINT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/><circle cx="17.5" cy="12" r=".6" fill="currentColor"/></svg>';
 
     const products = {};
     C.catalog.forEach(c => c.products.forEach(p => { products[p.id] = p; }));
@@ -393,7 +394,6 @@
         $('btnValidate').textContent = 'Payer · ' + eur(total);
         $('btnValidate').disabled = !t || !lines.length;
         $('btnCancel').disabled = !t;
-        $('btnPrint').disabled = !C.ticketPrinter || !t || !lines.length;
         // Des barmans touchaient « Valider » après chaque boisson et clôturaient le ticket :
         // on les pousse vers « Tickets en cours » dès qu'il y a une consommation
         $('nextHint').classList.toggle('off', !lines.length);
@@ -469,17 +469,8 @@
             renderCounts();
             // Après un paiement, le barman sert en général un autre client déjà en cours
             setMode('list');
-            toast('Ticket n° ' + d.ticket.number + ' réglé : ' + eur(d.ticket.total) + ' en ' + METHODS[d.ticket.method] + '.', false,
-                C.ticketPrinter ? { label: 'Imprimer le ticket', run: () => printTicket(d.ticket.id) } : null);
+            toast('Ticket n° ' + d.ticket.number + ' réglé : ' + eur(d.ticket.total) + ' en ' + METHODS[d.ticket.method] + '.');
         } catch (e) { renderTicket(); }
-    });
-
-    // Imprime le ticket affiché tel quel (addition), sans le valider
-    $('btnPrint').addEventListener('click', async () => {
-        const t = currentTicket();
-        if (!t) return;
-        await queue;
-        printTicket(t.id);
     });
 
     $('btnCancel').addEventListener('click', () => {
@@ -626,7 +617,8 @@
             return `<div class="card paid">
                 <div class="card-top"><div style="min-width:0"><small class="label">Ticket n° ${t.number} · ouvert à ${t.openedAt}</small><strong>${esc(t.client)}</strong><span class="flag"><span class="paid-tag">Payé</span>${t.method === 'cash' ? 'en espèces' : 'par Bancontact'} à ${t.paidAt}</span></div>
                 <div class="amt"><b>${eur(t.total)}</b><span>${count} article${count > 1 ? 's' : ''}</span></div></div>
-                <div class="items">${esc(items)}</div></div>`;
+                <div class="paid-foot"><div class="items">${esc(items)}</div>
+                <button class="btn print" type="button" data-print="${t.id}" aria-label="Imprimer le ticket" title="Imprimer le ticket${C.ticketPrinter ? '' : ' (pas encore d’imprimante à tickets)'}"${C.ticketPrinter ? '' : ' disabled'}>${PRINT_ICON}</button></div></div>`;
         });
         cards.innerHTML = open.join('') + (np ? `<div class="cards-sep">Déjà payés sur ce service <span>${np}</span></div>` + paid.join('') : '');
     }
@@ -634,6 +626,8 @@
     $('list').addEventListener('click', e => {
         const o = e.target.closest('[data-open]');
         if (o) { S.current = +o.dataset.open; setMode('ticket'); return; }
+        const pr = e.target.closest('[data-print]');
+        if (pr) { printTicket(+pr.dataset.print); return; }
         const c = e.target.closest('[data-cancel]');
         if (c) { const t = S.tickets.find(x => x.id === +c.dataset.cancel); if (t) cancelTicket(t); }
     });
@@ -856,9 +850,12 @@
         if (!pending && $('modal').hidden && $('payModal').hidden && ['ticket', 'list'].includes(S.mode)) refresh(true).catch(() => {});
     }, 20000);
     // Retour d'une impression : on rouvre le ticket qui était affiché
-    const back = new URLSearchParams(location.search).get('ticket');
-    if (back) history.replaceState(null, '', location.pathname);
+    const params = new URLSearchParams(location.search);
+    const back = params.get('ticket');
+    const backToList = params.get('vue') === 'tickets';
+    if (back || backToList) history.replaceState(null, '', location.pathname);
     refresh(false).then(() => {
         if (back && S.tickets.some(t => t.id === +back)) { S.current = +back; setMode('ticket'); }
+        else if (backToList && S.service) setMode('list');
     }).catch(() => setMode('open'));
 })();
