@@ -146,6 +146,7 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     await shot('c06_payer');
     await tap('#payModal [data-m="cash"]');
     await wait(500);
+    await tap('#list [data-go="ticket"]');
     const dupontTicket = +sql(`select id from bar_tickets where client_id = ${clientId['DUPONT JEAN']} order by id desc limit 1`);
 
     // 7. Historique

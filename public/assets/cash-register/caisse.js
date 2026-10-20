@@ -467,8 +467,8 @@
             S.tickets = S.tickets.filter(x => x.id !== t.id);
             S.current = null;
             renderCounts();
-            renderGrid();
-            renderTicket();
+            // Après un paiement, le barman sert en général un autre client déjà en cours
+            setMode('list');
             toast('Ticket n° ' + d.ticket.number + ' réglé : ' + eur(d.ticket.total) + ' en ' + METHODS[d.ticket.method] + '.', false,
                 C.ticketPrinter ? { label: 'Imprimer le ticket', run: () => printTicket(d.ticket.id) } : null);
         } catch (e) { renderTicket(); }
