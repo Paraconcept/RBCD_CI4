@@ -52,6 +52,8 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 
 .side { display: grid; grid-template-columns: minmax(0, 1fr); gap: .62rem; padding: 1rem 1.25rem .9rem 1.1rem; border-left: .06rem solid var(--line); background: var(--side); min-height: 0; min-width: 0; overflow: hidden; align-content: start; }
 .side.ticket { grid-template-rows: auto auto auto 1fr auto auto auto; align-content: stretch; }
+#btnList.nudge { border-color: var(--badge); background: #fdf0e1; animation: nudge 1.6s ease-in-out infinite; }
+@keyframes nudge { 50% { box-shadow: 0 0 0 .3rem rgba(217,130,43,.3); } }
 .side.new { grid-template-rows: auto auto auto auto auto 1fr; align-content: stretch; }
 .side.open { display: flex; flex-direction: column; }
 .side.open #btnOpen { margin-top: auto; }
@@ -83,10 +85,9 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .total { display: flex; justify-content: space-between; align-items: baseline; border-top: .125rem solid var(--fg); padding-top: .5rem; }
 .total span { font: 700 1.05rem var(--f-body); }
 .total strong { font: 800 2.2rem var(--f-body); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
-.pay { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; }
-.pay .btn { height: 2.75rem; font-size: .85rem; }
-.pay .btn[aria-pressed="true"] { border-color: var(--sel); background: var(--soft); }
-.act { display: grid; grid-template-columns: 2fr 1fr; gap: .5rem; }
+.next { font-size: .8rem; line-height: 1.35; color: #6b3d0c; background: #fdf0e1; border-left: .25rem solid var(--badge); border-radius: .5rem; padding: .45rem .7rem; }
+.next.off { visibility: hidden; }
+.act { display: grid; grid-template-columns: 1fr 2fr .9fr; gap: .5rem; }
 .validate { height: 3.25rem; font-size: 1.1rem; width: 100%; }
 #btnPrint svg { width: 1.75rem; height: 1.75rem; }
 
@@ -223,6 +224,10 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .modal-box .reasons .btn[aria-pressed="true"] { border-color: var(--sel); background: var(--soft); }
 .modal-box .acts { display: grid; grid-template-columns: 1fr 1fr; gap: .62rem; }
 .modal-box .acts .btn { height: 3.25rem; font-size: 1rem; }
+.modal-box .paybig { display: grid; grid-template-columns: 1fr 1fr; gap: .62rem; }
+.modal-box .paybig .btn { height: 6rem; font-size: 1.35rem; flex-direction: column; gap: .2rem; }
+.modal-box .paybig .btn small { font-size: .75rem; font-weight: 600; color: var(--muted); }
+.modal-box #pNo { height: 3.25rem; font-size: 1rem; }
 .btn.confirm-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
 
 .toast { position: fixed; left: 50%; top: 4.6rem; pointer-events: none; transform: translateX(-50%); background: var(--hd); color: #fff; border-radius: .9rem; padding: .8rem 1.1rem; display: flex; align-items: center; gap: 1rem; font-weight: 600; z-index: 60; box-shadow: 0 .75rem 2rem rgba(0,0,0,.3); max-width: 90vw; }

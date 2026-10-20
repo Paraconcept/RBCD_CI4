@@ -37,9 +37,9 @@
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-door-open"></i></div><h3>1. Ouvrir le service</h3>
                 <p>En arrivant : <b>après-midi ou soir</b>, puis <b>ton nom</b>. La caisse donne le numéro de l'enveloppe.</p></div>
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-user-plus"></i></div><h3>2. Un ticket par client</h3>
-                <p><b>Créer un nouveau</b>, le nom du client, puis ses consommations. Le ticket reste ouvert toute la soirée si besoin.</p></div>
+                <p><b>Créer un nouveau</b>, le nom du client, puis ses consommations. Ensuite, <b>Tickets en cours</b> : le ticket reste ouvert toute la soirée si besoin.</p></div>
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-coins"></i></div><h3>3. Régler</h3>
-                <p><b>Espèces</b> ou <b>Bancontact</b>, puis <b>Valider</b>. Le ticket quitte la liste des tickets en cours.</p></div>
+                <p><b>Payer</b>, puis <b>Espèces</b> ou <b>Bancontact</b> dans la fenêtre. Le ticket quitte la liste des tickets en cours.</p></div>
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-envelope-open-text"></i></div><h3>4. Clôturer</h3>
                 <p>En partant : <b>Clôturer le service</b>, imprimer le récapitulatif et le glisser avec l'argent dans l'enveloppe.</p></div>
         </div>
@@ -65,7 +65,7 @@
         <div class="col text">
             <ul class="steps">
                 <li>Choisissez <b>Après-midi</b> ou <b>Soir</b>.</li>
-                <li>Tapez les <b>premières lettres de votre nom</b> sur le clavier de l'écran. Le barman prévu au planning des permanences est proposé d'office.</li>
+                <li>Tapez les <b>premières lettres de votre nom ou de votre prénom</b> sur le clavier de l'écran. Le barman prévu au planning des permanences est proposé d'office.</li>
                 <li><b>Touchez votre nom</b> dans la liste (membres qui ont une clé du club).</li>
                 <li>Touchez <span class="btnlike">Ouvrir le service</span>. La caisse s'ouvre.</li>
             </ul>
@@ -84,7 +84,7 @@
         <div class="col text">
             <ul class="steps">
                 <li>Touchez <span class="btnlike">Créer un nouveau</span>.</li>
-                <li>Tapez les <b>2 ou 3 premières lettres</b> du nom de famille.</li>
+                <li>Tapez les <b>2 ou 3 premières lettres</b> du nom de famille <b>ou du prénom</b>.</li>
                 <li><b>Touchez le client</b> dans la liste : son ticket s'ouvre.</li>
                 <li>Seulement s'il n'y est pas : <b>« + Créer … comme nouveau client »</b>.</li>
             </ul>
@@ -108,7 +108,8 @@
                 <li>Le <b>total</b> se calcule tout seul.</li>
             </ul>
             <div class="note"><p><b>Le nom du client</b> est rappelé en haut du ticket. Vérifiez que c'est le bon avant d'ajouter.</p></div>
-            <div class="note orange"><p>La grille est <b>grisée</b> quand aucun ticket n'est affiché : créez un ticket ou ouvrez-en un dans « Tickets en cours ».</p></div>
+            <div class="note orange"><p><b>Consommations encodées, le client ne paie pas encore&nbsp;?</b> Touchez <span class="chip">Tickets en cours</span> (il clignote en orange) : le ticket reste ouvert et la caisse est prête pour le client suivant. <b>Ne touchez pas «&nbsp;Payer&nbsp;»</b> : il clôture le ticket.</p></div>
+            <div class="note"><p>La grille est <b>grisée</b> quand aucun ticket n'est affiché : créez un ticket ou ouvrez-en un dans «&nbsp;Tickets en cours&nbsp;».</p></div>
         </div>
     </div>
     <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi de la caisse du bar</b></span><span>5</span></footer>
@@ -119,18 +120,19 @@
     <header class="head"><div class="num">4</div><div><h1>Régler ou annuler</h1><p>Les boutons sous le total</p></div><img src="img/ecusson.png" alt=""></header>
     <div class="body">
         <div class="col wide stack">
-            <img class="tablet" src="img/c06_regle.png" alt="">
+            <img class="tablet" src="img/c06_payer.png" alt="">
         </div>
         <div class="col text">
             <h2><i class="fas fa-coins"></i>Régler</h2>
             <ul class="steps">
-                <li>Touchez <span class="btnlike white">Espèces</span> ou <span class="btnlike white">Bancontact</span>. Pour Bancontact, encaissez d'abord sur le terminal <b>SumUp</b>.</li>
-                <li>Touchez <span class="btnlike">Valider</span>. Le ticket est réglé ; un message confirme le montant.</li>
+                <li>Seulement quand le client paie : touchez <span class="btnlike">Payer · total</span>. Une fenêtre s'ouvre.</li>
+                <li>Touchez <span class="btnlike white">Espèces</span> ou <span class="btnlike white">Bancontact</span>. Pour Bancontact, encaissez d'abord sur le terminal <b>SumUp</b>. Le ticket est réglé ; un message confirme le montant.</li>
+                <li><span class="btnlike white">Annuler</span> dans la fenêtre ferme la fenêtre sans rien régler.</li>
             </ul>
-            <div class="note green"><p><b>Le bouton <i class="fas fa-print"></i></b> à côté de Valider imprimera le ticket du client. Il reste <b>grisé</b> tant que le bar n'a pas d'imprimante à tickets.</p></div>
+            <div class="note green"><p><b>Le bouton <i class="fas fa-print"></i></b> à côté de Payer imprimera le ticket du client. Il reste <b>grisé</b> tant que le bar n'a pas d'imprimante à tickets.</p></div>
             <h2 style="margin-top:2mm"><i class="fas fa-ban"></i>Annuler</h2>
-            <p><span class="btnlike white" style="color:var(--red)">Annuler</span> → choisissez la raison → <b>Oui, annuler le ticket</b>. Le ticket n'est pas supprimé : il reste dans l'historique, marqué annulé.</p>
-            <div class="note orange"><p>Un ticket <b>réglé ne se modifie plus</b> : vérifiez le mode de paiement avant de valider.</p></div>
+            <p><span class="btnlike white" style="color:var(--red)">Annuler</span>, à gauche de Payer → choisissez la raison → <b>Oui, annuler le ticket</b>. Le ticket n'est pas supprimé : il reste dans l'historique, marqué annulé.</p>
+            <div class="note orange"><p>Un ticket <b>réglé ne se modifie plus</b> : vérifiez le mode de paiement avant de le toucher.</p></div>
         </div>
     </div>
     <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi de la caisse du bar</b></span><span>6</span></footer>

@@ -59,7 +59,7 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     if (url.includes('/caisse/api/clients')) {
       const q = decodeURIComponent((url.split('q=')[1] || '')).toUpperCase();
       const seen = { 'DUPONT JEAN': [3, true], 'DUPONT MARIE': [12, false], 'DUPUIS LUC': [24, true] };
-      const list = Object.keys(seen).filter(n => n.startsWith(q)).map(n => ({ id: clientId[n], name: n, member: seen[n][1], lastSeen: new Date(Date.now() - seen[n][0] * 864e5).toISOString().slice(0, 10) }));
+      const list = Object.keys(seen).filter(n => n.startsWith(q) || n.includes(' ' + q)).map(n => ({ id: clientId[n], name: n, member: seen[n][1], lastSeen: new Date(Date.now() - seen[n][0] * 864e5).toISOString().slice(0, 10) }));
       return req.respond({ contentType: 'application/json', body: JSON.stringify(list) });
     }
     if (url.includes('/caisse/api/')) {
@@ -139,12 +139,13 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     await tap('#sideTicket [data-go="list"]');
     await shot('c05_tickets_en_cours');
 
-    // 6. Régler : retour au ticket de DUPONT, Valider
+    // 6. Régler : retour au ticket de DUPONT, Payer, fenêtre du mode de paiement, Espèces
     await p.evaluate(() => [...document.querySelectorAll('.card')].find(c => c.textContent.includes('DUPONT JEAN')).querySelector('[data-open]').click());
     await wait(300);
     await tap('#btnValidate');
+    await shot('c06_payer');
+    await tap('#payModal [data-m="cash"]');
     await wait(500);
-    await shot('c06_regle', true);
     const dupontTicket = +sql(`select id from bar_tickets where client_id = ${clientId['DUPONT JEAN']} order by id desc limit 1`);
 
     // 7. Historique

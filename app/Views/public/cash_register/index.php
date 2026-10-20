@@ -64,19 +64,16 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
         <aside class="side ticket" id="sideTicket" hidden>
             <div class="row2">
                 <button class="btn primary" type="button" data-go="new">Créer un nouveau</button>
-                <button class="btn" type="button" data-go="list">Tickets en cours <span class="cnt" data-count></span></button>
+                <button class="btn" type="button" data-go="list" id="btnList">Tickets en cours <span class="cnt" data-count></span></button>
             </div>
             <div class="tk" id="tk"></div>
             <div class="lbl"><span>Consommations</span><span id="count"></span></div>
             <div class="lines" id="lines"></div>
             <div class="total"><span>Total</span><strong id="total">0,00 €</strong></div>
-            <div class="pay" id="pay">
-                <button class="btn" type="button" data-m="cash">Espèces</button>
-                <button class="btn" type="button" data-m="bancontact">Bancontact</button>
-                <button class="btn danger" type="button" id="btnCancel">Annuler</button>
-            </div>
+            <div class="next" id="nextHint">Le client reprendra quelque chose plus tard&nbsp;? Touche <b>«&nbsp;Tickets en cours&nbsp;»</b>&nbsp;: son ticket reste ouvert et la caisse est prête pour le suivant.</div>
             <div class="act">
-                <button class="btn primary validate" type="button" id="btnValidate">Valider</button>
+                <button class="btn danger validate" type="button" id="btnCancel">Annuler</button>
+                <button class="btn primary validate" type="button" id="btnValidate">Payer</button>
                 <button class="btn validate" type="button" id="btnPrint" aria-label="Imprimer le ticket" title="Imprimer le ticket (pas encore d'imprimante à tickets)" disabled>
                     <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/><circle cx="17.5" cy="12" r=".6" fill="currentColor"/></svg>
                 </button>
@@ -172,6 +169,18 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
             <button class="btn" type="button" id="mNo">Non, revenir</button>
             <button class="btn confirm-danger" type="button" id="mYes">Oui</button>
         </div>
+    </div>
+</div>
+
+<div class="modal" id="payModal" hidden>
+    <div class="modal-box">
+        <h3 id="pTitle"></h3>
+        <p id="pText"></p>
+        <div class="paybig">
+            <button class="btn" type="button" data-m="cash">Espèces</button>
+            <button class="btn" type="button" data-m="bancontact">Bancontact<small>encaisser d'abord sur SumUp</small></button>
+        </div>
+        <button class="btn" type="button" id="pNo">Annuler</button>
     </div>
 </div>
 

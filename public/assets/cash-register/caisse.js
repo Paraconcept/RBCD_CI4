@@ -9,6 +9,18 @@
     const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const plain = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
     const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    // Les noms sont « NOM PRÉNOM » : la saisie peut être le début du nom de famille ou du prénom
+    const matchAt = (name, q) => {
+        const p = plain(name), k = plain(q);
+        if (p.startsWith(k)) return 0;
+        const i = p.indexOf(' ' + k);
+        return i < 0 ? -1 : i + 1;
+    };
+    const highlight = (name, q) => {
+        const i = q ? matchAt(name, q) : -1;
+        if (i < 0) return esc(name);
+        return esc(name.slice(0, i)) + '<mark>' + esc(name.slice(i, i + q.length)) + '</mark>' + esc(name.slice(i + q.length));
+    };
     const METHODS = { cash: 'espèces', bancontact: 'Bancontact' };
 
     const products = {};
@@ -16,7 +28,7 @@
 
     const S = {
         mode: null, service: null, tickets: [], current: null, nextNumber: '0001', lastClosed: null,
-        cat: C.catalog.length ? C.catalog[0].id : null, method: 'cash', clockSkew: 0,
+        cat: C.catalog.length ? C.catalog[0].id : null, clockSkew: 0,
         name: '', bm: '', bmPicked: null, period: null, bartenders: [], accents: false,
         closedService: null, nextEnvelope: null,
     };
@@ -272,24 +284,24 @@
     }
 
     function renderBartenders() {
-        $('bmBox').innerHTML = (S.bm ? esc(S.bm) : '<span class="ph">Tape ton nom…</span>') + '<i class="caret"></i>';
+        $('bmBox').innerHTML = (S.bm ? esc(S.bm) : '<span class="ph">Ton nom ou ton prénom…</span>') + '<i class="caret"></i>';
         sizeName($('bmBox'), S.bm);
         const q = plain(S.bm.trim());
         let hits, found;
         if (q.length >= 2) {
-            hits = S.bartenders.filter(b => plain(b.name).startsWith(q)).slice(0, 4);
+            hits = S.bartenders.map(b => [matchAt(b.name, q), b]).filter(([i]) => i >= 0)
+                .sort((x, y) => (x[0] > 0) - (y[0] > 0)).map(([, b]) => b).slice(0, 4);
             found = hits.length ? 'Membres détenteurs d’une clé · touche ton nom' : 'Aucun détenteur de clé à ce nom.';
         } else {
             hits = S.bartenders.filter(b => b.planned);
-            found = hits.length ? 'Prévu au planning des permanences :' : 'Tape les premières lettres de ton nom.';
+            found = hits.length ? 'Prévu au planning des permanences :' : 'Tape les premières lettres de ton nom ou de ton prénom.';
         }
         $('bmFound').textContent = found;
         $('bmSugg').hidden = !hits.length;
-        const n = S.bm.trim().length;
+        const typed = q.length >= 2 ? S.bm.trim() : '';
         $('bmSugg').innerHTML = hits.map(b => {
-            const k = q.length >= 2 ? Math.min(n, b.name.length) : 0;
             return `<button class="sg${S.bmPicked && S.bmPicked.id === b.id ? ' sel' : ''}" type="button" data-id="${b.id}">` +
-                `<span><mark>${esc(b.name.slice(0, k))}</mark>${esc(b.name.slice(k))}</span>${b.planned ? '<span class="mb">prévu au planning</span>' : ''}</button>`;
+                `<span>${highlight(b.name, typed)}</span>${b.planned ? '<span class="mb">prévu au planning</span>' : ''}</button>`;
         }).join('');
         $('btnOpen').disabled = !S.bmPicked;
         $('btnOpen').innerHTML = 'Ouvrir le service' + (S.bmPicked ? '<small>' + esc(S.bmPicked.name) + '</small>' : '');
@@ -378,23 +390,19 @@
         $('count').textContent = count + (count > 1 ? ' articles' : ' article');
         const total = t ? t.total : 0;
         $('total').textContent = eur(total);
-        $('btnValidate').textContent = 'Valider · ' + eur(total);
+        $('btnValidate').textContent = 'Payer · ' + eur(total);
         $('btnValidate').disabled = !t || !lines.length;
         $('btnCancel').disabled = !t;
         $('btnPrint').disabled = !C.ticketPrinter || !t || !lines.length;
-        $('pay').querySelectorAll('[data-m]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === S.method)));
+        // Des barmans touchaient « Valider » après chaque boisson et clôturaient le ticket :
+        // on les pousse vers « Tickets en cours » dès qu'il y a une consommation
+        $('nextHint').classList.toggle('off', !lines.length);
+        $('btnList').classList.toggle('nudge', !!lines.length);
     }
 
     $('lines').addEventListener('click', e => {
         const b = e.target.closest('.pm');
         if (b) changeLine(+b.dataset.p, +b.dataset.d);
-    });
-
-    $('pay').addEventListener('click', e => {
-        const b = e.target.closest('[data-m]');
-        if (!b) return;
-        S.method = b.dataset.m;
-        renderTicket();
     });
 
     // Les touches s'enchaînent vite : on affiche tout de suite, et les requêtes partent une à une
@@ -435,16 +443,29 @@
             .catch(() => { pending--; return refresh(true).catch(() => {}); });
     }
 
+    // Le ticket n'est réglé qu'au choix du mode de paiement dans la fenêtre, jamais d'un seul geste
+    function payBox(t) {
+        return new Promise(resolve => {
+            $('pTitle').textContent = 'Payer le ticket n° ' + t.number;
+            $('pText').textContent = t.client + ' · ' + eur(t.total) + '. Comment le client paie-t-il ?';
+            $('payModal').hidden = false;
+            const done = m => { $('payModal').hidden = true; resolve(m); };
+            $('payModal').querySelectorAll('[data-m]').forEach(b => { b.onclick = () => done(b.dataset.m); });
+            $('pNo').onclick = () => done(null);
+        });
+    }
+
     $('btnValidate').addEventListener('click', async () => {
         const t = currentTicket();
         if (!t) return;
         $('btnValidate').disabled = true;
         await queue;
+        const method = await payBox(t);
+        if (!method) { renderTicket(); return; }
         try {
-            const d = await api('tickets/' + t.id + '/valider', { method: S.method });
+            const d = await api('tickets/' + t.id + '/valider', { method });
             S.tickets = S.tickets.filter(x => x.id !== t.id);
             S.current = null;
-            S.method = 'cash';
             renderCounts();
             renderGrid();
             renderTicket();
@@ -494,7 +515,7 @@
 
     function renderName() {
         $('newLabel').textContent = 'Nouveau ticket n° ' + S.nextNumber + ' · nom du client';
-        $('nameBox').innerHTML = (S.name ? esc(S.name) : '<span class="ph">Tape le nom du client…</span>') + '<i class="caret"></i>';
+        $('nameBox').innerHTML = (S.name ? esc(S.name) : '<span class="ph">Nom ou prénom du client…</span>') + '<i class="caret"></i>';
         sizeName($('nameBox'), S.name);
         const q = S.name.trim();
         if (q.length < 2) {
@@ -526,7 +547,7 @@
     function renderSuggestions() {
         const q = S.name.trim();
         if (q.length < 2) {
-            $('found').textContent = 'Tape au moins 2 lettres pour voir les clients connus.';
+            $('found').textContent = 'Tape au moins 2 lettres du nom ou du prénom pour voir les clients connus.';
             $('sugg').hidden = true;
             return;
         }
@@ -540,8 +561,7 @@
         }
         const exact = hits.some(h => plain(h.name) === plain(q.toUpperCase()));
         $('sugg').innerHTML = hits.slice(0, 5).map(h => {
-            const k = Math.min(q.length, h.name.length);
-            return `<button class="sg" type="button" data-id="${h.id}"><span><mark>${esc(h.name.slice(0, k))}</mark>${esc(h.name.slice(k))}${h.member ? '<span class="mb">membre</span>' : ''}</span><small>${seen(h.lastSeen)}</small></button>`;
+            return `<button class="sg" type="button" data-id="${h.id}"><span>${highlight(h.name, q.toUpperCase())}${h.member ? '<span class="mb">membre</span>' : ''}</span><small>${seen(h.lastSeen)}</small></button>`;
         }).join('') + (exact ? '' : `<button class="sg create" type="button" data-create="1">+ Créer « ${esc(q.toUpperCase())} » comme nouveau client</button>`);
     }
 
@@ -554,7 +574,6 @@
             const d = await api('tickets', body);
             S.tickets.push(d.ticket);
             S.current = d.ticket.id;
-            S.method = 'cash';
             S.nextNumber = String(parseInt(d.ticket.number, 10) + 1).padStart(4, '0');
             renderCounts();
             setMode('ticket');
@@ -614,7 +633,7 @@
 
     $('list').addEventListener('click', e => {
         const o = e.target.closest('[data-open]');
-        if (o) { S.current = +o.dataset.open; S.method = 'cash'; setMode('ticket'); return; }
+        if (o) { S.current = +o.dataset.open; setMode('ticket'); return; }
         const c = e.target.closest('[data-cancel]');
         if (c) { const t = S.tickets.find(x => x.id === +c.dataset.cancel); if (t) cancelTicket(t); }
     });
@@ -834,7 +853,7 @@
     window.addEventListener('online', pollBar);
     // Rafraîchit la liste des tickets si un autre appareil a travaillé sur le même service
     setInterval(() => {
-        if (!pending && $('modal').hidden && ['ticket', 'list'].includes(S.mode)) refresh(true).catch(() => {});
+        if (!pending && $('modal').hidden && $('payModal').hidden && ['ticket', 'list'].includes(S.mode)) refresh(true).catch(() => {});
     }, 20000);
     // Retour d'une impression : on rouvre le ticket qui était affiché
     const back = new URLSearchParams(location.search).get('ticket');

@@ -18,7 +18,8 @@ class BarClientModel extends Model
     }
 
     /**
-     * Suggestions de l'autocomplétion : début du nom, 8 au maximum, membres puis passages récents.
+     * Suggestions de l'autocomplétion : début du nom de famille ou du prénom (« NOM PRÉNOM »), 8 au maximum,
+     * ceux qui commencent par la saisie d'abord.
      * La collation utf8mb4_general_ci ignore les accents : « FRANCOIS » trouve « FRANÇOIS ».
      */
     public function search(string $query, int $limit = 8): array
@@ -27,9 +28,14 @@ class BarClientModel extends Model
         if (mb_strlen($query) < 2) {
             return [];
         }
+        $starts = $this->db->escape($this->db->escapeLikeString($query) . '%');
 
         return $this->select('id, name, member_id, last_visit_at')
-            ->like('name', $query, 'after')
+            ->groupStart()
+                ->like('name', $query, 'after')
+                ->orLike('name', ' ' . $query, 'both')
+            ->groupEnd()
+            ->orderBy("name LIKE {$starts} ESCAPE '!' DESC", '', false)
             ->orderBy('name')
             ->orderBy('last_visit_at', 'DESC')
             ->findAll($limit);
