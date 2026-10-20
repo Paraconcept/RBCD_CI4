@@ -308,6 +308,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('admin/caisse/stocks') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/caisse/stocks') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Stocks</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('admin/caisse/parametres') ?>"
                                class="nav-link <?= strpos(uri_string(), 'admin/caisse/parametres') === 0 ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>
