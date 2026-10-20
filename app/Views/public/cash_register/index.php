@@ -97,7 +97,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
                 </div>
             </div>
             <div class="scroll" id="cardsWrap"><div class="cards" id="cards"></div></div>
-            <div class="note"><i></i>Chaque ticket ouvert doit être réglé ou annulé avant la clôture du service.</div>
+            <div class="note" id="listNote"><i></i><span>Chaque ticket ouvert doit être réglé ou annulé avant la clôture du service.</span></div>
             <div class="foot">
                 <button class="ghost" type="button" data-go="history"><i class="far fa-list-alt"></i>Historique du service</button>
                 <button class="ghost" type="button" data-go="close" id="btnGoClose" title="Tous les tickets ouverts doivent être réglés ou annulés"><i class="fas fa-key"></i>Clôturer le service</button>

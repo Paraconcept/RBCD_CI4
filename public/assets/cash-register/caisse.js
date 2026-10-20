@@ -161,7 +161,12 @@
             el.classList.toggle('zero', !S.tickets.length);
         });
         // Même règle que le serveur : pas de clôture tant qu'un ticket est ouvert
-        $('btnGoClose').disabled = S.tickets.length > 0;
+        const canClose = !S.tickets.length;
+        $('btnGoClose').disabled = !canClose;
+        $('listNote').classList.toggle('ok', canClose);
+        $('listNote').lastElementChild.textContent = canClose
+            ? 'Aucun ticket ouvert : tous les tickets sont réglés ou annulés.'
+            : 'Chaque ticket ouvert doit être réglé ou annulé avant la clôture du service.';
     }
 
     function tickClock() {
