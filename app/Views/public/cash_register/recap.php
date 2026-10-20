@@ -14,12 +14,11 @@ $byCategory = [];
 foreach ($sales as $row) {
     $byCategory[$row->category][] = $row;
 }
-$half  = (int) ceil(count($tickets) / 2);
 $short = static function (string $name): string {
     $parts = explode(' ', $name, 2);
     return isset($parts[1]) ? $parts[0] . ' ' . mb_substr($parts[1], 0, 1) . '.' : $name;
 };
-$methods = ['cash' => 'Espèces', 'bancontact' => 'Bancont.'];
+$methods = ['cash' => 'Espèces', 'bancontact' => 'Bancontact'];
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -61,7 +60,10 @@ td, th { vertical-align: top; }
 .tk td { padding: .55mm .8mm .55mm 0; border-bottom: .5px solid #e4e3ec; white-space: nowrap; }
 .tk tr.x td { color: #84252B; text-decoration: line-through; }
 .tk tr.x td:last-child { text-decoration: none; }
-.treas { margin-top: 7mm; border: 1.5px solid #121826; padding: 3mm 4mm 4mm; }
+/* Grosse soirée : lignes resserrées pour garder la liste et le cadre du trésorier sur une page aussi longtemps que possible */
+.tk.dense td { padding-top: .2mm; padding-bottom: .2mm; }
+.tk tr { break-inside: avoid; page-break-inside: avoid; }
+.treas { margin-top: 7mm; border: 1.5px solid #121826; padding: 3mm 4mm 4mm; break-inside: avoid; page-break-inside: avoid; }
 .fill td { padding-top: 5mm; white-space: nowrap; padding-right: 2mm; font-weight: bold; }
 .fill td.line { border-bottom: 1px dotted #121826; width: 22%; }
 .foot { margin-top: 4mm; text-align: center; font-size: 7pt; color: #5d6478; }
@@ -137,7 +139,7 @@ td, th { vertical-align: top; }
 
 <table class="cols"><tbody>
     <tr>
-        <td style="width:30%">
+        <td style="width:45%">
             <div class="h">Ventes payées</div>
             <table class="sales">
                 <tr><th>Produit · prix</th><th class="r" style="width:9mm">Qté</th><th class="r" style="width:17mm">Total</th></tr>
@@ -150,26 +152,20 @@ td, th { vertical-align: top; }
                 <tr class="sum"><td colspan="2">Total</td><td class="r"><?= $eur($s['total']) ?></td></tr>
             </table>
         </td>
-        <td style="width:70%">
+        <td style="width:55%">
             <div class="h">Tickets du service</div>
-            <table><tbody><tr>
-                <?php foreach ([array_slice($tickets, 0, $half), array_slice($tickets, $half)] as $i => $part): ?>
-                <td style="width:50%;<?= $i ? 'padding-left:2mm' : 'padding-right:2mm' ?>">
-                    <table class="tk">
-                        <tr><th style="width:11%">N°</th><th style="width:12%">Heure</th><th style="width:36%">Client</th><th style="width:20%">Mode</th><th class="r" style="width:21%">Montant</th></tr>
-                        <?php foreach ($part as $t): $x = $t->status !== 'paid'; ?>
-                        <tr class="<?= $x ? 'x' : '' ?>">
-                            <td><?= BarTicketModel::formatNumber((int) $t->number) ?></td>
-                            <td><?= $fmt($t->paid_at ?? $t->cancelled_at ?? $t->opened_at) ?></td>
-                            <td><?= esc($short($t->client_name)) ?></td>
-                            <td><?= $t->status === 'paid' ? $methods[$t->payment_method] : ($t->status === 'cancelled' ? 'Annulé' : 'Ouvert') ?></td>
-                            <td class="r"><?= $t->status === 'paid' ? $eur($t->total) : '—' ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </td>
+            <table class="tk<?= count($tickets) > 30 ? ' dense' : '' ?>">
+                <tr><th style="width:12%">N°</th><th style="width:12%">Heure</th><th style="width:40%">Client</th><th style="width:18%">Mode</th><th class="r" style="width:18%">Montant</th></tr>
+                <?php foreach ($tickets as $t): $x = $t->status !== 'paid'; ?>
+                <tr class="<?= $x ? 'x' : '' ?>">
+                    <td><?= BarTicketModel::formatNumber((int) $t->number) ?></td>
+                    <td><?= $fmt($t->paid_at ?? $t->cancelled_at ?? $t->opened_at) ?></td>
+                    <td><?= esc($short($t->client_name)) ?></td>
+                    <td><?= $t->status === 'paid' ? $methods[$t->payment_method] : ($t->status === 'cancelled' ? 'Annulé' : 'Ouvert') ?></td>
+                    <td class="r"><?= $t->status === 'paid' ? $eur($t->total) : '—' ?></td>
+                </tr>
                 <?php endforeach; ?>
-            </tr></tbody></table>
+            </table>
         </td>
     </tr>
 </tbody></table>
