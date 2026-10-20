@@ -215,6 +215,8 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('caisse/services',                           'Admin\BarServicesController::index');
         $routes->post('caisse/services/(:num)/cloturer',           'Admin\BarServicesController::close/$1');
         $routes->post('caisse/services/(:num)/supprimer',          'Admin\BarServicesController::delete/$1');
+        $routes->get ('caisse/parametres',                         'Admin\BarSettingsController::index');
+        $routes->post('caisse/parametres',                         'Admin\BarSettingsController::save');
         $routes->get ('caisse/howto',                              'Admin\BarServicesController::howto/admin');
         $routes->get ('caisse/howto-caisse',                       'Admin\BarServicesController::howto/caisse');
 

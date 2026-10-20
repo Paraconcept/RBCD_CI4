@@ -308,6 +308,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('admin/caisse/parametres') ?>"
+                               class="nav-link <?= strpos(uri_string(), 'admin/caisse/parametres') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Paramètres</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('caisse') ?>" target="_blank" class="nav-link">
                                 <i class="fas fa-external-link-alt nav-icon"></i>
                                 <p>Ouvrir la caisse</p>

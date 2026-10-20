@@ -255,8 +255,7 @@ class CashRegisterController extends BaseController
 
     private function nextNumberPreview(): string
     {
-        $row = $this->tickets->selectMax('number')->first();
-        return BarTicketModel::formatNumber((int) ($row->number ?? 0) + 1);
+        return BarTicketModel::formatNumber($this->tickets->nextNumber(false));
     }
 
     private function serviceJson(object $s): array
