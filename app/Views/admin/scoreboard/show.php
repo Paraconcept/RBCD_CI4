@@ -35,7 +35,7 @@ $ranks = $trio && $match->status === 'finished' ? M::storedRanking($match) : [];
         <tr class="<?= (int) $match->winner === $n ? 'font-weight-bold' : '' ?>">
           <?php if ($ranks): ?><td class="text-center"><?= $ranks[$n] === 1 ? '1er' : $ranks[$n] . 'e' ?></td><?php endif; ?>
           <td>
-            <?= (int) $match->starting_player === $n ? '<i class="fas fa-circle mr-1" title="A cassé" style="color:' . ($n === 1 ? '#bbb' : '#f5c400') . '"></i>' : '' ?>
+            <?= (int) $match->starting_player === $n ? '<i class="fas fa-circle mr-1" title="A commencé" style="color:' . ($n === 1 ? '#bbb' : '#f5c400') . '"></i>' : '' ?>
             <?= esc(M::playerLabel($match, $p)) ?>
             <?= (int) $match->winner === $n ? '<i class="fas fa-trophy ml-1 text-warning"></i>' : '' ?>
           </td>

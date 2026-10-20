@@ -449,13 +449,13 @@
               <li><b>Reprises inégales</b> se coche toute seule : un set s'arrête dès qu'un joueur atteint ses points, sans reprise d'égalisation.</li>
               <li><b>Chrono par coup</b> : le nombre de time-outs choisi vaut <b>par joueur et par set</b>.</li>
             </ol>
-            <div class="mh-note orange mt-3"><b>Qui casse ?</b> — le joueur qui commence le 1<sup>er</sup> set garde la <b>bille blanche</b> toute la partie. Le joueur à la bille jaune casse le 2<sup>e</sup> set, et ainsi de suite, à tour de rôle.</div>
+            <div class="mh-note orange mt-3"><b>Qui commence ?</b> — le joueur qui commence le 1<sup>er</sup> set garde la <b>bille blanche</b> toute la partie. Le joueur à la bille jaune commence le 2<sup>e</sup> set, et ainsi de suite, à tour de rôle.</div>
             <div class="mh-note green"><b>Exemple</b> — 2 sets gagnants de 15 points : le premier joueur à remporter 2 sets gagne la partie (2-0 ou 2-1).</div>
           </div>
         </div>
         <div class="row g-4 mb-3">
           <div class="col-md-4"><img class="mh-shot" src="<?= $img('16_sets_marquoir') ?>" alt="Marquoir pendant un set"><div class="mh-caption">Pendant un set : le n° du set et le score en sets au centre.</div></div>
-          <div class="col-md-4"><img class="mh-shot" src="<?= $img('17_sets_pause') ?>" alt="Fin d'un set"><div class="mh-caption">Fin d'un set : le résumé et qui casse le set suivant.</div></div>
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('17_sets_pause') ?>" alt="Fin d'un set"><div class="mh-caption">Fin d'un set : le résumé et qui commence le set suivant.</div></div>
           <div class="col-md-4"><img class="mh-shot" src="<?= $img('18_sets_resultat') ?>" alt="Résultat d'une partie par sets"><div class="mh-caption">Fin de partie : le détail de chaque set.</div></div>
         </div>
         <div class="row g-3">

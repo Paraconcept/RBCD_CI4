@@ -198,7 +198,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
             <input type="checkbox" class="custom-control-input" name="sets_enabled" id="sets_enabled" value="1" <?= $setsOn ? 'checked' : '' ?>>
             <label class="custom-control-label" for="sets_enabled">Par sets</label>
           </div>
-          <small class="text-muted">Toujours à reprises inégales. Le joueur qui casse le 1<sup>er</sup> set garde la bille blanche ; les sets sont cassés à tour de rôle.
+          <small class="text-muted">Toujours à reprises inégales. Le joueur qui commence le 1<sup>er</sup> set garde la bille blanche ; les joueurs commencent les sets à tour de rôle.
             Les <b>points par set</b> de chaque joueur se règlent dans sa fiche (ils peuvent être différents).</small>
         </div>
         <div class="col-md-4" data-sb-show-when="sets_enabled">

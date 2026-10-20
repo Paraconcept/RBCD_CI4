@@ -371,7 +371,7 @@ class ScoreboardMatchModel extends Model
 
     /**
      * Enregistre l'état envoyé par le marquoir.
-     * $points : séries dans l'ordre chronologique (le joueur qui casse joue les index pairs).
+     * $points : séries dans l'ordre chronologique (le joueur qui commence joue les index pairs).
      * Un état plus ancien que celui en base est ignoré (rejeu après coupure réseau).
      */
     public function applyState(object $match, array $state): int
@@ -474,7 +474,7 @@ class ScoreboardMatchModel extends Model
         return array_map(static fn (int $n): string => 'p' . $n, self::playerNumbers($m));
     }
 
-    /** Joueur qui casse un set : celui qui a commencé la partie garde la bille blanche, les sets alternent. */
+    /** Joueur qui commence un set : celui qui a commencé la partie garde la bille blanche, les sets alternent. */
     public static function setStarter(int $starter, int $setNo): int
     {
         return $setNo % 2 === 1 ? $starter : ($starter === 1 ? 2 : 1);
@@ -483,7 +483,7 @@ class ScoreboardMatchModel extends Model
     /**
      * Découpe les séries chronologiques en reprises numérotées (par set en jeu par sets).
      * Un set s'arrête dès qu'un joueur atteint ses points (reprises inégales), le suivant
-     * est cassé par l'autre joueur. À 3 joueurs, rotation 1 → 2 → 3 depuis celui qui casse.
+     * est commencé par l'autre joueur. À 3 joueurs, rotation 1 → 2 → 3 depuis celui qui commence.
      * Doit rester identique à walk() de scoreboard-display.js.
      *
      * @return array{rows: list<array{set:int, inning:int, player:int, points:int}>, won: array{1:int, 2:int}}

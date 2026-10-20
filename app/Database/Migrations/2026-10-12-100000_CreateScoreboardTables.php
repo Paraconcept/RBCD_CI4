@@ -56,7 +56,7 @@ class CreateScoreboardTables extends Migration
             'shot_clock_enabled' => ['type' => 'TINYINT', 'constraint' => 1, 'default' => 0],
             'shot_clock_seconds' => ['type' => 'INT', 'constraint' => 4, 'default' => 40],
         ], $player('p1'), $player('p2'), [
-            // 1 ou 2 : le joueur qui casse ; la reprise courante se lit depuis ses reprises
+            // 1 ou 2 : le joueur qui commence ; la reprise courante se lit depuis ses reprises
             'starting_player'    => ['type' => 'TINYINT', 'constraint' => 1, 'null' => true],
             'current_run'        => ['type' => 'INT', 'constraint' => 5, 'default' => 0],
             'winner'             => ['type' => 'TINYINT', 'constraint' => 1, 'null' => true],

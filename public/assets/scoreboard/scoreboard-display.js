@@ -58,9 +58,9 @@
         return s;
     }
 
-    // Le joueur qui casse le 1er set garde la bille blanche ; les sets sont cassés à tour de rôle
+    // Le joueur qui commence le 1er set garde la bille blanche ; les joueurs commencent les sets à tour de rôle
     const setStarter = (n) => (n % 2 === 1 ? S : O);
-    // Joueur de la k-ième série d'un set (k depuis 0) : rotation à partir de celui qui casse
+    // Joueur de la k-ième série d'un set (k depuis 0) : rotation à partir de celui qui commence
     const seriesPlayer = (first, k) => (first - 1 + k) % N + 1;
 
     /*
@@ -110,7 +110,7 @@
         return st.finished ? Math.ceil(n / N) : Math.floor(n / N) + 1;
     }
 
-    // Reprises affichées : le compteur avance quand le joueur qui a cassé termine sa série (Entrée vers l'adversaire),
+    // Reprises affichées : le compteur avance quand le joueur qui a commencé termine sa série (Entrée vers l'adversaire),
     // comme sur les marquoirs classiques — 0 avant la première série, puis 1 pendant que l'adversaire joue, etc.
     const inningsShown = () => Math.ceil(walk().inSet / N);
 
@@ -520,7 +520,7 @@
         if (clock.expired && !st.finished) notice = 'Temps écoulé\nEntrée pour passer la main';
         else if (notice) { /* message temporaire prioritaire */ }
         else if (isEqualizing()) notice = "Reprise d'égalisation";
-        else if (SETS && !st.finished && w.set > 1 && w.inSet === 0 && st.run === 0) notice = C.players[setStarter(w.set)].last + ' casse le set ' + w.set;
+        else if (SETS && !st.finished && w.set > 1 && w.inSet === 0 && st.run === 0) notice = C.players[setStarter(w.set)].last + ' commence le set ' + w.set;
         else if (!st.finished && C.inningsLimit && inningNumber() === C.inningsLimit) notice = 'Dernière reprise';
         $('sbdNotice').textContent = notice;
 
@@ -556,7 +556,7 @@
         $('sbdSetBreakWinner').style.color = sum.winner === 2 ? 'var(--sb-p2)' : 'var(--sb-p1)';
         $('sbdSetBreakScore').innerHTML = $('sbdSetsScore').innerHTML;
         fillRows($('sbdSetBreakRows'), [1, 2].map((p) => [name(p), sum[p].pts, sum[p].inn, fmtAvg(sum[p].pts, sum[p].inn), sum[p].hr]));
-        $('sbdSetBreakNext').textContent = C.players[next].last + ' casse le set ' + (setBreak + 1)
+        $('sbdSetBreakNext').textContent = C.players[next].last + ' commence le set ' + (setBreak + 1)
             + ' (bille ' + (next === 1 ? 'blanche' : 'jaune') + ')';
         $('sbdSetBreakKey').textContent = 'commencer le set ' + (setBreak + 1);
     }

@@ -63,7 +63,7 @@
                             <input class="form-check-input" type="checkbox" role="switch" name="sets_enabled" id="sets_enabled" value="1" <?= old('sets_enabled') ? 'checked' : '' ?>>
                             <label class="form-check-label" for="sets_enabled">Par sets</label>
                         </div>
-                        <small class="text-secondary">Toujours à reprises inégales. Le joueur qui casse le 1<sup>er</sup> set garde la bille blanche ; les sets sont cassés à tour de rôle.</small>
+                        <small class="text-secondary">Toujours à reprises inégales. Le joueur qui commence le 1<sup>er</sup> set garde la bille blanche ; les joueurs commencent les sets à tour de rôle.</small>
                     </div>
                     <div class="col-md-4" data-sb-show-when="sets_enabled">
                         <label class="form-label" for="sets_to_win">Sets gagnants</label>
