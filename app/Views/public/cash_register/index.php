@@ -143,7 +143,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
                     <div class="sub" id="cHint">Compte le tiroir, glisse l'argent et le récapitulatif dans l'enveloppe, puis note son numéro dessus.</div>
                 </div>
                 <div class="warn" id="cWarn">Après la clôture, plus aucun ticket ne peut être ajouté, modifié ou supprimé pour ce service.</div>
-                <button class="btn orange" type="button" id="btnClose">Clôturer le service</button>
+                <button class="btn orange" type="button" id="btnClose"><i class="fas fa-key"></i>Clôturer le service</button>
                 <button class="btn outline" type="button" id="btnRecap" hidden>Imprimer le récapitulatif</button>
                 <button class="btn link" type="button" id="btnCloseBack">Retour aux tickets en cours</button>
             </div>
