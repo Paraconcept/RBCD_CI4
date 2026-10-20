@@ -14,6 +14,11 @@
         '.sbbar-title{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:3.2rem;line-height:1.1}' +
         '.sbbar-text{font-size:1.4rem;margin-top:1rem;color:#8b96ad}' +
         '.sbbar-text kbd{font-size:1.2rem}' +
+        '.sbbar-btns{display:flex;gap:1.5rem;justify-content:center;margin-top:2rem}' +
+        '.sbbar-btn{display:flex;align-items:center;gap:.9rem;min-width:13rem;justify-content:center;padding:1rem 1.8rem;border:0;border-radius:16px;cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:2.2rem;color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.35)}' +
+        '.sbbar-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.35)}' +
+        '.sbbar-btn.yes{background:#16a34a}.sbbar-btn.no{background:#dc2626}' +
+        '.sbbar-btn kbd{font-family:Barlow,sans-serif;font-size:1.5rem;font-weight:700;background:#fff;color:#111;border-radius:10px;padding:.35rem .8rem;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}' +
         '.sbbar.ok .sbbar-box{border-color:#22c55e}.sbbar.err .sbbar-box{border-color:#ef4444}';
     document.head.appendChild(style);
 
@@ -24,7 +29,14 @@
     const title = box.querySelector('.sbbar-title'), text = box.querySelector('.sbbar-text');
 
     let mode = null; // 'ask' | 'sending' | 'result'
+
     let timer = null;
+
+    box.addEventListener('click', function (e) {
+        const b = e.target.closest('[data-bar]');
+        if (!b || mode !== 'ask') return;
+        if (b.dataset.bar === 'yes') send(); else hide();
+    });
 
     function show(m, cls, t, html) {
         mode = m;
@@ -70,7 +82,10 @@
 
         if (mode === null) {
             show('ask', '', '<i class="fas fa-beer-mug-empty me-2"></i>Appeler le bar ?',
-                '<kbd>Entrée</kbd> oui &nbsp;·&nbsp; <kbd>⌫</kbd> non');
+                '<div class="sbbar-btns">' +
+                '<button type="button" class="sbbar-btn yes" data-bar="yes"><kbd>Entrée</kbd>Oui</button>' +
+                '<button type="button" class="sbbar-btn no" data-bar="no"><kbd>⌫</kbd>Non</button>' +
+                '</div>');
             timer = setTimeout(hide, 10000);
             return;
         }
