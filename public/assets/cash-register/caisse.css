@@ -57,7 +57,14 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 @keyframes nudge { 50% { box-shadow: 0 0 0 .3rem rgba(217,130,43,.3); } }
 .side.new { grid-template-rows: auto auto auto auto auto 1fr; align-content: stretch; }
 .side.open { display: flex; flex-direction: column; }
-.side.open #btnOpen { margin-top: auto; }
+.side.open #btnOpen, #btnCloseGo { margin-top: auto; }
+#sideCloser .btn.orange { background: var(--badge); border-color: var(--badge); color: var(--badge-fg); }
+.namebox.idle { border-color: var(--line); }
+.found.good { color: #15803d; font-weight: 700; }
+.found.warn { color: #b45309; font-weight: 700; }
+.keys.numpad { width: min(100%, 34rem); justify-self: center; }
+.keys.numpad .krow { grid-template-columns: repeat(3, 1fr); }
+.keys.numpad .key { font-size: 2rem; }
 .side.open .sugg { align-self: stretch; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
 .btn { height: 2.9rem; border-radius: .75rem; border: .125rem solid var(--line); background: var(--panel); font: 700 .92rem var(--f-body); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: 0 .6rem; white-space: nowrap; }

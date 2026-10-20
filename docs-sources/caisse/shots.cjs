@@ -29,6 +29,9 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
   const keyHolders = sql("select m.id, concat(upper(m.last_name), ' ', upper(m.first_name)) from members_keys mk join members m on m.id = mk.member_id where mk.returned_date is null and m.is_active = 1 order by m.last_name limit 3")
     .split('\n').map(l => l.split('\t'));
   const realBarman = keyHolders[0][1];
+  // Vrai nom → nom fictif, pour tous les détenteurs de clés utilisés (celui qui ouvre, celui qui clôture)
+  const NAME_PAIRS = keyHolders.map(([, real], i) => [real, FAKE_BARMEN[i]]);
+  const fakeNames = (s) => NAME_PAIRS.reduce((t, [real, f]) => t.split(real).join(f), s);
   sql("insert into bar_calls (table_id, called_at) select id, now() - interval 4 minute from scoreboard_tables where name = 'Billard 1'");
   sql("insert into bar_calls (table_id, called_at) select id, now() - interval 70 second from scoreboard_tables where name = 'Billard 4'");
 
@@ -65,7 +68,7 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     if (url.includes('/caisse/api/')) {
       try {
         const r = await fetch(url, { method: req.method(), headers: req.headers(), body: req.postData() });
-        const text = (await r.text()).split(realBarman).join(FAKE_BARMEN[0]);
+        const text = fakeNames(await r.text());
         return req.respond({ status: r.status, contentType: 'application/json', body: text });
       } catch (e) { return req.continue(); }
     }
@@ -97,6 +100,7 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     await tap('#unlock');
     await keys('MA');
     await tap('#bmSugg .sg');
+    await keys('200');
     await shot('c01_ouverture');
     await tap('#btnOpen');
     await wait(800);
@@ -164,7 +168,14 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     await tap('#list [data-go="close"]');
     await wait(700);
     await shot('c09_cloture');
+    // « Qui clôture ? » : celui qui a ouvert est pré-rempli ; ici, un autre détenteur de clé prend le relais
     await tap('#btnClose');
+    await wait(600);
+    await tap('.key[data-k="CANCEL"]');
+    await keys('MAS');
+    await tap('#clSugg .sg');
+    await shot('c09_qui_cloture');
+    await tap('#btnCloseGo');
     await wait(300);
     await shot('c10_cloture_confirmer');
     await tap('#mYes');
@@ -176,7 +187,7 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     await p.setViewport({ width: 1100, height: 1400, deviceScaleFactor: 2 });
     for (const [url, sel, name] of [[`caisse/service/${serviceId}/recapitulatif`, '.sheet', 'c12_recapitulatif'], [`caisse/ticket/${dupontTicket}/imprimer`, '.ticket', 'c13_ticket_client']]) {
       await p.goto(`${BASE}/${url}`, { waitUntil: 'networkidle0' });
-      await p.evaluate((real, fake) => { document.body.innerHTML = document.body.innerHTML.split(real).join(fake); }, realBarman, FAKE_BARMEN[0]);
+      await p.evaluate((pairs) => { pairs.forEach(([real, fake]) => { document.body.innerHTML = document.body.innerHTML.split(real).join(fake); }); }, NAME_PAIRS);
       const el = await p.$(sel);
       await el.screenshot({ path: `${out}/${name}.png` });
       console.log(name);
@@ -204,7 +215,7 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
           document.querySelectorAll('.dataTables_info, .dataTables_paginate').forEach(e => e.remove());
           document.querySelectorAll('#clientsTable select option').forEach(o => { if (o.value && !fake.some(f => o.textContent.startsWith(f))) o.remove(); });
         }
-        if (o.replace) document.querySelector('.content-wrapper').innerHTML = document.querySelector('.content-wrapper').innerHTML.split(o.replace[0]).join(o.replace[1]);
+        if (o.replace) o.replace.forEach(([real, f]) => { document.querySelector('.content-wrapper').innerHTML = document.querySelector('.content-wrapper').innerHTML.split(real).join(f); });
         if (o.menu) {
           const a = [...document.querySelectorAll('.nav-sidebar a.nav-link')].find(x => /Caisse du bar/.test(x.textContent));
           a.parentElement.classList.add('menu-open');
@@ -225,7 +236,7 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     await admin('admin/caisse/services', 'a00_menu', { menu: true, h: 900 });
     await admin('admin/caisse/catalogue', 'a01_catalogue', { h: 1100 });
     await admin('admin/caisse/clients', 'a02_clients', { clients: true });
-    await admin('admin/caisse/services', 'a03_services', { replace: [realBarman, FAKE_BARMEN[0]] });
+    await admin('admin/caisse/services', 'a03_services', { replace: NAME_PAIRS });
   } finally {
     await b.close();
     // Nettoyage : rien de la démonstration ne reste en base

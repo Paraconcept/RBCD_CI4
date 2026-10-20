@@ -14,12 +14,15 @@ class BarServiceModel extends Model
     // Le formulaire Trésorerie › Enveloppes accepte les numéros 01 à 05
     public const MAX_PER_DAY = 5;
 
+    // Fond de caisse qui reste dans le tiroir d'un service à l'autre, compté à chaque ouverture
+    public const OPENING_FLOAT = 200.00;
+
     protected $table         = 'bar_services';
     protected $primaryKey    = 'id';
     protected $returnType    = 'object';
     protected $useTimestamps = true;
     protected $allowedFields = [
-        'service_date', 'period', 'number', 'envelope_code', 'status', 'bartender_member_id',
+        'service_date', 'period', 'number', 'envelope_code', 'status', 'bartender_member_id', 'opening_float',
         'opened_at', 'closed_at', 'closed_by_member_id', 'paid_count', 'cancelled_count',
         'cash_total', 'bancontact_total', 'vat_b_total', 'vat_g_total',
     ];

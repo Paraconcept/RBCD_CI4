@@ -46,11 +46,29 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
                 <div class="env"><span>Enveloppe</span><b id="envCode"></b></div>
             </div>
             <div class="okline" id="lastClosed" hidden><i></i><span></span></div>
-            <div class="nlabel">Barman · ton nom</div>
+            <div class="nlabel">1 · Qui ouvre ? · ton nom</div>
             <div class="namebox small" id="bmBox"></div>
             <div class="found" id="bmFound"></div>
             <div class="sugg" id="bmSugg"></div>
+            <div class="nlabel" id="fundLabel"></div>
+            <div class="namebox small" id="fundBox"></div>
+            <div class="found" id="fundFound"></div>
             <button class="btn primary big" type="button" id="btnOpen" disabled>Ouvrir le service</button>
+        </aside>
+
+        <!-- clôture : qui clôture -->
+        <aside class="side open" id="sideCloser" hidden>
+            <div class="nlabel">Clôture du service</div>
+            <div class="svc-card">
+                <div class="d" id="clSvc"></div>
+                <div class="env"><span>Enveloppe</span><b id="clEnv"></b></div>
+            </div>
+            <div class="nlabel">Qui clôture ? · ton nom</div>
+            <div class="namebox small" id="clBox"></div>
+            <div class="found" id="clFound"></div>
+            <div class="sugg" id="clSugg"></div>
+            <button class="btn orange big" type="button" id="btnCloseGo" disabled><span><i class="fas fa-key"></i> Clôturer le service</span></button>
+            <button class="btn" type="button" data-go="close">Retour au résumé</button>
         </aside>
 
         <!-- caisse -->

@@ -31,7 +31,7 @@ $totals = ['cash' => 0.0, 'bc' => 0.0, 'paid' => 0];
     <table class="table table-sm table-bordered table-hover" id="servicesTable">
       <thead class="thead-rbcd">
         <tr>
-          <th>Date</th><th>Service</th><th>Enveloppe</th><th>Barman</th><th class="text-center">Tickets</th>
+          <th>Date</th><th>Service</th><th>Enveloppe</th><th>Ouvert par</th><th>Clôturé par</th><th class="text-right">Fond de caisse</th><th class="text-center">Tickets</th>
           <th class="text-right">Espèces attendues</th><th class="text-right">Bancontact</th><th class="text-right">Total</th><th>État</th><th class="text-right">Actions</th>
         </tr>
       </thead>
@@ -47,6 +47,8 @@ $totals = ['cash' => 0.0, 'bc' => 0.0, 'paid' => 0];
           <td><?= BarServiceModel::PERIODS[$s->period] ?></td>
           <td><b><?= esc($s->envelope_code) ?></b></td>
           <td><?= esc(mb_strtoupper((string) $s->bartender_name, 'UTF-8')) ?></td>
+          <td><?= $open ? '<span class="text-muted">—</span>' : esc(mb_strtoupper((string) ($s->closer_name ?: '—'), 'UTF-8')) ?></td>
+          <td class="text-right"><?php if ($s->opening_float === null): ?><span class="text-muted">—</span><?php else: $floatOk = abs((float) $s->opening_float - BarServiceModel::OPENING_FLOAT) < 0.005; ?><span class="<?= $floatOk ? '' : 'text-warning font-weight-bold' ?>" title="<?= $floatOk ? '' : 'Différent de ' . esc($eur(BarServiceModel::OPENING_FLOAT)) ?>"><?= $eur($s->opening_float) ?></span><?php endif; ?></td>
           <td class="text-center"><?= (int) $s->paid_count ?><?= (int) $s->cancelled_count ? ' <span class="text-muted small">(+' . (int) $s->cancelled_count . ' annulé' . ((int) $s->cancelled_count > 1 ? 's' : '') . ')</span>' : '' ?></td>
           <td class="text-right"><b><?= $eur($s->cash_total) ?></b></td>
           <td class="text-right"><?= $eur($s->bancontact_total) ?></td>
@@ -78,7 +80,7 @@ $totals = ['cash' => 0.0, 'bc' => 0.0, 'paid' => 0];
       </tbody>
       <tfoot>
         <tr class="font-weight-bold">
-          <td colspan="4">Total <?= $year ?></td>
+          <td colspan="6">Total <?= $year ?></td>
           <td class="text-center"><?= $totals['paid'] ?></td>
           <td class="text-right"><?= $eur($totals['cash']) ?></td>
           <td class="text-right"><?= $eur($totals['bc']) ?></td>

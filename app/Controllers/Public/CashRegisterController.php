@@ -59,6 +59,7 @@ class CashRegisterController extends BaseController
                 'lateAfter'   => self::LATE_AFTER_MINUTES,
                 'ticketPrinter' => self::TICKET_PRINTER,
                 'eveningFrom' => BarServiceModel::EVENING_FROM,
+                'openingFloat' => BarServiceModel::OPENING_FLOAT,
                 'api'         => base_url('caisse/api/'),
                 'print'       => base_url('caisse/'),
                 'bar'         => [
@@ -131,7 +132,8 @@ class CashRegisterController extends BaseController
     public function openService()
     {
         return $this->run(fn () => ['service' => $this->serviceJson(
-            $this->register->openService((string) $this->input('period'), (int) $this->input('member_id'))
+            $this->register->openService((string) $this->input('period'), (int) $this->input('member_id'),
+                is_numeric($this->input('opening_float')) ? (float) $this->input('opening_float') : null)
         )]);
     }
 
@@ -150,7 +152,11 @@ class CashRegisterController extends BaseController
         if (!$service) {
             return $this->fail('Aucun service ouvert.');
         }
-        return $this->run(fn () => ['service' => $this->serviceJson($this->register->closeService((int) $service->id))]);
+        $closerId = (int) $this->input('member_id');
+        if (!$closerId) {
+            return $this->fail('Choisissez dans la liste la personne qui clôture.');
+        }
+        return $this->run(fn () => ['service' => $this->serviceJson($this->register->closeService((int) $service->id, $closerId))]);
     }
 
     public function history()
@@ -268,6 +274,8 @@ class CashRegisterController extends BaseController
             'envelope'  => $s->envelope_code,
             'status'    => $s->status,
             'bartender' => $s->bartender_name ? mb_strtoupper($s->bartender_name, 'UTF-8') : null,
+            'bartenderId' => $s->bartender_member_id ? (int) $s->bartender_member_id : null,
+            'closer'    => $s->closer_name ? mb_strtoupper($s->closer_name, 'UTF-8') : null,
             'openedAt'  => substr((string) $s->opened_at, 11, 5),
             'closedAt'  => $s->closed_at ? substr((string) $s->closed_at, 11, 5) : null,
         ];

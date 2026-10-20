@@ -31,6 +31,7 @@
         mode: null, service: null, tickets: [], current: null, nextNumber: '0001', lastClosed: null,
         cat: C.catalog.length ? C.catalog[0].id : null, clockSkew: 0,
         name: '', bm: '', bmPicked: null, period: null, bartenders: [], accents: false,
+        kb: 'bm', fund: '', cl: '', clPicked: null, closers: [],
         closedService: null, nextEnvelope: null,
     };
 
@@ -128,6 +129,7 @@
         open:    ['kb', 'sideOpen'],
         ticket:  ['left', 'sideTicket'],
         new:     ['kb', 'sideNew'],
+        closer:  ['kb', 'sideCloser'],
         list:    ['list'],
         history: ['history'],
         close:   ['close'],
@@ -136,7 +138,7 @@
     function setMode(m) {
         if (m !== 'open' && m !== 'close' && !S.service) m = 'open';
         S.mode = m;
-        ['kb', 'sideOpen', 'left', 'sideTicket', 'sideNew', 'list', 'history', 'close'].forEach(id => { $(id).hidden = !SCREENS[m].includes(id); });
+        ['kb', 'sideOpen', 'sideCloser', 'left', 'sideTicket', 'sideNew', 'list', 'history', 'close'].forEach(id => { $(id).hidden = !SCREENS[m].includes(id); });
         S.accents = false;
         if (m === 'open') enterOpen();
         if (m === 'ticket') { renderCats(); renderGrid(); renderTicket(); }
@@ -144,6 +146,7 @@
         if (m === 'list') { renderList(); loadPaid(); }
         if (m === 'history') loadHistory();
         if (m === 'close') loadClose();
+        if (m === 'closer') enterCloser();
     }
 
     document.addEventListener('click', e => {
@@ -216,24 +219,38 @@
     const ROWS = [['A','Z','E','R','T','Y','U','I','O','P'], ['Q','S','D','F','G','H','J','K','L','M'], ['W','X','C','V','B','N', "'", '-']];
     const ACCENTS = ['É','È','Ê','Ë','Ç','Ï','Î','Ô','Û','Ü'];
 
+    const numpad = () => S.mode === 'open' && S.kb === 'fund';
+
     function renderKeys() {
-        $('kbTitle').textContent = S.mode === 'open' ? 'Nom du barman' : 'Nom du client';
+        $('kbTitle').textContent = numpad() ? 'Fond de caisse compté (en euros)'
+            : S.mode === 'open' ? 'Qui ouvre ?' : S.mode === 'closer' ? 'Qui clôture ?' : 'Nom du client';
+        $('kbTitle').nextElementSibling.textContent = numpad() ? 'Compte les billets et les pièces du tiroir, puis encode le total'
+            : 'Majuscules uniquement · la recherche ignore les accents';
         const k = (label, cls = '', act = label) => `<button class="key ${cls}" type="button" data-k="${esc(act)}">${esc(label)}</button>`;
+        $('keys').classList.toggle('numpad', numpad());
+        if (numpad()) {
+            $('keys').innerHTML = [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3'], [',', '0', '⌫']]
+                .map(r => `<div class="krow">${r.map(c => c === '⌫' ? k(c, 'fn', 'BACK') : k(c)).join('')}</div>`).join('');
+            return;
+        }
         $('keys').innerHTML =
             `<div class="krow">${(S.accents ? ACCENTS : ROWS[0]).map(c => k(c)).join('')}</div>` +
             `<div class="krow">${ROWS[1].map(c => k(c)).join('')}</div>` +
             `<div class="krow">${ROWS[2].map(c => k(c)).join('')}${k('⌫', 'fn span2', 'BACK')}</div>` +
-            `<div class="krow">${k('É È Ç', 'fn span2' + (S.accents ? ' on' : ''), 'ACC')}${k('Espace', 'space span5', ' ')}${k(S.mode === 'open' ? 'Effacer' : 'Annuler', 'cancel span3', 'CANCEL')}</div>`;
+            `<div class="krow">${k('É È Ç', 'fn span2' + (S.accents ? ' on' : ''), 'ACC')}${k('Espace', 'space span5', ' ')}${k(S.mode === 'new' ? 'Annuler' : 'Effacer', 'cancel span3', 'CANCEL')}</div>`;
     }
 
     $('keys').addEventListener('click', e => {
         const b = e.target.closest('.key');
         if (!b) return;
         const k = b.dataset.k;
+        if (numpad()) { typeFund(k); return; }
         if (k === 'ACC') { S.accents = !S.accents; renderKeys(); return; }
-        const field = S.mode === 'open' ? 'bm' : 'name';
+        const field = S.mode === 'open' ? 'bm' : S.mode === 'closer' ? 'cl' : 'name';
         if (k === 'CANCEL') {
-            if (S.mode === 'open') { S.bm = ''; S.bmPicked = null; renderBartenders(); } else setMode('ticket');
+            if (S.mode === 'open') { S.bm = ''; S.bmPicked = null; renderBartenders(); }
+            else if (S.mode === 'closer') { S.cl = ''; S.clPicked = null; renderClosers(); }
+            else setMode('ticket');
             return;
         }
         let v = S[field];
@@ -241,7 +258,9 @@
         else if (k === ' ') { if (v && !v.endsWith(' ')) v += ' '; }
         else if (v.length < 40) { v += k; if (S.accents) { S.accents = false; renderKeys(); } }
         S[field] = v;
-        if (S.mode === 'open') { S.bmPicked = null; renderBartenders(); } else renderName();
+        if (S.mode === 'open') { S.bmPicked = null; renderBartenders(); }
+        else if (S.mode === 'closer') { S.clPicked = null; renderClosers(); }
+        else renderName();
     });
 
     // Un long nom rapetisse (et passe à la ligne au besoin) au lieu de déborder de la colonne
@@ -263,7 +282,7 @@
             const when = lc.today ? 'à ' + lc.closedAt : 'le ' + lc.date.split('-').reverse().slice(0, 2).join('/');
             $('lastClosed').lastElementChild.textContent = cap(lc.label) + ' (' + lc.envelope + ') clôturé ' + when + (lc.closer ? ' par ' + lc.closer : '') + '.';
         }
-        S.bm = ''; S.bmPicked = null;
+        S.bm = ''; S.bmPicked = null; S.fund = ''; S.kb = 'bm';
         renderKeys();
         renderPeriod();
         loadBartenders();
@@ -291,43 +310,95 @@
         renderBartenders();
     }
 
-    function renderBartenders() {
-        $('bmBox').innerHTML = (S.bm ? esc(S.bm) : '<span class="ph">Ton nom ou ton prénom…</span>') + '<i class="caret"></i>';
-        sizeName($('bmBox'), S.bm);
-        const q = plain(S.bm.trim());
+    // Saisie d'un détenteur de clé, commune à « Qui ouvre ? » et « Qui clôture ? »
+    function renderPicker(o) {
+        o.box.innerHTML = (o.text ? esc(o.text) : '<span class="ph">Ton nom ou ton prénom…</span>') + (o.active ? '<i class="caret"></i>' : '');
+        o.box.classList.toggle('idle', !o.active);
+        sizeName(o.box, o.text);
+        const q = plain(o.text.trim());
         let hits, found;
-        if (q.length >= 2) {
-            hits = S.bartenders.map(b => [matchAt(b.name, q), b]).filter(([i]) => i >= 0)
+        if (o.picked && o.text === o.picked.name) {
+            hits = [o.picked];
+            found = 'C’est bien toi ? Sinon, efface et tape ton nom.';
+        } else if (q.length >= 2) {
+            hits = o.list.map(b => [matchAt(b.name, q), b]).filter(([i]) => i >= 0)
                 .sort((x, y) => (x[0] > 0) - (y[0] > 0)).map(([, b]) => b).slice(0, 4);
             found = hits.length ? 'Membres détenteurs d’une clé · touche ton nom' : 'Aucun détenteur de clé à ce nom.';
         } else {
-            hits = S.bartenders.filter(b => b.planned);
-            found = hits.length ? 'Prévu au planning des permanences :' : 'Tape les premières lettres de ton nom ou de ton prénom.';
+            hits = o.list.filter(o.isDefault);
+            found = hits.length ? o.defaultLabel : 'Tape les premières lettres de ton nom ou de ton prénom.';
         }
-        $('bmFound').textContent = found;
-        $('bmSugg').hidden = !hits.length;
-        const typed = q.length >= 2 ? S.bm.trim() : '';
-        $('bmSugg').innerHTML = hits.map(b => {
-            return `<button class="sg${S.bmPicked && S.bmPicked.id === b.id ? ' sel' : ''}" type="button" data-id="${b.id}">` +
-                `<span>${highlight(b.name, typed)}</span>${b.planned ? '<span class="mb">prévu au planning</span>' : ''}</button>`;
-        }).join('');
-        $('btnOpen').disabled = !S.bmPicked;
-        $('btnOpen').innerHTML = 'Ouvrir le service' + (S.bmPicked ? '<small>' + esc(S.bmPicked.name) + '</small>' : '');
+        o.found.textContent = found;
+        o.sugg.hidden = !hits.length;
+        const typed = q.length >= 2 && !(o.picked && o.text === o.picked.name) ? o.text.trim() : '';
+        o.sugg.innerHTML = hits.map(b => `<button class="sg${o.picked && o.picked.id === b.id ? ' sel' : ''}" type="button" data-id="${b.id}">` +
+            `<span>${highlight(b.name, typed)}</span>${o.tag(b) ? '<span class="mb">' + o.tag(b) + '</span>' : ''}</button>`).join('');
     }
+
+    function renderBartenders() {
+        renderPicker({
+            box: $('bmBox'), found: $('bmFound'), sugg: $('bmSugg'), text: S.bm, picked: S.bmPicked, list: S.bartenders,
+            active: S.kb === 'bm', isDefault: b => b.planned, defaultLabel: 'Prévu au planning des permanences :',
+            tag: b => b.planned ? 'prévu au planning' : '',
+        });
+        renderFund();
+    }
+
+    const fundValue = () => (/^\d+(,\d{1,2})?$/.test(S.fund) ? parseFloat(S.fund.replace(',', '.')) : null);
+
+    function renderFund() {
+        const v = fundValue();
+        $('fundLabel').textContent = '2 · Fond de caisse compté · attendu ' + eur(C.openingFloat).replace(',00', '');
+        $('fundBox').innerHTML = (S.fund ? esc(S.fund) + ' €' : '<span class="ph">Touche ici, compte le tiroir et encode le montant…</span>') + (S.kb === 'fund' ? '<i class="caret"></i>' : '');
+        $('fundBox').classList.toggle('idle', S.kb !== 'fund');
+        const ok = v !== null && Math.abs(v - C.openingFloat) < 0.005;
+        $('fundFound').className = 'found' + (v === null ? '' : ok ? ' good' : ' warn');
+        $('fundFound').textContent = v === null ? '' : ok ? 'Fond de caisse complet.'
+            : 'Différent de ' + eur(C.openingFloat) + ' : recompte, et si c’est bien ce montant, préviens le trésorier.';
+        const ready = S.bmPicked && v !== null;
+        $('btnOpen').disabled = !ready;
+        $('btnOpen').innerHTML = 'Ouvrir le service' + (ready ? '<small>' + esc(S.bmPicked.name) + ' · fond de caisse ' + eur(v) + '</small>'
+            : '<small>' + (S.bmPicked ? 'Encode le fond de caisse' : 'Choisis ton nom puis encode le fond de caisse') + '</small>');
+    }
+
+    function typeFund(k) {
+        let v = S.fund;
+        if (k === 'BACK') v = v.slice(0, -1);
+        else if (k === ',') { if (v && !v.includes(',')) v += ','; }
+        else if (/^\d$/.test(k)) {
+            const dec = v.includes(',') ? v.split(',')[1].length : -1;
+            if (dec < 2 && v.replace(',', '').length < 7) v = (v === '0' ? '' : v) + k;
+        }
+        S.fund = v;
+        renderFund();
+    }
+
+    function setKb(target) {
+        if (S.kb === target) return;
+        S.kb = target;
+        S.accents = false;
+        renderKeys();
+        renderBartenders();
+    }
+
+    $('bmBox').addEventListener('click', () => setKb('bm'));
+    $('fundBox').addEventListener('click', () => setKb('fund'));
 
     $('bmSugg').addEventListener('click', e => {
         const b = e.target.closest('.sg');
         if (!b) return;
         S.bmPicked = S.bartenders.find(x => x.id === +b.dataset.id) || null;
         if (S.bmPicked) S.bm = S.bmPicked.name;
+        if (S.bmPicked && !S.fund) { setKb('fund'); return; }
         renderBartenders();
     });
 
     $('btnOpen').addEventListener('click', async () => {
-        if (!S.bmPicked) return;
+        const fund = fundValue();
+        if (!S.bmPicked || fund === null) return;
         $('btnOpen').disabled = true;
         try {
-            await api('service', { period: S.period, member_id: S.bmPicked.id });
+            await api('service', { period: S.period, member_id: S.bmPicked.id, opening_float: fund });
             S.period = null;
             await refresh(false);
             toast('Service ouvert. Bon service !');
@@ -701,6 +772,7 @@
         $('btnCloseBack').textContent = 'Retour aux tickets en cours';
         $('cWarn').textContent = 'Après la clôture, plus aucun ticket ne peut être ajouté, modifié ou supprimé pour ce service.';
         $('cHint').hidden = false;
+        $('cHint').textContent = 'Compte le tiroir : le fond de caisse de ' + eur(C.openingFloat) + ' y reste. Glisse les espèces attendues et le récapitulatif dans l’enveloppe, puis note son numéro dessus.';
         try {
             const d = await api('service/resume');
             const s = fillClose(d.service, d.summary);
@@ -709,24 +781,62 @@
         } catch (e) { /* message déjà affiché */ }
     }
 
-    $('btnClose').addEventListener('click', async () => {
+    $('btnClose').addEventListener('click', () => setMode('closer'));
+
+    // « Qui clôture ? » : celui qui a ouvert est proposé d'office, un autre détenteur de clé peut prendre le relais
+    async function enterCloser() {
+        S.accents = false;
+        S.clPicked = S.service.bartenderId ? { id: S.service.bartenderId, name: S.service.bartender } : null;
+        S.cl = S.clPicked ? S.clPicked.name : '';
+        $('clSvc').textContent = cap(S.service.label) + ' · ouvert à ' + S.service.openedAt;
+        $('clEnv').textContent = S.service.envelope;
+        renderKeys();
+        renderClosers();
+        try {
+            S.closers = await api('barmans?period=' + S.service.period);
+        } catch (e) { S.closers = []; }
+        if (S.clPicked) S.clPicked = S.closers.find(x => x.id === S.clPicked.id) || S.clPicked;
+        renderClosers();
+    }
+
+    function renderClosers() {
+        const opener = S.service ? S.service.bartenderId : null;
+        renderPicker({
+            box: $('clBox'), found: $('clFound'), sugg: $('clSugg'), text: S.cl, picked: S.clPicked, list: S.closers,
+            active: true, isDefault: b => b.id === opener, defaultLabel: 'A ouvert le service :',
+            tag: b => b.id === opener ? 'a ouvert le service' : '',
+        });
+        $('btnCloseGo').disabled = !S.clPicked;
+    }
+
+    $('clSugg').addEventListener('click', e => {
+        const b = e.target.closest('.sg');
+        if (!b) return;
+        S.clPicked = S.closers.find(x => x.id === +b.dataset.id) || S.clPicked;
+        if (S.clPicked) S.cl = S.clPicked.name;
+        renderClosers();
+    });
+
+    $('btnCloseGo').addEventListener('click', async () => {
+        if (!S.clPicked) return;
         const s = S.closeSummary;
         const ok = await confirmBox('Clôturer le service ?',
-            'Espèces attendues dans l’enveloppe ' + S.service.envelope + ' : ' + eur(s ? s.cash : 0) + '. Après la clôture, plus aucun ticket ne pourra être ajouté ni modifié.',
+            'Clôturé par ' + S.clPicked.name + '. Espèces attendues dans l’enveloppe ' + S.service.envelope + ' : ' + eur(s ? s.cash : 0) + '. Après la clôture, plus aucun ticket ne pourra être ajouté ni modifié.',
             'Oui, clôturer', false);
         if (!ok) return;
         try {
-            const d = await api('service/cloturer', {});
+            const d = await api('service/cloturer', { member_id: S.clPicked.id });
             S.closedService = d.service;
             S.service = null;
             S.tickets = [];
             S.current = null;
             renderHeader();
             renderCounts();
+            setMode('close');
             $('btnClose').hidden = true;
             $('btnRecap').hidden = false;
             $('cHint').hidden = true;
-            $('cWarn').textContent = 'Service clôturé à ' + d.service.closedAt + '. Imprime le récapitulatif et glisse-le dans l’enveloppe avec l’argent.';
+            $('cWarn').textContent = 'Service clôturé à ' + d.service.closedAt + (d.service.closer ? ' par ' + d.service.closer : '') + '. Imprime le récapitulatif et glisse-le dans l’enveloppe avec l’argent.';
             $('btnCloseBack').textContent = 'Terminer';
         } catch (e) { /* message déjà affiché */ }
     });

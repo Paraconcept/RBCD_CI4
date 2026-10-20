@@ -41,13 +41,16 @@ class BarRegister
 
     // ------------------------------------------------------------------ services
 
-    public function openService(string $period, int $bartenderId, ?string $date = null): object
+    public function openService(string $period, int $bartenderId, ?float $openingFloat, ?string $date = null): object
     {
         if (!isset(BarServiceModel::PERIODS[$period])) {
             throw new BarRegisterException('Choisissez le service : après-midi ou soir.');
         }
         if (!$this->db->table('members')->where('id', $bartenderId)->countAllResults()) {
-            throw new BarRegisterException('Choisissez le barman dans la liste.');
+            throw new BarRegisterException('Choisissez dans la liste la personne qui ouvre.');
+        }
+        if ($openingFloat === null || $openingFloat < 0 || $openingFloat > 10000) {
+            throw new BarRegisterException('Comptez le fond de caisse et encodez le montant trouvé.');
         }
 
         $open = $this->services->getOpen();
@@ -70,6 +73,7 @@ class BarRegister
                 'envelope_code'       => BarServiceModel::envelopeCode($date, $number),
                 'status'              => 'open',
                 'bartender_member_id' => $bartenderId,
+                'opening_float'       => round($openingFloat, 2),
                 'opened_at'           => self::now(),
             ]);
         } catch (\Throwable $e) {
@@ -137,6 +141,9 @@ class BarRegister
     public function closeService(int $serviceId, ?int $closerId = null): object
     {
         $service = $this->openServiceOrFail($serviceId);
+        if ($closerId && !$this->db->table('members')->where('id', $closerId)->countAllResults()) {
+            throw new BarRegisterException('Choisissez dans la liste la personne qui clôture.');
+        }
 
         $this->db->transStart();
         $s = $this->summary($serviceId);

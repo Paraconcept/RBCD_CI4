@@ -35,7 +35,7 @@
     <div class="body" style="flex-direction:column;gap:5mm">
         <div class="overview">
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-door-open"></i></div><h3>1. Ouvrir le service</h3>
-                <p>En arrivant : <b>après-midi ou soir</b>, puis <b>ton nom</b>. La caisse donne le numéro de l'enveloppe.</p></div>
+                <p>En arrivant : <b>après-midi ou soir</b>, <b>ton nom</b>, puis le <b>fond de caisse</b> compté (200 €). La caisse donne le numéro de l'enveloppe.</p></div>
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-user-plus"></i></div><h3>2. Un ticket par client</h3>
                 <p><b>Créer un nouveau ticket</b>, le nom du client, puis ses consommations. Ensuite, <b>Tickets en cours</b> : le ticket reste ouvert toute la soirée si besoin.</p></div>
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-coins"></i></div><h3>3. Régler</h3>
@@ -65,12 +65,13 @@
         <div class="col text">
             <ul class="steps">
                 <li>Choisissez <b>Après-midi</b> ou <b>Soir</b>.</li>
-                <li>Tapez les <b>premières lettres de votre nom ou de votre prénom</b> sur le clavier de l'écran. Le barman prévu au planning des permanences est proposé d'office.</li>
-                <li><b>Touchez votre nom</b> dans la liste (membres qui ont une clé du club).</li>
-                <li>Touchez <span class="btnlike">Ouvrir le service</span>. La caisse s'ouvre.</li>
+                <li><b>Qui ouvre ?</b> Tapez les <b>premières lettres de votre nom ou de votre prénom</b>, puis <b>touchez votre nom</b> dans la liste (membres qui ont une clé du club). Le barman prévu au planning est proposé d'office.</li>
+                <li><b>Comptez le fond de caisse</b> du tiroir (billets et pièces) et encodez le total sur le pavé numérique. Il doit être de <b>200 €</b>.</li>
+                <li>Touchez <span class="btnlike">Ouvrir le service</span> : il ne s'active qu'une fois votre nom et le fond de caisse encodés.</li>
             </ul>
+            <div class="note orange"><p><b>Fond de caisse différent de 200 €</b> ? Recomptez. Si c'est bien le montant, encodez-le tel quel et prévenez le trésorier : il figure sur le récapitulatif de l'enveloppe.</p></div>
             <div class="note green"><p><b>Le numéro de l'enveloppe</b> s'affiche : <b>E</b> + jour-mois + rang du service dans la journée. <b>E19-10-01</b> est le premier service du 19 octobre, <b>E19-10-02</b> le deuxième. Notez-le sur l'enveloppe.</p></div>
-            <div class="note orange"><p>Si le service précédent n'a pas été clôturé, la caisse le signale : clôturez-le d'abord (page 7), puis ouvrez le vôtre.</p></div>
+            <div class="note orange"><p>Si le service précédent n'a pas été clôturé, la caisse le signale : clôturez-le d'abord (page 8), puis ouvrez le vôtre.</p></div>
         </div>
     </div>
     <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi de la caisse du bar</b></span><span>3</span></footer>
@@ -163,17 +164,17 @@
 <section class="page">
     <header class="head"><div class="num">6</div><div><h1>Clôturer le service</h1><p>En fin de service : l'enveloppe et son récapitulatif</p></div><img src="img/ecusson.png" alt=""></header>
     <div class="body">
-        <div class="col wide"><img class="tablet" src="img/c09_cloture.png" alt=""></div>
+        <div class="col wide"><img class="tablet" src="img/c09_qui_cloture.png" alt=""></div>
         <div class="col text">
             <ul class="steps">
                 <li>Tous les tickets doivent être <b>réglés ou annulés</b> : tant qu'il en reste un ouvert, le bouton <b><i class="fas fa-key"></i> Clôturer le service</b> reste <b>grisé</b>.</li>
-                <li>Dans <b>Tickets en cours</b>, touchez <b><i class="fas fa-key"></i> Clôturer le service</b> (en bas de l'écran), vérifiez les chiffres, puis <span class="btnlike orange"><i class="fas fa-key"></i> Clôturer le service</span> et <b>Oui, clôturer</b>.</li>
+                <li>Dans <b>Tickets en cours</b>, touchez <b><i class="fas fa-key"></i> Clôturer le service</b> (en bas de l'écran), vérifiez les chiffres, puis <span class="btnlike orange"><i class="fas fa-key"></i> Clôturer le service</span>.</li>
+                <li><b>Qui clôture ?</b> Le nom de celui qui a ouvert est déjà rempli. Si vous prenez le relais, touchez <b>Effacer</b> et tapez votre nom. Puis <span class="btnlike orange"><i class="fas fa-key"></i> Clôturer le service</span> et <b>Oui, clôturer</b>.</li>
                 <li>Touchez <b>Imprimer le récapitulatif</b> : il sort sur l'imprimante du club.</li>
-                <li><b>Comptez le tiroir</b>, glissez l'argent et le récapitulatif dans l'enveloppe, et notez son numéro dessus.</li>
+                <li><b>Comptez le tiroir</b> : le fond de caisse de 200 € y reste. Glissez les espèces attendues et le récapitulatif dans l'enveloppe, et notez son numéro dessus.</li>
                 <li>Touchez <b>Terminer</b> : la caisse revient à l'écran d'ouverture pour le service suivant.</li>
             </ul>
-            <div class="note"><p><b>Espèces attendues</b> : le montant que le trésorier doit trouver dans l'enveloppe. Le Bancontact est déjà encaissé par SumUp.</p></div>
-            <div class="note orange"><p>Après la clôture, <b>plus aucun ticket</b> ne peut être ajouté ou modifié pour ce service.</p></div>
+            <div class="note"><p><b>Espèces attendues</b> : le montant que le trésorier doit trouver dans l'enveloppe (le Bancontact est encaissé par SumUp). Après la clôture, <b>plus aucun ticket</b> ne peut être modifié.</p></div>
         </div>
     </div>
     <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi de la caisse du bar</b></span><span>8</span></footer>
