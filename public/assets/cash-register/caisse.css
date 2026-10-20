@@ -60,7 +60,7 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .side.open .sugg { align-self: stretch; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
 .btn { height: 2.9rem; border-radius: .75rem; border: .125rem solid var(--line); background: var(--panel); font: 700 .92rem var(--f-body); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: 0 .6rem; white-space: nowrap; }
-.row2 .btn { font-size: .84rem; padding: 0 .4rem; }
+.row2 .btn { font-size: .84rem; padding: 0 .4rem; white-space: normal; line-height: 1.15; text-align: center; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
 .btn.dark { background: var(--hd); border-color: var(--hd); color: #fff; }
 .btn.danger { color: var(--danger); border-color: #e0c4c7; }

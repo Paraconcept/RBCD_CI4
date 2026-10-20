@@ -366,7 +366,7 @@
         const b = e.target.closest('.prod');
         if (!b) return;
         if (!currentTicket()) {
-            toast('Ouvrez d’abord un ticket : « Créer un nouveau » ou « Tickets en cours ».', true);
+            toast('Ouvrez d’abord un ticket : « Créer un nouveau ticket » ou « Tickets en cours ».', true);
             return;
         }
         changeLine(+b.dataset.p, 1);
@@ -596,7 +596,7 @@
         cards.classList.toggle('few', n <= 4 && !np);
         if (!n && !np) {
             cards.innerHTML = '';
-            $('cardsWrap').innerHTML = '<div class="empty-state" style="height:100%">Aucun ticket ouvert.<br>Touche « Créer un nouveau » pour servir un client.</div>';
+            $('cardsWrap').innerHTML = '<div class="empty-state" style="height:100%">Aucun ticket ouvert.<br>Touche « Créer un nouveau ticket » pour servir un client.</div>';
             return;
         }
         if (!$('cardsWrap').contains(cards)) { $('cardsWrap').innerHTML = ''; $('cardsWrap').appendChild(cards); }
@@ -610,7 +610,7 @@
                 <div class="amt"><b>${eur(t.total)}</b><span>${count} article${count > 1 ? 's' : ''}</span></div></div><div></div>
                 <div class="card-btns"><button class="btn primary" type="button" data-open="${t.id}">Ouvrir</button><button class="btn" type="button" data-cancel="${t.id}">Annuler le ticket</button></div></div>`;
         });
-        if (!n) open.push('<div class="cards-none">Aucun ticket ouvert : touche « Créer un nouveau » pour servir un client.</div>');
+        if (!n) open.push('<div class="cards-none">Aucun ticket ouvert : touche « Créer un nouveau ticket » pour servir un client.</div>');
         const paid = paidTickets.map(t => {
             const count = t.lines.reduce((s, l) => s + l.qty, 0);
             const items = t.lines.map(l => l.qty + ' × ' + l.name).join(', ');

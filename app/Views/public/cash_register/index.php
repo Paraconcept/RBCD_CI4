@@ -59,7 +59,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
         </section>
         <aside class="side ticket" id="sideTicket" hidden>
             <div class="row2">
-                <button class="btn primary" type="button" data-go="new">Créer un nouveau</button>
+                <button class="btn primary" type="button" data-go="new">Créer un nouveau ticket</button>
                 <button class="btn" type="button" data-go="list" id="btnList">Tickets en cours <span class="cnt" data-count></span></button>
             </div>
             <div class="tk" id="tk"></div>
@@ -76,7 +76,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
         <!-- nouveau ticket -->
         <aside class="side new" id="sideNew" hidden>
             <div class="row2">
-                <button class="btn dark" type="button">Créer un nouveau</button>
+                <button class="btn dark" type="button">Créer un nouveau ticket</button>
                 <button class="btn" type="button" data-go="list">Tickets en cours <span class="cnt" data-count></span></button>
             </div>
             <div class="nlabel" id="newLabel"></div>
@@ -91,7 +91,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
             <div class="full-hd">
                 <div><h2>Tickets en cours</h2><p id="listSub"></p></div>
                 <div class="btns">
-                    <button class="btn primary" type="button" data-go="new">Créer un nouveau</button>
+                    <button class="btn primary" type="button" data-go="new">Créer un nouveau ticket</button>
                     <button class="btn" type="button" data-go="ticket">Retour à la caisse</button>
                 </div>
             </div>
