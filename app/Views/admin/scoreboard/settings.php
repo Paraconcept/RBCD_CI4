@@ -106,6 +106,44 @@
           <?php endif; ?>
         </div>
       </div>
+      <div class="card card-outline card-primary" id="pause">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-images mr-2"></i>Écran de pause</h3>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small">
+            Pendant une pause (touche <kbd>.</kbd>), le marquoir affiche l'écusson du club, puis chaque image ci-dessous, <b>15 secondes</b> chacune, en boucle.
+            Idéal pour les sponsors ou les annonces du club. Images au format paysage de préférence ; JPEG, PNG, WebP ou GIF, 5 Mo maximum.
+          </p>
+          <div class="d-flex flex-wrap mb-3" style="gap:.75rem">
+            <div class="text-center">
+              <div class="border rounded d-flex align-items-center justify-content-center bg-dark" style="width:160px;height:100px">
+                <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="" style="max-width:100%;max-height:100%">
+              </div>
+              <small class="text-muted">1 · Écusson (fixe)</small>
+            </div>
+            <?php foreach ($pauseImages as $i => $img): ?>
+            <div class="text-center">
+              <div class="border rounded d-flex align-items-center justify-content-center bg-dark" style="width:160px;height:100px">
+                <img src="<?= base_url(\App\Libraries\ScoreboardPauseImages::DIR . $img) ?>" alt="" style="max-width:100%;max-height:100%">
+              </div>
+              <small class="text-muted"><?= $i + 2 ?></small>
+              <button form="pauseDel<?= $i ?>" class="btn btn-xs btn-danger ml-1"
+                      onclick="return confirm('Retirer cette image de l\'écran de pause ?')"><i class="fas fa-trash mr-1"></i>Retirer</button>
+            </div>
+            <?php endforeach; ?>
+          </div>
+          <div class="input-group">
+            <div class="custom-file">
+              <input type="file" name="images[]" id="pauseImages" class="custom-file-input" form="pauseUpload" multiple accept="image/jpeg,image/png,image/webp,image/gif">
+              <label class="custom-file-label" for="pauseImages" data-browse="Parcourir">Choisir une ou plusieurs images…</label>
+            </div>
+            <div class="input-group-append">
+              <button form="pauseUpload" class="btn btn-success"><i class="fas fa-upload mr-1"></i>Ajouter</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <button class="btn btn-primary"><i class="fas fa-save mr-1"></i>Enregistrer</button>
@@ -113,5 +151,15 @@
 <?php foreach ($devices as $d): ?>
 <form method="post" action="<?= base_url('admin/scoreboard/devices/' . $d->id . '/delete') ?>" id="dev<?= $d->id ?>" class="d-none"><?= csrf_field() ?></form>
 <?php endforeach; ?>
+<form method="post" action="<?= base_url('admin/scoreboard/pause-images') ?>" id="pauseUpload" enctype="multipart/form-data" class="d-none"><?= csrf_field() ?></form>
+<?php foreach ($pauseImages as $i => $img): ?>
+<form method="post" action="<?= base_url('admin/scoreboard/pause-images/delete') ?>" id="pauseDel<?= $i ?>" class="d-none"><?= csrf_field() ?><input type="hidden" name="name" value="<?= esc($img) ?>"></form>
+<?php endforeach; ?>
+<script>
+document.getElementById('pauseImages').addEventListener('change', function () {
+  const n = this.files.length;
+  this.nextElementSibling.textContent = n > 1 ? n + ' images choisies' : (n ? this.files[0].name : 'Choisir une ou plusieurs images…');
+});
+</script>
 
 <?= $this->endSection() ?>

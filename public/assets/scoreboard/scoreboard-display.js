@@ -525,9 +525,28 @@
         $('sbdNotice').textContent = notice;
 
         renderSetBreak(w);
-        $('sbdPause').classList.toggle('show', !!st.paused && !st.finished);
+        renderPause();
         renderResult();
         renderClock();
+    }
+
+    // Chaque pause repart de l'écusson ; avec une seule image, rien ne défile
+    let pauseTimer = null;
+    function renderPause() {
+        const on = !!st.paused && !st.finished;
+        const box = $('sbdPause');
+        if (on === box.classList.contains('show')) return;
+        box.classList.toggle('show', on);
+        clearInterval(pauseTimer);
+        const slides = box.querySelectorAll('.sbd-pause-slides img');
+        slides.forEach(function (img, i) { img.classList.toggle('active', i === 0); });
+        if (!on || slides.length < 2) return;
+        let k = 0;
+        pauseTimer = setInterval(function () {
+            slides[k].classList.remove('active');
+            k = (k + 1) % slides.length;
+            slides[k].classList.add('active');
+        }, 15000);
     }
 
     function setSummary(w, n) {

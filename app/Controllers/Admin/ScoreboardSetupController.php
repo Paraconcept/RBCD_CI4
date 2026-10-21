@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ScoreboardPauseImages;
 use App\Models\ScoreboardPlayerModel;
 use App\Models\ScoreboardTableModel;
 use App\Models\SiteSettingModel;
@@ -142,6 +143,7 @@ class ScoreboardSetupController extends BaseController
             'cdrEmail'            => (string) $s->getSetting('scoreboard_cdr_email', 'cdregions@gmail.com'),
             'dsr'                 => \App\Libraries\MatchSheetPdf::regionalDirector(),
             'devices'             => (new \App\Models\ScoreboardDeviceModel())->listWithAuthor(),
+            'pauseImages'         => ScoreboardPauseImages::all(),
         ]);
     }
 
@@ -174,5 +176,38 @@ class ScoreboardSetupController extends BaseController
         $s->setSetting('scoreboard_start_window_minutes', max(0, min(720, (int) $this->request->getPost('start_window_minutes'))));
 
         return redirect()->to(base_url('admin/scoreboard/settings'))->with('success', 'Paramètres du marquoir enregistrés.');
+    }
+
+    public function uploadPauseImages()
+    {
+        $files  = $this->request->getFileMultiple('images') ?? [];
+        $errors = [];
+        $added  = 0;
+        foreach ($files as $file) {
+            if ($file->getError() === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            $error = ScoreboardPauseImages::store($file);
+            $error === null ? $added++ : $errors[] = $error;
+        }
+
+        $redirect = redirect()->to(base_url('admin/scoreboard/settings') . '#pause');
+        if ($errors) {
+            $redirect->with('error', implode(' ', $errors));
+        }
+        if ($added) {
+            $redirect->with('success', $added > 1 ? $added . ' images ajoutées à l\'écran de pause.' : 'Image ajoutée à l\'écran de pause.');
+        } elseif (!$errors) {
+            $redirect->with('error', 'Aucune image choisie.');
+        }
+        return $redirect;
+    }
+
+    public function deletePauseImage()
+    {
+        $ok = ScoreboardPauseImages::delete((string) $this->request->getPost('name'));
+
+        return redirect()->to(base_url('admin/scoreboard/settings') . '#pause')
+                         ->with($ok ? 'success' : 'error', $ok ? 'Image retirée de l\'écran de pause.' : 'Image introuvable.');
     }
 }

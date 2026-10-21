@@ -336,7 +336,7 @@
       <div class="mh-head"><div class="num"><i class="fas fa-pen-to-square"></i></div><div><h3>Pause, corrections et modifications</h3><p>Sans perdre une seule reprise</p></div></div>
       <div class="mh-body">
         <div class="row g-4 mb-3">
-          <div class="col-md-6"><img class="mh-shot" src="<?= $img('19_pause') ?>" alt="Écran Pause"><div class="mh-caption">Touche <kbd>.</kbd> : l'écran « Pause » reste affiché jusqu'au prochain appui.</div></div>
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('19_pause') ?>" alt="Écran Pause"><div class="mh-caption">Touche <kbd>.</kbd> : l'écran « Pause » reste affiché jusqu'au prochain appui. L'écusson du club et les images choisies par le comité y défilent, 15 secondes chacune.</div></div>
           <div class="col-md-6"><img class="mh-shot" src="<?= $img('20_correction') ?>" alt="Corriger une reprise"><div class="mh-caption">« Corriger une reprise » : la série choisie est en cours de correction.</div></div>
         </div>
         <div class="row g-3">

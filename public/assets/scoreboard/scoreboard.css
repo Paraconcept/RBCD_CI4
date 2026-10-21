@@ -396,9 +396,11 @@
     background: rgba(10, 16, 32, .94); box-shadow: 0 0 10vh color-mix(in srgb, var(--sb-p2) 40%, transparent);
     font-family: 'Barlow Condensed', sans-serif; color: var(--sb-p2);
 }
-.sbd-pause img { height: 22vh; margin-bottom: 2vh; }
+/* Écusson puis images de Marquoir › Paramètres, 15 s chacune : cadre fixe pour que la boîte ne change pas de taille */
+.sbd-pause-slides { position: relative; width: 56vw; height: 34vh; margin: 0 auto 3vh; }
+.sbd-pause-slides img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .8s ease; }
+.sbd-pause-slides img.active { opacity: 1; }
 .sbd-pause b { display: block; font-size: 20vh; font-weight: 800; text-transform: uppercase; line-height: 1; letter-spacing: .05em; }
-.sbd-pause small { display: block; font-size: 5vh; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: .2em; }
 .sbd-pause.show { visibility: visible; }
 .sbd-pause.show > div { animation: sbd-pause-in .6s cubic-bezier(.2, 1.4, .4, 1); }
 @keyframes sbd-pause-in { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }

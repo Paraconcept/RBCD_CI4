@@ -420,6 +420,8 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('scoreboard/settings',              'Admin\ScoreboardSetupController::settings');
         $routes->get ('scoreboard/howto',                 'Admin\ScoreboardSetupController::howto');
         $routes->post('scoreboard/settings',              'Admin\ScoreboardSetupController::saveSettings');
+        $routes->post('scoreboard/pause-images',          'Admin\ScoreboardSetupController::uploadPauseImages');
+        $routes->post('scoreboard/pause-images/delete',   'Admin\ScoreboardSetupController::deletePauseImage');
 
         // Utilisateurs admin
         $routes->get ('users',               'Admin\AdminUsersController::index');

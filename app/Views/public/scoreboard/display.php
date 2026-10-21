@@ -143,9 +143,13 @@ $config = [
 
     <div class="sbd-pause" id="sbdPause" aria-live="polite">
         <div>
-            <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="">
+            <div class="sbd-pause-slides">
+                <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="" class="active">
+                <?php foreach (\App\Libraries\ScoreboardPauseImages::urls() as $url): ?>
+                <img src="<?= esc($url) ?>" alt="">
+                <?php endforeach; ?>
+            </div>
             <b>Pause</b>
-            <small>RBC Disonais</small>
         </div>
     </div>
 
