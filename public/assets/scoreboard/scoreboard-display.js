@@ -546,7 +546,7 @@
             slides[k].classList.remove('active');
             k = (k + 1) % slides.length;
             slides[k].classList.add('active');
-        }, 15000);
+        }, 10000);
     }
 
     function setSummary(w, n) {

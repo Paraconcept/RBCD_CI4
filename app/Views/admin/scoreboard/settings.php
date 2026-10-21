@@ -112,7 +112,7 @@
         </div>
         <div class="card-body">
           <p class="text-muted small">
-            Pendant une pause (touche <kbd>.</kbd>), le marquoir affiche l'écusson du club, puis chaque image ci-dessous, <b>15 secondes</b> chacune, en boucle.
+            Pendant une pause (touche <kbd>.</kbd>), le marquoir affiche l'écusson du club, puis chaque image ci-dessous, <b>10 secondes</b> chacune, en boucle.
             Idéal pour les sponsors ou les annonces du club. Images au format paysage de préférence ; JPEG, PNG, WebP ou GIF, 5 Mo maximum.
           </p>
           <div class="d-flex flex-wrap mb-3" style="gap:.75rem">
