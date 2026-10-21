@@ -230,7 +230,7 @@ a:hover { color: var(--rbcd-primary-dark); }
 }
 
 /* ----------------------------------------------------------------
-   SIDEBAR — sections collapsibles (Trésorerie, Direction Sportive)
+   SIDEBAR — sections collapsibles (Administration du site, Direction Sportive, Marquoirs, Trésorerie, Caisse du bar)
    ---------------------------------------------------------------- */
 .nav-sidebar > .nav-item > .nav-section,
 .nav-sidebar > .nav-item > .nav-section:hover,
@@ -244,6 +244,12 @@ a:hover { color: var(--rbcd-primary-dark); }
     font-weight: 600 !important;
     letter-spacing: .3px !important;
     color: rgba(255, 255, 255, .6) !important;
+}
+/* Titre trop long pour la largeur de la sidebar : réduit pour rester sur une ligne */
+.nav-sidebar > .nav-item > .nav-section > p.nav-section-long {
+    font-size: .8rem !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap;
 }
 .nav-sidebar > .nav-item > .nav-section > .nav-icon,
 .nav-sidebar > .nav-item > .nav-section > p > .right {

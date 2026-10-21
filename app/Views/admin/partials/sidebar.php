@@ -33,56 +33,65 @@
                     </a>
                 </li>
 
-                <li class="nav-header mt-4">ADMINISTRATION DU SITE</li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/users') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/users') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-users-cog"></i>
-                        <p>Membres du Comité</p>
+                <!-- ── ADMINISTRATION DU SITE (section collapsible) ── -->
+                <?php
+                $isSiteActive = strpos(uri_string(), 'admin/users') === 0
+                             || (strpos(uri_string(), 'admin/members') === 0 && strpos(uri_string(), '/payments') === false)
+                             || strpos(uri_string(), 'admin/documents') === 0
+                             || strpos(uri_string(), 'admin/journal') === 0
+                             || strpos(uri_string(), 'admin/news') === 0
+                             || strpos(uri_string(), 'admin/galleries') === 0
+                             || strpos(uri_string(), 'admin/settings') === 0;
+                ?>
+                <li class="nav-item has-treeview mt-4 <?= $isSiteActive ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link nav-section <?= $isSiteActive ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-globe"></i>
+                        <p class="nav-section-long">Administration du site <i class="right fas fa-angle-left"></i></p>
                     </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/members') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/members') === 0 && strpos(uri_string(), '/payments') === false) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-users"></i>
-                        <p>Membres</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/documents') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/documents') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-file-pdf"></i>
-                        <p>Documents PDF</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/journal') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/journal') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-newspaper"></i>
-                        <p>Journal "Partie Libre"</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/news') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/news') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-bullhorn"></i>
-                        <p>Actualités <em>(News)</em></p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/galleries') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/galleries') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-images"></i>
-                        <p>Galeries photos</p>
-                    </a>
-                </li>
-
-
-                <li class="nav-item">
-                    <a href="<?= base_url('admin/settings') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/settings') === 0) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-cog"></i>
-                        <p>Paramètres</p>
-                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/users') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/users') === 0) ? 'active' : '' ?>">
+                                <i class="nav-icon fas fa-users-cog"></i>
+                                <p>Membres du Comité</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/members') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/members') === 0 && strpos(uri_string(), '/payments') === false) ? 'active' : '' ?>">
+                                <i class="nav-icon fas fa-users"></i>
+                                <p>Membres</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/documents') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/documents') === 0) ? 'active' : '' ?>">
+                                <i class="nav-icon fas fa-file-pdf"></i>
+                                <p>Documents PDF</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/journal') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/journal') === 0) ? 'active' : '' ?>">
+                                <i class="nav-icon fas fa-newspaper"></i>
+                                <p>Journal "Partie Libre"</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/news') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/news') === 0) ? 'active' : '' ?>">
+                                <i class="nav-icon fas fa-bullhorn"></i>
+                                <p>Actualités <em>(News)</em></p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/galleries') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/galleries') === 0) ? 'active' : '' ?>">
+                                <i class="nav-icon fas fa-images"></i>
+                                <p>Galeries photos</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/settings') ?>" class="nav-link <?= (strpos(uri_string(), 'admin/settings') === 0) ? 'active' : '' ?>">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <p>Paramètres</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
                 <?php
