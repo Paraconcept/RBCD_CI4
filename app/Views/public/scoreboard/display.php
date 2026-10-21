@@ -63,8 +63,10 @@ $config = [
 
     <header class="sbd-head">
         <div class="sbd-head-left">
-            <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="">
-            <span>RBC Disonais</span>
+            <a href="<?= base_url($spectator ? 'en-direct' : 'marquoir?tous=1') ?>" class="sbd-home" title="<?= $spectator ? 'Rencontres du jour' : 'Tous les billards' ?>">
+                <img src="<?= base_url('assets/images/Ecusson_RBCD.png') ?>" alt="">
+                <span>RBC Disonais</span>
+            </a>
             <?php if ($spectator): ?><a href="<?= base_url('en-direct') ?>" class="sbd-back"><i class="fas fa-arrow-left me-1"></i>Rencontres du jour</a><?php endif; ?>
             <?php if ($table): ?><span class="sbd-muted">· <?= esc($table->name) ?></span><?php endif; ?>
         </div>
