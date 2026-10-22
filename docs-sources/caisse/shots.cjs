@@ -12,7 +12,8 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
 const out = path.resolve(process.argv[2] || 'caisse/img');
 fs.mkdirSync(out, { recursive: true });
 
-const DEMO_CLIENTS = ['DUPONT JEAN', 'DUPONT MARIE', 'DUPUIS LUC', 'LEMAIRE LUC', 'LAMBERT SOPHIE', 'DUBOIS MARC', 'RENARD GUY', 'SIMON DANIEL', 'PEETERS JOS', 'GILLES ROBERT'];
+// « DUPONT J » : doublon de démonstration pour la carte « Doublons probables »
+const DEMO_CLIENTS = ['DUPONT JEAN', 'DUPONT J', 'DUPONT MARIE', 'DUPUIS LUC', 'LEMAIRE LUC', 'LAMBERT SOPHIE', 'DUBOIS MARC', 'RENARD GUY', 'SIMON DANIEL', 'PEETERS JOS', 'GILLES ROBERT'];
 const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
 
 (async () => {
@@ -59,7 +60,7 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     if (url.includes('/caisse/api/barmans')) {
       return req.respond({ contentType: 'application/json', body: JSON.stringify(keyHolders.map(([id], i) => ({ id: +id, name: FAKE_BARMEN[i], planned: i === 0 }))) });
     }
-    if (url.includes('/caisse/api/clients')) {
+    if (url.includes('/caisse/api/clients?')) {
       const q = decodeURIComponent((url.split('q=')[1] || '')).toUpperCase();
       const seen = { 'DUPONT JEAN': [3, true], 'DUPONT MARIE': [12, false], 'DUPUIS LUC': [24, true] };
       const list = Object.keys(seen).filter(n => n.startsWith(q) || n.includes(' ' + q)).map(n => ({ id: clientId[n], name: n, member: seen[n][1], lastSeen: new Date(Date.now() - seen[n][0] * 864e5).toISOString().slice(0, 10) }));
@@ -216,6 +217,13 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
           [...tb.rows].sort((a, b) => key(a).localeCompare(key(b))).forEach(r => tb.appendChild(r));
           document.querySelectorAll('.dataTables_info, .dataTables_paginate').forEach(e => e.remove());
           document.querySelectorAll('#clientsTable select option').forEach(o => { if (o.value && !fake.some(f => o.textContent.startsWith(f))) o.remove(); });
+          // Doublons probables : seulement les paires de démonstration
+          const dup = document.getElementById('duplicates');
+          if (dup) {
+            dup.querySelectorAll('tbody tr').forEach(r => { if (!/DUPONT J\b/.test(r.cells[1].textContent) || !/DUPONT JEAN/.test(r.cells[0].textContent)) r.remove(); });
+            const n = dup.querySelectorAll('tbody tr').length;
+            if (!n) dup.remove(); else dup.querySelector('.card-title').lastChild.textContent = 'Doublons probables (' + n + ')';
+          }
         }
         if (o.replace) o.replace.forEach(([real, f]) => { document.querySelector('.content-wrapper').innerHTML = document.querySelector('.content-wrapper').innerHTML.split(real).join(f); });
         if (o.menu) {

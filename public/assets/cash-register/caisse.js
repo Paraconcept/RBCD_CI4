@@ -593,7 +593,7 @@
 
     function renderName() {
         $('newLabel').textContent = 'Nouveau ticket n° ' + S.nextNumber + ' · nom du client';
-        $('nameBox').innerHTML = (S.name ? esc(S.name) : '<span class="ph">Nom ou prénom du client…</span>') + '<i class="caret"></i>';
+        $('nameBox').innerHTML = (S.name ? esc(S.name) : '<span class="ph">Nom puis prénom du client…</span>') + '<i class="caret"></i>';
         sizeName($('nameBox'), S.name);
         const q = S.name.trim();
         if (q.length < 2) {
@@ -643,11 +643,58 @@
         }).join('') + (exact ? '' : `<button class="sg create" type="button" data-create="1">+ Créer « ${esc(q.toUpperCase())} » comme nouveau client</button>`);
     }
 
+    const REASONS = {
+        inverse: 'mêmes mots, dans l’autre ordre',
+        proche: 'une lettre de différence',
+        abrege: 'prénom abrégé',
+        identique: 'même nom, aux accents ou tirets près',
+    };
+
+    // Avant de créer un nouveau client : « c'est peut-être lui ? », nom remis dans l'ordre NOM PRÉNOM, nom d'un seul mot.
+    // Retourne le corps de la requête de création, ou null si le barman revient à la saisie.
+    async function confirmNewClient(name) {
+        let d;
+        try { d = await api('clients/verifier?name=' + encodeURIComponent(name)); }
+        catch (e) { return { name }; } // la vérification est une aide : elle ne doit pas bloquer le service
+        if (!d.suspects.length && !d.swapped && !d.single) return { name };
+
+        const typed = name.toUpperCase();
+        const choices = d.suspects.map(c => ({
+            cls: 'pick', body: { client_id: c.id },
+            html: `<span>C’est <b>${esc(c.name)}</b>${c.member ? ' <span class="mb">membre</span>' : ''}</span><small>${REASONS[c.reason] || ''}</small>`,
+        }));
+        if (d.swapped) choices.push({
+            cls: 'pick', body: { name: d.swapped },
+            html: `<span>Créer <b>${esc(d.swapped)}</b></span><small>nom de famille d’abord</small>`,
+        });
+        if (d.single) choices.push({ cls: '', body: null, html: '<span>Compléter le nom</span><small>ajouter le prénom</small>' });
+        choices.push({ cls: '', body: { name }, html: `<span>Créer <b>${esc(typed)}</b> tel quel</span><small>nouveau client</small>` });
+        choices.push({ cls: 'back', body: null, html: 'Revenir' });
+
+        $('kTitle').textContent = d.suspects.length ? 'Ce client existe peut-être déjà'
+            : d.swapped ? 'Le nom de famille d’abord ?' : 'Nom et prénom ?';
+        $('kText').textContent = d.suspects.length ? '« ' + typed + ' » ressemble à un client connu. Touche le bon client pour ne pas créer de doublon.'
+            : d.swapped ? '« ' + typed + ' » semble commencer par le prénom. Les clients s’écrivent NOM puis prénom.'
+            : 'Un seul mot : ajoute le prénom si tu le connais, pour retrouver ce client facilement la prochaine fois.';
+        $('kChoices').innerHTML = choices.map((c, i) => `<button class="btn ${c.cls}" type="button" data-i="${i}">${c.html}</button>`).join('');
+
+        return new Promise(resolve => {
+            $('clientModal').hidden = false;
+            $('kChoices').onclick = e => {
+                const b = e.target.closest('[data-i]');
+                if (!b) return;
+                $('clientModal').hidden = true;
+                resolve(choices[+b.dataset.i].body);
+            };
+        });
+    }
+
     $('sugg').addEventListener('click', async e => {
         const b = e.target.closest('.sg');
         if (!b || b.disabled) return;
         b.disabled = true;
-        const body = b.dataset.create ? { name: S.name.trim() } : { client_id: +b.dataset.id };
+        const body = b.dataset.create ? await confirmNewClient(S.name.trim()) : { client_id: +b.dataset.id };
+        if (!body) { b.disabled = false; return; }
         try {
             const d = await api('tickets', body);
             S.tickets.push(d.ticket);
@@ -982,7 +1029,7 @@
     window.addEventListener('online', pollBar);
     // Rafraîchit la liste des tickets si un autre appareil a travaillé sur le même service
     setInterval(() => {
-        if (!pending && $('modal').hidden && $('payModal').hidden && ['ticket', 'list'].includes(S.mode)) refresh(true).catch(() => {});
+        if (!pending && $('modal').hidden && $('payModal').hidden && $('clientModal').hidden && ['ticket', 'list'].includes(S.mode)) refresh(true).catch(() => {});
     }, 20000);
     // Retour d'une impression : on rouvre le ticket qui était affiché
     const params = new URLSearchParams(location.search);

@@ -241,6 +241,11 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .modal-box .paybig .btn { height: 6rem; font-size: 1.35rem; flex-direction: column; gap: .2rem; }
 .modal-box .paybig .btn small { font-size: .75rem; font-weight: 600; color: var(--muted); }
 .modal-box #pNo { height: 3.25rem; font-size: 1rem; }
+.modal-box .choices { display: grid; gap: .55rem; }
+.modal-box .choices .btn { height: auto; min-height: 3.4rem; justify-content: space-between; text-align: left; white-space: normal; padding: .5rem .9rem; font-size: 1.05rem; }
+.modal-box .choices .btn small { font-size: .8rem; font-weight: 600; color: var(--muted); }
+.modal-box .choices .btn.pick { border-color: var(--accent); }
+.modal-box .choices .btn.back { justify-content: center; min-height: 3rem; font-size: .95rem; }
 .btn.confirm-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
 
 .toast { position: fixed; left: 50%; top: 4.6rem; pointer-events: none; transform: translateX(-50%); background: var(--hd); color: #fff; border-radius: .9rem; padding: .8rem 1.1rem; display: flex; align-items: center; gap: 1rem; font-weight: 600; z-index: 60; box-shadow: 0 .75rem 2rem rgba(0,0,0,.3); max-width: 90vw; }

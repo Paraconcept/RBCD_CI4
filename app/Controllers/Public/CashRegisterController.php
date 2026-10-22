@@ -113,6 +113,30 @@ class CashRegisterController extends BaseController
         ], $rows));
     }
 
+    /**
+     * Avant de créer un nouveau client : clients qui lui ressemblent, nom remis dans l'ordre « NOM PRÉNOM »
+     * s'il a été tapé à l'envers, et nom d'un seul mot. La caisse demande alors confirmation au barman.
+     */
+    public function checkClient()
+    {
+        $model = new BarClientModel();
+        $name  = BarClientModel::normalize((string) $this->request->getGet('name'));
+        $swap  = $model->nameFirst($name);
+        $suspects = array_map(static fn ($c) => [
+            'id'     => (int) $c->id,
+            'name'   => $c->name,
+            'member' => $c->member_id !== null,
+            'reason' => $c->reason,
+        ], $model->suspects($name));
+
+        return $this->response->setJSON([
+            'suspects' => $suspects,
+            // Inutile de proposer de créer « DUPONT JEAN » s'il est déjà dans les clients proposés
+            'swapped'  => $swap !== null && !in_array($swap, array_column($suspects, 'name'), true) ? $swap : null,
+            'single'   => !str_contains($name, ' '),
+        ]);
+    }
+
     /** Barmen possibles : détenteurs d'une clé ; celui du planning des permanences en premier. */
     public function bartenders()
     {

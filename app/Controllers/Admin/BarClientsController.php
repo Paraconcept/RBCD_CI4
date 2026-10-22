@@ -23,6 +23,7 @@ class BarClientsController extends BaseController
             'title'       => 'Caisse — Clients',
             'breadcrumbs' => [['title' => 'Caisse'], ['title' => 'Clients']],
             'clients'     => $this->clients->getForAdmin(),
+            'duplicates'  => $this->clients->probableDuplicates(),
         ]);
     }
 
@@ -58,6 +59,18 @@ class BarClientsController extends BaseController
         $this->clients->merge($id, $into);
 
         return redirect()->to(base_url('admin/caisse/clients'))->with('success', '« ' . esc($from->name) . ' » fusionné dans « ' . esc($to->name) . ' » : ses tickets lui sont rattachés.');
+    }
+
+    public function notDuplicate()
+    {
+        $a = $this->clients->find((int) $this->request->getPost('a'));
+        $b = $this->clients->find((int) $this->request->getPost('b'));
+        if (!$a || !$b) {
+            return redirect()->back()->with('error', 'Client introuvable.');
+        }
+        BarClientModel::ignorePair((int) $a->id, (int) $b->id);
+
+        return redirect()->to(base_url('admin/caisse/clients'))->with('success', '« ' . esc($a->name) . ' » et « ' . esc($b->name) . ' » ne seront plus proposés comme doublons.');
     }
 
     public function delete(int $id)

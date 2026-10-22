@@ -191,6 +191,14 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
     </div>
 </div>
 
+<div class="modal" id="clientModal" hidden>
+    <div class="modal-box">
+        <h3 id="kTitle"></h3>
+        <p id="kText"></p>
+        <div class="choices" id="kChoices"></div>
+    </div>
+</div>
+
 <div class="modal" id="payModal" hidden>
     <div class="modal-box">
         <h3 id="pTitle"></h3>

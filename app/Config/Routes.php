@@ -131,6 +131,7 @@ $routes->group('caisse', ['filter' => 'scoreboardDevice'], static function ($rou
     $routes->get ('/',                              'Public\CashRegisterController::index');
     $routes->get ('api/etat',                       'Public\CashRegisterController::state');
     $routes->get ('api/clients',                    'Public\CashRegisterController::clients');
+    $routes->get ('api/clients/verifier',           'Public\CashRegisterController::checkClient');
     $routes->get ('api/barmans',                    'Public\CashRegisterController::bartenders');
     $routes->post('api/service',                    'Public\CashRegisterController::openService');
     $routes->get ('api/service/resume',             'Public\CashRegisterController::summary');
@@ -212,6 +213,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('caisse/clients/synchroniser',               'Admin\BarClientsController::sync');
         $routes->post('caisse/clients/(:num)/update',              'Admin\BarClientsController::update/$1');
         $routes->post('caisse/clients/(:num)/fusionner',           'Admin\BarClientsController::merge/$1');
+        $routes->post('caisse/clients/pas-un-doublon',             'Admin\BarClientsController::notDuplicate');
         $routes->post('caisse/clients/(:num)/delete',              'Admin\BarClientsController::delete/$1');
         $routes->get ('caisse/services',                           'Admin\BarServicesController::index');
         $routes->post('caisse/services/(:num)/cloturer',           'Admin\BarServicesController::close/$1');

@@ -93,6 +93,186 @@ class BarClientModel extends Model
         return [$added, $renamed];
     }
 
+    // Prénoms courants, en plus de ceux des membres : sert à repérer un nom tapé « PRÉNOM NOM »
+    private const COMMON_FIRST_NAMES = [
+        'ALAIN', 'ALBERT', 'ALEXANDRE', 'ALFRED', 'ALINE', 'ANDRE', 'ANDREE', 'ANNE', 'ANNIE', 'ANTOINE', 'ARNAUD', 'ARTHUR',
+        'BENOIT', 'BERNARD', 'BRIGITTE', 'BRUNO', 'CAROLE', 'CATHERINE', 'CHANTAL', 'CHARLES', 'CHRISTIAN', 'CHRISTINE', 'CHRISTOPHE',
+        'CLAUDE', 'CLAUDINE', 'COLETTE', 'DANIEL', 'DANIELLE', 'DAVID', 'DENIS', 'DIDIER', 'DOMINIQUE', 'EDOUARD', 'ELISE', 'EMILE',
+        'ERIC', 'ETIENNE', 'FABIENNE', 'FERNAND', 'FRANCINE', 'FRANCIS', 'FRANCOIS', 'FRANCOISE', 'FREDERIC', 'GABRIEL', 'GEORGES',
+        'GERARD', 'GHISLAIN', 'GILBERT', 'GILLES', 'GUY', 'HENRI', 'HUBERT', 'ISABELLE', 'JACQUELINE', 'JACQUES', 'JEAN', 'JEANNE',
+        'JEROME', 'JOSE', 'JOSEPH', 'JOSETTE', 'JULES', 'JULIEN', 'LAURENT', 'LEON', 'LOUIS', 'LUC', 'LUCIEN', 'MARC', 'MARCEL',
+        'MARIE', 'MARTINE', 'MAURICE', 'MICHEL', 'MICHELE', 'MONIQUE', 'NADINE', 'NATHALIE', 'NICOLAS', 'NICOLE', 'OLIVIER',
+        'PASCAL', 'PATRICIA', 'PATRICK', 'PAUL', 'PHILIPPE', 'PIERRE', 'RAYMOND', 'RENE', 'ROBERT', 'ROGER', 'SERGE', 'SOPHIE',
+        'STEPHANE', 'SYLVIE', 'THERESE', 'THIERRY', 'THOMAS', 'VINCENT', 'WILLY', 'YVES', 'YVETTE', 'YVONNE',
+    ];
+
+    /** Clé de comparaison : majuscules sans accents ni ponctuation. */
+    public static function key(string $name): string
+    {
+        helper('text');
+        $plain = convert_accented_characters(self::normalize($name));
+        return trim(preg_replace('/\s+/', ' ', preg_replace('/[^A-Z ]+/', ' ', strtoupper($plain))));
+    }
+
+    /**
+     * Raison pour laquelle deux noms désignent sans doute la même personne, ou null.
+     * « inverse » : mêmes mots dans un autre ordre ; « proche » : une ou deux lettres de différence ;
+     * « abrege » : un prénom réduit à une ou deux lettres (« DUPONT J » / « DUPONT JEAN ») ;
+     * « identique » : même nom aux accents, tirets ou espaces près.
+     * Un nom d'un seul mot n'est jamais comparé : « JEAN » ressemblerait à tous les Jean.
+     */
+    public static function resemblance(string $a, string $b): ?string
+    {
+        $a = self::key($a);
+        $b = self::key($b);
+        $wa = explode(' ', $a);
+        $wb = explode(' ', $b);
+        if ($a === '' || $b === '' || count($wa) < 2 || count($wb) < 2) {
+            return null;
+        }
+        if ($a === $b) {
+            return 'identique';
+        }
+        $sa = $wa; sort($sa);
+        $sb = $wb; sort($sb);
+        if ($sa === $sb) {
+            return 'inverse';
+        }
+        // Une seule lettre d'écart : au-delà, « DANIEL » / « DANIELLE » seraient confondus
+        $tolerance = min(strlen($a), strlen($b)) >= 16 ? 2 : 1;
+        if (levenshtein($a, $b) <= $tolerance || levenshtein(implode(' ', $sa), implode(' ', $sb)) <= $tolerance) {
+            return 'proche';
+        }
+        if (count($wa) === count($wb)) {
+            foreach ([$wb, array_reverse($wb)] as $other) {
+                $equal = 0;
+                $ok    = true;
+                foreach ($wa as $i => $w) {
+                    $o = $other[$i];
+                    if ($w === $o) {
+                        $equal++;
+                    } elseif (min(strlen($w), strlen($o)) > 2 || (!str_starts_with($w, $o) && !str_starts_with($o, $w))) {
+                        $ok = false;
+                        break;
+                    }
+                }
+                if ($ok && $equal >= 1) {
+                    return 'abrege';
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Clients qui ressemblent à $name (pas le nom exact : la caisse reprend déjà ce client), 4 au maximum. */
+    public function suspects(string $name, int $limit = 4): array
+    {
+        $exact = self::normalize($name);
+        $found = [];
+        foreach ($this->select('id, name, member_id, last_visit_at')->findAll() as $c) {
+            $reason = self::resemblance($name, $c->name);
+            if ($reason !== null && $c->name !== $exact) {
+                $c->reason = $reason;
+                $found[]   = $c;
+            }
+        }
+        usort($found, static fn ($x, $y) => [$y->member_id !== null, (string) $y->last_visit_at] <=> [$x->member_id !== null, (string) $x->last_visit_at]);
+        return array_slice($found, 0, $limit);
+    }
+
+    /**
+     * « JEAN DUPONT » → « DUPONT JEAN » : si le nom commence par un ou plusieurs prénoms connus suivis d'un mot qui n'en est pas un.
+     * Prudent exprès : « MARTIN PAUL » (deux prénoms possibles) n'est pas retourné.
+     */
+    public function nameFirst(string $name): ?string
+    {
+        $words = explode(' ', self::normalize($name));
+        $keys  = explode(' ', self::key($name));
+        if (count($words) < 2 || count($words) !== count($keys)) {
+            return null;
+        }
+        $known = $this->firstNames();
+        $k = 0;
+        while ($k < count($keys) && isset($known[$keys[$k]])) {
+            $k++;
+        }
+        if ($k === 0 || $k === count($keys)) {
+            return null;
+        }
+        return implode(' ', array_merge(array_slice($words, $k), array_slice($words, 0, $k)));
+    }
+
+    private ?array $firstNames = null;
+
+    /** @return array<string, true> prénoms (clés sans accents) des membres et prénoms courants */
+    private function firstNames(): array
+    {
+        if ($this->firstNames !== null) {
+            return $this->firstNames;
+        }
+        $names = array_fill_keys(self::COMMON_FIRST_NAMES, true);
+        foreach ($this->db->table('members')->select('first_name')->distinct()->get()->getResultObject() as $m) {
+            foreach (explode(' ', self::key((string) $m->first_name)) as $w) {
+                if (strlen($w) >= 2) {
+                    $names[$w] = true;
+                }
+            }
+        }
+        return $this->firstNames = $names;
+    }
+
+    /**
+     * Paires de clients qui sont sans doute la même personne, pour Admin › Clients.
+     * Deux membres ne sont jamais proposés (homonymes réels, et ils ne peuvent pas être fusionnés),
+     * ni les paires marquées « pas un doublon ». Le client proposé à conserver est le membre, sinon celui qui a le plus de tickets,
+     * sinon celui écrit « NOM PRÉNOM », sinon le nom le plus complet.
+     */
+    public function probableDuplicates(): array
+    {
+        $ignored = array_flip(self::ignoredPairs());
+        $clients = $this->getForAdmin();
+        $pairs   = [];
+        foreach ($clients as $i => $a) {
+            for ($j = $i + 1; $j < count($clients); $j++) {
+                $b = $clients[$j];
+                if (($a->member_id && $b->member_id) || isset($ignored[self::pairKey((int) $a->id, (int) $b->id)])) {
+                    continue;
+                }
+                $reason = self::resemblance($a->name, $b->name);
+                if ($reason === null) {
+                    continue;
+                }
+                $keepA = $this->keepScore($a) >= $this->keepScore($b);
+                $pairs[] = (object) ['keep' => $keepA ? $a : $b, 'drop' => $keepA ? $b : $a, 'reason' => $reason];
+            }
+        }
+        return $pairs;
+    }
+
+    private function keepScore(object $c): array
+    {
+        return [$c->member_id !== null, (int) $c->ticket_count, $this->nameFirst($c->name) === null, strlen($c->name)];
+    }
+
+    public static function pairKey(int $a, int $b): string
+    {
+        return min($a, $b) . '-' . max($a, $b);
+    }
+
+    /** @return string[] paires « id-id » marquées « pas un doublon » dans l'admin */
+    public static function ignoredPairs(): array
+    {
+        $list = json_decode((string) (new SiteSettingModel())->getSetting('bar_clients_not_duplicates', '[]'), true);
+        return is_array($list) ? $list : [];
+    }
+
+    public static function ignorePair(int $a, int $b): void
+    {
+        $list   = self::ignoredPairs();
+        $list[] = self::pairKey($a, $b);
+        (new SiteSettingModel())->setSetting('bar_clients_not_duplicates', json_encode(array_values(array_unique($list))));
+    }
+
     /** Liste admin avec le nombre de tickets et le membre lié. */
     public function getForAdmin(): array
     {
