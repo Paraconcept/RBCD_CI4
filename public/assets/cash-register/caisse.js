@@ -673,8 +673,8 @@
 
         $('kTitle').textContent = d.suspects.length ? 'Ce client existe peut-être déjà'
             : d.swapped ? 'Le nom de famille d’abord ?' : 'Nom et prénom ?';
-        $('kText').textContent = d.suspects.length ? '« ' + typed + ' » ressemble à un client connu. Touche le bon client pour ne pas créer de doublon.'
-            : d.swapped ? '« ' + typed + ' » semble commencer par le prénom. Les clients s’écrivent NOM puis prénom.'
+        $('kText').innerHTML = d.suspects.length ? '« ' + esc(typed) + ' » ressemble à un client connu. Touche le bon client pour ne pas créer de doublon.'
+            : d.swapped ? '« ' + esc(typed) + ' » semble commencer par le prénom. Les clients s’écrivent <b>NOM</b> puis <b>PRÉNOM</b>.'
             : 'Un seul mot : ajoute le prénom si tu le connais, pour retrouver ce client facilement la prochaine fois.';
         $('kChoices').innerHTML = choices.map((c, i) => `<button class="btn ${c.cls}" type="button" data-i="${i}">${c.html}</button>`).join('');
 
