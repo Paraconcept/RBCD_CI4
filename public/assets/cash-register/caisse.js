@@ -203,11 +203,14 @@
             const reasons = $('mReasons');
             reasons.hidden = !withReasons;
             let reason = null;
+            // Avec des raisons, le bouton « oui » reste grisé tant qu'aucune n'est choisie
+            $('mYes').disabled = !!withReasons;
             reasons.querySelectorAll('.btn').forEach(b => {
                 b.setAttribute('aria-pressed', 'false');
                 b.onclick = () => {
                     reasons.querySelectorAll('.btn').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
                     reason = b.textContent;
+                    $('mYes').disabled = false;
                 };
             });
             $('modal').hidden = false;

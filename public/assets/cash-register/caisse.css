@@ -247,6 +247,7 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .modal-box .choices .btn.pick { border-color: var(--accent); }
 .modal-box .choices .btn.back { justify-content: center; min-height: 3rem; font-size: .95rem; }
 .btn.confirm-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn.confirm-danger[disabled] { background: #e2e1ea; border-color: #e2e1ea; color: #8d91a3; }
 
 .toast { position: fixed; left: 50%; top: 4.6rem; pointer-events: none; transform: translateX(-50%); background: var(--hd); color: #fff; border-radius: .9rem; padding: .8rem 1.1rem; display: flex; align-items: center; gap: 1rem; font-weight: 600; z-index: 60; box-shadow: 0 .75rem 2rem rgba(0,0,0,.3); max-width: 90vw; }
 .toast.err { background: var(--danger); }
