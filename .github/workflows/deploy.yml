@@ -24,3 +24,8 @@ jobs:
             composer install --no-dev --optimize-autoloader --quiet
             php spark migrate --no-interaction
             chmod -R 755 writable/
+            # Le serveur web garde les anciens fichiers PHP en cache (OPcache) : on le vide avec un jeton à usage unique
+            php -r 'echo bin2hex(random_bytes(16));' > writable/deploy_token
+            curl -sS --max-time 20 "https://rbcd.be/opcache-reset.php?token=$(cat writable/deploy_token)" || echo "Vidage du cache PHP impossible"
+            echo
+            rm -f writable/deploy_token
