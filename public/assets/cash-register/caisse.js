@@ -192,11 +192,14 @@
         toastTimer = setTimeout(() => { $('toast').hidden = true; }, action ? 7000 : 4000);
     }
 
-    function confirmBox(title, text, yesLabel, withReasons) {
+    // opts.noLabel : texte du bouton de refus ; opts.safe : bouton « oui » bleu (action normale) au lieu de rouge
+    function confirmBox(title, text, yesLabel, withReasons, opts = {}) {
         return new Promise(resolve => {
             $('mTitle').textContent = title;
             $('mText').textContent = text;
             $('mYes').textContent = yesLabel;
+            $('mYes').className = 'btn ' + (opts.safe ? 'primary' : 'confirm-danger');
+            $('mNo').textContent = opts.noLabel || 'Non, revenir';
             const reasons = $('mReasons');
             reasons.hidden = !withReasons;
             let reason = null;
@@ -548,7 +551,11 @@
         $('btnValidate').disabled = true;
         await queue;
         const method = await payBox(t);
-        if (!method) { renderTicket(); return; }
+        // Deuxième confirmation : un mauvais bouton (espèces / Bancontact) fausserait l'enveloppe
+        const sure = method && await confirmBox('Êtes-vous sûr ?',
+            'Ticket n° ' + t.number + ' · ' + t.client + ' · ' + eur(t.total) + ' payé en ' + METHODS[method] + '.',
+            'Oui, payer en ' + METHODS[method], false, { safe: true, noLabel: 'Annuler' });
+        if (!sure) { renderTicket(); return; }
         try {
             const d = await api('tickets/' + t.id + '/valider', { method });
             S.tickets = S.tickets.filter(x => x.id !== t.id);

@@ -153,6 +153,8 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
     await tap('#btnValidate');
     await shot('c06_payer');
     await tap('#payModal [data-m="cash"]');
+    await wait(300);
+    await tap('#mYes'); // « Êtes-vous sûr ? »
     await wait(500);
     const dupontTicket = +sql(`select id from bar_tickets where client_id = ${clientId['DUPONT JEAN']} order by id desc limit 1`);
 
