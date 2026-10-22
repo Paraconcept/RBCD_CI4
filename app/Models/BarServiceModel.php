@@ -24,7 +24,7 @@ class BarServiceModel extends Model
     protected $allowedFields = [
         'service_date', 'period', 'number', 'envelope_code', 'status', 'bartender_member_id', 'opening_float',
         'opened_at', 'closed_at', 'closed_by_member_id', 'closing_float', 'paid_count', 'cancelled_count',
-        'cash_total', 'bancontact_total', 'vat_b_total', 'vat_g_total',
+        'cash_total', 'bancontact_total', 'vat_b_total', 'vat_g_total', 'vat_d_total',
     ];
 
     /** Même nomenclature que Trésorerie › Enveloppes : E + JJ-MM- + numéro du service dans la journée (ex. E20-10-01). */

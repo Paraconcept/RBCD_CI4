@@ -148,7 +148,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
                     <div class="label" style="margin-bottom:.3rem">Par mode de paiement</div>
                     <div class="pm-row"><div><b>Espèces</b><small id="cCashN"></small></div><span class="v" id="cCash"></span></div>
                     <div class="pm-row"><div><b>Bancontact (SumUp)</b><small id="cBcN"></small></div><span class="v" id="cBc"></span></div>
-                    <div class="pm-row"><div><b>TVA 21 % B (bar) · 21 % G (gougouilles)</b><small>Pour l'encodage de l'enveloppe</small></div><span class="v" id="cVat" style="font-size:1.05rem"></span></div>
+                    <div class="pm-row"><div><b>TVA 21 % B (bar) · G (gougouilles) · D (divers)</b><small>Pour l'encodage de l'enveloppe</small></div><span class="v" id="cVat" style="font-size:1.05rem"></span></div>
                 </div>
                 <div></div>
                 <div class="note" id="cNote"><i></i><span></span></div>

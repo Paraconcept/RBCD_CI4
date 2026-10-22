@@ -112,7 +112,7 @@ class BarRegister
             ->where('t.service_id', $serviceId)->where('t.status', 'paid')
             ->groupBy('l.vat_group')
             ->get()->getResultObject();
-        $s['vat_b'] = $s['vat_g'] = 0.0;
+        $s['vat_b'] = $s['vat_g'] = $s['vat_d'] = 0.0;
         foreach ($vat as $v) {
             $s['vat_' . strtolower($v->vat_group)] = round((float) $v->amount, 2);
         }
@@ -168,6 +168,7 @@ class BarRegister
             'bancontact_total'    => $s['bancontact'],
             'vat_b_total'         => $s['vat_b'],
             'vat_g_total'         => $s['vat_g'],
+            'vat_d_total'         => $s['vat_d'],
         ]);
         $this->db->transComplete();
 

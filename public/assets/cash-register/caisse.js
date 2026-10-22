@@ -758,7 +758,7 @@
         $('cCashN').textContent = s.cash_count + ' ticket' + (s.cash_count > 1 ? 's' : '') + ' · à glisser dans l’enveloppe';
         $('cBc').textContent = eur(s.bancontact);
         $('cBcN').textContent = s.bancontact_count + ' ticket' + (s.bancontact_count > 1 ? 's' : '') + ' · encaissé directement sur le terminal';
-        $('cVat').textContent = 'B ' + eur(s.vat_b) + ' · G ' + eur(s.vat_g);
+        $('cVat').textContent = 'B ' + eur(s.vat_b) + ' · G ' + eur(s.vat_g) + ' · D ' + eur(s.vat_d);
         $('cEnv').textContent = service.envelope;
         const d = new Date(service.date + 'T12:00:00');
         $('cWhen').textContent = cap(d.toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })) + ' · ' + service.label + (service.bartender ? ' · ' + service.bartender : '');

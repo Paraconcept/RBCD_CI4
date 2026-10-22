@@ -162,7 +162,7 @@ class BarCatalogController extends BaseController
         return [
             'name'      => $name,
             'price'     => round((float) $price, 2),
-            'vat_group' => $this->request->getPost('vat_group') === 'G' ? 'G' : 'B',
+            'vat_group' => in_array($this->request->getPost('vat_group'), ['G', 'D'], true) ? $this->request->getPost('vat_group') : 'B',
             'position'  => $position,
         ];
     }

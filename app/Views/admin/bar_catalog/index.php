@@ -82,7 +82,7 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
       <div style="flex:1;min-width:520px">
         <table class="table table-sm table-bordered mb-2">
           <thead class="thead-rbcd">
-            <tr><th>Produit</th><th width="95">Prix (€)</th><th width="120" title="B = bar, G = gougouilles">TVA 21 %</th><th width="80">Case</th><th width="140">Catégorie</th><th width="60" class="text-center">Actif</th><th width="80" class="text-right">Actions</th></tr>
+            <tr><th>Produit</th><th width="95">Prix (€)</th><th width="120" title="B = bar, G = gougouilles, D = divers">TVA 21 %</th><th width="80">Case</th><th width="140">Catégorie</th><th width="60" class="text-center">Actif</th><th width="80" class="text-right">Actions</th></tr>
           </thead>
           <tbody>
             <?php foreach ($list as $p):
@@ -97,6 +97,7 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
                 <select name="vat_group" form="p-f<?= $p->id ?>" class="form-control form-control-sm">
                   <option value="B" <?= $p->vat_group === 'B' ? 'selected' : '' ?>>B · bar</option>
                   <option value="G" <?= $p->vat_group === 'G' ? 'selected' : '' ?>>G · gougouilles</option>
+                  <option value="D" <?= $p->vat_group === 'D' ? 'selected' : '' ?>>D · divers</option>
                 </select>
               </td>
               <td>
@@ -139,6 +140,7 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
           <select name="vat_group" class="form-control form-control-sm mr-2">
             <option value="B" <?= $c->name === 'Snacks' ? '' : 'selected' ?>>B · bar</option>
             <option value="G" <?= $c->name === 'Snacks' ? 'selected' : '' ?>>G · gougouilles</option>
+            <option value="D">D · divers</option>
           </select>
           <select name="position" class="form-control form-control-sm mr-2" title="Case dans la grille">
             <?php foreach ($free as $slot): ?><option value="<?= $slot ?>">Case <?= $slot ?></option><?php endforeach; ?>
@@ -152,7 +154,7 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
     </div>
     <p class="text-muted small mt-3 mb-0">
       Un changement de prix ne modifie pas les tickets déjà enregistrés. Un produit déjà vendu n'est jamais supprimé : il est désactivé et libère sa case.
-      La TVA « G » (gougouilles) et « B » (bar) alimente la ventilation de l'enveloppe.
+      La TVA « B » (bar), « G » (gougouilles) et « D » (divers) est totalisée à la clôture et sur le récapitulatif du service.
     </p>
   </div>
 </div>

@@ -127,6 +127,7 @@ td, th { vertical-align: top; }
                 <tr class="sum"><td>Total des ventes</td><td class="r"><?= $eur($s['total']) ?></td></tr>
                 <tr><td>21 % B (bar)</td><td class="r"><?= $eur($s['vat_b']) ?></td></tr>
                 <tr><td>21 % G (gougouilles)</td><td class="r"><?= $eur($s['vat_g']) ?></td></tr>
+                <tr><td>21 % D (divers)</td><td class="r"><?= $eur($s['vat_d']) ?></td></tr>
             </table>
         </td>
         <td style="width:31%">
