@@ -182,7 +182,7 @@ class BarClientModel extends Model
 
     /**
      * « JEAN DUPONT » → « DUPONT JEAN » : si le nom commence par un ou plusieurs prénoms connus suivis d'un mot qui n'en est pas un.
-     * Prudent exprès : « MARTIN PAUL » (deux prénoms possibles) n'est pas retourné.
+     * Si tous les mots peuvent être des prénoms (« PIERRE MARTIN »), voir otherOrder().
      */
     public function nameFirst(string $name): ?string
     {
@@ -203,6 +203,26 @@ class BarClientModel extends Model
     }
 
     private ?array $firstNames = null;
+
+    /**
+     * « PIERRE MARTIN » : tous les mots peuvent être des prénoms, l'ordre est impossible à deviner.
+     * Retourne l'autre ordre possible (dernier mot en tête), pour que le barman choisisse.
+     */
+    public function otherOrder(string $name): ?string
+    {
+        $words = explode(' ', self::normalize($name));
+        $keys  = explode(' ', self::key($name));
+        if (count($words) < 2 || count($words) !== count($keys)) {
+            return null;
+        }
+        $known = $this->firstNames();
+        foreach ($keys as $k) {
+            if (!isset($known[$k])) {
+                return null;
+            }
+        }
+        return implode(' ', array_merge([array_pop($words)], $words));
+    }
 
     /** @return array<string, true> prénoms (clés sans accents) des membres et prénoms courants */
     private function firstNames(): array

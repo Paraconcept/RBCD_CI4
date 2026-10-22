@@ -656,7 +656,7 @@
         let d;
         try { d = await api('clients/verifier?name=' + encodeURIComponent(name)); }
         catch (e) { return { name }; } // la vérification est une aide : elle ne doit pas bloquer le service
-        if (!d.suspects.length && !d.swapped && !d.single) return { name };
+        if (!d.suspects.length && !d.swapped && !d.ambiguous && !d.single) return { name };
 
         const typed = name.toUpperCase();
         const choices = d.suspects.map(c => ({
@@ -667,14 +667,20 @@
             cls: 'pick', body: { name: d.swapped },
             html: `<span>Créer <b>${esc(d.swapped)}</b></span><small>nom de famille d’abord</small>`,
         });
+        const surname = n => esc(n.split(' ')[0]);
+        if (d.ambiguous) choices.push(
+            { cls: 'pick', body: { name }, html: `<span>Créer <b>${esc(typed)}</b></span><small>nom de famille : ${surname(typed)}</small>` },
+            { cls: 'pick', body: { name: d.ambiguous }, html: `<span>Créer <b>${esc(d.ambiguous)}</b></span><small>nom de famille : ${surname(d.ambiguous)}</small>` },
+        );
         if (d.single) choices.push({ cls: '', body: null, html: '<span>Compléter le nom</span><small>ajouter le prénom</small>' });
-        choices.push({ cls: '', body: { name }, html: `<span>Créer <b>${esc(typed)}</b> tel quel</span><small>nouveau client</small>` });
+        if (!d.ambiguous) choices.push({ cls: '', body: { name }, html: `<span>Créer <b>${esc(typed)}</b> tel quel</span><small>nouveau client</small>` });
         choices.push({ cls: 'back', body: null, html: 'Revenir' });
 
         $('kTitle').textContent = d.suspects.length ? 'Ce client existe peut-être déjà'
-            : d.swapped ? 'Le nom de famille d’abord ?' : 'Nom et prénom ?';
+            : d.swapped ? 'Le nom de famille d’abord ?' : d.ambiguous ? 'Quel est le nom de famille ?' : 'Nom et prénom ?';
         $('kText').innerHTML = d.suspects.length ? '« ' + esc(typed) + ' » ressemble à un client connu. Touche le bon client pour ne pas créer de doublon.'
             : d.swapped ? '« ' + esc(typed) + ' » semble commencer par le prénom. Les clients s’écrivent <b>NOM</b> puis <b>PRÉNOM</b>.'
+            : d.ambiguous ? 'Ces deux mots peuvent être des prénoms. Touche l’ordre correct : <b>NOM</b> puis <b>PRÉNOM</b>.'
             : 'Un seul mot : ajoute le prénom si tu le connais, pour retrouver ce client facilement la prochaine fois.';
         $('kChoices').innerHTML = choices.map((c, i) => `<button class="btn ${c.cls}" type="button" data-i="${i}">${c.html}</button>`).join('');
 

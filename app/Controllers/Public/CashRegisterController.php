@@ -115,13 +115,14 @@ class CashRegisterController extends BaseController
 
     /**
      * Avant de créer un nouveau client : clients qui lui ressemblent, nom remis dans l'ordre « NOM PRÉNOM »
-     * s'il a été tapé à l'envers, et nom d'un seul mot. La caisse demande alors confirmation au barman.
+     * s'il a été tapé à l'envers (ou les deux ordres si on ne peut pas savoir), et nom d'un seul mot. La caisse demande alors confirmation au barman.
      */
     public function checkClient()
     {
         $model = new BarClientModel();
         $name  = BarClientModel::normalize((string) $this->request->getGet('name'));
         $swap  = $model->nameFirst($name);
+        $other = $swap === null ? $model->otherOrder($name) : null;
         $suspects = array_map(static fn ($c) => [
             'id'     => (int) $c->id,
             'name'   => $c->name,
@@ -133,6 +134,8 @@ class CashRegisterController extends BaseController
             'suspects' => $suspects,
             // Inutile de proposer de créer « DUPONT JEAN » s'il est déjà dans les clients proposés
             'swapped'  => $swap !== null && !in_array($swap, array_column($suspects, 'name'), true) ? $swap : null,
+            // Ordre ambigu (« PIERRE MARTIN ») : le barman choisit lequel est le nom de famille
+            'ambiguous' => $other !== null && !in_array($other, array_column($suspects, 'name'), true) ? $other : null,
             'single'   => !str_contains($name, ' '),
         ]);
     }
