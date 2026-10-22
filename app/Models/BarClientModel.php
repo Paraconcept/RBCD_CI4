@@ -10,7 +10,7 @@ class BarClientModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'object';
     protected $useTimestamps = true;
-    protected $allowedFields = ['name', 'member_id', 'last_visit_at'];
+    protected $allowedFields = ['name', 'member_id', 'frbb_license', 'last_visit_at'];
 
     public static function normalize(string $name): string
     {
@@ -55,6 +55,8 @@ class BarClientModel extends Model
 
     /**
      * Membres actifs (tous, ou ceux de $memberIds) : nom « NOM PRÉNOM » tenu à jour, et client créé s'il manque.
+     * Un joueur déjà client sans être membre (importé de la fédération, ou tapé au bar) est repris plutôt que recréé :
+     * même licence d'abord, sinon même nom.
      * Avec $addOnly, seuls ces membres-là sont ajoutés (les autres membres retirés de la caisse n'y reviennent pas).
      * Retourne [ajoutés, renommés].
      */
@@ -62,7 +64,7 @@ class BarClientModel extends Model
     {
         $addOnly = $addOnly !== null ? array_flip(array_map('intval', $addOnly)) : null;
         $added = $renamed = 0;
-        $builder = $this->db->table('members')->select('id, last_name, first_name')->where('is_active', 1);
+        $builder = $this->db->table('members')->select('id, last_name, first_name, frbb_license')->where('is_active', 1);
         if ($memberIds !== null) {
             $builder->whereIn('id', array_map('intval', $memberIds));
         }
@@ -70,9 +72,16 @@ class BarClientModel extends Model
         if (!$members) {
             return [0, 0];
         }
-        $byMember = [];
-        foreach ($this->where('member_id IS NOT NULL')->findAll() as $c) {
-            $byMember[(int) $c->member_id] = $c;
+        $byMember = $freeByLicense = $freeByName = [];
+        foreach ($this->findAll() as $c) {
+            if ($c->member_id) {
+                $byMember[(int) $c->member_id] = $c;
+                continue;
+            }
+            if ($k = \App\Libraries\FrbbMembersImport::licenseKey($c->frbb_license)) {
+                $freeByLicense[$k] = $c;
+            }
+            $freeByName[$c->name] ??= $c;
         }
 
         foreach ($members as $m) {
@@ -82,7 +91,13 @@ class BarClientModel extends Model
                 if ($addOnly !== null && !isset($addOnly[(int) $m->id])) {
                     continue;
                 }
-                $this->insert(['name' => $name, 'member_id' => $m->id]);
+                $free = $freeByLicense[\App\Libraries\FrbbMembersImport::licenseKey($m->frbb_license) ?? ''] ?? $freeByName[$name] ?? null;
+                if ($free) {
+                    $this->update($free->id, ['name' => $name, 'member_id' => $m->id]);
+                    unset($freeByName[$free->name]);
+                } else {
+                    $this->insert(['name' => $name, 'member_id' => $m->id]);
+                }
                 $added++;
             } elseif ($client->name !== $name) {
                 $this->update($client->id, ['name' => $name]);
@@ -243,9 +258,9 @@ class BarClientModel extends Model
 
     /**
      * Paires de clients qui sont sans doute la même personne, pour Admin › Clients.
-     * Deux membres ne sont jamais proposés (homonymes réels, et ils ne peuvent pas être fusionnés),
-     * ni les paires marquées « pas un doublon ». Le client proposé à conserver est le membre, sinon celui qui a le plus de tickets,
-     * sinon celui écrit « NOM PRÉNOM », sinon le nom le plus complet.
+     * Deux membres ne sont jamais proposés (homonymes réels, et ils ne peuvent pas être fusionnés), ni deux licences différentes,
+     * ni les paires marquées « pas un doublon ». Le client proposé à conserver est le membre, sinon le joueur de la fédération
+     * (nom officiel), sinon celui qui a le plus de tickets, sinon celui écrit « NOM PRÉNOM », sinon le nom le plus complet.
      */
     public function probableDuplicates(): array
     {
@@ -255,7 +270,10 @@ class BarClientModel extends Model
         foreach ($clients as $i => $a) {
             for ($j = $i + 1; $j < count($clients); $j++) {
                 $b = $clients[$j];
-                if (($a->member_id && $b->member_id) || isset($ignored[self::pairKey((int) $a->id, (int) $b->id)])) {
+                // Deux licences différentes : deux joueurs différents, même si les noms se ressemblent
+                $licA = \App\Libraries\FrbbMembersImport::licenseKey($a->frbb_license);
+                $licB = \App\Libraries\FrbbMembersImport::licenseKey($b->frbb_license);
+                if (($a->member_id && $b->member_id) || ($licA && $licB && $licA !== $licB) || isset($ignored[self::pairKey((int) $a->id, (int) $b->id)])) {
                     continue;
                 }
                 $reason = self::resemblance($a->name, $b->name);
@@ -271,7 +289,7 @@ class BarClientModel extends Model
 
     private function keepScore(object $c): array
     {
-        return [$c->member_id !== null, (int) $c->ticket_count, $this->nameFirst($c->name) === null, strlen($c->name)];
+        return [$c->member_id !== null, $c->frbb_license !== null, (int) $c->ticket_count, $this->nameFirst($c->name) === null, strlen($c->name)];
     }
 
     public static function pairKey(int $a, int $b): string
@@ -320,6 +338,9 @@ class BarClientModel extends Model
         // Le lien au membre est unique : on supprime le doublon avant de reporter son membre sur le client conservé
         if (!$into->member_id && $from->member_id) {
             $data['member_id'] = $from->member_id;
+        }
+        if (!$into->frbb_license && $from->frbb_license) {
+            $data['frbb_license'] = $from->frbb_license;
         }
         $this->delete($fromId);
         $this->update($intoId, $data);

@@ -57,6 +57,11 @@ $who = static fn (object $c): string => esc($c->name)
   <div class="card-header d-flex align-items-center">
     <h3 class="card-title"><i class="fas fa-user-tag mr-2"></i>Clients de la caisse</h3>
     <div class="ml-auto">
+      <form method="post" action="<?= base_url('admin/caisse/clients/importer-frbb') ?>" class="d-inline"
+            onsubmit="this.querySelector('button').disabled = true; this.querySelector('button').innerHTML = '<i class=\'fas fa-spinner fa-spin mr-1\'></i>Import en cours…'">
+        <?= csrf_field() ?>
+        <button class="btn btn-sm btn-outline-primary mr-1" title="Ajoute les joueurs de la liste « Nos membres » du site frbb-liege-lux.be, sans recréer les membres du RBCD ni les clients déjà connus"><i class="fas fa-cloud-download-alt mr-1"></i>Importer les joueurs FRBB-LL</button>
+      </form>
       <form method="post" action="<?= base_url('admin/caisse/clients/synchroniser') ?>" class="d-inline">
         <?= csrf_field() ?>
         <button class="btn btn-sm btn-outline-primary" title="Ajoute les membres actifs manquants et met leurs noms à jour"><i class="fas fa-sync-alt mr-1"></i>Synchroniser avec les membres</button>
@@ -66,11 +71,11 @@ $who = static fn (object $c): string => esc($c->name)
   <div class="card-body">
     <p class="text-muted">
       Ces noms alimentent l'autocomplétion à la création d'un ticket. Chaque membre actif est client automatiquement (son nom suit sa fiche membre) ;
-      les autres clients sont créés au bar, à la volée, au format <b>NOM PRÉNOM</b>. Un doublon se <b>fusionne</b> dans le bon client : ses tickets lui sont rattachés.
+      les autres clients sont créés au bar, à la volée, au format <b>NOM PRÉNOM</b>, ou importés de la fédération (<span class="badge badge-warning">FRBB</span> avec leur licence). Un doublon se <b>fusionne</b> dans le bon client : ses tickets lui sont rattachés.
     </p>
     <table class="table table-sm table-bordered table-hover" id="clientsTable">
       <thead class="thead-rbcd">
-        <tr><th>Nom</th><th width="90" class="text-center">Membre</th><th width="120">Dernier passage</th><th width="80" class="text-center">Tickets</th><th width="320">Fusionner dans…</th><th width="90" class="text-right">Actions</th></tr>
+        <tr><th>Nom</th><th width="90" class="text-center">Membre</th><th width="90" class="text-center">Licence</th><th width="120">Dernier passage</th><th width="80" class="text-center">Tickets</th><th width="320">Fusionner dans…</th><th width="90" class="text-right">Actions</th></tr>
       </thead>
       <tbody>
         <?php foreach ($clients as $c): ?>
@@ -84,6 +89,7 @@ $who = static fn (object $c): string => esc($c->name)
             <?php endif; ?>
           </td>
           <td class="text-center align-middle"><?= $c->member_id ? '<a href="' . base_url('admin/members/' . $c->member_id . '/edit') . '" title="' . esc($c->member_name) . '"><i class="fas fa-id-card text-success"></i></a>' : '' ?></td>
+          <td class="text-center align-middle"><?= $c->frbb_license ? '<span class="badge badge-warning" title="Licence FRBB">' . esc($c->frbb_license) . '</span>' : '' ?></td>
           <td class="align-middle" data-order="<?= esc((string) $c->last_visit_at) ?>"><?= $c->last_visit_at ? date('d/m/Y', strtotime($c->last_visit_at)) : '—' ?></td>
           <td class="text-center align-middle"><?= (int) $c->ticket_count ?></td>
           <td class="align-middle">
@@ -126,6 +132,6 @@ $who = static fn (object $c): string => esc($c->name)
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script>
-$(function () { $('#clientsTable').DataTable({ pageLength: 50, order: [[0, 'asc']], columnDefs: [{ orderable: false, targets: [4, 5] }] }); });
+$(function () { $('#clientsTable').DataTable({ pageLength: 50, order: [[0, 'asc']], columnDefs: [{ orderable: false, targets: [5, 6] }] }); });
 </script>
 <?= $this->endSection() ?>

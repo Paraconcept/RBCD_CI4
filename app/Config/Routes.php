@@ -211,6 +211,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('caisse/catalogue/produits/(:num)/delete',   'Admin\BarCatalogController::deleteProduct/$1');
         $routes->get ('caisse/clients',                            'Admin\BarClientsController::index');
         $routes->post('caisse/clients/synchroniser',               'Admin\BarClientsController::sync');
+        $routes->post('caisse/clients/importer-frbb',              'Admin\BarClientsController::importFrbb');
         $routes->post('caisse/clients/(:num)/update',              'Admin\BarClientsController::update/$1');
         $routes->post('caisse/clients/(:num)/fusionner',           'Admin\BarClientsController::merge/$1');
         $routes->post('caisse/clients/pas-un-doublon',             'Admin\BarClientsController::notDuplicate');

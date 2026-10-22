@@ -89,6 +89,22 @@ class BarClientsController extends BaseController
             . ($client->member_id ? ' Il reviendra si sa fiche membre est réactivée, ou avec « Synchroniser avec les membres ».' : ''));
     }
 
+    public function importFrbb()
+    {
+        $import = new \App\Libraries\FrbbMembersImport();
+        try {
+            $rows = $import->fetch();
+        } catch (\Throwable $e) {
+            return redirect()->to(base_url('admin/caisse/clients'))->with('error', 'Import impossible : ' . esc($e->getMessage()));
+        }
+        $c = $import->import($rows);
+
+        return redirect()->to(base_url('admin/caisse/clients'))->with('success',
+            count($rows) . ' joueurs lus sur le site de la FRBB Liège-Luxembourg : <b>' . $c['added'] . ' ajouté(s)</b>, '
+            . $c['members'] . ' déjà clients comme membres du RBCD, ' . $c['linked'] . ' client(s) existant(s) complété(s) avec leur licence, '
+            . $c['known'] . ' déjà importé(s).');
+    }
+
     public function sync()
     {
         [$added, $renamed] = $this->clients->syncMembers();

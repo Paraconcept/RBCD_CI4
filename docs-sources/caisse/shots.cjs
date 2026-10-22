@@ -207,13 +207,17 @@ const FAKE_BARMEN = ['MARTIN PAUL', 'MASSON ANNE', 'MATHIEU ANDRÉ'];
         if (o.clients) {
           // Liste réduite à des clients fictifs, membres compris
           const fake = ['AUBRY MICHEL', 'BODSON RENÉ', 'CHARLIER YVES', 'DUBOIS MARC', 'DUPONT JEAN', 'DUPONT MARIE', 'DUPUIS LUC', 'GILLES ROBERT', 'JANSSENS ANNE', 'LAMBERT SOPHIE', 'LEMAIRE LUC', 'PEETERS JOS'];
+          // Toutes les lignes sur une seule page avant de filtrer (DataTables n'en affiche que 50)
+          if (window.jQuery && jQuery.fn.dataTable) jQuery('#clientsTable').DataTable().page.len(-1).draw();
           const rows = [...document.querySelectorAll('#clientsTable tbody tr')];
-          const demo = rows.filter(r => /DUPONT|DUPUIS|LEMAIRE LUC|LAMBERT SOPHIE|DUBOIS MARC|PEETERS JOS|GILLES ROBERT/.test(r.textContent));
+          // Nom seul (pas la liste « Fusionner dans… », qui contient tous les clients)
+          const nameOf = r => (r.cells[0].querySelector('input[name="name"]')?.value || r.cells[0].textContent).trim();
+          const demo = rows.filter(r => /^(DUPONT|DUPUIS|LEMAIRE LUC|LAMBERT SOPHIE|DUBOIS MARC|PEETERS JOS|GILLES ROBERT)/.test(nameOf(r)));
           const members = rows.filter(r => r.querySelector('.fa-id-card')).slice(0, 5);
           rows.forEach(r => { if (!demo.includes(r) && !members.includes(r)) r.remove(); });
-          ['AUBRY MICHEL', 'BODSON RENÉ', 'CHARLIER YVES', 'JANSSENS ANNE', 'MOTTET CLAUDE'].forEach((n, i) => { if (members[i]) members[i].cells[0].textContent = n; });
+          ['AUBRY MICHEL', 'BODSON RENÉ', 'CHARLIER YVES', 'JANSSENS ANNE', 'MOTTET CLAUDE'].forEach((n, i) => { if (members[i]) { members[i].cells[0].textContent = n; members[i].cells[2].textContent = ''; } });
           const tb = document.querySelector('#clientsTable tbody');
-          const key = r => (r.cells[0].querySelector('input')?.value || r.cells[0].textContent).trim();
+          const key = r => (r.cells[0].querySelector('input[name="name"]')?.value || r.cells[0].textContent).trim();
           [...tb.rows].sort((a, b) => key(a).localeCompare(key(b))).forEach(r => tb.appendChild(r));
           document.querySelectorAll('.dataTables_info, .dataTables_paginate').forEach(e => e.remove());
           document.querySelectorAll('#clientsTable select option').forEach(o => { if (o.value && !fake.some(f => o.textContent.startsWith(f))) o.remove(); });
