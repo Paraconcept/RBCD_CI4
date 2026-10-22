@@ -107,11 +107,12 @@ class BarClientsController extends BaseController
 
     public function sync()
     {
-        [$added, $renamed] = $this->clients->syncMembers();
+        [$added, $renamed, $detached] = $this->clients->syncMembers();
 
         return redirect()->to(base_url('admin/caisse/clients'))
-            ->with('success', $added || $renamed
-                ? 'Synchronisation faite : ' . $added . ' membre(s) ajouté(s), ' . $renamed . ' nom(s) mis à jour.'
+            ->with('success', $added || $renamed || $detached
+                ? 'Synchronisation faite : ' . $added . ' membre(s) ajouté(s), ' . $renamed . ' nom(s) mis à jour, '
+                    . $detached . ' ancien(s) membre(s) devenu(s) simple(s) client(s).'
                 : 'Tous les membres actifs sont déjà clients de la caisse.');
     }
 }

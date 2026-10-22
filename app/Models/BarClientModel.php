@@ -58,10 +58,12 @@ class BarClientModel extends Model
      * Un joueur déjà client sans être membre (importé de la fédération, ou tapé au bar) est repris plutôt que recréé :
      * même licence d'abord, sinon même nom.
      * Avec $addOnly, seuls ces membres-là sont ajoutés (les autres membres retirés de la caisse n'y reviennent pas).
-     * Retourne [ajoutés, renommés].
+     * Les membres devenus inactifs sont d'abord détachés de leur client (voir detachInactive).
+     * Retourne [ajoutés, renommés, détachés].
      */
     public function syncMembers(?array $memberIds = null, ?array $addOnly = null): array
     {
+        $detached = $this->detachInactive($memberIds);
         $addOnly = $addOnly !== null ? array_flip(array_map('intval', $addOnly)) : null;
         $added = $renamed = 0;
         $builder = $this->db->table('members')->select('id, last_name, first_name, frbb_license')->where('is_active', 1);
@@ -70,7 +72,7 @@ class BarClientModel extends Model
         }
         $members = $builder->get()->getResultObject();
         if (!$members) {
-            return [0, 0];
+            return [0, 0, $detached];
         }
         $byMember = $freeByLicense = $freeByName = [];
         foreach ($this->findAll() as $c) {
@@ -105,7 +107,30 @@ class BarClientModel extends Model
             }
         }
 
-        return [$added, $renamed];
+        return [$added, $renamed, $detached];
+    }
+
+    /**
+     * Membre devenu inactif (carte RBCD non renouvelée, joueur parti dans un autre club) : son client reste,
+     * avec son nom, sa licence et ses tickets, mais n'est plus « membre » (nom modifiable, comme un joueur de la fédération).
+     * S'il redevient membre, syncMembers reprend ce client grâce à sa licence, ou à défaut à son nom.
+     * Retourne le nombre de clients détachés.
+     */
+    private function detachInactive(?array $memberIds = null): int
+    {
+        $builder = $this->db->table('bar_clients c')
+            ->select('c.id, c.frbb_license AS client_license, m.frbb_license AS member_license')
+            ->join('members m', 'm.id = c.member_id')
+            ->where('m.is_active', 0);
+        if ($memberIds !== null) {
+            $builder->whereIn('m.id', array_map('intval', $memberIds));
+        }
+        $rows = $builder->get()->getResultObject();
+        foreach ($rows as $r) {
+            $license = $r->client_license ?: (trim((string) $r->member_license) ?: null);
+            $this->update($r->id, ['member_id' => null, 'frbb_license' => $license]);
+        }
+        return count($rows);
     }
 
     // Prénoms courants, en plus de ceux des membres : sert à repérer un nom tapé « PRÉNOM NOM »
