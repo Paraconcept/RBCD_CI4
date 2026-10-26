@@ -39,6 +39,7 @@ class BarCatalogController extends BaseController
             'products'    => $products,
             'sold'        => array_flip($sold),
             'slots'       => BarProductModel::SLOTS,
+            'showImages'  => BarProductModel::showImages(),
         ]);
     }
 
@@ -110,7 +111,11 @@ class BarCatalogController extends BaseController
         if (is_string($data)) {
             return redirect()->back()->with('error', $data);
         }
-        $this->products->update($id, $data + ['category_id' => $categoryId, 'is_active' => $active]);
+        $image = $this->productImage($product);
+        if (is_string($image)) {
+            return redirect()->back()->with('error', $image);
+        }
+        $this->products->update($id, $data + $image + ['category_id' => $categoryId, 'is_active' => $active]);
 
         return redirect()->to(base_url('admin/caisse/catalogue') . '#cat' . $categoryId)->with('success', 'Produit « ' . esc($data['name']) . ' » modifié.');
     }
@@ -128,6 +133,7 @@ class BarCatalogController extends BaseController
                 ->with('success', '« ' . esc($product->name) . ' » a déjà été vendu : il est désactivé (retiré de la caisse) et reste dans l\'historique.');
         }
         $this->products->delete($id);
+        $this->deleteUploadedImage($product->image);
 
         return redirect()->to(base_url('admin/caisse/catalogue') . '#cat' . $product->category_id)->with('success', 'Produit supprimé.');
     }
@@ -165,6 +171,45 @@ class BarCatalogController extends BaseController
             'vat_group' => in_array($this->request->getPost('vat_group'), ['G', 'D'], true) ? $this->request->getPost('vat_group') : 'B',
             'position'  => $position,
         ];
+    }
+
+    /**
+     * Photo du produit après envoi (fichier « image ») ou retrait (case « remove_image ») : ['image' => chemin|null], ou message d'erreur.
+     * Réduite à 240 px de haut, la taille d'une touche de la caisse sur la tablette.
+     */
+    private function productImage(object $product): array|string
+    {
+        $file = $this->request->getFile('image');
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            if (!in_array($file->getMimeType(), ['image/png', 'image/jpeg', 'image/webp'], true)) {
+                return 'La photo doit être une image PNG, JPEG ou WebP.';
+            }
+            $dir = FCPATH . BarProductModel::UPLOAD_DIR;
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+            $name = 'p' . $product->id . '-' . $file->getRandomName();
+            $file->move($dir, $name);
+            $size = getimagesize($dir . $name);
+            if ($size && $size[1] > 240) {
+                service('image')->withFile($dir . $name)->resize((int) ceil($size[0] * 240 / $size[1]), 240, true)->save($dir . $name);
+            }
+            $this->deleteUploadedImage($product->image);
+            return ['image' => BarProductModel::UPLOAD_DIR . $name];
+        }
+        if ($this->request->getPost('remove_image')) {
+            $this->deleteUploadedImage($product->image);
+            return ['image' => null];
+        }
+        return [];
+    }
+
+    // Les photos livrées avec le code (assets/) ne sont jamais effacées, seulement détachées du produit
+    private function deleteUploadedImage(?string $path): void
+    {
+        if ($path && str_starts_with($path, BarProductModel::UPLOAD_DIR) && is_file(FCPATH . $path)) {
+            unlink(FCPATH . $path);
+        }
     }
 
     private function cleanName(string $field, int $max): string

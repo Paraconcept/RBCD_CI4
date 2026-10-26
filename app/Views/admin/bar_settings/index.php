@@ -36,4 +36,25 @@
   </div>
 </div>
 
+<div class="card card-outline card-primary" style="max-width:760px">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fas fa-image mr-2"></i>Photos des produits</h3>
+  </div>
+  <div class="card-body">
+    <p class="text-muted">
+      Chaque touche de la caisse peut montrer la photo du produit à droite du nom et du prix. Les photos se gèrent dans
+      <a href="<?= base_url('admin/caisse/catalogue') ?>">Caisse › Catalogue</a> ; les masquer ici ne les efface pas.
+    </p>
+    <form method="post" action="<?= base_url('admin/caisse/parametres/photos') ?>">
+      <?= csrf_field() ?>
+      <div class="custom-control custom-switch mb-3">
+        <input type="checkbox" class="custom-control-input" id="show_images" name="show_images" value="1" <?= $showImages ? 'checked' : '' ?>>
+        <label class="custom-control-label font-weight-bold" for="show_images">Afficher les photos sur les touches de la caisse</label>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i>Enregistrer</button>
+    </form>
+    <small class="text-muted d-block mt-2">La tablette applique le changement au prochain rechargement de la caisse (ou à la prochaine ouverture).</small>
+  </div>
+</div>
+
 <?= $this->endSection() ?>

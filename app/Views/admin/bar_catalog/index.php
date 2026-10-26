@@ -1,10 +1,15 @@
 <?= $this->extend('admin/layouts/main') ?>
 <?= $this->section('styles') ?>
 <style>
-.bar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 260px; }
+.bar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 340px; }
 .bar-grid > div { height: 44px; border: 1px solid #d8d7e3; border-radius: 6px; font-size: 11px; line-height: 1.15; padding: 3px 5px; background: #fff; overflow: hidden; }
 .bar-grid > div.free { border-style: dashed; background: #f6f6fa; color: #9aa0b2; text-align: center; padding-top: 13px; }
 .bar-grid b { display: block; color: #1c447c; }
+.bar-grid > div.img { position: relative; padding-right: 22px; }
+.bar-grid > div.img img { position: absolute; right: 3px; top: 3px; height: 36px; width: 18px; object-fit: contain; }
+.p-photo { display: flex; align-items: center; gap: 6px; }
+.p-photo img { height: 34px; width: 28px; object-fit: contain; }
+.p-photo .none { width: 28px; text-align: center; color: #c3c5d0; }
 tr.inactive td { background: #f4f4f6; color: #8d91a3; }
 </style>
 <?= $this->endSection() ?>
@@ -75,14 +80,14 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
         <div class="text-muted small mb-1">Aperçu de la grille</div>
         <div class="bar-grid">
           <?php for ($i = 1; $i <= $slots; $i++): $p = $bySlot[$i] ?? null; ?>
-          <div class="<?= $p ? '' : 'free' ?>" title="Case <?= $i ?>"><?php if ($p): ?><?= esc($p->name) ?><b><?= $eur($p->price) ?> €</b><?php else: ?><?= $i ?><?php endif; ?></div>
+          <div class="<?= $p ? ($showImages && $p->image ? 'img' : '') : 'free' ?>" title="Case <?= $i ?>"><?php if ($p): ?><?= esc($p->name) ?><b><?= $eur($p->price) ?> €</b><?php if ($showImages && $p->image): ?><img src="<?= base_url($p->image) ?>" alt=""><?php endif; ?><?php else: ?><?= $i ?><?php endif; ?></div>
           <?php endfor; ?>
         </div>
       </div>
       <div style="flex:1;min-width:520px">
         <table class="table table-sm table-bordered mb-2">
           <thead class="thead-rbcd">
-            <tr><th>Produit</th><th width="95">Prix (€)</th><th width="120" title="B = bar, G = gougouilles, D = divers">TVA 21 %</th><th width="80">Case</th><th width="140">Catégorie</th><th width="60" class="text-center">Actif</th><th width="80" class="text-right">Actions</th></tr>
+            <tr><th>Produit</th><th width="100" title="Photo affichée à droite de la touche">Photo</th><th width="95">Prix (€)</th><th width="120" title="B = bar, G = gougouilles, D = divers">TVA 21 %</th><th width="80">Case</th><th width="140">Catégorie</th><th width="60" class="text-center">Actif</th><th width="80" class="text-right">Actions</th></tr>
           </thead>
           <tbody>
             <?php foreach ($list as $p):
@@ -90,8 +95,21 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
                 sort($mine);
             ?>
             <tr class="<?= $p->is_active ? '' : 'inactive' ?>">
-              <form method="post" action="<?= base_url('admin/caisse/catalogue/produits/' . $p->id . '/update') ?>" id="p-f<?= $p->id ?>"><?= csrf_field() ?></form>
+              <form method="post" action="<?= base_url('admin/caisse/catalogue/produits/' . $p->id . '/update') ?>" id="p-f<?= $p->id ?>" enctype="multipart/form-data"><?= csrf_field() ?></form>
               <td><input type="text" name="name" form="p-f<?= $p->id ?>" class="form-control form-control-sm" maxlength="40" value="<?= esc($p->name) ?>" required></td>
+              <td class="align-middle">
+                <div class="p-photo">
+                  <?php if ($p->image): ?><img src="<?= base_url($p->image) ?>" alt=""><?php else: ?><span class="none"><i class="far fa-image"></i></span><?php endif; ?>
+                  <label class="btn btn-xs btn-outline-secondary mb-0" title="<?= $p->image ? 'Remplacer la photo' : 'Ajouter une photo' ?> (puis Enregistrer)">
+                    <i class="fas fa-camera"></i>
+                    <input type="file" name="image" form="p-f<?= $p->id ?>" accept="image/png,image/jpeg,image/webp" hidden
+                           onchange="this.parentNode.className = 'btn btn-xs btn-success mb-0'; this.parentNode.title = this.files[0] ? this.files[0].name + ' : cliquez sur Enregistrer' : ''">
+                  </label>
+                  <?php if ($p->image): ?>
+                  <label class="mb-0 small text-muted" title="Retirer la photo (puis Enregistrer)"><input type="checkbox" name="remove_image" value="1" form="p-f<?= $p->id ?>"> <i class="fas fa-times"></i></label>
+                  <?php endif; ?>
+                </div>
+              </td>
               <td><input type="text" name="price" form="p-f<?= $p->id ?>" class="form-control form-control-sm text-right" inputmode="decimal" value="<?= $eur($p->price) ?>" required></td>
               <td>
                 <select name="vat_group" form="p-f<?= $p->id ?>" class="form-control form-control-sm">
@@ -126,7 +144,7 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
             </tr>
             <?php endforeach; ?>
             <?php if (!$list): ?>
-            <tr><td colspan="7" class="text-muted text-center">Aucun produit dans cette catégorie.</td></tr>
+            <tr><td colspan="8" class="text-muted text-center">Aucun produit dans cette catégorie.</td></tr>
             <?php endif; ?>
           </tbody>
         </table>
@@ -155,6 +173,8 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
     <p class="text-muted small mt-3 mb-0">
       Un changement de prix ne modifie pas les tickets déjà enregistrés. Un produit déjà vendu n'est jamais supprimé : il est désactivé et libère sa case.
       La TVA « B » (bar), « G » (gougouilles) et « D » (divers) est totalisée à la clôture et sur le récapitulatif du service.
+      Photo : de préférence un PNG détouré (fond transparent), bouteille verticale ; elle est réduite automatiquement.
+      <?= $showImages ? '' : '<b>Les photos sont actuellement masquées à la caisse</b> (Caisse › Paramètres).' ?>
     </p>
   </div>
 </div>

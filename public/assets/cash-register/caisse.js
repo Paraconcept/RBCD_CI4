@@ -448,7 +448,7 @@
         for (let i = 1; i <= C.slots; i++) {
             const p = bySlot[i];
             html += p
-                ? `<button class="prod" type="button" data-p="${p.id}"><span class="nm">${esc(p.name)}</span><span class="pr">${eur(p.price)}</span>${qty[p.id] ? `<span class="q">${qty[p.id]}</span>` : ''}</button>`
+                ? `<button class="prod${p.image ? ' has-img' : ''}" type="button" data-p="${p.id}"><span class="nm">${esc(p.name)}</span><span class="pr">${eur(p.price)}</span>${p.image ? `<img class="ph" src="${esc(p.image)}" alt="" draggable="false">` : ''}${qty[p.id] ? `<span class="q">${qty[p.id]}</span>` : ''}</button>`
                 : '<div class="slot"></div>';
         }
         $('grid').innerHTML = html;

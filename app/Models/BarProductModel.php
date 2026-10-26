@@ -9,11 +9,22 @@ class BarProductModel extends Model
     // Grille de la caisse : 4 colonnes × 4 rangées par catégorie
     public const SLOTS = 16;
 
+    /** Réglage Admin › Caisse › Paramètres : photos sur les touches de la caisse (oui par défaut). */
+    public const IMAGES_SETTING = 'bar_show_images';
+
+    // Photos envoyées depuis Admin › Catalogue (celles livrées avec le code sont dans assets/cash-register/products)
+    public const UPLOAD_DIR = 'uploads/bar-products/';
+
     protected $table         = 'bar_products';
     protected $primaryKey    = 'id';
     protected $returnType    = 'object';
     protected $useTimestamps = true;
-    protected $allowedFields = ['category_id', 'name', 'price', 'vat_group', 'position', 'is_active'];
+    protected $allowedFields = ['category_id', 'name', 'price', 'vat_group', 'image', 'position', 'is_active'];
+
+    public static function showImages(): bool
+    {
+        return (bool) (int) (new SiteSettingModel())->getSetting(self::IMAGES_SETTING, 1);
+    }
 
     /** Produits actifs rangés par catégorie puis par case. */
     public function getActiveByCategory(): array

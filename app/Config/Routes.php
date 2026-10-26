@@ -222,6 +222,7 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('caisse/stocks',                             'Admin\BarStockController::index');
         $routes->get ('caisse/parametres',                         'Admin\BarSettingsController::index');
         $routes->post('caisse/parametres',                         'Admin\BarSettingsController::save');
+        $routes->post('caisse/parametres/photos',                  'Admin\BarSettingsController::saveImages');
         $routes->get ('caisse/howto',                              'Admin\BarServicesController::howto/admin');
         $routes->get ('caisse/howto-caisse',                       'Admin\BarServicesController::howto/caisse');
 

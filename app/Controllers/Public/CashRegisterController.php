@@ -41,6 +41,7 @@ class CashRegisterController extends BaseController
     public function index(): string
     {
         $products = (new BarProductModel())->getActiveByCategory();
+        $images   = BarProductModel::showImages();
         $catalog  = [];
         foreach ((new BarCategoryModel())->getActive() as $c) {
             $catalog[] = [
@@ -48,6 +49,7 @@ class CashRegisterController extends BaseController
                 'name'     => $c->name,
                 'products' => array_map(static fn ($p) => [
                     'id' => (int) $p->id, 'name' => $p->name, 'price' => (float) $p->price, 'position' => (int) $p->position,
+                    'image' => $images && $p->image ? base_url($p->image) : null,
                 ], $products[(int) $c->id] ?? []),
             ];
         }

@@ -3,11 +3,13 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\BarProductModel;
 use App\Models\BarTicketModel;
 use App\Models\SiteSettingModel;
 
 /**
- * Réglages de la caisse du bar : numéro du premier ticket, pour continuer la numérotation des tickets papier.
+ * Réglages de la caisse du bar : numéro du premier ticket, pour continuer la numérotation des tickets papier,
+ * et photos des produits sur les touches.
  */
 class BarSettingsController extends BaseController
 {
@@ -23,6 +25,7 @@ class BarSettingsController extends BaseController
             'start'       => BarTicketModel::startNumber(),
             'last'        => $tickets->lastNumber(),
             'next'        => $tickets->nextNumber(false),
+            'showImages'  => BarProductModel::showImages(),
         ]);
     }
 
@@ -45,5 +48,14 @@ class BarSettingsController extends BaseController
         }
 
         return redirect()->to(base_url('admin/caisse/parametres'))->with('success', 'Enregistré : le prochain ticket sera le n° ' . $next . '.');
+    }
+
+    public function saveImages()
+    {
+        $show = $this->request->getPost('show_images') ? 1 : 0;
+        (new SiteSettingModel())->setSetting(BarProductModel::IMAGES_SETTING, $show);
+
+        return redirect()->to(base_url('admin/caisse/parametres'))->with('success',
+            $show ? 'Les photos des produits sont affichées sur les touches de la caisse.' : 'Les touches de la caisse sont affichées sans photo.');
     }
 }
