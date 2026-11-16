@@ -31,16 +31,17 @@ class ScoreboardController extends BaseController
             ->orderBy("FIELD(status, 'live', 'scheduled')", '', false)
             ->orderBy('scheduled_at IS NULL', 'ASC', false)
             ->orderBy('scheduled_at', 'ASC')
-            ->findAll();
+            ->paginate(25, 'upcoming');
 
         // Seules les officielles restent jusqu'au nettoyage de fin de saison (les amicales sont effacées le lendemain).
         $finished = $this->model->withTable()
             ->where('status', 'finished')
             ->where('type', 'official')
             ->orderBy('finished_at', 'DESC')
-            ->findAll();
+            ->paginate(25, 'finished');
 
         return view('admin/scoreboard/index', [
+            'pager'     => $this->model->pager,
             'title'     => 'Marquoir — Rencontres',
             'upcoming'  => $upcoming,
             'finished'  => $finished,

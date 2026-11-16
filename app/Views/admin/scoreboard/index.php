@@ -76,7 +76,7 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
     </table>
 <?php }; ?>
 
-<div class="card card-outline card-primary">
+<div class="card card-outline card-primary" id="list-upcoming">
   <div class="card-header d-flex align-items-center">
     <h3 class="card-title"><i class="fas fa-calendar-check mr-2"></i>Rencontres prévues et en cours</h3>
     <div class="ml-auto">
@@ -88,17 +88,23 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
     <?php if (!$upcoming): ?>
       <p class="text-muted text-center mb-0">Aucune rencontre prévue.</p>
     <?php else: $rows($upcoming); endif; ?>
+    <?php if ($pager->getPageCount('upcoming') > 1): ?>
+      <div class="d-flex justify-content-end mt-3"><?= $pager->links('upcoming', 'admin_pager') ?></div>
+    <?php endif; ?>
   </div>
 </div>
 
-<div class="card card-outline card-primary">
+<div class="card card-outline card-primary" id="list-finished">
   <div class="card-header">
-    <h3 class="card-title"><i class="fas fa-flag-checkered mr-2"></i>Parties officielles terminées <small class="text-muted">(<?= count($finished) ?>)</small></h3>
+    <h3 class="card-title"><i class="fas fa-flag-checkered mr-2"></i>Parties officielles terminées <small class="text-muted">(<?= $pager->getTotal('finished') ?>)</small></h3>
   </div>
   <div class="card-body">
     <?php if (!$finished): ?>
       <p class="text-muted text-center mb-0">Aucune partie officielle terminée.</p>
     <?php else: $rows($finished); endif; ?>
+    <?php if ($pager->getPageCount('finished') > 1): ?>
+      <div class="d-flex justify-content-end mt-3"><?= $pager->links('finished', 'admin_pager') ?></div>
+    <?php endif; ?>
   </div>
   <?php
   $nb      = count($purgeable['matches']);
