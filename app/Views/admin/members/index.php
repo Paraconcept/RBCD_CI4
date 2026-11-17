@@ -7,12 +7,12 @@
         <div class="ml-auto d-flex align-items-center">
             <div class="dropdown mr-2">
                 <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" id="statusFilterBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-filter mr-1"></i> <span id="statusFilterLabel">Tous</span>
+                    <i class="fas fa-filter mr-1"></i> <span id="statusFilterLabel">Actifs</span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="statusFilterBtn">
-                    <a class="dropdown-item status-filter" href="#" data-filter="active">Actifs</a>
+                    <a class="dropdown-item status-filter active" href="#" data-filter="active">Actifs</a>
                     <a class="dropdown-item status-filter" href="#" data-filter="inactive">Inactifs</a>
-                    <a class="dropdown-item status-filter active" href="#" data-filter="all">Tous</a>
+                    <a class="dropdown-item status-filter" href="#" data-filter="all">Tous</a>
                 </div>
             </div>
             <a href="<?= base_url('admin/members/login-status') ?>" class="btn btn-info btn-sm mr-2">
@@ -135,7 +135,7 @@ $(function() {
         html:     true,
         template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
     };
-    let statusFilter = 'all';
+    let statusFilter = 'active';
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         if (settings.nTable.id !== 'membersTable' || statusFilter === 'all') return true;
         const active = Number($(settings.aoData[dataIndex].nTr).find('.btn-toggle').data('active')) === 1;
