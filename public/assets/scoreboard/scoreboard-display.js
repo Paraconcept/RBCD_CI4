@@ -745,9 +745,11 @@
     if (!C.spectator) {
         const menu = $('sbdMenu');
         const swapForm = $('sbdSwapForm');
+        const warmupForm = $('sbdWarmupForm');
         const openMenu = () => {
             // Inverser n'a de sens qu'avant le premier coup (erreur au choix du joueur qui commence)
             swapForm.hidden = st.finished || st.innings.length > 0 || st.run > 0;
+            warmupForm.hidden = swapForm.hidden || C.signed;
             $('sbdFixBtn').hidden = st.innings.length === 0 || C.signed;
             // Feuille signée : plus aucune modification au marquoir
             menu.querySelector('[data-action="edit"]').hidden = C.signed;
@@ -756,9 +758,9 @@
             root.classList.add('show-cursor');
             focusMenu(0);
         };
-        swapForm.addEventListener('submit', function () {
+        [swapForm, warmupForm].forEach((f) => f.addEventListener('submit', function () {
             try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignoré */ }
-        });
+        }));
         const closeMenu = () => { menu.classList.remove('open'); };
 
         // Navigation au pavé dans le menu : 8 / 2 pour se déplacer, Entrée pour valider

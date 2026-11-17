@@ -722,17 +722,21 @@ class ScoreboardMatchModel extends Model
     }
 
     /**
-     * Partie à 3 démarrée par erreur dans le mauvais ordre : tant qu'aucun coup n'est joué, elle redevient
-     * « prévue » pour repasser par « Qui commence ? ».
+     * Tant qu'aucun coup n'est joué, la partie redevient « prévue » pour repasser par l'écran
+     * d'échauffement / « Qui commence ? » (mauvais joueur ou mauvais ordre choisi, échauffement à refaire).
      */
-    public function backToOrderChoice(object $match): bool
+    public function backToStart(object $match): bool
     {
         $played = $this->db->table('scoreboard_innings')->where('match_id', $match->id)->countAllResults();
-        if (!self::isTrio($match) || $match->status !== 'live' || $played > 0 || (int) $match->current_run > 0) {
+        if ($match->status !== 'live' || $played > 0 || (int) $match->current_run > 0) {
             return false;
         }
 
-        $this->update($match->id, ['status' => 'scheduled', 'started_at' => null, 'paused' => 0, 'rev' => (int) $match->rev + 1]);
+        $this->update($match->id, [
+            'status' => 'scheduled', 'started_at' => null, 'paused' => 0,
+            'p1_extensions_used' => 0, 'p2_extensions_used' => 0,
+            'rev' => (int) $match->rev + 1,
+        ]);
 
         return true;
     }

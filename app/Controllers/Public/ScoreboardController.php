@@ -240,12 +240,19 @@ class ScoreboardController extends BaseController
     {
         $match = $this->findMatch($matchId);
         if (ScoreboardMatchModel::isTrio($match)) {
-            if ($this->matches->backToOrderChoice($match)) {
-                return redirect()->to(base_url('marquoir/billard/' . $match->table_id . '/demarrer/' . $matchId));
-            }
-            return redirect()->to(base_url('marquoir/match/' . $matchId));
+            return $this->backToStart($matchId);
         }
         $this->matches->swapPlayers($match);
+
+        return redirect()->to(base_url('marquoir/match/' . $matchId));
+    }
+
+    public function backToStart(int $matchId)
+    {
+        $match = $this->findMatch($matchId);
+        if (!$this->locked($match) && $match->table_id && $this->matches->backToStart($match)) {
+            return redirect()->to(base_url('marquoir/billard/' . $match->table_id . '/demarrer/' . $matchId));
+        }
 
         return redirect()->to(base_url('marquoir/match/' . $matchId));
     }

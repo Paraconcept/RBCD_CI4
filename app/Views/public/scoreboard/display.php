@@ -259,6 +259,9 @@ $config = [
             <button type="button" class="btn btn-light" data-action="edit"><i class="fas fa-user-pen me-2"></i>Modifier la partie en cours</button>
             <button type="button" class="btn btn-light" data-action="fullscreen"><i class="fas fa-expand me-2"></i>Plein écran</button>
             <a href="<?= esc($config['urls']['table']) ?>" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Retour au billard (la partie reste en cours)</a>
+            <form method="post" id="sbdWarmupForm" action="<?= base_url('marquoir/match/' . $match->id . '/echauffement') ?>" hidden>
+                <button type="submit" class="btn btn-info w-100"><i class="fas fa-fire me-2"></i>Revenir à l'écran d'échauffement</button>
+            </form>
             <form method="post" id="sbdSwapForm" action="<?= base_url('marquoir/match/' . $match->id . '/inverser') ?>" hidden>
                 <button type="submit" class="btn btn-warning w-100"><i class="fas fa-right-left me-2"></i><?= $trio ? "Changer l'ordre de jeu" : 'Inverser les deux joueurs' ?></button>
             </form>
