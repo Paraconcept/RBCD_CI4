@@ -4,7 +4,17 @@
 <div class="card card-outline card-primary">
     <div class="card-header d-flex align-items-center">
         <h3 class="card-title"><i class="fas fa-users mr-2"></i>Membres</h3>
-        <div class="ml-auto">
+        <div class="ml-auto d-flex align-items-center">
+            <div class="dropdown mr-2">
+                <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" id="statusFilterBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-filter mr-1"></i> <span id="statusFilterLabel">Tous</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="statusFilterBtn">
+                    <a class="dropdown-item status-filter" href="#" data-filter="active">Actifs</a>
+                    <a class="dropdown-item status-filter" href="#" data-filter="inactive">Inactifs</a>
+                    <a class="dropdown-item status-filter active" href="#" data-filter="all">Tous</a>
+                </div>
+            </div>
             <a href="<?= base_url('admin/members/login-status') ?>" class="btn btn-info btn-sm mr-2">
                 <i class="fas fa-key mr-1"></i> Statut connexion
             </a>
@@ -125,7 +135,15 @@ $(function() {
         html:     true,
         template: '<div class="tooltip tooltip-rbcd" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
     };
+    let statusFilter = 'all';
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        if (settings.nTable.id !== 'membersTable' || statusFilter === 'all') return true;
+        const active = Number($(settings.aoData[dataIndex].nTr).find('.btn-toggle').data('active')) === 1;
+        return statusFilter === 'active' ? active : !active;
+    });
+
     const table = $('#membersTable').DataTable({
+        pageLength: 50,
         order: [[1, 'asc']],
         columnDefs: [
             { orderable: false, targets: [0, 2, 3, 4, 7] }
@@ -134,6 +152,15 @@ $(function() {
     $('.tt-rbcd').tooltip(tooltipOpts);
     table.on('draw.dt', function() {
         $('.tt-rbcd').tooltip('dispose').tooltip(tooltipOpts);
+    });
+
+    $('.status-filter').on('click', function(e) {
+        e.preventDefault();
+        statusFilter = $(this).data('filter');
+        $('.status-filter').removeClass('active');
+        $(this).addClass('active');
+        $('#statusFilterLabel').text($(this).text());
+        table.draw();
     });
 
     $(document).on('click', '.btn-toggle', function() {
