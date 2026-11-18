@@ -8,6 +8,7 @@ Tout ce qu'il faut pour refaire les PDF des marquoirs et de la caisse du bar. Ce
 | Guide du directeur sportif (A4 paysage) | `guide-ds/head.html` + `guide-ds/body.html` + `guide-ds/img/` | `app/Docs/Marquoirs_RBCD_guide_DS.pdf` (membres connectés) |
 | Caisse du bar — guide du comité (A4 paysage) | `caisse/admin.html` + `caisse/style.css` + `caisse/img/` | `app/Docs/Caisse_RBCD_guide_admin.pdf` (Admin › Caisse du bar › How to admin) |
 | Caisse du bar — mode d'emploi du barman (A4 paysage, à imprimer) | `caisse/barman.html` + `caisse/style.css` + `caisse/img/` | `app/Docs/Caisse_RBCD_mode_emploi_barman.pdf` (Admin › Caisse du bar › How to caisse) |
+| Caisse du bar — pas à pas (A4 paysage, grands caractères, une action par page, à imprimer) | `caisse/pas-a-pas.html` + `caisse/style.css` + `caisse/img-pas/` | `app/Docs/Caisse_RBCD_pas_a_pas.pdf` (Admin › Caisse du bar › How to pas à pas) |
 | Stickers du pavé numérique (A4, échelle 1:1) | `stickers/make.py` | `build/Stickers_pave_RBCD.pdf` (à imprimer, pas publié) |
 
 La version web du mode d'emploi est la vue `app/Views/public/pages/marquoirs_howto.php`, avec les images JPEG de `public/assets/images/marquoirs-howto/`. **Quand on modifie le texte, il faut le faire aux deux endroits** : `howto.html` pour le PDF, la vue PHP pour le site.
@@ -45,3 +46,4 @@ Les identifiants MySQL sont lus dans le `.env` du projet et la clé d'accès au 
 
 Après de nouvelles captures, relancez `./build.sh`.
 - **Caisse du bar** : `node caisse/shots.cjs caisse/img` refait toutes les captures (écrans de la caisse au format tablette, récapitulatif, pages admin), sauf l'écran rouge de coupure Internet, refait par `node caisse/offline.cjs caisse/img`. Le script refuse de tourner si un service est ouvert dans la base locale ; il crée un service de démonstration avec des clients fictifs et deux appels de billards, remplace les vrais noms (barman, membres) par des noms fictifs, puis efface tout. La feuille de style `caisse/style.css` reprend celle du guide DS.
+- **Caisse du bar, pas à pas** : `./caisse/pas-a-pas-shots.sh` refait les captures de `caisse/img-pas/` et `caisse/img-pas/targets.js` (position des boutons à toucher, d'où les cadres rouges numérotés du PDF). Il travaille sur une **copie** de la base (`<base>_docs`) : il y clôture les services restés ouverts, fait pointer le `.env` vers la copie le temps des captures, puis rétablit le `.env` et supprime la copie, même en cas d'erreur. La vraie base n'est jamais modifiée. L'écran rouge de coupure Internet est repris de `caisse/img/c10_hors_ligne.png`.

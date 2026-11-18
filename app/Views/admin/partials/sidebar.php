@@ -348,6 +348,12 @@
                                 <p>How to caisse</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('admin/caisse/howto-pas-a-pas') ?>" target="_blank" class="nav-link">
+                                <i class="far fa-file-pdf nav-icon"></i>
+                                <p>How to pas à pas</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 

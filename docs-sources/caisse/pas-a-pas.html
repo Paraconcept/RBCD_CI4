@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Caisse du bar RBC Disonais — Pas à pas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+    /* Version « grands caractères » : une action par page, pour les barmen qui découvrent la tablette */
+    .head { padding: 5mm 12mm; }
+    .head .kick { font-family: 'Barlow Condensed'; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--yellow); font-size: 4.2mm; margin-bottom: 1mm; }
+    .head h1 { font-size: 12.5mm; }
+    .head .num { width: 15mm; height: 15mm; font-size: 9mm; }
+    .body { padding: 6mm 12mm 0; gap: 9mm; align-items: center; }
+    .screen-col { flex: 0 0 184mm; }
+    .screen { position: relative; border-radius: 3.5mm; border: 1.6mm solid #11141d; overflow: hidden; box-shadow: 0 2mm 6mm rgba(0,0,0,.25); }
+    .screen img { width: 100%; display: block; }
+    .ring { position: absolute; border: 1.3mm solid #e0262f; border-radius: 2.2mm; box-shadow: 0 0 0 .6mm #fff, 0 0 4mm 1mm rgba(224,38,47,.55); }
+    .ring b {
+        position: absolute; top: -5mm; left: -5mm; width: 8.5mm; height: 8.5mm; border-radius: 50%;
+        background: #e0262f; color: #fff; border: .7mm solid #fff; display: grid; place-items: center;
+        font-family: 'Barlow Condensed'; font-weight: 800; font-size: 5.4mm; box-shadow: 0 .8mm 2mm rgba(0,0,0,.45);
+    }
+    .ring.right b { left: auto; right: -5mm; }
+    .ring.below b { top: auto; bottom: -5mm; }
+    .says { flex: 1; display: flex; flex-direction: column; gap: 5.5mm; min-width: 0; }
+    .do { display: grid; grid-template-columns: 11mm 1fr; gap: 3.5mm; align-items: start; }
+    .do .n { width: 10mm; height: 10mm; border-radius: 50%; background: #e0262f; color: #fff; display: grid; place-items: center;
+             font-family: 'Barlow Condensed'; font-weight: 800; font-size: 6.2mm; margin-top: .4mm; }
+    .do p, .says > p { font-size: 6.1mm; line-height: 1.3; }
+    .says .note p { font-size: 5mm; line-height: 1.35; }
+    .says .note { padding: 3.5mm 4.5mm; }
+    .says .note p i { margin-right: 1.5mm; }
+    .btnlike { font-size: 5.4mm; padding: .2mm 2.4mm; border-radius: 1.6mm; vertical-align: .2mm; line-height: 1.45; }
+    .chip { font-size: 5.4mm; padding: 0 2mm; }
+    .foot { font-size: 3.8mm; margin-top: auto; }
+
+    /* Couverture */
+    .cover h1 { font-size: 23mm; }
+    .cover .lead { font-size: 6.2mm; }
+    .cover .legend-ring { display: flex; align-items: center; gap: 5mm; margin-top: 9mm; font-size: 5.6mm; color: #fff; }
+    .cover .legend-ring .ring { position: relative; width: 26mm; height: 11mm; flex: none; }
+
+    /* Sommaire */
+    .chapters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6mm; }
+    .chapters .card { padding: 6mm 5mm; }
+    .chapters .card h3 { font-size: 8mm; margin-bottom: 2mm; }
+    .chapters .card p { font-size: 5mm; line-height: 1.35; }
+    .chapters .card .pg { margin-top: 3mm; font-family: 'Barlow Condensed'; font-weight: 700; font-size: 5mm; color: var(--red); }
+    .chapters .ico { width: 15mm !important; height: 15mm !important; font-size: 7mm !important; border-radius: 3.5mm; background: var(--navy); color: var(--yellow); display: grid; place-items: center; margin-bottom: 4mm; }
+    .howread { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; margin-top: 7mm; }
+    .howread .note p { font-size: 5.2mm; line-height: 1.4; }
+
+    /* Pages sans écran */
+    .big-list { display: flex; flex-direction: column; gap: 5mm; }
+    .two-big { display: grid; grid-template-columns: 1fr 1fr; gap: 12mm; width: 100%; }
+    .two-big h2 { font-size: 9mm; margin-bottom: 4mm; }
+    .faq { grid-template-columns: 1fr 1fr 1fr; gap: 5mm; width: 100%; }
+    .faq .card { padding: 5mm; }
+    .faq .card h3 { font-size: 6.4mm; margin-bottom: 2mm; }
+    .faq .card p { font-size: 4.9mm; line-height: 1.38; }
+    .recap { width: 100%; border: .5mm solid #c9ccd6; border-radius: 2mm; display: block; }
+</style>
+<script src="img-pas/targets.js"></script>
+</head>
+<body>
+
+<!-- ============================ COUVERTURE ============================ -->
+<section class="page cover">
+    <div class="band"></div>
+    <div class="inner">
+        <div>
+            <img class="crest" src="img/ecusson.png" alt="">
+            <div class="kicker">RBC Disonais · Bar</div>
+            <h1>La caisse<br><span>pas à pas</span></h1>
+            <p class="lead">Une étape par page, avec l'écran de la tablette. Il suffit de suivre les pages dans l'ordre.</p>
+            <div class="legend-ring"><div class="ring"><b>1</b></div><span>Le <b>cadre rouge</b> montre <b>où toucher</b>.<br>Le chiffre donne l'ordre.</span></div>
+        </div>
+        <div><div class="screen" data-shot="p08_produits"></div></div>
+    </div>
+    <div class="bottom"><span>Royal Billard Club Disonais asbl · Chalet Bonvoisin · Dison</span><span>À garder près de la tablette du bar</span></div>
+</section>
+
+<!-- ============================ SOMMAIRE ============================ -->
+<section class="page">
+    <header class="head"><div class="num"><i class="fas fa-route"></i></div><div><h1>Un service au bar</h1><p>Quatre moments, toujours dans le même ordre</p></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body" style="flex-direction:column;gap:0">
+        <div class="chapters">
+            <div class="card"><div class="ico"><i class="fas fa-door-open"></i></div><h3>1. Ouvrir</h3><p>En arrivant : votre nom et l'argent de la caisse.</p><div class="pg">Pages 3 à 5</div></div>
+            <div class="card"><div class="ico"><i class="fas fa-beer-mug-empty"></i></div><h3>2. Servir</h3><p>Un ticket au nom de chaque client, puis ses consommations.</p><div class="pg">Pages 6 à 13</div></div>
+            <div class="card"><div class="ico"><i class="fas fa-coins"></i></div><h3>3. Encaisser</h3><p>Quand le client paie : espèces ou Bancontact.</p><div class="pg">Pages 14 à 18</div></div>
+            <div class="card"><div class="ico"><i class="fas fa-envelope"></i></div><h3>4. Clôturer</h3><p>En partant : l'argent et la feuille dans l'enveloppe.</p><div class="pg">Pages 20 à 25</div></div>
+        </div>
+        <div class="howread">
+            <div class="note green"><p><b>Pas de panique :</b> rien ne se casse. Tant qu'un ticket n'est pas payé, tout se corrige. En cas de doute, demandez à un membre du comité.</p></div>
+            <div class="note orange"><p><b>Un billard appelle ?</b> Une case s'allume en bas de l'écran et la tablette sonne. Voir page 19.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>2</span></footer>
+</section>
+
+<!-- ============================ 1. OUVRIR ============================ -->
+<section class="page">
+    <header class="head"><div class="num">1</div><div><div class="kick">Ouvrir · en arrivant</div><h1>Réveiller la caisse</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p01_demarrer"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p><b>Touchez l'écran</b>, n'importe où.</p></div>
+            <p>La caisse se met en plein écran.</p>
+            <div class="note"><p><i class="fas fa-power-off"></i><b>L'écran est noir ?</b> Appuyez une fois, brièvement, sur le bouton marche/arrêt de la tablette.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>3</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">2</div><div><div class="kick">Ouvrir · en arrivant</div><h1>Le moment et votre nom</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p02_ouvrir_nom"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p>Touchez <b>Après-midi</b> ou <b>Soir</b>.</p></div>
+            <div class="do"><div class="n">2</div><p>Tapez les <b>2 premières lettres</b> de votre nom, puis <b>touchez votre nom</b> dans la liste.</p></div>
+            <div class="note green"><p>Le barman prévu au planning est souvent déjà proposé.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>4</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">3</div><div><div class="kick">Ouvrir · en arrivant</div><h1>Compter l'argent de la caisse</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p03_ouvrir_fond"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p><b>Comptez</b> les billets et les pièces de la caisse, puis <b>tapez le total</b>. Normalement : <b>200 €</b>.</p></div>
+            <div class="do"><div class="n">2</div><p>Touchez <span class="btnlike">Ouvrir le service</span>.</p></div>
+            <div class="note orange"><p><b>Pas 200 € ?</b> Recomptez. Si c'est bien ça, tapez le montant et prévenez le trésorier.</p></div>
+            <div class="note green"><p><b>Notez le numéro de l'enveloppe</b> affiché en haut (par exemple <b>E19-11-01</b>).</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>5</span></footer>
+</section>
+
+<!-- ============================ 2. SERVIR ============================ -->
+<section class="page">
+    <header class="head"><div class="num">4</div><div><div class="kick">Servir</div><h1>Un client commande</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p04_creer_ticket"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p>Touchez <span class="btnlike">Créer un nouveau ticket</span>.</p></div>
+            <p>Chaque client a <b>son ticket, à son nom</b>.</p>
+            <div class="note orange"><p><b>Le client a déjà un ticket ouvert ?</b> Ne créez pas de nouveau ticket : voir page 13.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>6</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">5</div><div><div class="kick">Servir</div><h1>Trouver le client</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p05_chercher_client"></div></div>
+        <div class="says">
+            <p>Tapez les <b>3 premières lettres</b> de son nom de famille (ou de son prénom).</p>
+            <div class="do"><div class="n">1</div><p><b>Touchez son nom</b> dans la liste : son ticket s'ouvre.</p></div>
+            <div class="note green"><p>Pas besoin des accents ni des majuscules : la caisse s'en occupe.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>7</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">6</div><div><div class="kick">Servir</div><h1>Le client n'est pas dans la liste</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p06_nouveau_client"></div></div>
+        <div class="says">
+            <p>Tapez son nom en entier : <b>le NOM d'abord, puis le prénom</b>, séparés par <span class="chip">ESPACE</span>.</p>
+            <div class="do"><div class="n">1</div><p>Touchez <b>« + Créer … comme nouveau client »</b>.</p></div>
+            <div class="note"><p>La prochaine fois, il sera dans la liste.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>8</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">7</div><div><div class="kick">Servir</div><h1>« Ce client existe peut-être déjà »</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p07_existe_deja"></div></div>
+        <div class="says">
+            <p>La caisse a trouvé un nom qui ressemble. Souvent, c'est une petite faute de frappe.</p>
+            <div class="do"><div class="n">1</div><p>C'est bien lui ? <b>Touchez son nom</b>.</p></div>
+            <div class="note"><p>Ce n'est pas lui ? Touchez <b>« Créer … tel quel »</b>.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>9</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">8</div><div><div class="kick">Servir</div><h1>Ajouter les consommations</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p08_produits"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p>Touchez la <b>famille</b> en haut : Softs, Bières, Café &amp; thé…</p></div>
+            <div class="do"><div class="n">2</div><p>Touchez le <b>produit</b>. <b>Deux bières ? Touchez deux fois.</b></p></div>
+            <div class="note green"><p>La pastille orange donne la quantité. Le ticket et le <b>total</b> sont à droite.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>10</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">9</div><div><div class="kick">Servir</div><h1>Corriger une erreur</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p09_corriger"></div></div>
+        <div class="says">
+            <p>Dans le ticket, à droite :</p>
+            <div class="do"><div class="n">1</div><p><span class="chip">−</span> retire un produit.</p></div>
+            <div class="do"><div class="n">2</div><p><span class="chip">+</span> en ajoute un.</p></div>
+            <div class="note green"><p>Tant que le ticket n'est pas payé, tout se corrige.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>11</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">10</div><div><div class="kick">Servir</div><h1>Le client paiera plus tard</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p10_plus_tard"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p>Touchez <span class="chip">Tickets en cours</span>.</p></div>
+            <p>Le ticket <b>reste ouvert</b>. Vous pouvez servir le client suivant.</p>
+            <div class="note orange"><p><b>Ne touchez pas « Payer »</b> tant que le client n'a pas payé.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>12</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">11</div><div><div class="kick">Servir</div><h1>Retrouver le ticket d'un client</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p11_tickets_en_cours"></div></div>
+        <div class="says">
+            <p>Le client revient commander ou payer ? Dans <b>Tickets en cours</b> :</p>
+            <div class="do"><div class="n">1</div><p>Touchez <span class="btnlike">Ouvrir</span> <b>sous son nom</b>.</p></div>
+            <p>Ajoutez ses consommations (page 10) ou faites-le payer (page 14).</p>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>13</span></footer>
+</section>
+
+<!-- ============================ 3. ENCAISSER ============================ -->
+<section class="page">
+    <header class="head"><div class="num">12</div><div><div class="kick">Encaisser</div><h1>Le client paie</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p12_payer"></div></div>
+        <div class="says">
+            <p>Vérifiez le <b>nom</b> et le <b>total</b> du ticket.</p>
+            <div class="do"><div class="n">1</div><p>Touchez <span class="btnlike">Payer</span>.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>14</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">13</div><div><div class="kick">Encaisser</div><h1>Espèces ou Bancontact ?</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p13_mode_paiement"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p>Il paie en billets ou en pièces : <b>Espèces</b>.</p></div>
+            <div class="do"><div class="n">2</div><p>Il paie par carte : <b>Bancontact</b>.</p></div>
+            <div class="note orange"><p><b>Bancontact :</b> encaissez d'abord sur le petit terminal <b>SumUp</b>, puis touchez Bancontact.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>15</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">14</div><div><div class="kick">Encaisser</div><h1>Confirmer le paiement</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p14_confirmer"></div></div>
+        <div class="says">
+            <p>La caisse demande : <b>« Êtes-vous sûr ? »</b></p>
+            <div class="do"><div class="n">1</div><p>Touchez <span class="btnlike">Oui, payer en …</span></p></div>
+            <p>C'est fini : la caisse revient aux tickets en cours.</p>
+            <div class="note orange"><p>Un ticket payé <b>ne se modifie plus</b>. Erreur de bouton ? Touchez <b>Annuler</b> dans cette fenêtre.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>16</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">15</div><div><div class="kick">Encaisser · si besoin</div><h1>Annuler un ticket</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p15_annuler_bouton"></div></div>
+        <div class="says">
+            <p>Mauvais client, ticket en double, client parti sans rien prendre…</p>
+            <div class="do"><div class="n">1</div><p>Touchez <span class="btnlike white" style="color:var(--red)">Annuler</span>, à gauche de Payer.</p></div>
+            <div class="note"><p>Pour retirer <b>un seul produit</b>, utilisez plutôt <span class="chip">−</span> (page 11).</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>17</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">16</div><div><div class="kick">Encaisser · si besoin</div><h1>Dire pourquoi on annule</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p16_annuler_raison"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p>Touchez la <b>raison</b>.</p></div>
+            <div class="do"><div class="n">2</div><p>Touchez <span class="btnlike red">Oui, annuler le ticket</span>.</p></div>
+            <div class="note green"><p>Le ticket n'est pas effacé : il reste dans l'historique, marqué « annulé ».</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>18</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num"><i class="fas fa-bell"></i></div><div><div class="kick">À tout moment</div><h1>Un billard appelle le bar</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p17_appel" data-below="1"></div></div>
+        <div class="says">
+            <p>La tablette <b>sonne</b> et la case du billard <b>s'allume</b> en bas de l'écran.</p>
+            <p>Elle passe du <b style="color:#b38600">jaune</b> à l'<b style="color:#d97706">orange</b> (3 min), puis au <b style="color:#dc2626">rouge</b> (6 min).</p>
+            <div class="do"><div class="n">1</div><p>Allez servir, puis <b>touchez la case</b> : elle s'éteint.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>19</span></footer>
+</section>
+
+<!-- ============================ 4. CLÔTURER ============================ -->
+<section class="page">
+    <header class="head"><div class="num">17</div><div><div class="kick">Clôturer · en partant</div><h1>Commencer la clôture</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p18_cloture_bouton"></div></div>
+        <div class="says">
+            <p>D'abord, <b>tous les tickets</b> doivent être <b>payés ou annulés</b>.</p>
+            <div class="do"><div class="n">1</div><p>Dans <b>Tickets en cours</b>, touchez <b><i class="fas fa-key"></i> Clôturer le service</b>, en bas.</p></div>
+            <div class="note orange"><p><b>Le bouton est gris ?</b> Il reste un ticket ouvert : faites-le payer ou annulez-le.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>20</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">18</div><div><div class="kick">Clôturer · en partant</div><h1>Lire le résumé</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p19_cloture_resume"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p>Le <b>montant orange</b> : les espèces à mettre dans l'enveloppe.</p></div>
+            <div class="do"><div class="n">2</div><p>Touchez <span class="btnlike orange"><i class="fas fa-key"></i> Clôturer le service</span>.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>21</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">19</div><div><div class="kick">Clôturer · en partant</div><h1>Qui clôture, et la caisse</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p20_qui_cloture"></div></div>
+        <div class="says">
+            <p>Votre nom est déjà rempli.</p>
+            <div class="do"><div class="n">1</div><p>Sortez les espèces pour l'enveloppe. <b>Comptez ce qui reste</b> dans la caisse et tapez-le : <b>200 €</b>.</p></div>
+            <div class="do"><div class="n">2</div><p>Touchez <span class="btnlike orange"><i class="fas fa-key"></i> Clôturer le service</span>.</p></div>
+            <div class="note"><p><b>Vous remplacez quelqu'un ?</b> Touchez le nom, <b>Effacer</b>, et tapez le vôtre.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>22</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">20</div><div><div class="kick">Clôturer · en partant</div><h1>Confirmer la clôture</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p21_cloture_confirmer"></div></div>
+        <div class="says">
+            <p>La caisse rappelle les montants.</p>
+            <div class="do"><div class="n">1</div><p>Touchez <span class="btnlike orange">Oui, clôturer</span>.</p></div>
+            <div class="note orange"><p>Après la clôture, plus aucun ticket de ce service ne peut changer.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>23</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num">21</div><div><div class="kick">Clôturer · en partant</div><h1>Préparer l'enveloppe</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen" data-shot="p22_cloture_faite"></div></div>
+        <div class="says">
+            <div class="do"><div class="n">1</div><p>Touchez <b>Imprimer le récapitulatif</b> : la feuille sort sur l'imprimante du club.</p></div>
+            <p>Glissez <b>les espèces et la feuille</b> dans l'enveloppe. Écrivez son <b>numéro</b> dessus.</p>
+            <div class="do"><div class="n">2</div><p>Touchez <b>Terminer</b>.</p></div>
+            <div class="note green"><p>Les <b>200 €</b> restent dans la caisse pour le barman suivant.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>24</span></footer>
+</section>
+
+<section class="page">
+    <header class="head"><div class="num"><i class="fas fa-file-lines"></i></div><div><div class="kick">Clôturer · en partant</div><h1>La feuille de l'enveloppe</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div style="flex:0 0 118mm;height:150mm;overflow:hidden;border-radius:2mm;box-shadow:0 2mm 6mm rgba(0,0,0,.18)"><img class="recap" src="img-pas/p23_recapitulatif.jpg" alt=""></div>
+        <div class="says">
+            <p>Voici le récapitulatif imprimé. Il va <b>dans l'enveloppe, avec l'argent</b>.</p>
+            <p>Le trésorier y retrouve tout : le numéro de l'enveloppe, les ventes, les espèces attendues et la liste des tickets.</p>
+            <div class="note orange"><p><b>L'imprimante ne marche pas ?</b> Écrivez sur l'enveloppe son numéro, la date et le montant des espèces, et prévenez le trésorier.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>25</span></footer>
+</section>
+
+<!-- ============================ FIN DE JOURNÉE ============================ -->
+<section class="page">
+    <header class="head"><div class="num"><i class="fas fa-moon"></i></div><div><div class="kick">En partant</div><h1>Éteindre l'écran</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="two-big">
+            <div>
+                <h2><i class="fas fa-power-off"></i>Le soir</h2>
+                <div class="big-list">
+                    <div class="do"><div class="n">1</div><p>Appuyez <b>une fois, brièvement</b>, sur le bouton marche/arrêt de la tablette.</p></div>
+                    <div class="do"><div class="n">2</div><p>Laissez la tablette <b>sur son chargeur</b>.</p></div>
+                </div>
+                <div class="note orange" style="margin-top:6mm"><p style="font-size:5mm">Sans ce petit appui, l'écran reste allumé toute la nuit.</p></div>
+            </div>
+            <div>
+                <h2><i class="fas fa-sun"></i>Le lendemain</h2>
+                <div class="big-list">
+                    <div class="do"><div class="n">1</div><p>Appuyez brièvement sur le même bouton : la caisse réapparaît.</p></div>
+                    <div class="do"><div class="n">2</div><p>Touchez l'écran et ouvrez votre service (page 3).</p></div>
+                </div>
+                <div class="note green" style="margin-top:6mm"><p style="font-size:5mm">Rien à sauvegarder : tout est enregistré au club.</p></div>
+            </div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>26</span></footer>
+</section>
+
+<!-- ============================ COUPURE INTERNET ============================ -->
+<section class="page">
+    <header class="head"><div class="num"><i class="fas fa-wifi"></i></div><div><div class="kick">Si ça arrive</div><h1>Écran rouge : plus d'Internet</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="screen-col"><div class="screen"><img src="img/c10_hors_ligne.png" alt=""></div></div>
+        <div class="says">
+            <p>Le Wi-Fi est coupé : la caisse est <b>bloquée</b>.</p>
+            <div class="do"><div class="n">1</div><p><b>Notez sur papier</b> : le nom du client et ce qu'il prend.</p></div>
+            <div class="do"><div class="n">2</div><p><b>Attendez</b> : l'écran rouge part tout seul quand Internet revient.</p></div>
+            <div class="do"><div class="n">3</div><p><b>Encodez</b> alors ce que vous avez noté.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>27</span></footer>
+</section>
+
+<!-- ============================ QUESTIONS ============================ -->
+<section class="page">
+    <header class="head"><div class="num"><i class="fas fa-circle-question"></i></div><div><div class="kick">Petits soucis</div><h1>Que faire si…</h1></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="faq">
+            <div class="card"><h3>Mauvais produit</h3><p>Touchez <b>−</b> sur la ligne, dans le ticket à droite (page 11).</p></div>
+            <div class="card"><h3>Mauvais client</h3><p><b>Annulez</b> le ticket (« Erreur de saisie »), puis refaites-le au bon nom (page 17).</p></div>
+            <div class="card"><h3>Le client veut voir son compte</h3><p>Ouvrez son ticket et montrez-lui l'écran : tout est à droite.</p></div>
+            <div class="card"><h3>Le service d'hier est encore ouvert</h3><p>La caisse le dit à l'ouverture. Clôturez-le d'abord (page 20), puis ouvrez le vôtre.</p></div>
+            <div class="card"><h3>Rien ne bouge quand je touche</h3><p>Une fenêtre est peut-être ouverte : touchez <b>« Non, revenir »</b> ou <b>« Annuler »</b>.</p></div>
+            <div class="card"><h3>Toujours bloqué ?</h3><p>Rechargez la page (flèche <b>↻</b> en haut de l'écran). <b>Rien n'est perdu.</b> Sinon, appelez un membre du comité.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>La caisse pas à pas</b></span><span>28</span></footer>
+</section>
+
+<script>
+    // Écran + cadres rouges à partir des captures et des zones mesurées par pas-a-pas-shots.cjs
+    document.querySelectorAll('.screen[data-shot]').forEach(el => {
+        const name = el.dataset.shot;
+        el.innerHTML = `<img src="img-pas/${name}.jpg" alt="">`;
+        if (el.closest('.cover')) return;
+        (window.TARGETS[name] || []).forEach((t, i) => {
+            const pad = .6;
+            const r = document.createElement('div');
+            r.className = 'ring' + (t.x + t.w > 85 ? ' right' : '') + (el.dataset.below ? ' below' : '');
+            Object.assign(r.style, { left: (t.x - pad) + '%', top: (t.y - pad * 1.4) + '%', width: (t.w + pad * 2) + '%', height: (t.h + pad * 2.8) + '%' });
+            r.innerHTML = `<b>${i + 1}</b>`;
+            el.appendChild(r);
+        });
+    });
+</script>
+</body>
+</html>

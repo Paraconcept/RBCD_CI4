@@ -226,6 +226,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('caisse/parametres/photos',                  'Admin\BarSettingsController::saveImages');
         $routes->get ('caisse/howto',                              'Admin\BarServicesController::howto/admin');
         $routes->get ('caisse/howto-caisse',                       'Admin\BarServicesController::howto/caisse');
+        $routes->get ('caisse/howto-pas-a-pas',                    'Admin\BarServicesController::howto/pas-a-pas');
 
         // Trésorerie — enveloppes de caisse
         $routes->get ('treasury/envelopes',                'Admin\TreasuryEnvelopesController::index');
