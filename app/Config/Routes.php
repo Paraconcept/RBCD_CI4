@@ -111,6 +111,7 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->post('match/(:num)/rejouer',          'Public\ScoreboardController::rematch/$1');
     $routes->get ('match/(:num)/signer',           'Public\ScoreboardController::sign/$1');
     $routes->post('match/(:num)/signer',           'Public\ScoreboardController::signPost/$1');
+    $routes->get ('match/(:num)/pdf',              'Public\ScoreboardController::pdf/$1');
     $routes->get ('match/(:num)/modifier',         'Public\ScoreboardController::edit/$1');
     $routes->post('match/(:num)/modifier',         'Public\ScoreboardController::update/$1');
     $routes->get ('rencontre/(:num)',              'Public\ScoreboardTeamController::show/$1');

@@ -938,6 +938,7 @@
                 else if (a === 'minus' && !C.signed) minus();
                 else if (a === 'plus' && !e.repeat && C.urls.rematch) confirmRematch();
                 else if (a === 'plus' && !e.repeat && C.urls.sign) goSign();
+                else if (a === 'plus' && !e.repeat && C.urls.print) printSheet();
                 else if (a === 'menu') openMenu();
                 return;
             }
@@ -999,6 +1000,29 @@
             });
         }
         if ($('sbdSignBtn')) $('sbdSignBtn').addEventListener('click', goSign);
+
+        // PDF chargé dans un cadre invisible puis boîte d'impression de Chrome : pas d'onglet à refermer au marquoir
+        let printing = false;
+        function printSheet() {
+            if (printing) return;
+            printing = true;
+            flash('Préparation de la feuille de match…');
+            const old = $('sbdPrintFrame');
+            if (old) old.remove();
+            const frame = document.createElement('iframe');
+            frame.id = 'sbdPrintFrame';
+            frame.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0';
+            frame.onload = function () {
+                setTimeout(function () {
+                    printing = false;
+                    try { frame.contentWindow.focus(); frame.contentWindow.print(); }
+                    catch (err) { window.open(C.urls.print, '_blank'); }
+                }, 500);
+            };
+            frame.src = C.urls.print;
+            document.body.appendChild(frame);
+        }
+        if ($('sbdPrintBtn')) $('sbdPrintBtn').addEventListener('click', printSheet);
 
         function confirmRematch() {
             const form = $('sbdRematchForm');

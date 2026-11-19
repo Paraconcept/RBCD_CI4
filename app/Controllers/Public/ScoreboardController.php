@@ -4,6 +4,7 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Libraries\MatchResultMailer;
+use App\Libraries\MatchSheetPdf;
 use App\Models\FrbbCategoryModel;
 use App\Filters\ScoreboardDeviceFilter;
 use App\Models\ScoreboardInningModel;
@@ -350,6 +351,21 @@ class ScoreboardController extends BaseController
         }
 
         return $back->with('success', 'Feuille de match signée' . ($sent ? ' et résultats envoyés par e-mail.' : '.'));
+    }
+
+    /** Feuille de match à imprimer au marquoir pour un joueur : uniquement une feuille signée, donc définitive. */
+    public function pdf(int $matchId)
+    {
+        $match = $this->findMatch($matchId);
+        if ($match->type !== 'official' || ScoreboardMatchModel::isTrio($match) || !$this->signatures->isSigned((int) $match->id)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        [$pdf, $filename] = MatchSheetPdf::render($match);
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
+            ->setBody($pdf);
     }
 
     private function signable(object $match): bool

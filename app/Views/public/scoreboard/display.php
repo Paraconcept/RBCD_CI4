@@ -35,6 +35,7 @@ $config = [
         'edit'  => base_url('marquoir/match/' . $match->id . '/modifier'),
         'list'  => base_url('en-direct'),
         'rematch' => $match->type === 'friendly' && $match->table_id ? base_url('marquoir/match/' . $match->id . '/rejouer') : null,
+        'print'   => !empty($signed) && $match->type === 'official' && !$trio ? base_url('marquoir/match/' . $match->id . '/pdf') : null,
         'sign'    => $match->type === 'official' && !$trio && $match->signature_required && empty($locked) ? base_url('marquoir/match/' . $match->id . '/signer') : null,
     ],
 ];
@@ -198,7 +199,16 @@ $config = [
                 <a href="<?= base_url('en-direct') ?>" class="btn btn-outline-light"><i class="fas fa-arrow-left me-2"></i>Rencontres du jour</a>
                 <?php elseif (!empty($locked)): ?>
                 <div class="sbd-signed mb-2"><i class="fas fa-file-signature me-2"></i><?= !empty($signed) ? 'Feuille de match signée' : 'Rencontre clôturée' ?> — résultat définitif</div>
+                <?php if (!empty($signed)): ?>
+                <div class="<?= $match->result_sent_at ? 'sbd-signed' : 'sbd-unsent' ?> mb-2">
+                    <i class="fas <?= $match->result_sent_at ? 'fa-envelope-circle-check' : 'fa-envelope' ?> me-2"></i>Feuille de match <?= $match->result_sent_at ? 'envoyée' : 'non envoyée' ?> par e-mail
+                </div>
+                <?php endif; ?>
                 <kbd>Entrée</kbd> retour au billard
+                <?php if ($config['urls']['print']): ?>
+                &nbsp;·&nbsp; <kbd>+</kbd> imprimer la feuille de match
+                <div class="mt-3"><button type="button" class="btn btn-sb btn-lg" id="sbdPrintBtn"><i class="fas fa-print me-2"></i>Imprimer la feuille de match</button></div>
+                <?php endif; ?>
                 <?php else: ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> corriger la dernière reprise
                 <?php if ($config['urls']['sign']): ?>

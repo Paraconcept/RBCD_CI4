@@ -475,6 +475,7 @@
 }
 .sb-sign-pad.signed { border-style: solid; border-color: var(--sb-green); }
 .sbd-signed { color: var(--sb-green); font-weight: 700; }
+.sbd-unsent { color: var(--sb-orange); font-weight: 700; }
 
 /* Clôture d'une rencontre d'équipe */
 .sb-team-recap { --bs-table-bg: transparent; font-size: .95rem; }
