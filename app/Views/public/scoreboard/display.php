@@ -205,10 +205,6 @@ $config = [
                 </div>
                 <?php endif; ?>
                 <kbd>Entrée</kbd> retour au billard
-                <?php if ($config['urls']['print']): ?>
-                &nbsp;·&nbsp; <kbd>+</kbd> imprimer la feuille de match
-                <div class="mt-3"><button type="button" class="btn btn-sb btn-lg" id="sbdPrintBtn"><i class="fas fa-print me-2"></i>Imprimer la feuille de match</button></div>
-                <?php endif; ?>
                 <?php else: ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> corriger la dernière reprise
                 <?php if ($config['urls']['sign']): ?>
@@ -267,6 +263,9 @@ $config = [
         <div class="sbd-menu">
             <button type="button" class="btn btn-light" data-action="fix" id="sbdFixBtn"><i class="fas fa-pen-to-square me-2"></i>Corriger une reprise</button>
             <button type="button" class="btn btn-light" data-action="edit"><i class="fas fa-user-pen me-2"></i>Modifier la partie en cours</button>
+            <?php if ($config['urls']['print']): ?>
+            <button type="button" class="btn btn-light" data-action="print"><i class="fas fa-print me-2"></i>Imprimer la feuille de match</button>
+            <?php endif; ?>
             <button type="button" class="btn btn-light" data-action="fullscreen"><i class="fas fa-expand me-2"></i>Plein écran</button>
             <a href="<?= esc($config['urls']['table']) ?>" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Retour au billard (la partie reste en cours)</a>
             <form method="post" id="sbdWarmupForm" action="<?= base_url('marquoir/match/' . $match->id . '/echauffement') ?>" hidden>

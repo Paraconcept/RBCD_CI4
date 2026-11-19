@@ -938,7 +938,6 @@
                 else if (a === 'minus' && !C.signed) minus();
                 else if (a === 'plus' && !e.repeat && C.urls.rematch) confirmRematch();
                 else if (a === 'plus' && !e.repeat && C.urls.sign) goSign();
-                else if (a === 'plus' && !e.repeat && C.urls.print) printSheet();
                 else if (a === 'menu') openMenu();
                 return;
             }
@@ -958,6 +957,7 @@
             const btn = e.target.closest('[data-action]');
             if (e.target === menu || (btn && btn.dataset.action === 'close')) closeMenu();
             if (btn && btn.dataset.action === 'fullscreen') { enterFullscreen(); closeMenu(); }
+            if (btn && btn.dataset.action === 'print') { closeMenu(); printSheet(); }
             if (btn && btn.dataset.action === 'cancel') confirmCancel();
             if (btn && btn.dataset.action === 'fix') { closeMenu(); openFix(); }
             if (btn && btn.dataset.action === 'edit') {
@@ -1022,7 +1022,6 @@
             frame.src = C.urls.print;
             document.body.appendChild(frame);
         }
-        if ($('sbdPrintBtn')) $('sbdPrintBtn').addEventListener('click', printSheet);
 
         function confirmRematch() {
             const form = $('sbdRematchForm');
