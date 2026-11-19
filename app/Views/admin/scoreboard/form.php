@@ -192,6 +192,18 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
           <a href="<?= base_url('admin/scoreboard/settings') ?>" class="small font-weight-normal ml-1" title="Modifier dans Marquoir › Paramètres"><i class="fas fa-cog"></i></a>
         </label>
       </div>
+      <div class="custom-control custom-checkbox mb-2">
+        <?php // Coché d'office pour une rencontre de Coupe des Régions ?>
+        <input type="checkbox" class="custom-control-input" name="send_to_cdr" id="send_to_cdr" value="1"
+               <?= $checked('send_to_cdr', M::isCdr($val('competition'), $team->competition ?? null) ? 1 : 0) ?> <?= $cdr->email === '' ? 'disabled' : '' ?>>
+        <label class="custom-control-label" for="send_to_cdr">
+          Responsable CDR
+          <span class="text-muted font-weight-normal ml-1">
+            <?= $cdr->email !== '' ? esc(trim($cdr->name . ' — ' . $cdr->email, ' —')) : 'aucune adresse dans les paramètres' ?>
+          </span>
+          <a href="<?= base_url('admin/scoreboard/settings') ?>" class="small font-weight-normal ml-1" title="Modifier dans Marquoir › Paramètres"><i class="fas fa-cog"></i></a>
+        </label>
+      </div>
       <div class="d-flex flex-wrap align-items-center" style="gap:.5rem 1rem">
         <div class="custom-control custom-checkbox">
           <input type="checkbox" class="custom-control-input" name="send_to_organizer_ds" id="send_to_organizer_ds" value="1" <?= $checked('send_to_organizer_ds', 0) ?>>
@@ -311,6 +323,15 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
 <?= $this->section('scripts') ?>
 <script>window.SB_CATEGORIES = <?= json_encode($categories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script>
+(function () {
+  // Compétition saisie « CDR… » ou « Coupe des Régions » : responsable CDR coché, tant qu'on n'a pas touché la case soi-même
+  const comp = document.getElementById('competition'), box = document.getElementById('send_to_cdr');
+  if (!comp || !box || box.disabled) return;
+  const isCdr = (v) => /^\s*CDR\b|coupe des r[ée]gions/i.test(v);
+  let touched = false;
+  box.addEventListener('change', () => { touched = true; });
+  comp.addEventListener('input', function () { if (!touched) box.checked = isCdr(this.value); });
+})();
 document.getElementById('organizer_ds_email').addEventListener('input', function () {
   document.getElementById('send_to_organizer_ds').checked = this.value.trim() !== '';
 });

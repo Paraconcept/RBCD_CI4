@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Libraries\MatchResultMailer;
 use App\Libraries\MatchSheetPdf;
+use App\Libraries\TeamRecapPdf;
 use App\Models\FrbbCategoryModel;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
@@ -245,6 +246,7 @@ class ScoreboardController extends BaseController
             'prefill'     => $prefill,
             'tables'      => (new ScoreboardTableModel())->getActive(),
             'dsr'         => MatchSheetPdf::regionalDirector(),
+            'cdr'         => TeamRecapPdf::cdr(),
             'knownOrganizerEmails' => array_column($this->model->builder()->distinct()->select('organizer_ds_email')
                 ->where('organizer_ds_email IS NOT NULL')->orderBy('organizer_ds_email')->get()->getResultArray(), 'organizer_ds_email'),
             'defaults'    => [
@@ -273,6 +275,7 @@ class ScoreboardController extends BaseController
 
         $data['send_to_club_ds']      = !empty($post['send_to_club_ds']) ? 1 : 0;
         $data['send_to_dsr']          = !empty($post['send_to_dsr']) ? 1 : 0;
+        $data['send_to_cdr']          = !empty($post['send_to_cdr']) ? 1 : 0;
         $data['send_to_organizer_ds'] = !empty($post['send_to_organizer_ds']) ? 1 : 0;
         $organizerEmail = mb_strtolower(trim((string) ($post['organizer_ds_email'] ?? '')));
         $data['organizer_ds_email'] = $organizerEmail !== '' ? mb_substr($organizerEmail, 0, 150) : null;

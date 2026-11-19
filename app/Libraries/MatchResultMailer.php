@@ -20,6 +20,9 @@ class MatchResultMailer
         if ($match->send_to_dsr) {
             $emails[] = MatchSheetPdf::regionalDirector()['email'];
         }
+        if ($match->send_to_cdr) {
+            $emails[] = TeamRecapPdf::cdr()->email;
+        }
         if ($match->send_to_organizer_ds) {
             $emails[] = $match->organizer_ds_email;
         }
