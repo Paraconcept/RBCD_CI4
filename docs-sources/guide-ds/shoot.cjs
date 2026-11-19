@@ -44,6 +44,20 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
     }
     console.log(name, Math.round(h));
   };
+  // Une seule card d'une page (ex. « Envoi des résultats »), sans le reste du formulaire
+  const shotCard = async (name, title, out) => {
+    await p.setViewport({ width: 1440, height: 2400, deviceScaleFactor: SCALE });
+    await p.goto(`file://${dir}/pages/${name}.html`, { waitUntil: 'networkidle0' });
+    await prepare({});
+    // Barre latérale masquée : elle recouvrirait le début de la card
+    await p.evaluate(() => { document.querySelectorAll('.main-sidebar,.main-header,#debug-icon,#debug-bar').forEach((e) => { e.style.display = 'none'; }); document.querySelectorAll('.content-wrapper,.main-footer').forEach((e) => { e.style.marginLeft = '0'; }); });
+    await wait(600);
+    const card = await p.evaluateHandle((t) => [...document.querySelectorAll('.card')].find((c) => c.querySelector('.card-title')?.textContent.includes(t)), title);
+    const r = await card.asElement().boundingBox();
+    await p.screenshot({ path: `${dir}/img/${out}.png`, clip: { x: r.x - 2, y: r.y - 2, width: r.width + 4, height: r.height + 4 } });
+    console.log(out);
+  };
+  await shotCard('match_edit', 'Envoi des résultats', 'match_recipients');
   await shot('index', { full: true, out: 'a01_menu' });
   await shot('settings', { maskPin: true });
   await shot('tables');

@@ -252,7 +252,7 @@
               <div class="sw" style="background:#0284c7">*</div><div><b>Chrono</b>Lance ou met en pause le chrono par coup (et lance l'échauffement).</div>
               <div class="sw" style="background:#eab308;color:#0a1020">.</div><div><b>Pause</b>Affiche « Pause » en grand sur la TV (et en direct sur Internet) et arrête le chrono. Appuyez à nouveau sur <kbd>.</kbd> pour reprendre.</div>
               <div class="sw" style="background:#fde047;color:#0a1020"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.5 2h13l-.5 6.3a6 6 0 0 1-11.9 0z"/><rect x="11" y="13.6" width="2" height="5.6"/><path d="M6.8 22c0-1.3 2.3-2.3 5.2-2.3s5.2 1 5.2 2.3z"/></svg></div><div><b>Appel du bar</b>Touche <kbd>Verr. Num</kbd>, puis <kbd>Entrée</kbd> pour confirmer (<kbd>⌫</kbd> pour renoncer). Le billard s'allume sur la tablette du bar et le barman vient prendre la commande.</div>
-              <div class="sw" style="background:#0d9488">⌫</div><div><b>Menu</b>Corriger une reprise, modifier la partie en cours, plein écran, inverser les joueurs (à&nbsp;3&nbsp;: changer l'ordre de jeu), retour au billard, annuler la partie. Dans le menu : <kbd>8</kbd> <kbd>2</kbd> pour se déplacer, <kbd>Entrée</kbd> pour valider, <kbd>⌫</kbd> pour fermer.</div>
+              <div class="sw" style="background:#0d9488">⌫</div><div><b>Menu</b>Corriger une reprise, modifier la partie en cours, plein écran, inverser les joueurs (à&nbsp;3&nbsp;: changer l'ordre de jeu), retour au billard, annuler la partie ; feuille signée : imprimer la feuille de match. Dans le menu : <kbd>8</kbd> <kbd>2</kbd> pour se déplacer, <kbd>Entrée</kbd> pour valider, <kbd>⌫</kbd> pour fermer.</div>
             </div>
           </div>
         </div>
@@ -368,12 +368,13 @@
             <ol class="mh-steps">
               <li>Le <b>joueur A</b> signe du doigt dans le grand cadre blanc (un stylet capacitif est plus précis ; la main posée sur l'écran est ignorée).</li>
               <li>Touchez « <b>Joueur B</b> », puis « <b>Arbitre</b> » : chacun signe dans le même cadre. « Effacer » recommence la signature affichée.</li>
-              <li>Tapez le <b>nom de l'arbitre</b> (obligatoire), puis « <b>Enregistrer</b> » : retour à la page du billard.</li>
+              <li>Tapez le <b>nom de l'arbitre</b> (obligatoire), puis « <b>Enregistrer</b> » : la feuille de match part <b>par e-mail</b> au directeur sportif (et aux autres destinataires qu'il a choisis), puis retour à la page du billard.</li>
             </ol>
           </div>
           <div class="col-md-6">
             <div class="mh-note green"><b>Facultatif</b> — <kbd>Entrée</kbd> ramène au billard sans signer. Les signatures sont imprimées sur la feuille de match PDF. Le DS choisit quelles rencontres sont à signer.</div>
             <div class="mh-note orange"><b>Définitif</b> — une fois enregistrée, la feuille est verrouillée : plus de correction ni de modification de la partie au marquoir.</div>
+            <div class="mh-note"><b>Après la signature</b> — l'écran de fin indique en vert « Feuille de match <b>envoyée</b> par e-mail », ou en orange « <b>non envoyée</b> » : prévenez le DS. Une copie papier pour un joueur : <kbd>⌫</kbd> › « <b>Imprimer la feuille de match</b> ».</div>
           </div>
         </div>
       </div>
