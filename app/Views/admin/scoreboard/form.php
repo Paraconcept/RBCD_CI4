@@ -164,6 +164,48 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
     <?php endforeach; ?>
   </div>
 
+  <?php
+  // Après une erreur de validation, une case décochée est absente de l'ancienne saisie : ne pas retomber sur la valeur par défaut
+  $hasOld  = session('_ci_old_input') !== null;
+  $checked = static fn (string $f, $default) => ($hasOld ? old($f) : ($isEdit ? $match->$f : $default)) ? 'checked' : '';
+  ?>
+  <div class="card card-outline card-primary">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-paper-plane mr-2"></i>Envoi des résultats</h3>
+    </div>
+    <div class="card-body">
+      <p class="text-muted small mb-3">Cochez les personnes à qui les résultats de ce match doivent être envoyés.</p>
+      <div class="custom-control custom-checkbox mb-2">
+        <input type="checkbox" class="custom-control-input" name="send_to_club_ds" id="send_to_club_ds" value="1" <?= $checked('send_to_club_ds', 1) ?>>
+        <label class="custom-control-label" for="send_to_club_ds">
+          Directeur sportif du RBC Disonais <span class="text-muted font-weight-normal ml-1"><?= esc(M::CLUB_DS_EMAIL) ?></span>
+        </label>
+      </div>
+      <div class="custom-control custom-checkbox mb-2">
+        <input type="checkbox" class="custom-control-input" name="send_to_dsr" id="send_to_dsr" value="1" <?= $checked('send_to_dsr', 0) ?>
+               <?= $dsr['email'] === '' ? 'disabled' : '' ?>>
+        <label class="custom-control-label" for="send_to_dsr">
+          Directeur sportif régional
+          <span class="text-muted font-weight-normal ml-1">
+            <?= $dsr['email'] !== '' ? esc(trim($dsr['name'] . ' — ' . $dsr['email'], ' —')) : 'aucune adresse dans les paramètres' ?>
+          </span>
+          <a href="<?= base_url('admin/scoreboard/settings') ?>" class="small font-weight-normal ml-1" title="Modifier dans Marquoir › Paramètres"><i class="fas fa-cog"></i></a>
+        </label>
+      </div>
+      <div class="d-flex flex-wrap align-items-center" style="gap:.5rem 1rem">
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" name="send_to_organizer_ds" id="send_to_organizer_ds" value="1" <?= $checked('send_to_organizer_ds', 0) ?>>
+          <label class="custom-control-label" for="send_to_organizer_ds">Directeur sportif du club organisateur</label>
+        </div>
+        <input type="email" name="organizer_ds_email" id="organizer_ds_email" class="form-control form-control-sm" maxlength="150"
+               list="organizerEmails" placeholder="adresse e-mail" style="max-width:320px" value="<?= esc($val('organizer_ds_email')) ?>">
+        <datalist id="organizerEmails">
+          <?php foreach ($knownOrganizerEmails as $e): ?><option value="<?= esc($e) ?>"><?php endforeach; ?>
+        </datalist>
+      </div>
+    </div>
+  </div>
+
   <div class="card card-outline card-primary">
     <div class="card-header">
       <h3 class="card-title"><i class="fas fa-sliders-h mr-2"></i>Règles de la partie</h3>
@@ -268,6 +310,11 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script>window.SB_CATEGORIES = <?= json_encode($categories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;</script>
+<script>
+document.getElementById('organizer_ds_email').addEventListener('input', function () {
+  document.getElementById('send_to_organizer_ds').checked = this.value.trim() !== '';
+});
+</script>
 <script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard-forms.js') ?>"></script>
 <script>
 // Joueur absent (forfait) : nom, prénom et points à réaliser ne sont plus obligatoires

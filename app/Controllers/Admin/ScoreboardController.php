@@ -221,6 +221,9 @@ class ScoreboardController extends BaseController
             'categories'  => (new FrbbCategoryModel())->forScoreboard(),
             'prefill'     => $prefill,
             'tables'      => (new ScoreboardTableModel())->getActive(),
+            'dsr'         => MatchSheetPdf::regionalDirector(),
+            'knownOrganizerEmails' => array_column($this->model->builder()->distinct()->select('organizer_ds_email')
+                ->where('organizer_ds_email IS NOT NULL')->orderBy('organizer_ds_email')->get()->getResultArray(), 'organizer_ds_email'),
             'defaults'    => [
                 'shot_clock_seconds'    => (int) $settings->getSetting('scoreboard_shot_clock_seconds', 40),
                 'shot_clock_extensions' => (int) $settings->getSetting('scoreboard_shot_clock_extensions', 3),
@@ -244,6 +247,18 @@ class ScoreboardController extends BaseController
         $number = mb_substr(trim((string) ($post['match_number'] ?? '')), 0, 30);
         $data['match_number'] = $number !== '' ? $number : null;
         $data['signature_required'] = !empty($post['signature_required']) ? 1 : 0;
+
+        $data['send_to_club_ds']      = !empty($post['send_to_club_ds']) ? 1 : 0;
+        $data['send_to_dsr']          = !empty($post['send_to_dsr']) ? 1 : 0;
+        $data['send_to_organizer_ds'] = !empty($post['send_to_organizer_ds']) ? 1 : 0;
+        $organizerEmail = mb_strtolower(trim((string) ($post['organizer_ds_email'] ?? '')));
+        $data['organizer_ds_email'] = $organizerEmail !== '' ? mb_substr($organizerEmail, 0, 150) : null;
+        if ($organizerEmail !== '' && !filter_var($organizerEmail, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "L'adresse e-mail du directeur sportif du club organisateur est invalide.";
+        }
+        if ($data['send_to_organizer_ds'] && $organizerEmail === '') {
+            $errors[] = "Indiquez l'adresse e-mail du directeur sportif du club organisateur, ou décochez-le.";
+        }
 
         // Le champ n'existe que dans le formulaire d'un match d'équipe : absent, on ne touche pas au rattachement
         if (array_key_exists('team_encounter_id', $post)) {
