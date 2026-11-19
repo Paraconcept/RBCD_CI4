@@ -113,6 +113,18 @@ $ranks = $trio && $match->status === 'finished' ? M::storedRanking($match) : [];
     </table>
     <?php endforeach; ?>
   </div>
+  <?php if ($match->type === 'official' && !$trio): ?>
+  <p class="px-3 mb-3">
+    <i class="fas fa-paper-plane mr-1 text-muted"></i>
+    <?php if ($match->result_sent_at): ?>
+      Résultats envoyés le <strong><?= date('d/m/Y à H:i', strtotime($match->result_sent_at)) ?></strong> à <?= esc($match->result_sent_to) ?>.
+    <?php elseif ($recipients): ?>
+      <span class="text-muted">Résultats envoyés automatiquement à <?= esc(implode(', ', $recipients)) ?> dès la signature de la feuille.</span>
+    <?php else: ?>
+      <span class="text-muted">Aucun destinataire coché pour l'envoi des résultats.</span>
+    <?php endif; ?>
+  </p>
+  <?php endif; ?>
   <form method="post" action="<?= base_url('admin/scoreboard/' . $match->id . '/comment') ?>" class="px-3 pb-3" id="commentaire">
     <?= csrf_field() ?>
     <h5 class="mb-2"><i class="fas fa-comment-dots mr-1"></i>Commentaire de la feuille de match</h5>
@@ -133,6 +145,15 @@ $ranks = $trio && $match->status === 'finished' ? M::storedRanking($match) : [];
     <a href="<?= base_url('admin/scoreboard/' . $match->id . '/pdf') ?>" target="_blank" class="btn btn-primary">
       <i class="fas fa-file-pdf mr-1"></i>Feuille de match PDF
     </a>
+    <?php if ($match->status === 'finished' && !$trio): ?>
+    <form method="post" action="<?= base_url('admin/scoreboard/' . $match->id . '/send') ?>" class="ml-2"
+          onsubmit="return confirm(<?= esc(json_encode(($match->result_sent_at ? 'Les résultats ont déjà été envoyés le ' . date('d/m/Y à H:i', strtotime($match->result_sent_at)) . ".\n\n" : '') . "Envoyer la feuille de match à :\n" . implode("\n", $recipients), JSON_UNESCAPED_UNICODE), 'attr') ?>)">
+      <?= csrf_field() ?>
+      <button class="btn btn-success" <?= $recipients ? '' : 'disabled title="Aucun destinataire coché dans le match"' ?>>
+        <i class="fas fa-paper-plane mr-1"></i><?= $match->result_sent_at ? 'Renvoyer' : 'Envoyer' ?> les résultats
+      </button>
+    </form>
+    <?php endif; ?>
     <?php endif; ?>
   </div>
 </div>

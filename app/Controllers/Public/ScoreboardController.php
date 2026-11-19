@@ -3,6 +3,7 @@
 namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
+use App\Libraries\MatchResultMailer;
 use App\Models\FrbbCategoryModel;
 use App\Filters\ScoreboardDeviceFilter;
 use App\Models\ScoreboardInningModel;
@@ -339,8 +340,16 @@ class ScoreboardController extends BaseController
 
         $this->signatures->insert($data);
 
-        return redirect()->to(base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'))
-                         ->with('success', 'Feuille de match signée.');
+        $back = redirect()->to(base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'));
+        // La signature est acquise même si l'e-mail échoue : le DS peut renvoyer les résultats depuis l'admin
+        try {
+            $sent = MatchResultMailer::send($match);
+        } catch (\Throwable $e) {
+            log_message('error', 'Résultats du match ' . $matchId . ' non envoyés : ' . $e->getMessage());
+            return $back->with('error', "Feuille de match signée, mais l'envoi des résultats par e-mail a échoué : prévenez le directeur sportif.");
+        }
+
+        return $back->with('success', 'Feuille de match signée' . ($sent ? ' et résultats envoyés par e-mail.' : '.'));
     }
 
     private function signable(object $match): bool

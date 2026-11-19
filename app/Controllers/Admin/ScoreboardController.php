@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\MatchResultMailer;
 use App\Libraries\MatchSheetPdf;
 use App\Models\FrbbCategoryModel;
 use App\Models\ScoreboardMatchModel;
@@ -114,6 +115,7 @@ class ScoreboardController extends BaseController
             'table'       => $table,
             'sheets'      => MatchSheetPdf::sheets($id),
             'signature'   => (new ScoreboardSignatureModel())->select('referee_name, signed_at')->where('match_id', $id)->first(),
+            'recipients'  => MatchResultMailer::recipients($match),
         ]);
     }
 
@@ -139,6 +141,27 @@ class ScoreboardController extends BaseController
         $this->model->update($match->id, ['comment' => $comment !== '' ? $comment : null]);
 
         return redirect()->to(base_url('admin/scoreboard/' . $id))->with('success', 'Commentaire enregistré.');
+    }
+
+    /** Porte de secours : renvoi manuel, sans exiger de signature (comme la feuille récapitulative). */
+    public function sendResult(int $id)
+    {
+        $match = $this->find($id);
+        $back  = redirect()->to(base_url('admin/scoreboard/' . $id));
+        if ($match->type !== 'official' || $match->status !== 'finished' || ScoreboardMatchModel::isTrio($match)) {
+            return $back->with('error', 'Seuls les résultats des matchs officiels terminés peuvent être envoyés.');
+        }
+
+        try {
+            $sent = MatchResultMailer::send($match);
+        } catch (\Throwable $e) {
+            return $back->with('error', "L'envoi de l'e-mail a échoué. Détails dans les logs du serveur.");
+        }
+        if (!$sent) {
+            return $back->with('error', 'Aucun destinataire coché : modifiez le match pour choisir à qui envoyer les résultats.');
+        }
+
+        return $back->with('success', 'Résultats envoyés à ' . implode(', ', $sent) . '.');
     }
 
     public function edit(int $id): string

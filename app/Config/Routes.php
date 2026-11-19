@@ -388,6 +388,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard/(:num)/delete',         'Admin\ScoreboardController::delete/$1');
         $routes->post('scoreboard/(:num)/reset',          'Admin\ScoreboardController::reset/$1');
         $routes->post('scoreboard/(:num)/comment',        'Admin\ScoreboardController::comment/$1');
+        $routes->post('scoreboard/(:num)/send',           'Admin\ScoreboardController::sendResult/$1');
         $routes->get ('scoreboard/teams',                       'Admin\ScoreboardTeamController::index');
         $routes->get ('scoreboard/teams/create',                'Admin\ScoreboardTeamController::create');
         $routes->post('scoreboard/teams',                       'Admin\ScoreboardTeamController::store');
