@@ -204,7 +204,7 @@ $config = [
                     <i class="fas <?= $match->result_sent_at ? 'fa-envelope-circle-check' : 'fa-envelope' ?> me-2"></i>Feuille de match <?= $match->result_sent_at ? 'envoyée' : 'non envoyée' ?> par e-mail
                 </div>
                 <?php endif; ?>
-                <kbd>Entrée</kbd> retour au billard
+                <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>⌫</kbd> menu
                 <?php else: ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> corriger la dernière reprise
                 <?php if ($config['urls']['sign']): ?>
