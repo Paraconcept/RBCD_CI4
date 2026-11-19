@@ -175,46 +175,41 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
     </div>
     <div class="card-body">
       <p class="text-muted small mb-3">Cochez les personnes à qui les résultats de ce match doivent être envoyés.</p>
-      <div class="custom-control custom-checkbox mb-2">
-        <input type="checkbox" class="custom-control-input" name="send_to_club_ds" id="send_to_club_ds" value="1" <?= $checked('send_to_club_ds', 1) ?>>
-        <label class="custom-control-label" for="send_to_club_ds">
-          Directeur sportif du RBC Disonais <span class="text-muted font-weight-normal ml-1"><?= esc(M::CLUB_DS_EMAIL) ?></span>
-        </label>
-      </div>
-      <div class="custom-control custom-checkbox mb-2">
-        <input type="checkbox" class="custom-control-input" name="send_to_dsr" id="send_to_dsr" value="1" <?= $checked('send_to_dsr', 0) ?>
-               <?= $dsr['email'] === '' ? 'disabled' : '' ?>>
-        <label class="custom-control-label" for="send_to_dsr">
-          Directeur sportif régional
-          <span class="text-muted font-weight-normal ml-1">
-            <?= $dsr['email'] !== '' ? esc(trim($dsr['name'] . ' — ' . $dsr['email'], ' —')) : 'aucune adresse dans les paramètres' ?>
-          </span>
-          <a href="<?= base_url('admin/scoreboard/settings') ?>" class="small font-weight-normal ml-1" title="Modifier dans Marquoir › Paramètres"><i class="fas fa-cog"></i></a>
-        </label>
-      </div>
-      <div class="custom-control custom-checkbox mb-2">
-        <?php // Coché d'office pour une rencontre de Coupe des Régions ?>
-        <input type="checkbox" class="custom-control-input" name="send_to_cdr" id="send_to_cdr" value="1"
-               <?= $checked('send_to_cdr', M::isCdr($val('competition'), $team->competition ?? null) ? 1 : 0) ?> <?= $cdr->email === '' ? 'disabled' : '' ?>>
-        <label class="custom-control-label" for="send_to_cdr">
-          Responsable CDR
-          <span class="text-muted font-weight-normal ml-1">
-            <?= $cdr->email !== '' ? esc(trim($cdr->name . ' — ' . $cdr->email, ' —')) : 'aucune adresse dans les paramètres' ?>
-          </span>
-          <a href="<?= base_url('admin/scoreboard/settings') ?>" class="small font-weight-normal ml-1" title="Modifier dans Marquoir › Paramètres"><i class="fas fa-cog"></i></a>
-        </label>
-      </div>
-      <div class="d-flex flex-wrap align-items-center" style="gap:.5rem 1rem">
+      <?php
+      // Adresse enregistrée sur le match, sinon celle des paramètres (DSR, CDR) ou du club
+      $isCdrMatch = M::isCdr($val('competition'), $team->competition ?? null);
+      $recipientRows = [
+          ['send_to_club_ds', 'club_ds_email', 'Directeur sportif du RBC Disonais', M::CLUB_DS_EMAIL, $clubDsName, 1, false],
+          ['send_to_dsr', 'dsr_email', 'Directeur sportif régional', $dsr['email'], $dsr['name'], 0, true],
+          ['send_to_cdr', 'cdr_email', 'Responsable CDR', $cdr->email, $cdr->name, $isCdrMatch ? 1 : 0, true],
+          ['send_to_organizer_ds', 'organizer_ds_email', 'Directeur sportif du club organisateur', '', '', 0, false],
+      ];
+      ?>
+      <div class="sb-recipients">
+        <?php foreach ($recipientRows as [$flag, $field, $label, $defaultEmail, $name, $defaultChecked, $fromSettings]): ?>
         <div class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input" name="send_to_organizer_ds" id="send_to_organizer_ds" value="1" <?= $checked('send_to_organizer_ds', 0) ?>>
-          <label class="custom-control-label" for="send_to_organizer_ds">Directeur sportif du club organisateur</label>
+          <input type="checkbox" class="custom-control-input" name="<?= $flag ?>" id="<?= $flag ?>" value="1" <?= $checked($flag, $defaultChecked) ?>>
+          <label class="custom-control-label" for="<?= $flag ?>"><?= $label ?></label>
         </div>
-        <input type="email" name="organizer_ds_email" id="organizer_ds_email" class="form-control form-control-sm" maxlength="150"
-               list="organizerEmails" placeholder="adresse e-mail" style="max-width:320px" value="<?= esc($val('organizer_ds_email')) ?>">
-        <datalist id="organizerEmails">
-          <?php foreach ($knownOrganizerEmails as $e): ?><option value="<?= esc($e) ?>"><?php endforeach; ?>
-        </datalist>
+        <input type="email" name="<?= $field ?>" id="<?= $field ?>" class="form-control form-control-sm" maxlength="150"
+               placeholder="adresse e-mail" data-recipient-for="<?= $flag ?>"
+               <?= $field === 'organizer_ds_email' ? 'list="organizerEmails"' : '' ?>
+               value="<?= esc(old($field, ($isEdit ? $match->$field : null) ?: $defaultEmail)) ?>">
+        <span class="text-muted">
+          <?= esc($name) ?>
+          <?php if ($fromSettings): ?>
+          <a href="<?= base_url('admin/scoreboard/settings') ?>" class="small ml-1" title="Adresse par défaut : Marquoir › Paramètres"><i class="fas fa-cog"></i></a>
+          <?php endif; ?>
+        </span>
+        <?php endforeach; ?>
       </div>
+      <datalist id="organizerEmails">
+        <?php foreach ($knownOrganizerEmails as $e): ?><option value="<?= esc($e) ?>"><?php endforeach; ?>
+      </datalist>
+      <style>
+        .sb-recipients { display: grid; grid-template-columns: max-content minmax(220px, 320px) 1fr; gap: .5rem 1rem; align-items: center; }
+        @media (max-width: 767.98px) { .sb-recipients { grid-template-columns: 1fr; gap: .25rem; } .sb-recipients > span { margin-bottom: .5rem; } }
+      </style>
     </div>
   </div>
 
@@ -326,7 +321,7 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
 (function () {
   // Compétition saisie « CDR… » ou « Coupe des Régions » : responsable CDR coché, tant qu'on n'a pas touché la case soi-même
   const comp = document.getElementById('competition'), box = document.getElementById('send_to_cdr');
-  if (!comp || !box || box.disabled) return;
+  if (!comp || !box) return;
   const isCdr = (v) => /^\s*CDR\b|coupe des r[ée]gions/i.test(v);
   let touched = false;
   box.addEventListener('change', () => { touched = true; });

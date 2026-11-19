@@ -15,13 +15,13 @@ class MatchResultMailer
     {
         $emails = [];
         if ($match->send_to_club_ds) {
-            $emails[] = ScoreboardMatchModel::CLUB_DS_EMAIL;
+            $emails[] = $match->club_ds_email ?: ScoreboardMatchModel::CLUB_DS_EMAIL;
         }
         if ($match->send_to_dsr) {
-            $emails[] = MatchSheetPdf::regionalDirector()['email'];
+            $emails[] = $match->dsr_email ?: MatchSheetPdf::regionalDirector()['email'];
         }
         if ($match->send_to_cdr) {
-            $emails[] = TeamRecapPdf::cdr()->email;
+            $emails[] = $match->cdr_email ?: TeamRecapPdf::cdr()->email;
         }
         if ($match->send_to_organizer_ds) {
             $emails[] = $match->organizer_ds_email;

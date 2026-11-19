@@ -19,6 +19,14 @@ class ScoreboardController extends BaseController
 {
     private ScoreboardMatchModel $model;
 
+    // Destinataires des résultats : case à cocher, champ e-mail, libellé des messages d'erreur
+    private const RECIPIENTS = [
+        'club'      => ['send_to_club_ds', 'club_ds_email', 'directeur sportif du RBC Disonais'],
+        'dsr'       => ['send_to_dsr', 'dsr_email', 'directeur sportif régional'],
+        'cdr'       => ['send_to_cdr', 'cdr_email', 'responsable CDR'],
+        'organizer' => ['send_to_organizer_ds', 'organizer_ds_email', 'directeur sportif du club organisateur'],
+    ];
+
     public function __construct()
     {
         $this->model = new ScoreboardMatchModel();
@@ -247,6 +255,7 @@ class ScoreboardController extends BaseController
             'tables'      => (new ScoreboardTableModel())->getActive(),
             'dsr'         => MatchSheetPdf::regionalDirector(),
             'cdr'         => TeamRecapPdf::cdr(),
+            'clubDsName'  => $this->clubDirectorName(),
             'knownOrganizerEmails' => array_column($this->model->builder()->distinct()->select('organizer_ds_email')
                 ->where('organizer_ds_email IS NOT NULL')->orderBy('organizer_ds_email')->get()->getResultArray(), 'organizer_ds_email'),
             'defaults'    => [
@@ -273,17 +282,15 @@ class ScoreboardController extends BaseController
         $data['match_number'] = $number !== '' ? $number : null;
         $data['signature_required'] = !empty($post['signature_required']) ? 1 : 0;
 
-        $data['send_to_club_ds']      = !empty($post['send_to_club_ds']) ? 1 : 0;
-        $data['send_to_dsr']          = !empty($post['send_to_dsr']) ? 1 : 0;
-        $data['send_to_cdr']          = !empty($post['send_to_cdr']) ? 1 : 0;
-        $data['send_to_organizer_ds'] = !empty($post['send_to_organizer_ds']) ? 1 : 0;
-        $organizerEmail = mb_strtolower(trim((string) ($post['organizer_ds_email'] ?? '')));
-        $data['organizer_ds_email'] = $organizerEmail !== '' ? mb_substr($organizerEmail, 0, 150) : null;
-        if ($organizerEmail !== '' && !filter_var($organizerEmail, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = "L'adresse e-mail du directeur sportif du club organisateur est invalide.";
-        }
-        if ($data['send_to_organizer_ds'] && $organizerEmail === '') {
-            $errors[] = "Indiquez l'adresse e-mail du directeur sportif du club organisateur, ou décochez-le.";
+        foreach (self::RECIPIENTS as $key => [$flag, $field, $label]) {
+            $data[$flag] = !empty($post[$flag]) ? 1 : 0;
+            $address = mb_strtolower(trim((string) ($post[$field] ?? '')));
+            $data[$field] = $address !== '' ? mb_substr($address, 0, 150) : null;
+            if ($address !== '' && !filter_var($address, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "L'adresse e-mail du {$label} est invalide.";
+            } elseif ($data[$flag] && $address === '') {
+                $errors[] = "Indiquez l'adresse e-mail du {$label}, ou décochez-le.";
+            }
         }
 
         // Le champ n'existe que dans le formulaire d'un match d'équipe : absent, on ne touche pas au rattachement
@@ -293,6 +300,15 @@ class ScoreboardController extends BaseController
         }
 
         return [$data, $errors];
+    }
+
+    private function clubDirectorName(): string
+    {
+        $m = db_connect()->table('admin_user_roles r')->select('m.last_name, m.first_name')
+            ->join('members m', 'm.id = r.member_id')->where('r.role', 'Directeur Sportif')->where('m.is_active', 1)
+            ->orderBy('r.sort_order', 'ASC')->get()->getRow();
+
+        return $m ? mb_strtoupper($m->last_name) . ' ' . $m->first_name : '';
     }
 
     private function find(int $id): object
