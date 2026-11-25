@@ -181,7 +181,8 @@
               <li><kbd>1</kbd> <b>à deux</b> : <a href="#amicale">voir plus bas</a></li>
               <li><kbd>2</kbd> <b>à trois</b> : <a href="#trois">partie à 3</a></li>
               <li><kbd>3</kbd> <b>aux 5 quilles</b> : <a href="#cinq-quilles">5 quilles</a></li>
-              <li><kbd>4</kbd> <kbd>5</kbd> <b>Salade</b> et <b>Salade « Quick Pick »</b> : bientôt</li>
+              <li><kbd>4</kbd> <b>à la Salade</b></li>
+              <li><kbd>5</kbd> <b>à la Salade « Quick Pick »</b></li>
             </ul>
           </div>
         </div>

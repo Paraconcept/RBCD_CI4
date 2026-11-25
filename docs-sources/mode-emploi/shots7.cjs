@@ -28,6 +28,11 @@ const base = BASE, T = 2, out = process.argv[2];
     await page.evaluate(() => document.querySelectorAll('.sb-match').forEach((c) => { if (!/LAMBERT|SIMON/.test(c.textContent)) c.remove(); }));
     await page.screenshot({ path: `${out}/02_billard.png`, clip: { x: 0, y: 0, width: 1440, height: 560 } });
     await page.click('[data-sb-friendly-open]'); await wait(300);
+    // Documentation : la fenêtre telle qu'elle sera une fois les deux Salade terminées (pas de « En construction »)
+    await page.evaluate(() => document.querySelectorAll('.sb-choice.soon').forEach((c) => {
+      c.classList.remove('soon');
+      const sub = c.querySelector('small[data-sub]'); sub.textContent = sub.dataset.sub;
+    }));
     await (await page.$('.sb-modal-box')).screenshot({ path: `${out}/30_choix_amicale.png` });
 
     await page.goto(`${base}/marquoir/billard/${T}/amicale-5-quilles`, { waitUntil: 'networkidle0' });

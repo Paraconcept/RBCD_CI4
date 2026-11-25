@@ -141,8 +141,8 @@ $friendlyChoices = [
     ['amicale',                  'fas fa-handshake','Partie amicale à deux',              'Libre, cadre, bande ou 3 bandes', false],
     ['amicale-a-3',              'fas fa-users',    'Partie amicale à trois',             'Trois joueurs, à tour de rôle', false],
     ['amicale-5-quilles',        'skittles', 'Partie amicale aux 5 quilles',       'Coup par coup, fautes à l\'adversaire', false],
-    ['amicale-salade',           'far fa-list-alt', 'Partie amicale à la Salade',         'En construction', true],
-    ['amicale-salade-quick-pick','fas fa-shuffle',  'Partie amicale à la Salade « Quick Pick »', 'En construction', true],
+    ['amicale-salade',           'far fa-list-alt', 'Partie amicale à la Salade',         'Directe, rouge, 1, 2, 3 bandes, bricole', true],
+    ['amicale-salade-quick-pick','fas fa-shuffle',  'Partie amicale à la Salade « Quick Pick »', 'Le marquoir choisit la figure à jouer', true],
 ];
 ?>
 <div class="sb-modal" id="sbFriendlyModal" role="dialog" aria-modal="true" aria-labelledby="sbFriendlyTitle">
@@ -161,7 +161,7 @@ $friendlyChoices = [
             <?php endif; ?>
             <span>
                 <span class="sb-choice-name"><?= esc($label) ?></span>
-                <small><?php if ($soon): ?><span class="badge text-bg-warning me-1"><i class="fas fa-person-digging me-1"></i>En construction</span><?php else: ?><?= esc($sub) ?><?php endif; ?></small>
+                <small data-sub="<?= esc($sub) ?>"><?php if ($soon): ?><span class="badge text-bg-warning me-1"><i class="fas fa-person-digging me-1"></i>En construction</span><?php else: ?><?= esc($sub) ?><?php endif; ?></small>
             </span>
         </a>
         <?php endforeach; ?>
