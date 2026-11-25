@@ -3,6 +3,7 @@
 namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
+use App\Libraries\TeamRecapMailer;
 use App\Libraries\TeamRecapPdf;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardSignatureModel;
@@ -83,8 +84,11 @@ class ScoreboardTeamController extends BaseController
         }
 
         $this->signatures->insert($data);
+        TeamRecapMailer::deliver($this->encounters->find($id));
+        $sent = $this->encounters->find($id);
 
-        return redirect()->to($this->showUrl($id))->with('success', 'Feuille récapitulative signée.');
+        return redirect()->to($this->showUrl($id))->with('success', 'Feuille récapitulative signée'
+            . ($sent->recap_sent_at ? ' et envoyée par e-mail.' : ($sent->recap_send_error ? ', mais son envoi par e-mail a échoué : prévenez le directeur sportif.' : '.')));
     }
 
     public function pdf(int $id)

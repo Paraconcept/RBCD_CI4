@@ -381,13 +381,13 @@
             <ol class="mh-steps">
               <li>Le <b>joueur A</b> signe du doigt dans le grand cadre blanc (un stylet capacitif est plus précis ; la main posée sur l'écran est ignorée).</li>
               <li>Touchez « <b>Joueur B</b> », puis « <b>Arbitre</b> » : chacun signe dans le même cadre. « Effacer » recommence la signature affichée.</li>
-              <li>Tapez le <b>nom de l'arbitre</b> (obligatoire), puis « <b>Enregistrer</b> » : la feuille de match part <b>par e-mail</b> au directeur sportif (et aux autres destinataires qu'il a choisis), puis retour à la page du billard.</li>
+              <li>Tapez le <b>nom de l'arbitre</b> (obligatoire), puis « <b>Enregistrer</b> » : la feuille de match part <b>par e-mail</b> aux deux joueurs et au directeur sportif (et aux autres destinataires qu'il a choisis), puis retour à la page du billard.</li>
             </ol>
           </div>
           <div class="col-md-6">
             <div class="mh-note green"><b>Facultatif</b> — <kbd>Entrée</kbd> ramène au billard sans signer. Les signatures sont imprimées sur la feuille de match PDF. Le DS choisit quelles rencontres sont à signer.</div>
             <div class="mh-note orange"><b>Définitif</b> — une fois enregistrée, la feuille est verrouillée : plus de correction ni de modification de la partie au marquoir.</div>
-            <div class="mh-note"><b>Après la signature</b> — l'écran de fin indique en vert « Feuille de match <b>envoyée</b> par e-mail », ou en orange « <b>non envoyée</b> » : prévenez le DS. Une copie papier pour un joueur : <kbd>⌫</kbd> › « <b>Imprimer la feuille de match</b> ».</div>
+            <div class="mh-note"><b>L'envoi à l'écran</b> — l'écran de fin indique en vert « Feuille de match <b>envoyée</b> » et ses destinataires, en orange l'attente (sans signature, elle part 15 minutes après la fin du match), en rouge un <b>échec</b> : prévenez le DS. Une copie papier pour un joueur : <kbd>⌫</kbd> › « <b>Imprimer la feuille de match</b> ».</div>
           </div>
         </div>
       </div>
@@ -411,7 +411,7 @@
             </ol>
           </div>
           <div class="col-md-6">
-            <div class="mh-note green"><b>L'envoi par e-mail</b> (club adverse et responsable CDR) est fait par le <b>directeur sportif</b>, depuis l'administration.</div>
+            <div class="mh-note green"><b>L'envoi par e-mail</b> (deux clubs et responsable CDR) est <b>automatique</b> dès que la rencontre est complète. La page du billard et l'écran de fin le confirment en vert.</div>
             <div class="mh-note orange"><b>Définitif</b> — une fois signée, la rencontre est verrouillée : plus de correction de ses matchs ni du commentaire au marquoir.</div>
             <div class="mh-note"><b>Le jour même uniquement</b> — le lendemain, le bloc disparaît des billards : tout se fait alors dans l'administration.</div>
           </div>

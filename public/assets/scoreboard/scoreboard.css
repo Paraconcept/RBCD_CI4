@@ -476,6 +476,14 @@
 .sb-sign-pad.signed { border-style: solid; border-color: var(--sb-green); }
 .sbd-signed { color: var(--sb-green); font-weight: 700; }
 .sbd-unsent { color: var(--sb-orange); font-weight: 700; }
+/* Écran de résultat : où en est l'envoi des feuilles par e-mail */
+.sbd-mail { display: flex; flex-direction: column; gap: .6rem; margin: 1.2rem auto 1rem; max-width: 52rem; text-align: left; }
+.sbd-mail-line { padding: .6rem 1.1rem; border-radius: 10px; font-weight: 700; font-size: 1.6rem; border: 2px solid currentColor; background: rgba(255,255,255,.04); }
+.sbd-mail-line small { display: block; font-weight: 400; font-size: 1.15rem; color: #cbd5e1; margin-left: 2.3rem; }
+.sbd-mail-line.ok { color: var(--sb-green); }
+.sbd-mail-line.ko { color: #f87171; }
+.sbd-mail-line.wait { color: var(--sb-orange); }
+.sbd-mail-line.none { color: var(--sb-muted); border-style: dashed; }
 
 /* Clôture d'une rencontre d'équipe */
 .sb-team-recap { --bs-table-bg: transparent; font-size: .95rem; }
@@ -488,6 +496,10 @@
 .sb-encounter .sb-encounter-match { display: flex; gap: .5rem; align-items: baseline; font-size: .9rem; padding: .2rem 0; }
 .sb-encounter .sb-encounter-match small { color: var(--sb-muted); }
 .sbd-encounter-hint { color: var(--sb-p2); font-weight: 600; }
+.sb-encounter-mail { margin-top: .6rem; font-size: .85rem; font-weight: 600; }
+.sb-encounter-mail.ok { color: var(--sb-green); }
+.sb-encounter-mail.ko { color: #f87171; }
+.sb-encounter-mail.wait { color: var(--sb-orange); }
 
 /* 5 quilles : faute (points donnés à l'adversaire) */
 .sbd-last5 div.foul b, .sbd-fix td.foul { color: #f87171; }

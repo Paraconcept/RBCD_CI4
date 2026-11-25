@@ -132,6 +132,8 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->post('api/bar/servi/(:num)',          'Public\BarController::serve/$1');
     $routes->get ('api/match/(:num)',              'Public\ScoreboardController::state/$1');
     $routes->post('api/match/(:num)',              'Public\ScoreboardController::saveState/$1');
+    $routes->get ('api/match/(:num)/envoi',        'Public\ScoreboardController::mailStatus/$1');
+    $routes->post('api/envois',                    'Public\ScoreboardController::sendPending');
 });
 
 // Caisse du bar : même accès que le marquoir (la tablette du bar est un appareil autorisé)
@@ -425,6 +427,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard/finals/(:num)/matches/(:num)', 'Admin\ScoreboardFinalController::updateMatch/$1/$2');
         $routes->get ('scoreboard/finals/(:num)/pdf',     'Admin\ScoreboardFinalController::pdf/$1');
         $routes->get ('scoreboard/players/search',        'Admin\ScoreboardController::searchPlayers');
+        $routes->get ('scoreboard/players/email',         'Admin\ScoreboardController::playerEmail');
         $routes->get ('scoreboard/players',               'Admin\ScoreboardSetupController::players');
         $routes->post('scoreboard/players/(:num)/update', 'Admin\ScoreboardSetupController::updatePlayer/$1');
         $routes->post('scoreboard/players/(:num)/delete', 'Admin\ScoreboardSetupController::deletePlayer/$1');

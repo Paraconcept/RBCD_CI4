@@ -92,7 +92,8 @@ try {
     $db->table('scoreboard_signatures')->insert(['match_id' => $b, 'referee_name' => 'Pierre GOFFIN', 'p1_signature' => $sig(0.1),
         'p2_signature' => $sig(0.5), 'referee_signature' => $sig(0.9), 'signed_at' => M::now()]);
     // Destinataires des résultats et envoi automatique à la signature (rien n'est réellement envoyé ici)
-    $mm->update($b, ['send_to_club_ds' => 1, 'send_to_dsr' => 1, 'send_to_organizer_ds' => 1, 'organizer_ds_email' => 'ds@bc-eupen.be']);
+    $mm->update($b, ['send_to_club_ds' => 1, 'send_to_dsr' => 1, 'send_to_organizer_ds' => 1, 'organizer_ds_email' => 'ds@bc-eupen.be',
+                    'p1_email' => 'louis.renard@example.be', 'p2_email' => 'eric.simon@example.be']);
     $mm->update($b, ['result_sent_at' => M::now(), 'result_sent_to' => implode(', ', \App\Libraries\MatchResultMailer::recipients($mm->find($b)))]);
     $db->table('scoreboard_team_signatures')->insert(['encounter_id' => $teId, 'home_signature' => $sig(0.3), 'away_signature' => $sig(0.7), 'signed_at' => M::now()]);
 

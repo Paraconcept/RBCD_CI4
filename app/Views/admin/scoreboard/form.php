@@ -174,7 +174,9 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
       <h3 class="card-title"><i class="fas fa-paper-plane mr-2"></i>Envoi des résultats</h3>
     </div>
     <div class="card-body">
-      <p class="text-muted small mb-3">Cochez les personnes à qui les résultats de ce match doivent être envoyés.</p>
+      <p class="text-muted small mb-3">Cochez les personnes à qui les résultats de ce match doivent être envoyés. La feuille de match part automatiquement
+        à la fin du match (à la signature quand elle est demandée). L'adresse d'un joueur se remplit dès qu'on le choisit ou qu'on encode sa licence :
+        fiche du membre, joueur déjà encodé, ou site de la fédération.</p>
       <?php
       // Adresse enregistrée sur le match, sinon celle des paramètres (DSR, CDR) ou du club
       $isCdrMatch = M::isCdr($val('competition'), $team->competition ?? null);
@@ -186,6 +188,21 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
       ];
       ?>
       <div class="sb-recipients">
+        <?php foreach (['p1' => 'Joueur 1', 'p2' => 'Joueur 2'] as $p => $label): ?>
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" name="send_to_<?= $p ?>" id="send_to_<?= $p ?>" value="1" <?= $checked('send_to_' . $p, 1) ?>>
+          <label class="custom-control-label" for="send_to_<?= $p ?>"><?= $label ?></label>
+        </div>
+        <div class="input-group input-group-sm">
+          <input type="email" name="<?= $p ?>_email" id="<?= $p ?>_email" class="form-control" maxlength="150"
+                 placeholder="recherchée à l'envoi si vide" data-sb-email="<?= $p ?>"
+                 value="<?= esc(old($p . '_email', $isEdit ? $match->{$p . '_email'} : '')) ?>">
+          <div class="input-group-append">
+            <button type="button" class="btn btn-outline-secondary" data-sb-email-lookup="<?= $p ?>" title="Rechercher l'adresse (membre du club, joueur déjà encodé, site de la FRBB)"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+        <span class="text-muted"><span data-sb-email-name="<?= $p ?>"></span> <small class="ml-1" data-sb-email-source="<?= $p ?>"></small></span>
+        <?php endforeach; ?>
         <?php foreach ($recipientRows as [$flag, $field, $label, $defaultEmail, $name, $defaultChecked, $fromSettings]): ?>
         <div class="custom-control custom-checkbox">
           <input type="checkbox" class="custom-control-input" name="<?= $flag ?>" id="<?= $flag ?>" value="1" <?= $checked($flag, $defaultChecked) ?>>
@@ -326,6 +343,40 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
   let touched = false;
   box.addEventListener('change', () => { touched = true; });
   comp.addEventListener('input', function () { if (!touched) box.checked = isCdr(this.value); });
+})();
+(function () {
+  // Adresse e-mail des joueurs : recherchée quand le joueur ou sa licence change, sans écraser une adresse tapée à la main
+  const url = <?= json_encode(base_url('admin/scoreboard/players/email')) ?>;
+  ['p1', 'p2'].forEach(function (p) {
+    const form = document.getElementById(p + '_email').form;
+    const f = (n) => form.querySelector('[name="' + p + '_' + n + '"]');
+    const email = f('email'), box = document.getElementById('send_to_' + p);
+    const name = document.querySelector('[data-sb-email-name="' + p + '"]'), source = document.querySelector('[data-sb-email-source="' + p + '"]');
+    let typed = email.value !== '', seq = 0, lastKey = '';
+    const showName = () => { name.textContent = [f('last_name').value.toUpperCase(), f('first_name').value].join(' ').trim(); };
+    const lookup = function (force) {
+      const key = [f('member_id').value, f('license').value.trim(), f('last_name').value.trim().toUpperCase(), f('first_name').value.trim()].join('|');
+      if (!force && (typed || key === lastKey)) return;
+      lastKey = key;
+      if (!f('license').value.trim() && !f('member_id').value && !(f('last_name').value.trim() && f('first_name').value.trim())) return;
+      const n = ++seq;
+      source.textContent = 'recherche…';
+      const q = new URLSearchParams({ license: f('license').value.trim(), member_id: f('member_id').value, last_name: f('last_name').value.trim(), first_name: f('first_name').value.trim() });
+      fetch(url + '?' + q, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then((r) => r.json()).then(function (d) {
+        if (n !== seq) return;
+        if (d.email) { email.value = d.email; typed = false; box.checked = true; source.textContent = '— trouvée : ' + d.label; }
+        else { if (force || !typed) email.value = ''; source.textContent = '— aucune adresse trouvée, à encoder à la main'; }
+      }).catch(function () { if (n === seq) source.textContent = ''; });
+    };
+    email.addEventListener('input', function () { typed = email.value.trim() !== ''; source.textContent = ''; if (typed) box.checked = true; });
+    ['last_name', 'first_name'].forEach((n) => f(n).addEventListener('input', showName));
+    f('license').addEventListener('change', () => { typed = false; lookup(false); });
+    f('first_name').addEventListener('change', () => { showName(); typed = false; lookup(false); });
+    f('last_name').addEventListener('sb:player', () => setTimeout(function () { showName(); typed = false; lookup(false); }, 0));
+    document.querySelector('[data-sb-email-lookup="' + p + '"]').addEventListener('click', () => lookup(true));
+    showName();
+    if (!email.value) lookup(false); else lastKey = [f('member_id').value, f('license').value.trim(), f('last_name').value.trim().toUpperCase(), f('first_name').value.trim()].join('|');
+  });
 })();
 document.getElementById('organizer_ds_email').addEventListener('input', function () {
   document.getElementById('send_to_organizer_ds').checked = this.value.trim() !== '';

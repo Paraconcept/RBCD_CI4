@@ -57,7 +57,7 @@ class ScoreboardMatchModel extends Model
         'type', 'team_encounter_id', 'final_id', 'final_order', 'final_placement', 'status', 'table_id', 'scheduled_at', 'competition', 'match_number',
         'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win', 'salad_figures', 'salad_state',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'signature_required',
-        'send_to_club_ds', 'club_ds_email', 'send_to_dsr', 'dsr_email', 'send_to_cdr', 'cdr_email', 'send_to_organizer_ds', 'organizer_ds_email', 'result_sent_at', 'result_sent_to',
+        'send_to_club_ds', 'club_ds_email', 'send_to_dsr', 'dsr_email', 'send_to_cdr', 'cdr_email', 'send_to_organizer_ds', 'organizer_ds_email', 'send_to_p1', 'p1_email', 'send_to_p2', 'p2_email', 'result_sent_at', 'result_sent_to', 'result_send_error',
         'p1_member_id', 'p1_final_player_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license',
         'p1_category_id', 'p1_category', 'p1_average_min', 'p1_distance',
         'p1_points', 'p1_innings', 'p1_high_run', 'p1_sets', 'p1_extensions_used',
@@ -406,7 +406,7 @@ class ScoreboardMatchModel extends Model
             if ($data[$p . '_member_id'] === null && !((int) ($data['absent'] ?? 0) & ($i + 1))) {
                 $cat = !empty($data[$p . '_category_id']) ? (new FrbbCategoryModel())->find($data[$p . '_category_id']) : null;
                 $players->remember($data[$p . '_last_name'], $data[$p . '_first_name'], $data[$p . '_club'], $data[$p . '_license'] ?? null,
-                                   $cat ? [$cat->game_mode => $cat->categories] : [], $data[$p . '_club_code'] ?? null);
+                                   $cat ? [$cat->game_mode => $cat->categories] : [], $data[$p . '_club_code'] ?? null, $data[$p . '_email'] ?? null);
             }
         }
     }
@@ -482,6 +482,9 @@ class ScoreboardMatchModel extends Model
             $update['status']      = 'live';
             $update['finished_at'] = null;
             $update['winner']      = null;
+            // Résultat déjà envoyé : il repartira, marqué « corrigé », à la nouvelle fin du match
+            $update['result_sent_at']    = null;
+            $update['result_send_error'] = null;
         }
 
         $this->db->transStart();

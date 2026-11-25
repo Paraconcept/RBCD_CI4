@@ -40,6 +40,7 @@ $config = [
         'save'  => base_url('marquoir/api/match/' . $match->id),
         'table' => base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'),
         'state' => base_url('en-direct/api/' . $match->id),
+        'mail'  => !$spectator && $match->type === 'official' && !$trio ? base_url('marquoir/api/match/' . $match->id . '/envoi') : null,
         'edit'  => base_url('marquoir/match/' . $match->id . '/modifier'),
         'list'  => base_url('en-direct'),
         'rematch' => $match->type === 'friendly' && $match->table_id ? base_url('marquoir/match/' . $match->id . '/rejouer') : null,
@@ -264,16 +265,14 @@ $config = [
                 <thead><tr id="sbdResultHead"><th></th><th>Points</th><th><?= $innLabel ?></th><th>Moyenne</th><th><?= $hrShort ?></th><th id="sbdPropHead" hidden>Moy. prop.</th></tr></thead>
                 <tbody id="sbdResultRows"></tbody>
             </table>
+            <?php if (!$spectator && $match->type === 'official' && !$trio): ?>
+            <div class="sbd-mail" id="sbdMail" hidden></div>
+            <?php endif; ?>
             <div class="sbd-small">
                 <?php if ($spectator): ?>
                 <a href="<?= base_url('en-direct') ?>" class="btn btn-outline-light"><i class="fas fa-arrow-left me-2"></i>Rencontres du jour</a>
                 <?php elseif (!empty($locked)): ?>
                 <div class="sbd-signed mb-2"><i class="fas fa-file-signature me-2"></i><?= !empty($signed) ? 'Feuille de match signée' : 'Rencontre clôturée' ?> — résultat définitif</div>
-                <?php if (!empty($signed)): ?>
-                <div class="<?= $match->result_sent_at ? 'sbd-signed' : 'sbd-unsent' ?> mb-2">
-                    <i class="fas <?= $match->result_sent_at ? 'fa-envelope-circle-check' : 'fa-envelope' ?> me-2"></i>Feuille de match <?= $match->result_sent_at ? 'envoyée' : 'non envoyée' ?> par e-mail
-                </div>
-                <?php endif; ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>⌫</kbd> menu
                 <?php else: ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> <?= $skittles || $salad ? 'annuler le dernier coup' : 'corriger la dernière reprise' ?>

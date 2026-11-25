@@ -3,7 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Libraries\MatchSheetPdf;
+use App\Libraries\TeamRecapMailer;
 use App\Libraries\TeamRecapPdf;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
@@ -71,7 +71,7 @@ class ScoreboardTeamController extends BaseController
             'matches'    => $matches = $this->model->getMatches($id),
             'attachable' => $attachable,
             'result'     => ScoreboardTeamEncounterModel::computeResult($encounter, $matches),
-            'recipients' => $this->recapRecipients($encounter),
+            'recipients' => TeamRecapMailer::recipients($encounter),
             'recapSignedAt' => (new ScoreboardTeamSignatureModel())->signedAt($id),
         ]);
     }
@@ -90,51 +90,13 @@ class ScoreboardTeamController extends BaseController
     {
         $encounter = $this->find($id);
         $back      = redirect()->to(base_url('admin/scoreboard/teams/' . $id));
-        $result    = ScoreboardTeamEncounterModel::computeResult($encounter, $this->model->getMatches($id));
-        if (!$result['complete']) {
-            return $back->with('error', 'La feuille récapitulative ne peut être envoyée que lorsque tous les matchs sont terminés.');
+        try {
+            $sent = TeamRecapMailer::send($encounter);
+        } catch (\RuntimeException $e) {
+            return $back->with('error', $e->getMessage() === "L'envoi de l'e-mail a échoué." ? "L'envoi de l'e-mail a échoué. Détails dans les logs du serveur." : $e->getMessage());
         }
 
-        $recipients = $this->recapRecipients($encounter);
-        if (!$recipients) {
-            return $back->with('error', 'Aucune adresse e-mail valide pour envoyer la feuille récapitulative.');
-        }
-
-        [$pdf, $filename] = TeamRecapPdf::render($encounter);
-        $sheets = array_map(static fn ($m) => MatchSheetPdf::render($m),
-            array_filter($this->model->getMatches($id), static fn ($m) => $m->status === 'finished'));
-
-        $email = \Config\Services::email();
-        // L'expéditeur doit rester le compte SMTP (send.one.com peut refuser un autre expéditeur) ; les réponses vont au DS.
-        $email->setFrom(config('Email')->fromEmail, 'RBC Disonais');
-        $email->setReplyTo('ds@rbcd.be', 'Directeur sportif — RBC Disonais');
-        $email->setTo($recipients);
-        $email->setSubject('Feuille récapitulative — ' . ScoreboardTeamEncounterModel::homeLabel($encounter)
-            . ' / ' . ScoreboardTeamEncounterModel::awayLabel($encounter) . ' (' . $encounter->code . ')');
-        $email->setMessage(view('emails/team_recap', ['encounter' => $encounter, 'result' => $result]));
-        $email->attach($pdf, 'attachment', $filename, 'application/pdf');
-        foreach (array_values($sheets) as $i => [$sheet, $sheetName]) {
-            // Préfixe d'ordre : deux matchs peuvent opposer les mêmes noms et l'ordre des pièces jointes suit la feuille
-            $email->attach($sheet, 'attachment', sprintf('%d_%s', $i + 1, $sheetName), 'application/pdf');
-        }
-
-        if (!$email->send(false)) {
-            log_message('error', 'Envoi feuille récapitulative ' . $encounter->code . ' : ' . $email->printDebugger(['headers']));
-            return $back->with('error', "L'envoi de l'e-mail a échoué. Détails dans les logs du serveur.");
-        }
-
-        $this->model->update($id, ['recap_sent_at' => date('Y-m-d H:i:s'), 'recap_sent_to' => implode(', ', $recipients)]);
-
-        return $back->with('success', 'Feuille récapitulative et ' . count($sheets) . ' feuille' . (count($sheets) > 1 ? 's' : '') . ' de match envoyées à ' . implode(', ', $recipients) . '.');
-    }
-
-    private function recapRecipients(object $encounter): array
-    {
-        $emails = [$encounter->team_email, $encounter->opponent_email, TeamRecapPdf::cdr()->email];
-        $emails = array_filter(array_map(static fn ($e) => strtolower(trim((string) $e)), $emails),
-            static fn ($e) => filter_var($e, FILTER_VALIDATE_EMAIL));
-
-        return array_values(array_unique($emails));
+        return $back->with('success', 'Feuille récapitulative et ' . $sent['sheets'] . ' feuille' . ($sent['sheets'] > 1 ? 's' : '') . ' de match envoyées à ' . implode(', ', $sent['recipients']) . '.');
     }
 
     public function forfeit(int $id)

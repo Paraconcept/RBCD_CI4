@@ -118,8 +118,11 @@ $ranks = $trio && $match->status === 'finished' ? M::storedRanking($match) : [];
     <i class="fas fa-paper-plane mr-1 text-muted"></i>
     <?php if ($match->result_sent_at): ?>
       Résultats envoyés le <strong><?= date('d/m/Y à H:i', strtotime($match->result_sent_at)) ?></strong> à <?= esc($match->result_sent_to) ?>.
-    <?php elseif ($recipients): ?>
-      <span class="text-muted">Résultats envoyés automatiquement à <?= esc(implode(', ', $recipients)) ?> dès la signature de la feuille.</span>
+    <?php elseif ($match->result_send_error): ?>
+      <span class="text-danger"><i class="fas fa-exclamation-triangle mr-1"></i>Échec de l'envoi automatique (<?= esc($match->result_send_error) ?>) : utilisez « Envoyer les résultats ».</span>
+    <?php elseif ($recipients || $match->send_to_p1 || $match->send_to_p2): ?>
+      <span class="text-muted">Résultats envoyés automatiquement<?= $recipients ? ' à ' . esc(implode(', ', $recipients)) : '' ?><?= ($match->send_to_p1 && !$match->p1_email) || ($match->send_to_p2 && !$match->p2_email) ? ' (adresse des joueurs recherchée au moment de l\'envoi)' : '' ?>
+        <?= $match->signature_required ? 'dès la signature de la feuille, ou ' . \App\Libraries\MatchResultMailer::AUTO_DELAY . ' minutes après la fin du match si elle n\'est pas signée.' : 'à la fin du match.' ?></span>
     <?php else: ?>
       <span class="text-muted">Aucun destinataire coché pour l'envoi des résultats.</span>
     <?php endif; ?>

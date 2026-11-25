@@ -48,6 +48,10 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
 };
 ?>
 <?= view('public/scoreboard/_device', ['suggestedName' => $table->name]) ?>
+<script>
+// Envois de feuilles de match en retard (Chromebook fermé avant l'envoi, signature jamais faite) : sans bloquer la page
+fetch(<?= json_encode(base_url('marquoir/api/envois')) ?>, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } }).catch(() => {});
+</script>
 <div class="row g-4">
     <div class="col-lg-8">
         <h2 class="sb-title mb-3"><i class="fas fa-calendar-check me-2 sb-accent"></i>Rencontres du jour</h2>
@@ -80,6 +84,18 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
                 <span>Match <?= $i + 1 ?></span> <small><?= $labels[$item['state']] ?></small>
             </div>
             <?php endforeach; ?>
+            <?php $rc = $enc['recap']; ?>
+            <?php if ($rc['state'] === 'sent'): ?>
+            <div class="sb-encounter-mail ok"><i class="fas fa-envelope-circle-check me-2"></i>Feuille récapitulative envoyée à <?= $rc['at'] ?></div>
+            <?php elseif ($rc['state'] === 'error'): ?>
+            <div class="sb-encounter-mail ko"><i class="fas fa-triangle-exclamation me-2"></i>Échec de l'envoi de la feuille récapitulative : prévenez le DS</div>
+            <?php elseif ($rc['state'] === 'waiting'): ?>
+            <div class="sb-encounter-mail wait"><i class="fas fa-hourglass-half me-2"></i>Feuille récapitulative : envoi après les signatures, au plus tard à <?= $rc['due'] ?></div>
+            <?php elseif ($rc['state'] === 'sending'): ?>
+            <div class="sb-encounter-mail wait"><i class="fas fa-paper-plane me-2"></i>Envoi de la feuille récapitulative…</div>
+            <?php elseif ($rc['state'] === 'matches'): ?>
+            <div class="sb-encounter-mail wait"><i class="fas fa-envelope me-2"></i>Feuille récapitulative envoyée par e-mail après les <?= $rc['total'] ?> matchs</div>
+            <?php endif; ?>
             <?php if ($enc['signedAt']): ?>
             <a href="<?= base_url('marquoir/rencontre/' . $e->id . '?billard=' . $table->id) ?>" class="btn btn-outline-success w-100 mt-3"><i class="fas fa-file-signature me-2"></i>Clôturée — feuille récapitulative</a>
             <?php elseif ($st['ready']): ?>
@@ -125,7 +141,13 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
                     <span><b><?= M::score($m, 'p2') ?></b> <?= esc($m->p2_last_name) ?></span>
                     <?php endif; ?>
                     <?php if ($m->type === 'official'): ?>
+                    <?php if (!M::isTrio($m) && !(int) $m->absent): ?>
+                    <i class="ms-auto fas <?= $m->result_sent_at ? 'fa-envelope-circle-check text-success' : ($m->result_send_error ? 'fa-triangle-exclamation text-danger' : 'fa-envelope text-secondary') ?>"
+                       title="<?= $m->result_sent_at ? 'Feuille de match envoyée à ' . date('H:i', strtotime($m->result_sent_at)) : ($m->result_send_error ? "Échec de l'envoi de la feuille de match" : 'Feuille de match pas encore envoyée') ?>"></i>
+                    <span class="badge sb-badge-official ms-2">Officielle</span>
+                    <?php else: ?>
                     <span class="badge sb-badge-official ms-auto">Officielle</span>
+                    <?php endif; ?>
                     <?php else: ?>
                     <span class="badge text-bg-secondary ms-auto">Amicale</span>
                     <?php endif; ?>

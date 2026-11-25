@@ -165,6 +165,20 @@ $statusBadge = static fn (string $s, int $absent = 0): string => $absent ? '<spa
     </div>
   </div>
   <?php endif; ?>
+  <?php if (!$encounter->recap_sent_at && $encounter->recap_send_error): ?>
+  <div class="px-3 pt-3 mb-n2">
+    <div class="alert alert-danger mb-0 py-2">
+      <i class="fas fa-exclamation-triangle mr-2"></i>Échec de l'envoi automatique de la feuille récapitulative (<?= esc($encounter->recap_send_error) ?>) : utilisez « Envoyer par e-mail ».
+    </div>
+  </div>
+  <?php elseif (!$encounter->recap_sent_at && $recipients): ?>
+  <div class="px-3 pt-3 mb-n2">
+    <div class="alert alert-light border mb-0 py-2 text-muted">
+      <i class="fas fa-paper-plane mr-2"></i>Feuille récapitulative envoyée automatiquement à <?= esc(implode(', ', $recipients)) ?> dès que la rencontre est complète
+      (signatures comprises, ou <?= \App\Libraries\MatchResultMailer::AUTO_DELAY ?> minutes après le dernier match).
+    </div>
+  </div>
+  <?php endif; ?>
   <?php if ($encounter->recap_sent_at): ?>
   <div class="px-3 pt-3 mb-n2">
     <div class="alert alert-light border mb-0 py-2">

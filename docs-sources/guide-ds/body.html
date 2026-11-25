@@ -28,7 +28,7 @@
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-calendar-plus"></i></div><h3>Avant chaque compétition</h3>
                 <p><b>Rencontres</b> : un match officiel individuel.<br><b>Rencontres d'équipe</b> : la Coupe des Régions (3 matchs).<br><b>Finales et poules</b> : 3 à 7 joueurs, chacun contre chacun, avec ou sans matchs de classement.</p></div>
             <div class="card"><div class="ico" style="width:12mm;height:12mm;font-size:5.5mm;background:var(--navy);color:var(--yellow);margin-bottom:3mm"><i class="fas fa-file-pdf"></i></div><h3>Pendant et après</h3>
-                <p>Suivi en direct des scores, <b>feuilles de match</b> et <b>feuilles récapitulatives</b> en PDF, envoi par e-mail (automatique à la signature), commentaires, forfaits.</p></div>
+                <p>Suivi en direct des scores, <b>feuilles de match</b> et <b>feuilles récapitulatives</b> en PDF, envoi automatique par e-mail (joueurs compris), commentaires, forfaits.</p></div>
         </div>
         <div class="two">
             <div class="col">
@@ -150,13 +150,14 @@
         <div class="two">
             <ul class="steps">
                 <li>Dans chaque rencontre officielle, cochez <b>à qui envoyer les résultats</b>. Chaque destinataire a son <b>adresse e-mail</b> (modifiable pour ce match) et son nom.</li>
+                <li><b>Joueur 1</b> et <b>Joueur 2</b> : cochés par défaut. Leur adresse se remplit dès qu'on choisit le joueur ou qu'on encode sa <b>licence</b> : fiche du membre RBCD, joueur déjà encodé, sinon <b>site de la fédération</b> (frbb-kbbb.be). La loupe <i class="fas fa-search"></i> relance la recherche ; une adresse restée vide est recherchée au moment de l'envoi.</li>
                 <li><b>Directeur sportif du RBC Disonais</b> : toujours coché par défaut. <b>Directeur sportif régional</b> : adresse des Paramètres, non coché. <b>Responsable CDR</b> : coché d'office pour une Coupe des Régions (rencontre d'équipe CDR, ou compétition « CDR… »).</li>
                 <li><b>Directeur sportif du club organisateur</b> : adresse à taper ; les adresses déjà utilisées sont proposées. Taper l'adresse coche la case.</li>
-                <li><b>Envoi automatique</b> dès que les deux joueurs et l'arbitre ont signé au billard (« Enregistrer ») : feuille de match PDF en pièce jointe et résumé du match ; les réponses arrivent sur ds@rbcd.be.</li>
+                <li><b>Envoi automatique</b> : une minute après la fin du match (le temps de corriger), ou dès la signature si « Feuille à signer » est coché. Sans signature, la feuille part quand même 15 minutes après la fin. Feuille de match PDF en pièce jointe et résumé du match ; les réponses arrivent sur ds@rbcd.be.</li>
             </ul>
             <div class="col">
                 <div class="note green"><p><b>Suivi</b> — la feuille de match (icône <i class="fas fa-list-ol"></i>) indique la date et les destinataires de l'envoi. <b>Envoyer / Renvoyer les résultats</b> l'envoie à la main, même sans signature (rencontre non signée, envoi raté…).</p></div>
-                <div class="note orange"><p><b>Au billard</b>, l'écran de fin d'une feuille signée affiche en vert « Feuille de match envoyée par e-mail », ou en orange « non envoyée » : il faut alors la renvoyer depuis l'administration. Une rencontre <b>sans signature</b> (« Feuille à signer » décochée) n'est jamais envoyée automatiquement.</p></div>
+                <div class="note orange"><p><b>Au billard</b>, l'écran de fin montre où en est l'envoi : en vert « Feuille de match envoyée à 21:42 » et ses destinataires, en orange l'attente (signature, heure d'envoi), en rouge un <b>échec</b> : il faut alors la renvoyer depuis l'administration, qui affiche l'erreur.</p></div>
                 <div class="note"><p>Une adresse vidée reprend celle par défaut. Changer le DSR ou le responsable CDR dans les <b>Paramètres</b> ne modifie pas les rencontres déjà encodées.</p></div>
             </div>
         </div>
@@ -213,9 +214,9 @@
                 <li><b>Résultat</b> calculé à chaque match terminé : 2 points de match pour une victoire, 1 chacun si les deux joueurs ont fait leur distance, 0 pour une défaite. Équipe : somme des points et des reprises, meilleure série.</li>
                 <li><b>Forfait complet</b> : choisissez l'équipe absente ; tous les matchs non joués deviennent forfait (complétés jusqu'à 3). « Annuler les forfaits » les remet à jouer.</li>
                 <li><b>Commentaire</b> (bas de page) : imprimé sur la feuille récapitulative et repris dans l'e-mail.</li>
-                <li>Quand tous les matchs sont terminés : <b>Feuille récapitulative</b> (PDF FRBB) et <b>Envoyer par e-mail</b> aux deux clubs et au responsable CDR. La date d'envoi est notée.</li>
+                <li>Quand tous les matchs sont terminés : la <b>feuille récapitulative</b> et les feuilles de match partent <b>automatiquement</b> aux deux clubs et au responsable CDR (après les signatures demandées, ou 15 minutes après le dernier match). <b>Envoyer / Renvoyer par e-mail</b> le refait à la main. La date d'envoi est notée.</li>
             </ul>
-            <div class="note green"><p><b>Clôture au billard</b> — le jour même, « Clôturer la rencontre » apparaît sur chaque Chromebook : les capitaines signent et impriment la feuille récapitulative. L'état (« signée le … ») s'affiche ici. L'<b>envoi par e-mail reste réservé au DS</b>, depuis cette page, signée ou non.</p></div>
+            <div class="note green"><p><b>Clôture au billard</b> — le jour même, « Clôturer la rencontre » apparaît sur chaque Chromebook : les capitaines signent et impriment la feuille récapitulative. L'état (« signée le … ») s'affiche ici. L'envoi par e-mail se fait tout seul ; un échec s'affiche ici en rouge.</p></div>
         </div>
     </div>
     <footer class="foot"><span>RBC Disonais · <b>Guide du directeur sportif</b></span><span>11</span></footer>

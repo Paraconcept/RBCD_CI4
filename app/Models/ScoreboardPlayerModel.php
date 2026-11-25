@@ -12,7 +12,7 @@ class ScoreboardPlayerModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'object';
 
-    protected $allowedFields = ['last_name', 'first_name', 'club', 'club_code', 'license', 'categories'];
+    protected $allowedFields = ['last_name', 'first_name', 'club', 'club_code', 'license', 'email', 'categories'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
@@ -29,7 +29,7 @@ class ScoreboardPlayerModel extends Model
         }
 
         $members = $this->db->table('members')
-            ->select('id, last_name, first_name, frbb_license')
+            ->select('id, last_name, first_name, frbb_license, email')
             ->where('is_active', 1)
             ->groupStart()->like('last_name', $term)->orLike('first_name', $term)->groupEnd()
             ->orderBy('last_name')->orderBy('first_name')
@@ -51,6 +51,7 @@ class ScoreboardPlayerModel extends Model
                 'club'       => self::HOME_CLUB,
                 'club_code'  => $homeCode,
                 'license'    => $m->frbb_license,
+                'email'      => filter_var((string) $m->email, FILTER_VALIDATE_EMAIL) ? strtolower($m->email) : null,
                 'categories' => $memberCats[(int) $m->id] ?? (object) [],
             ];
         }
@@ -62,6 +63,7 @@ class ScoreboardPlayerModel extends Model
                 'club'       => $p->club,
                 'club_code'  => $p->club_code,
                 'license'    => $p->license,
+                'email'      => $p->email,
                 'categories' => (object) json_decode((string) $p->categories, true),
             ];
         }
@@ -72,7 +74,7 @@ class ScoreboardPlayerModel extends Model
     /**
      * $categories : catégories connues par mode de jeu, fusionnées avec celles déjà mémorisées.
      */
-    public function remember(string $lastName, string $firstName, ?string $club, ?string $license = null, array $categories = [], ?string $clubCode = null): void
+    public function remember(string $lastName, string $firstName, ?string $club, ?string $license = null, array $categories = [], ?string $clubCode = null, ?string $email = null): void
     {
         $existing = $this->where('last_name', $lastName)
                          ->where('first_name', $firstName)
@@ -80,7 +82,7 @@ class ScoreboardPlayerModel extends Model
                          ->first();
         if (!$existing) {
             $this->insert([
-                'last_name' => $lastName, 'first_name' => $firstName, 'club' => $club, 'club_code' => $clubCode, 'license' => $license,
+                'last_name' => $lastName, 'first_name' => $firstName, 'club' => $club, 'club_code' => $clubCode, 'license' => $license, 'email' => $email,
                 'categories' => $categories ? json_encode($categories) : null,
             ]);
             return;
@@ -89,6 +91,9 @@ class ScoreboardPlayerModel extends Model
         $update = [];
         if ($license !== null && $license !== $existing->license) {
             $update['license'] = $license;
+        }
+        if ($email !== null && $email !== $existing->email) {
+            $update['email'] = $email;
         }
         if ($clubCode !== null && $clubCode !== $existing->club_code) {
             $update['club_code'] = $clubCode;

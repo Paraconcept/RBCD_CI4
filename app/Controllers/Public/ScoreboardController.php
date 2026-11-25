@@ -4,6 +4,7 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Libraries\MatchResultMailer;
+use App\Libraries\TeamRecapMailer;
 use App\Libraries\MatchSheetPdf;
 use App\Models\FrbbCategoryModel;
 use App\Filters\ScoreboardDeviceFilter;
@@ -89,7 +90,8 @@ class ScoreboardController extends BaseController
         $teamSigned = new ScoreboardTeamSignatureModel();
         $encounters = [];
         foreach ($teamModel->getToday() as $e) {
-            $encounters[] = ['encounter' => $e, 'state' => $teamModel->closingState($e), 'signedAt' => $teamSigned->signedAt((int) $e->id)];
+            $encounters[] = ['encounter' => $e, 'state' => $teamModel->closingState($e), 'signedAt' => $teamSigned->signedAt((int) $e->id),
+                             'recap' => TeamRecapMailer::progress($e)];
         }
 
         return view('public/scoreboard/table', [
@@ -453,14 +455,12 @@ class ScoreboardController extends BaseController
 
         $back = redirect()->to(base_url($match->table_id ? 'marquoir/billard/' . $match->table_id : 'marquoir'));
         // La signature est acquise même si l'e-mail échoue : le DS peut renvoyer les résultats depuis l'admin
-        try {
-            $sent = MatchResultMailer::send($match);
-        } catch (\Throwable $e) {
-            log_message('error', 'Résultats du match ' . $matchId . ' non envoyés : ' . $e->getMessage());
+        $sent = MatchResultMailer::deliver($this->findMatch($matchId));
+        if ($sent['error']) {
             return $back->with('error', "Feuille de match signée, mais l'envoi des résultats par e-mail a échoué : prévenez le directeur sportif.");
         }
 
-        return $back->with('success', 'Feuille de match signée' . ($sent ? ' et résultats envoyés par e-mail.' : '.'));
+        return $back->with('success', 'Feuille de match signée' . ($sent['sent'] ? ' et résultats envoyés par e-mail.' : '.'));
     }
 
     /** Feuille de match à imprimer au marquoir pour un joueur : uniquement une feuille signée, donc définitive. */
@@ -605,8 +605,10 @@ class ScoreboardController extends BaseController
 
     public function searchPlayers()
     {
-        $players = new ScoreboardPlayerModel();
-        return $this->response->setJSON($players->search((string) $this->request->getGet('q')));
+        // Les adresses e-mail restent dans l'admin : les marquoirs n'en ont pas besoin
+        $found = array_map(static function (array $p) { unset($p['email']); return $p; },
+                           (new ScoreboardPlayerModel())->search((string) $this->request->getGet('q')));
+        return $this->response->setJSON($found);
     }
 
     public function state(int $matchId)
@@ -627,6 +629,37 @@ class ScoreboardController extends BaseController
         $rev = $this->matches->applyState($match, (array) $this->request->getJSON(true));
 
         return $this->response->setJSON(['rev' => $rev]);
+    }
+
+    /**
+     * État de l'envoi de la feuille de match (et de la feuille récapitulative) pour l'écran de résultat.
+     * L'appel déclenche aussi l'envoi automatique quand il est dû : l'écran de résultat l'interroge jusqu'à l'envoi.
+     */
+    public function mailStatus(int $matchId)
+    {
+        $match = $this->findMatch($matchId);
+        if (MatchResultMailer::due($match)) {
+            MatchResultMailer::deliver($match);
+            $match = $this->findMatch($matchId);
+        }
+        $encounter = $match->team_encounter_id ? (new ScoreboardTeamEncounterModel())->find((int) $match->team_encounter_id) : null;
+        if ($encounter && TeamRecapMailer::due($encounter)) {
+            TeamRecapMailer::deliver($encounter);
+            $encounter = (new ScoreboardTeamEncounterModel())->find((int) $encounter->id);
+        }
+
+        return $this->response->setJSON([
+            'sheet' => $match->type === 'official' ? MatchResultMailer::status($match) : null,
+            'recap' => $encounter ? TeamRecapMailer::progress($encounter) + ['code' => $encounter->code] : null,
+        ]);
+    }
+
+    /** Envois automatiques en retard (Chromebook fermé avant l'envoi, signature jamais faite) : appelé par la page du billard. */
+    public function sendPending()
+    {
+        MatchResultMailer::sendPending();
+
+        return $this->response->setJSON(['ok' => true]);
     }
 
     private function startWindow(): int

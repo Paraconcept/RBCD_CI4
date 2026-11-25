@@ -843,9 +843,72 @@
         });
     }
 
+    // Envoi par e-mail de la feuille de match (et de la feuille récapitulative) : le serveur envoie quand c'est dû,
+    // l'écran de résultat l'interroge et montre où en est l'envoi
+    let mailTimer = null, mailTries = 0;
+    function watchMail() {
+        const box = $('sbdMail');
+        if (!box || !C.urls.mail) return;
+        if (!st.finished) { box.hidden = true; clearTimeout(mailTimer); mailTimer = null; mailTries = 0; return; }
+        if (mailTimer !== null) return;
+        const tick = function () {
+            fetch(C.urls.mail, { cache: 'no-store', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (d) {
+                    if (!st.finished) return;
+                    mailTries++;
+                    if (d) renderMail(d);
+                    const busy = !d || syncedRev < st.rev
+                        || (d.sheet && (['sending', 'waiting'].indexOf(d.sheet.state) >= 0 || (d.sheet.state === 'none' && mailTries < 3)))
+                        || (d.recap && ['sending', 'waiting', 'matches'].indexOf(d.recap.state) >= 0);
+                    mailTimer = setTimeout(tick, busy ? 5000 : 30000);
+                })
+                .catch(function () { mailTimer = setTimeout(tick, 10000); });
+        };
+        mailTimer = setTimeout(tick, 1500);
+    }
+
+    function renderMail(d) {
+        const box = $('sbdMail');
+        box.innerHTML = '';
+        const line = function (cls, icon, text, detail) {
+            const div = document.createElement('div');
+            div.className = 'sbd-mail-line ' + cls;
+            const i = document.createElement('i');
+            i.className = 'fas ' + icon + ' me-2';
+            div.appendChild(i);
+            div.appendChild(document.createTextNode(text));
+            if (detail) {
+                const sm = document.createElement('small');
+                sm.textContent = detail;
+                div.appendChild(sm);
+            }
+            box.appendChild(div);
+        };
+        const sh = d.sheet;
+        if (sh) {
+            if (sh.state === 'sent') line('ok', 'fa-envelope-circle-check', 'Feuille de match envoyée à ' + sh.at, sh.to.join(', '));
+            else if (sh.state === 'error') line('ko', 'fa-triangle-exclamation', "Échec de l'envoi de la feuille de match", 'Prévenez le directeur sportif : il peut la renvoyer depuis l\'admin.');
+            else if (sh.state === 'waiting') line('wait', 'fa-hourglass-half', 'Feuille de match : envoi à la signature', 'Sans signature, elle part à ' + sh.due + '.');
+            else if (sh.state === 'sending') line('wait', 'fa-paper-plane', 'Envoi de la feuille de match…', 'Encore un instant pour corriger (−).');
+            else if (mailTries >= 3) line('none', 'fa-envelope', 'Feuille de match : aucun destinataire coché');
+        }
+        const rc = d.recap;
+        if (rc && rc.state !== 'none') {
+            const title = 'Feuille récapitulative ' + rc.code;
+            if (rc.state === 'sent') line('ok', 'fa-envelope-circle-check', title + ' envoyée à ' + rc.at, 'Aux deux équipes et au responsable CDR, avec les feuilles de match.');
+            else if (rc.state === 'error') line('ko', 'fa-triangle-exclamation', "Échec de l'envoi de la " + title.charAt(0).toLowerCase() + title.slice(1), 'Prévenez le directeur sportif.');
+            else if (rc.state === 'matches') line('wait', 'fa-hourglass-half', title + ' : en attente', rc.done + ' match' + (rc.done > 1 ? 's' : '') + ' terminé' + (rc.done > 1 ? 's' : '') + ' sur ' + rc.total + '.');
+            else if (rc.state === 'waiting') line('wait', 'fa-hourglass-half', title + ' : envoi après les signatures', 'Sans signature, elle part à ' + rc.due + '.');
+            else line('wait', 'fa-paper-plane', 'Envoi de la ' + title.charAt(0).toLowerCase() + title.slice(1) + '…');
+        }
+        box.hidden = !box.children.length;
+    }
+
     function renderResult() {
         const box = $('sbdResult');
         box.classList.toggle('open', st.finished);
+        watchMail();
         if (!st.finished) return;
         if (SETS) { renderSetsResult(); return; }
         if (N === 3) { renderTrioResult(); return; }

@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Libraries\MatchResultMailer;
+use App\Libraries\PlayerEmailLookup;
 use App\Libraries\MatchSheetPdf;
 use App\Libraries\TeamRecapPdf;
 use App\Models\FrbbCategoryModel;
@@ -35,6 +36,7 @@ class ScoreboardController extends BaseController
     public function index(): string
     {
         $this->model->purgeOldFriendlies();
+        MatchResultMailer::sendPending();
 
         $upcoming = $this->model->withTable()
             ->whereIn('status', ['scheduled', 'live'])
@@ -226,6 +228,16 @@ class ScoreboardController extends BaseController
         return $this->response->setJSON((new ScoreboardPlayerModel())->search((string) $this->request->getGet('q')));
     }
 
+    /** Adresse e-mail d'un joueur pour le formulaire du match : membre RBCD, joueur déjà encodé, puis site de la FRBB. */
+    public function playerEmail()
+    {
+        $get   = $this->request->getGet();
+        $found = PlayerEmailLookup::find((string) ($get['license'] ?? ''), (int) ($get['member_id'] ?? 0) ?: null,
+                                         mb_strtoupper(trim((string) ($get['last_name'] ?? ''))), trim((string) ($get['first_name'] ?? '')));
+
+        return $this->response->setJSON($found ? $found + ['label' => PlayerEmailLookup::sourceLabel($found['source'])] : ['email' => null]);
+    }
+
     private function redirectAfterSave(?int $teamEncounterId, string $message)
     {
         $url = $teamEncounterId ? 'admin/scoreboard/teams/' . $teamEncounterId : 'admin/scoreboard';
@@ -290,6 +302,16 @@ class ScoreboardController extends BaseController
                 $errors[] = "L'adresse e-mail du {$label} est invalide.";
             } elseif ($data[$flag] && $address === '') {
                 $errors[] = "Indiquez l'adresse e-mail du {$label}, ou décochez-le.";
+            }
+        }
+
+        // Joueurs cochés par défaut ; une adresse vide sera recherchée au moment de l'envoi (membre, marquoir, site de la FRBB)
+        foreach (['p1' => 'joueur 1', 'p2' => 'joueur 2'] as $p => $label) {
+            $data['send_to_' . $p] = !empty($post['send_to_' . $p]) ? 1 : 0;
+            $address = mb_strtolower(trim((string) ($post[$p . '_email'] ?? '')));
+            $data[$p . '_email'] = $address !== '' ? mb_substr($address, 0, 150) : null;
+            if ($address !== '' && !filter_var($address, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "L'adresse e-mail du {$label} est invalide.";
             }
         }
 
