@@ -231,11 +231,24 @@ class ScoreboardController extends BaseController
     /** Adresse e-mail d'un joueur pour le formulaire du match : membre RBCD, joueur déjà encodé, puis site de la FRBB. */
     public function playerEmail()
     {
-        $get   = $this->request->getGet();
-        $found = PlayerEmailLookup::find((string) ($get['license'] ?? ''), (int) ($get['member_id'] ?? 0) ?: null,
-                                         mb_strtoupper(trim((string) ($get['last_name'] ?? ''))), trim((string) ($get['first_name'] ?? '')));
+        $get      = $this->request->getGet();
+        $license  = trim((string) ($get['license'] ?? ''));
+        $memberId = (int) ($get['member_id'] ?? 0) ?: null;
+        $found    = PlayerEmailLookup::find($license, $memberId, mb_strtoupper(trim((string) ($get['last_name'] ?? ''))), trim((string) ($get['first_name'] ?? '')));
+        $out      = $found ? $found + ['label' => PlayerEmailLookup::sourceLabel($found['source'])] : ['email' => null];
 
-        return $this->response->setJSON($found ? $found + ['label' => PlayerEmailLookup::sourceLabel($found['source'])] : ['email' => null]);
+        // Joueur extérieur : club de la saison (carte A, ou B… selon la lettre de la licence) et nom connu à la fédération
+        $fed = !$memberId ? PlayerEmailLookup::federation($license) : null;
+        if ($fed) {
+            $homeCode = (string) (new SiteSettingModel())->getSetting('frbb_club_code', '');
+            $sameClub = $homeCode !== '' && strtoupper(str_replace(' ', '', $homeCode)) === strtoupper(str_replace(' ', '', (string) $fed['club_code']));
+            $out['club']      = $sameClub ? ScoreboardPlayerModel::HOME_CLUB : ($fed['club'] ? mb_strtoupper($fed['club']) : null);
+            $out['club_code'] = $fed['club_code'];
+            $out['fed_name']  = trim(mb_strtoupper($fed['last_name']) . ' ' . $fed['first_name']);
+            $out['fed_last']  = mb_strtoupper($fed['last_name']);
+        }
+
+        return $this->response->setJSON($out);
     }
 
     private function redirectAfterSave(?int $teamEncounterId, string $message)

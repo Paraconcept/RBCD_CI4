@@ -352,7 +352,10 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
     const f = (n) => form.querySelector('[name="' + p + '_' + n + '"]');
     const email = f('email'), box = document.getElementById('send_to_' + p);
     const name = document.querySelector('[data-sb-email-name="' + p + '"]'), source = document.querySelector('[data-sb-email-source="' + p + '"]');
-    let typed = email.value !== '', seq = 0, lastKey = '';
+    let typed = email.value !== '', seq = 0, lastKey = '', clubTyped = false;
+    // Club tapé à la main : jamais remplacé par celui de la fédération
+    f('club').addEventListener('input', () => { clubTyped = f('club').value.trim() !== ''; });
+    const plain = (v) => (v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z]/g, '');
     const showName = () => { name.textContent = [f('last_name').value.toUpperCase(), f('first_name').value].join(' ').trim(); };
     const lookup = function (force) {
       const key = [f('member_id').value, f('license').value.trim(), f('last_name').value.trim().toUpperCase(), f('first_name').value.trim()].join('|');
@@ -364,8 +367,19 @@ $backUrl = $team ? base_url('admin/scoreboard/teams/' . $team->id) : base_url('a
       const q = new URLSearchParams({ license: f('license').value.trim(), member_id: f('member_id').value, last_name: f('last_name').value.trim(), first_name: f('first_name').value.trim() });
       fetch(url + '?' + q, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then((r) => r.json()).then(function (d) {
         if (n !== seq) return;
-        if (d.email) { email.value = d.email; typed = false; box.checked = true; source.textContent = '— trouvée : ' + d.label; }
-        else { if (force || !typed) email.value = ''; source.textContent = '— aucune adresse trouvée, à encoder à la main'; }
+        source.classList.remove('text-danger');
+        // Licence d'un autre joueur à la fédération : rien n'est repris (adresse et club seraient les siens)
+        if (d.fed_last && f('last_name').value.trim() && plain(d.fed_last) !== plain(f('last_name').value)) {
+          if (d.source === 'frbb' && (force || !typed)) email.value = '';
+          source.textContent = '— attention : la licence ' + f('license').value.trim() + ' est celle de ' + d.fed_name + ' à la fédération';
+          source.classList.add('text-danger');
+          return;
+        }
+        let msg;
+        if (d.email) { email.value = d.email; typed = false; box.checked = true; msg = '— trouvée : ' + d.label; }
+        else { if (force || !typed) email.value = ''; msg = '— aucune adresse trouvée, à encoder à la main'; }
+        if (d.club && !f('member_id').value && (!clubTyped || force)) { f('club').value = d.club; clubTyped = false; msg += ' · club : ' + d.club; }
+        source.textContent = msg;
       }).catch(function () { if (n === seq) source.textContent = ''; });
     };
     email.addEventListener('input', function () { typed = email.value.trim() !== ''; source.textContent = ''; if (typed) box.checked = true; });

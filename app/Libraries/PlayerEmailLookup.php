@@ -3,7 +3,7 @@
 namespace App\Libraries;
 
 /**
- * Adresse e-mail d'un joueur, pour lui envoyer sa feuille de match.
+ * Adresse e-mail d'un joueur, pour lui envoyer sa feuille de match (et son club, d'après le site fédéral).
  * Dans l'ordre : membre du RBCD, joueur déjà encodé au marquoir, puis site fédéral (www.frbb-kbbb.be) par licence.
  */
 class PlayerEmailLookup
@@ -44,8 +44,12 @@ class PlayerEmailLookup
             }
         }
 
-        $email = $key ? self::federation($key) : null;
-        return $email ? ['email' => $email, 'source' => 'frbb'] : null;
+        $fed = $key ? self::federation((string) $license) : null;
+        // Licence mal encodée : l'adresse serait celle d'un autre joueur
+        if ($fed && $lastName && self::plain($fed['last_name']) !== self::plain($lastName)) {
+            return null;
+        }
+        return $fed && $fed['email'] ? ['email' => $fed['email'], 'source' => 'frbb'] : null;
     }
 
     public static function sourceLabel(string $source): string
@@ -57,8 +61,21 @@ class PlayerEmailLookup
         };
     }
 
-    private static function federation(string $license): ?string
+    /**
+     * Fiche du joueur sur le site fédéral (www.frbb-kbbb.be) : nom, e-mail et club de la saison.
+     * La lettre de la licence compte : « 4210B » renvoie le club de la carte B.
+     * @return array{last_name: string, first_name: string, email: ?string, club: ?string, club_code: ?string}|null
+     */
+    public static function federation(string $license): ?array
     {
+        static $cache = [];
+        $license = strtoupper(preg_replace('/\s+/', '', $license));
+        if ($license === '' || !preg_match('/\d/', $license)) {
+            return null;
+        }
+        if (array_key_exists($license, $cache)) {
+            return $cache[$license];
+        }
         $url = rtrim((string) env('FRBB_KBBB_API_URL'), '/');
         $key = (string) env('FRBB_KBBB_API_KEY');
         if ($url === '' || $key === '') {
@@ -78,13 +95,25 @@ class PlayerEmailLookup
 
         if ($code !== 200 || !is_string($body)) {
             if ($code !== 404) {
-                log_message('warning', 'Recherche e-mail FRBB (licence ' . $license . ') : HTTP ' . $code);
+                log_message('warning', 'Recherche joueur FRBB (licence ' . $license . ') : HTTP ' . $code);
             }
-            return null;
+            return $cache[$license] = null;
         }
-        $email = json_decode($body, true)['email'] ?? null;
+        $d = (array) json_decode($body, true);
 
-        return self::valid($email) ? strtolower(trim($email)) : null;
+        return $cache[$license] = [
+            'last_name'  => (string) ($d['last_name'] ?? ''),
+            'first_name' => (string) ($d['first_name'] ?? ''),
+            'email'      => self::valid($d['email'] ?? null) ? strtolower(trim($d['email'])) : null,
+            'club'       => $d['club'] ?? null,
+            'club_code'  => $d['club_code'] ?? null,
+        ];
+    }
+
+    private static function plain(string $name): string
+    {
+        $ascii = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $name);
+        return preg_replace('/[^A-Z]/', '', strtoupper($ascii !== false ? $ascii : $name));
     }
 
     private static function valid(?string $email): bool
