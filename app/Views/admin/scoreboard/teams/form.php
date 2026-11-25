@@ -22,19 +22,19 @@ $sched  = $encounter->scheduled_at ?? null;
   <?= csrf_field() ?>
   <div class="card card-outline card-primary">
     <div class="card-header">
-      <h3 class="card-title"><i class="fas fa-users mr-2"></i><?= $isEdit ? 'Modifier la rencontre ' . esc($encounter->code) : "Nouvelle rencontre d'équipe" ?></h3>
+      <h3 class="card-title"><i class="fas fa-calendar-alt mr-2"></i><?= $isEdit ? 'Rencontre ' . esc($encounter->code) : "Nouvelle rencontre d'équipe" ?></h3>
     </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-3">
-          <div class="form-group">
+          <div class="form-group mb-md-0">
             <label for="code">N° de rencontre <span class="text-danger">*</span></label>
             <input type="text" name="code" id="code" class="form-control" maxlength="20" required style="text-transform:uppercase"
                    placeholder="ex. LPF001" value="<?= esc($val('code')) ?>">
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="form-group">
+        <div class="col-md-4">
+          <div class="form-group mb-md-0">
             <label for="competition">Compétition <span class="text-danger">*</span></label>
             <select name="competition" id="competition" class="form-control">
               <?php foreach (TE::COMPETITIONS as $k => $v): ?>
@@ -43,8 +43,8 @@ $sched  = $encounter->scheduled_at ?? null;
             </select>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="form-group">
+        <div class="col-md-5">
+          <div class="form-group mb-0">
             <label for="scheduled_date">Date et heure</label>
             <div class="d-flex">
               <input type="date" name="scheduled_date" id="scheduled_date" class="form-control mr-2"
@@ -55,8 +55,16 @@ $sched  = $encounter->scheduled_at ?? null;
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-5">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-home mr-2"></i>Équipe visitée (notre équipe)</h3>
+        </div>
+        <div class="card-body">
           <div class="form-group">
             <label for="team_id">Notre équipe CDR <span class="text-danger">*</span></label>
             <select name="team_id" id="team_id" class="form-control" required>
@@ -71,58 +79,73 @@ $sched  = $encounter->scheduled_at ?? null;
             </select>
             <small class="text-muted" id="teamInfo"></small>
           </div>
-        </div>
-        <div class="col-md-5">
-          <div class="form-group">
-            <label for="team_club">Club visité (notre club)</label>
-            <input type="text" name="team_club" id="team_club" class="form-control" maxlength="100" style="text-transform:uppercase"
-                   value="<?= esc($val('team_club', \App\Models\ScoreboardPlayerModel::HOME_CLUB)) ?>">
+          <div class="row">
+            <div class="col-8">
+              <div class="form-group">
+                <label for="team_club">Club</label>
+                <input type="text" name="team_club" id="team_club" class="form-control" maxlength="100" style="text-transform:uppercase"
+                       value="<?= esc($val('team_club', \App\Models\ScoreboardPlayerModel::HOME_CLUB)) ?>">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="form-group">
+                <label for="team_number">Équipe n°</label>
+                <input type="number" name="team_number" id="team_number" class="form-control" min="1" max="255"
+                       value="<?= esc($val('team_number')) ?>">
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="col-md-2">
-          <div class="form-group">
-            <label for="team_number">Équipe n°</label>
-            <input type="number" name="team_number" id="team_number" class="form-control" min="1" max="255"
-                   value="<?= esc($val('team_number')) ?>">
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-5 offset-md-5">
-          <div class="form-group">
-            <label for="opponent_club">Club visiteur <span class="text-danger">*</span></label>
-            <input type="text" name="opponent_club" id="opponent_club" class="form-control" maxlength="100" required style="text-transform:uppercase"
-                   placeholder="ex. B.C. GRÂCE-HOLLOGNE" value="<?= esc($val('opponent_club')) ?>">
-          </div>
-        </div>
-        <div class="col-md-2">
-          <div class="form-group">
-            <label for="opponent_number">Équipe n°</label>
-            <input type="number" name="opponent_number" id="opponent_number" class="form-control" min="1" max="255"
-                   placeholder="ex. 3" value="<?= esc($val('opponent_number')) ?>">
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="team_email">E-mail du club visité</label>
+          <div class="form-group mb-0">
+            <label for="team_email">E-mail du club</label>
             <input type="email" name="team_email" id="team_email" class="form-control" maxlength="150"
                    value="<?= esc($val('team_email', $clubEmail)) ?>">
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="opponent_email">E-mail du club visiteur</label>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-shuttle-van mr-2"></i>Équipe visiteuse</h3>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-8">
+              <div class="form-group">
+                <label for="opponent_club">Club <span class="text-danger">*</span></label>
+                <input type="text" name="opponent_club" id="opponent_club" class="form-control" maxlength="100" required style="text-transform:uppercase"
+                       placeholder="ex. B.C. GRÂCE-HOLLOGNE" value="<?= esc($val('opponent_club')) ?>">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="form-group">
+                <label for="opponent_number">Équipe n°</label>
+                <input type="number" name="opponent_number" id="opponent_number" class="form-control" min="1" max="255"
+                       placeholder="ex. 3" value="<?= esc($val('opponent_number')) ?>">
+              </div>
+            </div>
+          </div>
+          <div class="form-group mb-0">
+            <label for="opponent_email">E-mail du club</label>
             <input type="email" name="opponent_email" id="opponent_email" class="form-control" maxlength="150"
                    value="<?= esc($val('opponent_email')) ?>">
             <small class="text-muted">Retrouvé automatiquement si ce club a déjà été encodé.</small>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="card card-outline card-primary">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-paper-plane mr-2"></i>Feuille récapitulative</h3>
+    </div>
+    <div class="card-body">
+      <p class="text-muted small mb-3">Envoyée automatiquement, avec les feuilles de match, aux e-mails des deux clubs ci-dessus et au responsable CDR
+        dès que la rencontre est complète (signatures comprises, ou <?= \App\Libraries\MatchResultMailer::AUTO_DELAY ?> minutes après le dernier match).</p>
       <div class="form-group">
-        <label>E-mail du responsable CDR</label>
-        <input type="text" class="form-control-plaintext" readonly
+        <label class="mb-0">Responsable CDR</label>
+        <input type="text" class="form-control-plaintext py-0" readonly
                value="<?= esc(trim($cdr->name . ' — ' . $cdr->email, ' —')) ?>">
         <small class="text-muted">Défini dans <a href="<?= base_url('admin/scoreboard/settings') ?>">Marquoir › Paramètres</a> ; commun à toutes les rencontres.</small>
       </div>
