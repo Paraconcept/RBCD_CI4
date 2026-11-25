@@ -133,6 +133,7 @@
       <a href="#sets">Partie par sets</a>
       <a href="#trois">Partie à 3</a>
       <a href="#cinq-quilles">5 quilles</a>
+      <a href="#salade">Salade</a>
       <a href="#direct">En direct</a>
     </nav>
 
@@ -142,7 +143,7 @@
       <div class="mh-body">
         <div class="row g-3 mb-4">
           <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-th-large"></i></div><h5>1. Le billard</h5><p class="mb-0">Sur le Chromebook du billard, ouvrez <b>Marquoirs</b> et choisissez votre billard (souvent déjà en favori).</p></div></div>
-          <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-play"></i></div><h5>2. La partie</h5><p class="mb-0">Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b> : à 2, à 3 ou aux 5 quilles.</p></div></div>
+          <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-play"></i></div><h5>2. La partie</h5><p class="mb-0">Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b> : à 2, à 3, aux 5 quilles ou à la Salade.</p></div></div>
           <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-stopwatch"></i></div><h5>3. L'échauffement</h5><p class="mb-0">Deux échauffements de <b>5 minutes</b>, puis on choisit <b>qui commence</b> la partie (à 3 : pas d'échauffement).</p></div></div>
           <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-calculator"></i></div><h5>4. L'arbitrage</h5><p class="mb-0">L'arbitre marque les points au <b>pavé numérique</b>. Tout s'affiche sur la TV.</p></div></div>
         </div>
@@ -181,8 +182,7 @@
               <li><kbd>1</kbd> <b>à deux</b> : <a href="#amicale">voir plus bas</a></li>
               <li><kbd>2</kbd> <b>à trois</b> : <a href="#trois">partie à 3</a></li>
               <li><kbd>3</kbd> <b>aux 5 quilles</b> : <a href="#cinq-quilles">5 quilles</a></li>
-              <li><kbd>4</kbd> <b>à la Salade</b></li>
-              <li><kbd>5</kbd> <b>à la Salade « Quick Pick »</b></li>
+              <li><kbd>4</kbd> <b>à la Salade</b> et <kbd>5</kbd> <b>à la Salade « Quick Pick »</b> : <a href="#salade">Salade</a></li>
             </ul>
           </div>
         </div>
@@ -575,6 +575,56 @@
           <div class="col-md-6">
             <img class="mh-shot" src="<?= $img('33_faute5q') ?>" alt="Faute aux 5 quilles"><div class="mh-caption mb-3">Faute de DUPONT (<kbd>1</kbd><kbd>0</kbd> <kbd>+</kbd>) : les 10 points vont à MARTIN.</div>
             <img class="mh-shot" src="<?= $img('34_resultat5q') ?>" alt="Résultat d'une partie aux 5 quilles"><div class="mh-caption">Résultat : points, coups, moyenne et meilleur coup (MC). <kbd>+</kbd> rejoue.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Salade -->
+    <div class="mh-section" id="salade">
+      <div class="mh-head"><div class="num"><i class="far fa-list-alt"></i></div><div><h3>Partie amicale à la Salade</h3><p>Chaque joueur doit réaliser un nombre de points dans chaque figure</p></div></div>
+      <div class="mh-body">
+        <div class="row g-4 mb-4">
+          <div class="col-md-5"><img class="mh-shot" src="<?= $img('35_salade_joueurs') ?>" alt="Salade : les joueurs"><div class="mh-caption">Étape 1 : les deux joueurs.</div></div>
+          <div class="col-md-7"><img class="mh-shot" src="<?= $img('36_salade_figures') ?>" alt="Salade : les figures"><div class="mh-caption">Étape 2 : les figures. Bricole désactivée, « De la mauvaise main » ajoutée : 12 points chacun.</div></div>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-7">
+            <ol class="mh-steps">
+              <li>Sur la page du billard : <b>Partie amicale</b>, puis <kbd>4</kbd> <b>Salade</b> ou <kbd>5</kbd> <b>Salade « Quick Pick »</b>. Sur tous les billards.</li>
+              <li><b>Étape 1, Joueurs</b> : nom et prénom des deux joueurs, puis <b>Suivant</b>.</li>
+              <li><b>Étape 2, Figures</b> :
+                <ul>
+                  <li>l'interrupteur active ou non chaque figure (8 au maximum) ;</li>
+                  <li>les <b>points</b> de chaque joueur dans la figure (1 à 10) ; <b>Points égaux</b> recopie ceux du 1<sup>er</sup> joueur ;</li>
+                  <li>le <b>N° au pavé</b> se remplit tout seul : c'est la touche de la figure ;</li>
+                  <li><b>Ajouter un type de point</b> (ex. « De la mauvaise main ») ; la corbeille le retire.</li>
+                </ul>
+              </li>
+              <li><b>Reprises inégales</b> si besoin, puis <b>Continuer</b> : échauffement et « Qui commence ? » comme d'habitude.</li>
+            </ol>
+          </div>
+          <div class="col-md-5">
+            <div class="mh-note green"><b>Retenu pour la prochaine fois</b> — les figures ajoutées et les derniers réglages sont gardés pour <b>tous les billards</b>.</div>
+          </div>
+        </div>
+        <div class="row g-4 mb-3">
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('37_salade_tableau') ?>" alt="Salade : le tableau des figures"><div class="mh-caption">Une bille par point à faire ; turquoise = réalisé, coche = figure terminée.</div></div>
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('40_quickpick') ?>" alt="Salade Quick Pick"><div class="mh-caption">« Quick Pick » : le marquoir impose la figure du coup.</div></div>
+          <div class="col-md-4"><img class="mh-shot" src="<?= $img('39_salade_resultat') ?>" alt="Salade : résultat"><div class="mh-caption">Résultat : points réalisés / à réaliser et pourcentage.</div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <ol class="mh-steps">
+              <li><b>Salade</b> — figure réussie : sa touche, <kbd>1</kbd> à <kbd>8</kbd>. Le joueur continue.</li>
+              <li><b>« Quick Pick »</b> — <kbd>+</kbd> si la figure affichée en rouge (« À jouer ») est réussie. Une nouvelle figure est tirée à chaque coup.</li>
+              <li><b>Raté</b>, ou une autre figure que celle annoncée : <kbd>Entrée</kbd>, la main passe.</li>
+              <li><b>Erreur</b> : <kbd>−</kbd> annule le dernier coup.</li>
+            </ol>
+          </div>
+          <div class="col-md-6">
+            <div class="mh-note"><b>Figure terminée</b> — une figure dont toutes les billes sont turquoise est refusée (message à l'écran). Quand toutes ses figures sont terminées, la reprise du joueur s'arrête toute seule.</div>
+            <div class="mh-note green"><b>Fin de partie</b> — le premier qui termine toutes ses figures gagne. Sans « Reprises inégales », l'adversaire joue encore une <b>reprise d'égalisation</b> (match nul possible). <kbd>+</kbd> rejoue la même partie.</div>
           </div>
         </div>
       </div>

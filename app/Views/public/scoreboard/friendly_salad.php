@@ -210,8 +210,12 @@ $figureRow = static function (int $i, array $r): string {
     function checkFigures() {
         const on = rows().filter((r) => r.querySelector('[data-sal-active]').checked);
         if (!on.length) return 'Activez au moins une figure.';
+        const seen = {};
         for (const r of rows()) {
-            if (!r.querySelector('[data-sal-label]').value.trim()) return 'Donnez un nom à la figure ajoutée (ou retirez-la).';
+            const label = r.querySelector('[data-sal-label]').value.trim().replace(/\s+/g, ' ');
+            if (!label) return 'Donnez un nom à la figure ajoutée (ou retirez-la).';
+            if (seen[label.toLowerCase()]) return 'Le point « ' + label + ' » existe déjà dans la liste.';
+            seen[label.toLowerCase()] = true;
         }
         for (const r of on) {
             for (const n of [1, 2]) {

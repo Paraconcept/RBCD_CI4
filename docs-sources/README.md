@@ -35,6 +35,7 @@ Les identifiants MySQL sont lus dans le `.env` du projet et la clé d'accès au 
 - **Mode d'emploi** :
   - `node mode-emploi/shots3.cjs mode-emploi/img` refait la page du billard, les formulaires amicaux (à 2 et à 3) et toute la partie à 3 (captures 02, 03, 21 à 25). Le script crée des rencontres de démonstration sur le billard 2 puis les efface.
   - `node mode-emploi/shots7.cjs mode-emploi/img` refait la page du billard (02, recadrée, seules les rencontres de démonstration restent visibles), la fenêtre « Quelle partie amicale ? » (30) et toute la partie aux 5 quilles (31 à 34 : formulaire, saisie, faute, résultat). Rencontres de démonstration sur le billard 2, effacées à la fin. À lancer après `shots3.cjs`, qui refait aussi la capture 02.
+  - `node mode-emploi/shots8.cjs mode-emploi/img` refait la Salade (35 à 37, 39 : joueurs, figures, tableau, résultat) et la Salade « Quick Pick » (40). Seules les figures de base sont montrées ; la liste des figures du club est rétablie à la fin, les parties de démonstration (billard 2) sont effacées.
   - `mode-emploi/shots.cjs` refait les captures d'origine (01, 04 à 13). Il attend un billard et une rencontre officielle de démonstration (voir l'en-tête du script). `13_direct_liste_crop.png` est un recadrage manuel de `13_direct_liste.png`.
   - `mode-emploi/upd.cjs` refait la capture de la moyenne proportionnelle (14).
   - `node mode-emploi/shots5.cjs mode-emploi/img` refait la capture du formulaire par sets (15), avec des points par set différents pour chaque joueur. Rien n'est enregistré.

@@ -189,6 +189,7 @@ class ScoreboardController extends BaseController
         $figures = [];
         $saves   = [];
         $max     = ScoreboardSaladFigureModel::MAX_POINTS;
+        $seen    = [];
         foreach (array_values((array) ($in['figures'] ?? [])) as $i => $r) {
             $existing = !empty($r['id']) ? $model->find((int) $r['id']) : null;
             if (!empty($r['delete'])) {
@@ -197,6 +198,12 @@ class ScoreboardController extends BaseController
             }
             $label = $existing ? $existing->label : mb_substr(trim(preg_replace('/\s+/u', ' ', (string) ($r['label'] ?? ''))), 0, 60);
             if ($label === '') continue;
+            $lower = mb_strtolower($label, 'UTF-8');
+            if (isset($seen[$lower])) {
+                $errors[] = 'Le point « ' . $label . ' » existe déjà dans la liste.';
+                continue;
+            }
+            $seen[$lower] = true;
             $p1     = (int) ($r['p1'] ?? 0);
             $p2     = $equal ? $p1 : (int) ($r['p2'] ?? 0);
             $active = !empty($r['active']);

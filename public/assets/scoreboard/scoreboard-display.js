@@ -851,6 +851,7 @@
         if (N === 3) { renderTrioResult(); return; }
 
         const t1 = totals(1), t2 = totals(2);
+        if (SA) { renderSaladResult(t1, t2); return; }
         const res = winnerOf(t1, t2);
         const cmp = res.cmp;
         $('sbdDecision').hidden = !res.proportional;
@@ -872,6 +873,17 @@
             tr.style.color = pair[0] === 1 ? 'var(--sb-p1)' : 'var(--sb-p2)';
             rows.appendChild(tr);
         });
+    }
+
+    // Salade : pas de moyenne ; points réalisés / à réaliser, pourcentage, reprises, meilleure série
+    function renderSaladResult(t1, t2) {
+        const cmp = winnerOf(t1, t2).cmp;
+        const pct = (p, t) => { const v = Math.round(t.pts / dist(p) * 1000) / 10; return String(v).replace('.', ',') + ' %'; };
+        $('sbdDecision').hidden = true;
+        $('sbdWinner').textContent = cmp === 0 ? 'Match nul' : 'Victoire de ' + name(cmp > 0 ? 1 : 2);
+        $('sbdWinner').style.color = cmp === 0 ? '#fff' : (cmp > 0 ? 'var(--sb-p1)' : 'var(--sb-p2)');
+        $('sbdResultHead').innerHTML = '<th></th><th>Points</th><th>%</th><th>Reprises</th><th>MS</th>';
+        fillRows($('sbdResultRows'), [[1, t1], [2, t2]].map((x) => [name(x[0]), x[1].pts + ' / ' + dist(x[0]), pct(x[0], x[1]), x[1].inn, x[1].hr]));
     }
 
     // Par sets : une colonne par set (points et reprises), sets gagnés, moyenne générale et série max

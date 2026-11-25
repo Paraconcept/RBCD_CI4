@@ -174,7 +174,7 @@
     <div class="body" style="flex-direction:column;gap:6mm">
         <div class="overview">
             <div class="card"><div class="ico"><i class="fas fa-table-cells-large"></i></div><h3>1. Le billard</h3><p>Sur le Chromebook du billard, ouvrez <b>Marquoirs</b> et choisissez votre billard (il est souvent déjà en favori).</p></div>
-            <div class="card"><div class="ico"><i class="fas fa-play"></i></div><h3>2. La partie</h3><p>Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b> : à 2, à 3 ou aux 5 quilles.</p></div>
+            <div class="card"><div class="ico"><i class="fas fa-play"></i></div><h3>2. La partie</h3><p>Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b> : à 2, à 3, aux 5 quilles ou à la Salade.</p></div>
             <div class="card"><div class="ico"><i class="fas fa-stopwatch"></i></div><h3>3. L'échauffement</h3><p>Deux échauffements de <b>5 minutes</b>, puis on choisit <b>qui commence</b> la partie (à 3 : pas d'échauffement).</p></div>
             <div class="card"><div class="ico"><i class="fas fa-calculator"></i></div><h3>4. L'arbitrage</h3><p>L'arbitre marque les points au <b>pavé numérique</b>. Tout s'affiche sur la TV.</p></div>
         </div>
@@ -202,8 +202,7 @@
                     <li><kbd>1</kbd> à deux : page 4</li>
                     <li><kbd>2</kbd> à trois : pages 16 et 17</li>
                     <li><kbd>3</kbd> aux 5 quilles : pages 18 et 19</li>
-                    <li><kbd>4</kbd> à la Salade</li>
-                    <li><kbd>5</kbd> à la Salade « Quick Pick »</li>
+                    <li><kbd>4</kbd> <kbd>5</kbd> à la Salade (« Quick Pick ») : pages 20 et 21</li>
                 </ul>
             </div>
         </div>
@@ -625,6 +624,56 @@
     <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b></span><span>19</span></footer>
 </section>
 
+<!-- ============================ SALADE : CONFIGURATION ============================ -->
+<section class="page">
+    <header class="head"><div class="num"><i class="far fa-list-alt"></i></div><div><h1>Partie amicale à la Salade</h1><p>Chaque joueur doit réaliser un nombre de points dans chaque figure</p></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="col wide"><img class="shot" src="img/36_salade_figures.png" alt=""><div class="caption">Étape 2 : les figures. Bricole désactivée, « De la mauvaise main » ajoutée : 12 points chacun.</div></div>
+        <div class="col text" style="flex-basis:104mm">
+            <ul class="steps">
+                <li>Sur la page du billard : <b>Partie amicale</b>, puis <kbd>4</kbd> <b>Salade</b> ou <kbd>5</kbd> <b>Salade « Quick Pick »</b>. Sur tous les billards.</li>
+                <li><b>Étape 1, Joueurs</b> : nom et prénom des deux joueurs, puis <b>Suivant</b>.</li>
+                <li><b>Étape 2, Figures</b> :
+                    <ul class="dots" style="margin-top:1.5mm">
+                        <li>l'interrupteur active ou non chaque figure (8 au maximum) ;</li>
+                        <li>les <b>points</b> de chaque joueur dans la figure (1 à 10) ; <b>Points égaux</b> recopie ceux du 1<sup>er</sup> joueur ;</li>
+                        <li>le <b>N° au pavé</b> se remplit tout seul : c'est la touche de la figure ;</li>
+                        <li><b>Ajouter un type de point</b> (ex. « De la mauvaise main ») ; la corbeille le retire.</li>
+                    </ul>
+                </li>
+                <li><b>Reprises inégales</b> si besoin, puis <b>Continuer</b> : échauffement et « Qui commence ? » comme d'habitude.</li>
+            </ul>
+            <div class="note green"><p><b>Retenu pour la prochaine fois</b> — les figures ajoutées et les derniers réglages sont gardés pour <b>tous les billards</b>.</p></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b></span><span>20</span></footer>
+</section>
+
+<!-- ============================ SALADE : ÉCRAN ET PAVÉ ============================ -->
+<section class="page">
+    <header class="head"><div class="num"><i class="far fa-list-alt"></i></div><div><h1>Salade : à l'écran et au pavé</h1><p>Le joueur annonce sa figure et rejoue tant qu'il la réussit</p></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body" style="flex-direction:column;gap:6mm">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5mm">
+            <div><img class="shot" src="img/37_salade_tableau.png" alt=""><div class="caption">Une bille par point à faire ; turquoise = réalisé, coche = figure terminée.</div></div>
+            <div><img class="shot" src="img/40_quickpick.png" alt=""><div class="caption">« Quick Pick » : le marquoir impose la figure du coup.</div></div>
+            <div><img class="shot" src="img/39_salade_resultat.png" alt=""><div class="caption">Résultat : points réalisés / à réaliser et pourcentage.</div></div>
+        </div>
+        <div class="two">
+            <ul class="steps">
+                <li><b>Salade</b> — figure réussie : sa touche, <kbd>1</kbd> à <kbd>8</kbd>. Le joueur continue.</li>
+                <li><b>« Quick Pick »</b> — <kbd>+</kbd> si la figure affichée en rouge (« À jouer ») est réussie. Une nouvelle figure est tirée à chaque coup.</li>
+                <li><b>Raté</b>, ou une autre figure que celle annoncée : <kbd>Entrée</kbd>, la main passe.</li>
+                <li><b>Erreur</b> : <kbd>−</kbd> annule le dernier coup.</li>
+            </ul>
+            <div class="col">
+                <div class="note"><p><b>Figure terminée</b> — une figure dont toutes les billes sont turquoise est refusée (message à l'écran). Quand toutes ses figures sont terminées, la reprise du joueur s'arrête toute seule.</p></div>
+                <div class="note green"><p><b>Fin de partie</b> — le premier qui termine toutes ses figures gagne. Sans « Reprises inégales », l'adversaire joue encore une <b>reprise d'égalisation</b> (match nul possible). <kbd>+</kbd> rejoue la même partie.</p></div>
+            </div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b></span><span>21</span></footer>
+</section>
+
 <!-- ============================ 13. EN DIRECT ============================ -->
 <section class="page">
     <header class="head"><div class="num"><i class="fas fa-tower-broadcast"></i></div><div><h1>Suivre une rencontre en direct, de chez soi</h1><p>Sur ordinateur, tablette ou smartphone</p></div><img src="img/ecusson.png" alt=""></header>
@@ -645,7 +694,7 @@
             </div>
         </div>
     </div>
-    <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b> · Une question ? ds@rbcd.be</span><span>20</span></footer>
+    <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b> · Une question ? ds@rbcd.be</span><span>22</span></footer>
 </section>
 
 </body>
