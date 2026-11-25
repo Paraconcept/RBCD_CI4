@@ -74,37 +74,12 @@ $figureRow = static function (int $i, array $r): string {
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <h1 class="sb-title mb-3"><i class="<?= $qp ? 'fas fa-shuffle' : 'far fa-list-alt' ?> me-2 sb-accent"></i><?= esc($title) ?></h1>
-<div class="sal-steps"><span data-sal-step-tab="1" class="on">1. Figures</span><span data-sal-step-tab="2">2. Joueurs</span></div>
+<div class="sal-steps"><span data-sal-step-tab="1" class="on">1. Joueurs</span><span data-sal-step-tab="2">2. Figures</span></div>
 <form method="post" action="<?= base_url('marquoir/billard/' . $table->id . ($qp ? '/amicale-salade-quick-pick' : '/amicale-salade')) ?>" autocomplete="off" novalidate id="salForm">
     <input type="hidden" name="discipline" value="<?= esc($discipline) ?>">
     <input type="hidden" name="players" value="2">
 
     <div data-sal-step="1">
-        <div class="sb-card<?= $equal ? ' sal-equal' : '' ?>" id="salFigures">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                <h2 class="h4 mb-0">Figures</h2>
-                <div class="form-check form-switch fs-5 mb-0">
-                    <input class="form-check-input" type="checkbox" role="switch" name="equal_points" id="equal_points" value="1" <?= $equal ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="equal_points">Points égaux</label>
-                </div>
-            </div>
-            <div class="sal-grid-head"><span></span><span>Type de figure</span><span>Points joueur 1</span><span>Points joueur 2</span><span>N° au pavé</span><span></span></div>
-            <div id="salRows">
-                <?php foreach ($rows as $i => $r): ?><?= $figureRow($i, $r) ?><?php endforeach; ?>
-            </div>
-            <template id="salRowTpl"><?= $figureRow(999, ['id' => '', 'label' => '', 'builtin' => false, 'active' => true, 'p1' => '', 'p2' => '']) ?></template>
-            <button type="button" class="btn btn-outline-light mt-2" id="salAdd"><i class="fas fa-plus me-2"></i>Ajouter un type de point</button>
-            <p class="text-secondary small mt-3 mb-0"><?= F::MAX_ACTIVE ?> figures actives au maximum, de 1 à <?= F::MAX_POINTS ?> points chacune. Les figures ajoutées sont gardées pour tous les billards.
-                <?= $qp ? 'En « Quick Pick », le marquoir tire au hasard la figure de chaque coup.' : 'Au pavé, la touche de chaque figure est son N°.' ?></p>
-            <div class="alert alert-danger mt-3 mb-0" id="salError" hidden></div>
-        </div>
-        <div class="d-flex justify-content-between mt-4 sb-sticky-actions">
-            <a href="<?= base_url('marquoir/billard/' . $table->id) ?>" class="btn btn-outline-secondary btn-lg"><i class="fas fa-arrow-left me-2"></i>Retour</a>
-            <button type="button" class="btn btn-sb btn-lg" id="salNext">Suivant<i class="fas fa-arrow-right ms-2"></i></button>
-        </div>
-    </div>
-
-    <div data-sal-step="2" hidden>
         <div class="row g-4">
             <?php for ($n = 1; $n <= 2; $n++): $p = 'p' . $n; ?>
             <div class="col-md-6">
@@ -120,22 +95,45 @@ $figureRow = static function (int $i, array $r): string {
                     </div>
                     <label class="form-label">Prénom <span class="text-danger">*</span></label>
                     <input type="text" name="<?= $p ?>_first_name" class="form-control form-control-lg" required value="<?= esc(old($p . '_first_name')) ?>">
-                    <div class="text-secondary small mt-3">À réaliser : <b data-sal-total="<?= $n ?>">0</b> points</div>
                 </div>
             </div>
             <?php endfor; ?>
-            <div class="col-12">
-                <div class="sb-card">
-                    <div class="form-check form-switch fs-5">
-                        <input class="form-check-input" type="checkbox" role="switch" name="unequal_innings" id="unequal_innings" value="1" <?= old('unequal_innings') ? 'checked' : '' ?>>
-                        <label class="form-check-label" for="unequal_innings">Reprises inégales</label>
-                    </div>
-                    <small class="text-secondary">Le premier qui termine toutes ses figures gagne. Sans cette option, son adversaire joue encore une reprise d'égalisation.</small>
-                </div>
-            </div>
         </div>
         <div class="d-flex justify-content-between mt-4 sb-sticky-actions">
-            <button type="button" class="btn btn-outline-secondary btn-lg" id="salPrev"><i class="fas fa-arrow-left me-2"></i>Figures</button>
+            <a href="<?= base_url('marquoir/billard/' . $table->id) ?>" class="btn btn-outline-secondary btn-lg"><i class="fas fa-arrow-left me-2"></i>Retour</a>
+            <button type="button" class="btn btn-sb btn-lg" id="salNext">Suivant<i class="fas fa-arrow-right ms-2"></i></button>
+        </div>
+    </div>
+
+    <div data-sal-step="2" hidden>
+        <div class="sb-card<?= $equal ? ' sal-equal' : '' ?>" id="salFigures">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <h2 class="h4 mb-0">Figures</h2>
+                <div class="form-check form-switch fs-5 mb-0">
+                    <input class="form-check-input" type="checkbox" role="switch" name="equal_points" id="equal_points" value="1" <?= $equal ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="equal_points">Points égaux</label>
+                </div>
+            </div>
+            <div class="sal-grid-head"><span></span><span>Type de figure</span><span>Points <b data-sal-name="1">joueur 1</b></span><span>Points <b data-sal-name="2">joueur 2</b></span><span>N° au pavé</span><span></span></div>
+            <div id="salRows">
+                <?php foreach ($rows as $i => $r): ?><?= $figureRow($i, $r) ?><?php endforeach; ?>
+            </div>
+            <template id="salRowTpl"><?= $figureRow(999, ['id' => '', 'label' => '', 'builtin' => false, 'active' => true, 'p1' => '', 'p2' => '']) ?></template>
+            <button type="button" class="btn btn-outline-light mt-2" id="salAdd"><i class="fas fa-plus me-2"></i>Ajouter un type de point</button>
+            <p class="text-secondary small mt-3 mb-0"><?= F::MAX_ACTIVE ?> figures actives au maximum, de 1 à <?= F::MAX_POINTS ?> points chacune. Les figures ajoutées sont gardées pour tous les billards.
+                <?= $qp ? 'En « Quick Pick », le marquoir tire au hasard la figure de chaque coup.' : 'Au pavé, la touche de chaque figure est son N°.' ?></p>
+            <p class="small mt-2 mb-0">À réaliser : <b data-sal-name="1">joueur 1</b> <b data-sal-total="1">0</b> points · <b data-sal-name="2">joueur 2</b> <b data-sal-total="2">0</b> points</p>
+            <div class="alert alert-danger mt-3 mb-0" id="salError" hidden></div>
+        </div>
+        <div class="sb-card mt-4">
+            <div class="form-check form-switch fs-5">
+                <input class="form-check-input" type="checkbox" role="switch" name="unequal_innings" id="unequal_innings" value="1" <?= old('unequal_innings') ? 'checked' : '' ?>>
+                <label class="form-check-label" for="unequal_innings">Reprises inégales</label>
+            </div>
+            <small class="text-secondary">Le premier qui termine toutes ses figures gagne. Sans cette option, son adversaire joue encore une reprise d'égalisation.</small>
+        </div>
+        <div class="d-flex justify-content-between mt-4 sb-sticky-actions">
+            <button type="button" class="btn btn-outline-secondary btn-lg" id="salPrev"><i class="fas fa-arrow-left me-2"></i>Joueurs</button>
             <button class="btn btn-sb btn-lg"><i class="fas fa-check me-2"></i>Continuer</button>
         </div>
     </div>
@@ -144,7 +142,7 @@ $figureRow = static function (int $i, array $r): string {
 <?= $this->section('scripts') ?>
 <script src="<?= base_url('assets/scoreboard/scoreboard-forms.js') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard-forms.js') ?>"></script>
 <script>
-// Configuration de la Salade : N° au pavé automatique, points égaux, ajout de figures, deux étapes
+// Configuration de la Salade : joueurs puis figures (N° au pavé automatique, points égaux, ajout de figures)
 (function () {
     const MAX_ACTIVE = <?= F::MAX_ACTIVE ?>, MAX_POINTS = <?= F::MAX_POINTS ?>;
     const form = document.getElementById('salForm');
@@ -224,26 +222,38 @@ $figureRow = static function (int $i, array $r): string {
         return '';
     }
 
+    // Les colonnes de points portent le nom des joueurs saisis à l'étape 1
+    function names() {
+        [1, 2].forEach(function (n) {
+            const v = form.querySelector('[name="p' + n + '_last_name"]').value.trim().toUpperCase();
+            document.querySelectorAll('[data-sal-name="' + n + '"]').forEach((el) => { el.textContent = v || 'joueur ' + n; });
+        });
+    }
+    const playerInputs = () => [...document.querySelectorAll('[data-sal-step="1"] input[required]')];
+
     function step(n) {
+        names();
         document.querySelectorAll('[data-sal-step]').forEach((el) => { el.hidden = el.dataset.salStep !== String(n); });
         document.querySelectorAll('[data-sal-step-tab]').forEach((el) => el.classList.toggle('on', el.dataset.salStepTab === String(n)));
         window.scrollTo(0, 0);
-        if (n === 2) form.querySelector('[name="p1_last_name"]').focus();
+        if (n === 1) form.querySelector('[name="p1_last_name"]').focus();
     }
     document.getElementById('salNext').addEventListener('click', function () {
-        refresh();
-        const msg = checkFigures();
-        showError(msg);
-        if (!msg) step(2);
+        const bad = playerInputs().find((i) => !i.value.trim());
+        if (bad) { bad.reportValidity(); bad.focus(); return; }
+        step(2);
     });
     document.getElementById('salPrev').addEventListener('click', () => step(1));
     form.addEventListener('submit', function (e) {
         refresh();
+        if (playerInputs().some((i) => !i.value.trim())) { e.preventDefault(); step(1); playerInputs().find((i) => !i.value.trim()).reportValidity(); return; }
         const msg = checkFigures();
-        if (msg) { e.preventDefault(); showError(msg); step(1); return; }
-        if (!form.checkValidity()) { e.preventDefault(); form.reportValidity(); }
+        showError(msg);
+        if (msg) e.preventDefault();
     });
     refresh();
+    // Retour après une erreur du serveur : les joueurs sont déjà remplis, on reprend aux figures
+    step(<?= old('p1_last_name') ? 2 : 1 ?>);
 })();
 </script>
 <?= $this->endSection() ?>
