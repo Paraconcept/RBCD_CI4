@@ -207,7 +207,22 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
             <button class="btn" type="button" data-m="cash">Espèces</button>
             <button class="btn" type="button" data-m="bancontact">Bancontact<small>encaisser d'abord sur SumUp</small></button>
         </div>
+        <button class="btn split-open" type="button" data-m="split">Partager le paiement<small>plusieurs personnes paient, en espèces ou par Bancontact</small></button>
         <button class="btn" type="button" id="pNo">Annuler</button>
+    </div>
+</div>
+
+<div class="modal" id="splitModal" hidden>
+    <div class="modal-box split-box">
+        <h3 id="sTitle"></h3>
+        <p id="sText"></p>
+        <div class="split-n" id="sN"></div>
+        <div class="split-body" id="sBody" hidden>
+            <div class="split-rows" id="sRows"></div>
+            <div class="split-pad" id="sPad"></div>
+        </div>
+        <p class="split-msg" id="sMsg"></p>
+        <div class="acts"><button class="btn" type="button" id="sNo">Retour</button><button class="btn primary" type="button" id="sYes">Valider le paiement</button></div>
     </div>
 </div>
 

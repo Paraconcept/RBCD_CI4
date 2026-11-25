@@ -244,6 +244,29 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .modal-box .paybig .btn { height: 6rem; font-size: 1.35rem; flex-direction: column; gap: .2rem; }
 .modal-box .paybig .btn small { font-size: .75rem; font-weight: 600; color: var(--muted); }
 .modal-box #pNo { height: 3.25rem; font-size: 1rem; }
+.modal-box .split-open { height: auto; min-height: 3.6rem; flex-direction: column; gap: .15rem; font-size: 1.1rem; white-space: normal; text-align: center; }
+.modal-box .split-open small { font-size: .75rem; font-weight: 600; color: var(--muted); }
+.modal-box.split-box { width: 56rem; }
+.split-n { display: grid; grid-template-columns: repeat(5, 1fr); gap: .62rem; }
+.split-n .btn { height: 5rem; font: 800 2.2rem var(--f-body); flex-direction: column; gap: 0; }
+.split-n .btn small { font-size: .78rem; font-weight: 600; color: var(--muted); }
+.split-body { display: grid; grid-template-columns: minmax(0, 1fr) 15rem; gap: 1rem; align-items: start; }
+.split-rows { display: grid; gap: .5rem; max-height: 52dvh; overflow-y: auto; }
+.split-row { display: grid; grid-template-columns: 4.6rem 8.5rem 1fr 1fr; gap: .5rem; align-items: center; }
+.split-row .sl { font-weight: 800; font-size: 1.05rem; line-height: 1.1; }
+.split-row .sl small { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); }
+.split-row .amt { height: 3.4rem; font: 800 1.35rem var(--f-body); font-variant-numeric: tabular-nums; justify-content: flex-end; padding: 0 .8rem; }
+.split-row .amt.edit { border-color: var(--accent); box-shadow: 0 0 0 .19rem rgba(28,68,124,.25); }
+.split-row .amt.rest { background: var(--side); color: var(--muted); cursor: default; }
+.split-row .amt.bad { color: var(--danger); border-color: #e0c4c7; }
+.split-row .m { height: 3.4rem; font-size: 1rem; }
+.split-row .m[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.split-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; }
+.split-pad .key { height: 3.4rem; }
+.split-pad .hint { grid-column: 1 / -1; font-size: .8rem; color: var(--muted); line-height: 1.35; }
+.split-msg { min-height: 1.4rem; font-weight: 700; color: var(--muted) !important; }
+.split-msg.bad { color: var(--danger) !important; }
+.split-msg.ok { color: #15803d !important; }
 .modal-box .choices { display: grid; gap: .55rem; }
 .modal-box .choices .btn { height: auto; min-height: 3.4rem; justify-content: space-between; text-align: left; white-space: normal; padding: .5rem .9rem; font-size: 1.05rem; }
 .modal-box .choices .btn small { font-size: .8rem; font-weight: 600; color: var(--muted); }

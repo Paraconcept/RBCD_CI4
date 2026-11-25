@@ -19,6 +19,24 @@ $short = static function (string $name): string {
     return isset($parts[1]) ? $parts[0] . ' ' . mb_substr($parts[1], 0, 1) . '.' : $name;
 };
 $methods = ['cash' => 'Espèces', 'bancontact' => 'Bancontact'];
+// Ticket partagé : « Partagé » et, en petit, le total de chaque mode (colonne étroite)
+$mode = static function (object $t, array $parts) use ($methods, $eur): string {
+    if (count($parts) < 2) {
+        return $methods[$t->payment_method] ?? '—';
+    }
+    $by = [];
+    foreach ($parts as $p) {
+        $by[$p->method] = ($by[$p->method] ?? 0) + (float) $p->amount;
+    }
+    $short = [];
+    foreach (['cash' => 'esp.', 'bancontact' => 'BC'] as $m => $abbr) {
+        if (isset($by[$m])) {
+            $short[] = str_replace(' €', '', $eur($by[$m])) . ' ' . $abbr;
+        }
+    }
+    return 'Partagé <span class="muted">' . implode(' + ', $short) . '</span>';
+};
+$plural = static fn (int $n): string => $n . ' paiement' . ($n > 1 ? 's' : '');
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -122,8 +140,11 @@ td, th { vertical-align: top; }
         <td style="width:38%">
             <div class="h">Par mode de paiement</div>
             <table class="kv">
-                <tr><td>Espèces <span class="muted">· <?= $s['cash_count'] ?> ticket<?= $s['cash_count'] > 1 ? 's' : '' ?></span></td><td class="r"><?= $eur($s['cash']) ?></td></tr>
-                <tr><td>Bancontact SumUp <span class="muted">· <?= $s['bancontact_count'] ?></span></td><td class="r"><?= $eur($s['bancontact']) ?></td></tr>
+                <tr><td>Espèces <span class="muted">· <?= $plural($s['cash_count']) ?></span></td><td class="r"><?= $eur($s['cash']) ?></td></tr>
+                <tr><td>Bancontact SumUp <span class="muted">· <?= $plural($s['bancontact_count']) ?></span></td><td class="r"><?= $eur($s['bancontact']) ?></td></tr>
+                <?php if ($s['split']): ?>
+                <tr><td colspan="2" class="muted">dont <?= $s['split'] ?> ticket<?= $s['split'] > 1 ? 's' : '' ?> partagé<?= $s['split'] > 1 ? 's' : '' ?> entre plusieurs payeurs</td></tr>
+                <?php endif; ?>
                 <tr class="sum"><td>Total des ventes</td><td class="r"><?= $eur($s['total']) ?></td></tr>
                 <tr><td>21 % B (bar)</td><td class="r"><?= $eur($s['vat_b']) ?></td></tr>
                 <tr><td>21 % G (gougouilles)</td><td class="r"><?= $eur($s['vat_g']) ?></td></tr>
@@ -167,7 +188,7 @@ td, th { vertical-align: top; }
                     <td><?= BarTicketModel::formatNumber((int) $t->number) ?></td>
                     <td><?= $fmt($t->paid_at ?? $t->cancelled_at ?? $t->opened_at) ?></td>
                     <td><?= esc($short($t->client_name)) ?></td>
-                    <td><?= $t->status === 'paid' ? $methods[$t->payment_method] : ($t->status === 'cancelled' ? 'Annulé' : 'Ouvert') ?></td>
+                    <td><?= $t->status === 'paid' ? $mode($t, $payments[(int) $t->id] ?? []) : ($t->status === 'cancelled' ? 'Annulé' : 'Ouvert') ?></td>
                     <td class="r"><?= $t->status === 'paid' ? $eur($t->total) : '—' ?></td>
                 </tr>
                 <?php endforeach; ?>

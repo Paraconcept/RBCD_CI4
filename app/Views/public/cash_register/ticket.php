@@ -1,10 +1,15 @@
 <?php
 use App\Models\BarServiceModel;
 use App\Models\BarTicketModel;
+use App\Models\BarTicketPaymentModel;
 
 $eur   = static fn ($n): string => number_format((float) $n, 2, ',', ' ') . ' €';
 $count = array_sum(array_map(static fn ($l) => (int) $l->quantity, $lines));
-$status = ['paid' => 'Payé en <b>' . ($ticket->payment_method === 'bancontact' ? 'Bancontact' : 'espèces') . '</b>', 'cancelled' => '<b>Ticket annulé</b>', 'open' => '<b>Non réglé</b>'][$ticket->status];
+$split   = $ticket->status === 'paid' && count($payments) > 1;
+$paidHow = $split
+    ? 'Payé en <b>' . count($payments) . ' parts</b>'
+    : 'Payé en <b>' . ($ticket->payment_method === 'bancontact' ? 'Bancontact' : 'espèces') . '</b>';
+$status = ['paid' => $paidHow, 'cancelled' => '<b>Ticket annulé</b>', 'open' => '<b>Non réglé</b>'][$ticket->status];
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -67,6 +72,9 @@ td { padding: .6mm 0; vertical-align: top; }
     <table>
         <tr><td style="font-size:12pt;font-weight:bold">TOTAL</td><td class="r total"><?= $eur($ticket->total) ?></td></tr>
         <tr><td><?= $count ?> article<?= $count > 1 ? 's' : '' ?></td><td class="r"><?= $status ?></td></tr>
+        <?php if ($split): foreach ($payments as $i => $p): ?>
+        <tr class="small"><td>Part <?= $i + 1 ?> · <?= BarTicketPaymentModel::METHODS[$p->method] ?></td><td class="r"><?= $eur($p->amount) ?></td></tr>
+        <?php endforeach; endif; ?>
     </table>
     <div class="rule"></div>
     <table class="small">

@@ -7,6 +7,7 @@ use App\Models\BarProductModel;
 use App\Models\BarServiceModel;
 use App\Models\BarTicketLineModel;
 use App\Models\BarTicketModel;
+use App\Models\BarTicketPaymentModel;
 use CodeIgniter\Database\BaseConnection;
 
 /**
@@ -21,6 +22,7 @@ class BarRegister
     private BarServiceModel $services;
     private BarTicketModel $tickets;
     private BarTicketLineModel $lines;
+    private BarTicketPaymentModel $payments;
     private BarClientModel $clients;
     private BarProductModel $products;
 
@@ -30,6 +32,7 @@ class BarRegister
         $this->services = new BarServiceModel();
         $this->tickets  = new BarTicketModel();
         $this->lines    = new BarTicketLineModel();
+        $this->payments = new BarTicketPaymentModel();
         $this->clients  = new BarClientModel();
         $this->products = new BarProductModel();
     }
@@ -88,22 +91,36 @@ class BarRegister
     public function summary(int $serviceId): array
     {
         $byStatus = $this->db->table('bar_tickets')
-            ->select('status, payment_method, COUNT(*) AS n, COALESCE(SUM(total), 0) AS amount, MIN(opened_at) AS first_at, MAX(COALESCE(paid_at, cancelled_at, opened_at)) AS last_at')
+            ->select('status, COUNT(*) AS n, MIN(opened_at) AS first_at, MAX(COALESCE(paid_at, cancelled_at, opened_at)) AS last_at')
             ->where('service_id', $serviceId)
-            ->groupBy(['status', 'payment_method'])
+            ->groupBy('status')
             ->get()->getResultObject();
 
         $s = ['open' => 0, 'paid' => 0, 'cancelled' => 0, 'cash' => 0.0, 'cash_count' => 0, 'bancontact' => 0.0, 'bancontact_count' => 0,
-              'first_at' => null, 'last_at' => null];
+              'split' => 0, 'first_at' => null, 'last_at' => null];
         foreach ($byStatus as $r) {
             $s[$r->status] += (int) $r->n;
-            if ($r->status === 'paid') {
-                $s[$r->payment_method] += (float) $r->amount;
-                $s[$r->payment_method . '_count'] += (int) $r->n;
-            }
             $s['first_at'] = $s['first_at'] === null ? $r->first_at : min($s['first_at'], $r->first_at);
             $s['last_at']  = max((string) $s['last_at'], (string) $r->last_at) ?: null;
         }
+
+        // Les *_count sont des paiements, pas des tickets : un ticket partagé compte une fois par part (comme les transactions SumUp)
+        $byMethod = $this->db->table('bar_ticket_payments p')
+            ->select('p.method, COUNT(*) AS n, SUM(p.amount) AS amount')
+            ->join('bar_tickets t', 't.id = p.ticket_id')
+            ->where('t.service_id', $serviceId)->where('t.status', 'paid')
+            ->groupBy('p.method')
+            ->get()->getResultObject();
+        foreach ($byMethod as $r) {
+            $s[$r->method]            = round((float) $r->amount, 2);
+            $s[$r->method . '_count'] = (int) $r->n;
+        }
+        $s['split'] = $this->db->table('bar_ticket_payments p')
+            ->select('p.ticket_id')
+            ->join('bar_tickets t', 't.id = p.ticket_id')
+            ->where('t.service_id', $serviceId)->where('t.status', 'paid')
+            ->groupBy('p.ticket_id')->having('COUNT(*) >', 1)
+            ->countAllResults();
         $s['total'] = round($s['cash'] + $s['bancontact'], 2);
 
         $vat = $this->db->table('bar_ticket_lines l')
@@ -309,22 +326,109 @@ class BarRegister
         return $this->tickets->withClient((int) $ticket->id);
     }
 
-    public function pay(int $ticketId, string $method): object
+    /**
+     * $parts : paiement partagé, [['method' => 'cash'|'bancontact', 'amount' => 15.0], ...] dont la somme fait le total du ticket.
+     * Sans parts, tout le ticket est payé avec $method.
+     */
+    public function pay(int $ticketId, string $method, ?array $parts = null): object
     {
         $this->openTicketOrFail($ticketId);
-        if (!in_array($method, ['cash', 'bancontact'], true)) {
-            throw new BarRegisterException('Choisissez le mode de paiement : espèces ou Bancontact.');
-        }
         if (!$this->lines->where('ticket_id', $ticketId)->countAllResults()) {
             throw new BarRegisterException('Le ticket est vide : ajoutez une consommation ou annulez-le.');
         }
 
         $this->db->transStart();
         $this->refreshTotal($ticketId);
-        $this->tickets->update($ticketId, ['status' => 'paid', 'payment_method' => $method, 'paid_at' => self::now(), 'updated_at' => self::now()]);
+        $ticket = $this->tickets->find($ticketId);
+        try {
+            $parts = $this->checkParts($parts ?: [['method' => $method, 'amount' => $ticket->total]], (float) $ticket->total);
+        } catch (BarRegisterException $e) {
+            $this->db->transRollback();
+            throw $e;
+        }
+        $this->tickets->update($ticketId, ['status' => 'paid', 'payment_method' => self::overallMethod($parts), 'paid_at' => self::now(), 'updated_at' => self::now()]);
+        $this->savePayments($ticketId, $parts);
         $this->db->transComplete();
 
         return $this->tickets->withClient($ticketId);
+    }
+
+    /**
+     * Correction par le comité d'un paiement mal encodé (mauvais bouton, ticket d'équipe payé de deux façons).
+     * Le contenu du ticket ne change pas ; si le service est clôturé, ses totaux figés sont recalculés.
+     */
+    public function correctPayment(int $ticketId, array $parts, ?int $memberId): object
+    {
+        $ticket = $this->tickets->find($ticketId);
+        if (!$ticket) {
+            throw new BarRegisterException('Ticket introuvable.');
+        }
+        if ($ticket->status !== 'paid') {
+            throw new BarRegisterException('Seul un ticket payé peut voir son paiement corrigé.');
+        }
+        $parts = $this->checkParts($parts, (float) $ticket->total);
+
+        $this->db->transStart();
+        $this->payments->where('ticket_id', $ticketId)->delete();
+        $this->savePayments($ticketId, $parts);
+        $this->tickets->update($ticketId, [
+            'payment_method'                 => self::overallMethod($parts),
+            'payment_corrected_at'           => self::now(),
+            'payment_corrected_by_member_id' => $memberId ?: null,
+            'updated_at'                     => self::now(),
+        ]);
+        $service = $this->services->find($ticket->service_id);
+        if ($service->status === 'closed') {
+            $s = $this->summary((int) $service->id);
+            $this->services->update($service->id, ['cash_total' => $s['cash'], 'bancontact_total' => $s['bancontact']]);
+        }
+        $this->db->transComplete();
+
+        return $this->tickets->withClient($ticketId);
+    }
+
+    /** Parts validées (modes connus, montants positifs au centime, somme = total du ticket), ou exception. */
+    private function checkParts(array $parts, float $total): array
+    {
+        if (count($parts) > 20) {
+            throw new BarRegisterException('20 parts au maximum.');
+        }
+        $clean = [];
+        $cents = 0;
+        foreach ($parts as $p) {
+            $m = is_array($p) ? ($p['method'] ?? null) : null;
+            $a = is_array($p) && is_numeric($p['amount'] ?? null) ? (int) round((float) $p['amount'] * 100) : 0;
+            if (!isset(BarTicketPaymentModel::METHODS[$m])) {
+                throw new BarRegisterException('Choisissez le mode de paiement de chaque part : espèces ou Bancontact.');
+            }
+            if ($a <= 0) {
+                throw new BarRegisterException('Chaque part doit avoir un montant.');
+            }
+            $clean[] = ['method' => $m, 'amount' => $a / 100];
+            $cents  += $a;
+        }
+        if (!$clean) {
+            throw new BarRegisterException('Choisissez le mode de paiement : espèces ou Bancontact.');
+        }
+        if ($cents !== (int) round($total * 100)) {
+            throw new BarRegisterException('Les parts font ' . number_format($cents / 100, 2, ',', ' ') . ' € au lieu de '
+                . number_format($total, 2, ',', ' ') . ' € : corrigez les montants.');
+        }
+        return $clean;
+    }
+
+    private function savePayments(int $ticketId, array $parts): void
+    {
+        foreach ($parts as $p) {
+            $this->payments->insert(['ticket_id' => $ticketId, 'method' => $p['method'], 'amount' => $p['amount']]);
+        }
+    }
+
+    // Deux parts payées du même mode restent « cash » ou « bancontact » : « mixed » ne dit que le mélange des deux
+    private static function overallMethod(array $parts): string
+    {
+        $methods = array_unique(array_column($parts, 'method'));
+        return count($methods) === 1 ? $methods[0] : 'mixed';
     }
 
     /** Annulation tracée ; l'opérateur est le barman du service. */

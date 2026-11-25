@@ -22,6 +22,12 @@
         return esc(name.slice(0, i)) + '<mark>' + esc(name.slice(i, i + q.length)) + '</mark>' + esc(name.slice(i + q.length));
     };
     const METHODS = { cash: 'espèces', bancontact: 'Bancontact' };
+    // Total par mode d'un ticket partagé : « 30,00 € en espèces + 15,00 € en Bancontact »
+    const describeParts = parts => ['cash', 'bancontact']
+        .map(m => [m, parts.filter(p => p.method === m).reduce((a, p) => a + p.amount, 0)])
+        .filter(([, a]) => a > 0).map(([m, a]) => eur(a) + ' en ' + METHODS[m]).join(' + ');
+    const isSplit = t => (t.payments || []).length > 1;
+    const paidHow = t => isSplit(t) ? 'en ' + t.payments.length + ' parts' : t.method === 'cash' ? 'en espèces' : 'par Bancontact';
     const PRINT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/><circle cx="17.5" cy="12" r=".6" fill="currentColor"/></svg>';
 
     const products = {};
@@ -548,25 +554,127 @@
         });
     }
 
+    // Ticket d'équipe : le total est réparti en parts égales (le centime restant sur les premières), chaque part a son mode ;
+    // un montant se corrige au pavé, la dernière part prend toujours le reste
+    function splitBox(t) {
+        const total = Math.round(t.total * 100);
+        let parts = [], edit = -1, typed = null;
+        const fmt = c => (c / 100).toFixed(2).replace('.', ',') + ' €';
+        const rest = () => total - parts.slice(0, -1).reduce((a, p) => a + p.c, 0);
+
+        return new Promise(resolve => {
+            const done = v => { $('splitModal').hidden = true; resolve(v); };
+
+            function chooseN() {
+                parts = []; edit = -1; typed = null;
+                $('sTitle').textContent = 'Partager le ticket n° ' + t.number;
+                $('sText').textContent = t.client + ' · ' + eur(t.total) + '. En combien de parts ?';
+                $('sN').hidden = false;
+                $('sBody').hidden = true;
+                $('sYes').hidden = true;
+                $('sMsg').textContent = '';
+                $('sN').innerHTML = [2, 3, 4, 5, 6].map(n =>
+                    `<button class="btn" type="button" data-n="${n}">${n}<small>${fmt(Math.floor(total / n))}${total % n ? ' env.' : ''} chacun</small></button>`).join('');
+                $('sNo').textContent = 'Retour';
+                $('sNo').onclick = () => done(null);
+            }
+
+            function start(n) {
+                const base = Math.floor(total / n), extra = total % n;
+                parts = Array.from({ length: n }, (_, i) => ({ c: base + (i < extra ? 1 : 0), method: null }));
+                $('sN').hidden = true;
+                $('sBody').hidden = false;
+                $('sYes').hidden = false;
+                $('sText').textContent = t.client + ' · ' + eur(t.total) + ' en ' + n + ' parts. Touche Espèces ou Bancontact pour chaque part.';
+                $('sNo').textContent = 'Changer le nombre de parts';
+                $('sNo').onclick = chooseN;
+                $('sPad').innerHTML = ['7', '8', '9', '4', '5', '6', '1', '2', '3', ',', '0', '⌫'].map(k =>
+                    `<button class="key${k === '⌫' ? ' fn' : ''}" type="button" data-k="${k}">${k}</button>`).join('') +
+                    '<div class="hint">Pour changer un montant, touche-le puis tape le nouveau montant. La dernière part prend le reste.</div>';
+                render();
+            }
+
+            function render() {
+                const last = parts.length - 1;
+                parts[last].c = rest();
+                $('sRows').innerHTML = parts.map((p, i) => {
+                    const cls = i === last ? ' rest' + (p.c <= 0 ? ' bad' : '') : i === edit ? ' edit' : '';
+                    const shown = i === edit && typed !== null ? (typed || '0') + ' €' : fmt(p.c);
+                    return `<div class="split-row"><div class="sl">Part ${i + 1}${i === last ? '<small>le reste</small>' : ''}</div>` +
+                        `<button class="btn amt${cls}" type="button" data-e="${i}">${shown}</button>` +
+                        `<button class="btn m" type="button" data-i="${i}" data-m="cash" aria-pressed="${p.method === 'cash'}">Espèces</button>` +
+                        `<button class="btn m" type="button" data-i="${i}" data-m="bancontact" aria-pressed="${p.method === 'bancontact'}">Bancontact</button></div>`;
+                }).join('');
+                const msg = $('sMsg');
+                const missing = parts.filter(p => !p.method).length;
+                const bad = parts.some(p => p.c <= 0);
+                msg.className = 'split-msg' + (bad ? ' bad' : missing ? '' : ' ok');
+                msg.textContent = bad ? 'Les montants dépassent le total du ticket (' + eur(t.total) + ') : corrige-les.'
+                    : missing ? missing + ' part' + (missing > 1 ? 's' : '') + ' sans mode de paiement.'
+                    : describeParts(parts.map(p => ({ method: p.method, amount: p.c / 100 })));
+                $('sYes').disabled = bad || missing > 0;
+                $('sPad').querySelectorAll('.key').forEach(k => { k.disabled = edit < 0; });
+            }
+
+            function typeKey(k) {
+                if (edit < 0) return;
+                let v = typed ?? '';
+                if (k === '⌫') v = v.slice(0, -1);
+                else if (k === ',') { if (!v.includes(',')) v = (v || '0') + ','; }
+                else {
+                    const dec = v.includes(',') ? v.split(',')[1].length : -1;
+                    if (dec < 2 && v.replace(',', '').length < 6) v = (v === '0' ? '' : v) + k;
+                }
+                typed = v;
+                parts[edit].c = Math.round(parseFloat(v.replace(',', '.') || '0') * 100);
+                render();
+            }
+
+            $('sN').onclick = e => { const b = e.target.closest('[data-n]'); if (b) start(+b.dataset.n); };
+            $('sRows').onclick = e => {
+                const m = e.target.closest('[data-m]');
+                if (m) { parts[+m.dataset.i].method = m.dataset.m; render(); return; }
+                const a = e.target.closest('[data-e]');
+                if (a && +a.dataset.e < parts.length - 1) { edit = +a.dataset.e === edit ? -1 : +a.dataset.e; typed = null; render(); }
+            };
+            $('sPad').onclick = e => { const k = e.target.closest('[data-k]'); if (k) typeKey(k.dataset.k); };
+            $('sYes').onclick = () => done(parts.map(p => ({ method: p.method, amount: p.c / 100 })));
+
+            chooseN();
+            $('splitModal').hidden = false;
+        });
+    }
+
     $('btnValidate').addEventListener('click', async () => {
         const t = currentTicket();
         if (!t) return;
         $('btnValidate').disabled = true;
         await queue;
-        const method = await payBox(t);
+        let method, parts = null;
+        // « Retour » dans la fenêtre de partage ramène au choix du mode de paiement
+        for (;;) {
+            method = await payBox(t);
+            if (method !== 'split') break;
+            parts = await splitBox(t);
+            if (parts) break;
+        }
         // Deuxième confirmation : un mauvais bouton (espèces / Bancontact) fausserait l'enveloppe
         const sure = method && await confirmBox('Êtes-vous sûr ?',
-            'Ticket n° ' + t.number + ' · ' + t.client + ' · ' + eur(t.total) + ' payé en ' + METHODS[method] + '.',
-            'Oui, payer en ' + METHODS[method], false, { safe: true, noLabel: 'Annuler' });
+            'Ticket n° ' + t.number + ' · ' + t.client + ' · ' + eur(t.total) + (parts
+                ? ' payé en ' + parts.length + ' parts : ' + describeParts(parts) + '.'
+                : ' payé en ' + METHODS[method] + '.'),
+            parts ? 'Oui, valider le paiement' : 'Oui, payer en ' + METHODS[method], false, { safe: true, noLabel: 'Annuler' });
         if (!sure) { renderTicket(); return; }
         try {
-            const d = await api('tickets/' + t.id + '/valider', { method });
+            const d = await api('tickets/' + t.id + '/valider', parts ? { method: 'mixed', parts } : { method });
             S.tickets = S.tickets.filter(x => x.id !== t.id);
             S.current = null;
             renderCounts();
             // Après un paiement, le barman sert en général un autre client déjà en cours
             setMode('list');
-            toast('Ticket n° ' + d.ticket.number + ' réglé : ' + eur(d.ticket.total) + ' en ' + METHODS[d.ticket.method] + '.');
+            toast('Ticket n° ' + d.ticket.number + ' réglé : ' + (isSplit(d.ticket)
+                ? describeParts(d.ticket.payments) + '.'
+                : eur(d.ticket.total) + ' en ' + METHODS[d.ticket.method] + '.'));
         } catch (e) { renderTicket(); }
     });
 
@@ -765,7 +873,7 @@
             const count = t.lines.reduce((s, l) => s + l.qty, 0);
             const items = t.lines.map(l => l.qty + ' × ' + l.name).join(', ');
             return `<div class="card paid">
-                <div class="card-top"><div style="min-width:0"><small class="label">Ticket n° ${t.number} · ouvert à ${t.openedAt}</small><strong>${esc(t.client)}</strong><span class="flag"><span class="paid-tag">Payé</span>${t.method === 'cash' ? 'en espèces' : 'par Bancontact'} à ${t.paidAt}</span></div>
+                <div class="card-top"><div style="min-width:0"><small class="label">Ticket n° ${t.number} · ouvert à ${t.openedAt}</small><strong>${esc(t.client)}</strong><span class="flag"><span class="paid-tag">Payé</span>${paidHow(t)} à ${t.paidAt}</span></div>
                 <div class="amt"><b>${eur(t.total)}</b><span>${count} article${count > 1 ? 's' : ''}</span></div></div>
                 <div class="paid-foot"><div class="items">${esc(items)}</div>
                 <button class="btn print" type="button" data-print="${t.id}" aria-label="Imprimer le ticket" title="Imprimer le ticket${C.ticketPrinter ? '' : ' (pas encore d’imprimante à tickets)'}"${C.ticketPrinter ? '' : ' disabled'}>${PRINT_ICON}</button></div></div>`;
@@ -801,7 +909,7 @@
                 const items = t.lines.map(l => l.qty + ' × ' + l.name).join(', ');
                 return `<tr class="${x ? 'x' : ''}"><td>${t.number}</td><td>${x ? t.cancelledAt : t.paidAt}</td><td class="cl">${esc(t.client)}</td>` +
                     `<td style="font-size:.82rem;color:var(--muted)">${esc(items) || '—'}</td>` +
-                    `<td>${x ? 'Annulé' + (t.reason ? ' · ' + esc(t.reason) : '') : cap(METHODS[t.method])}</td><td class="r">${x ? '—' : eur(t.total)}</td>` +
+                    `<td>${x ? 'Annulé' + (t.reason ? ' · ' + esc(t.reason) : '') : (isSplit(t) ? 'Partagé : ' + describeParts(t.payments) : cap(METHODS[t.method]))}</td><td class="r">${x ? '—' : eur(t.total)}</td>` +
                     `<td class="r">${x || !C.ticketPrinter ? '' : `<button class="btn" type="button" data-print="${t.id}">Imprimer</button>`}</td></tr>`;
             }).join('') + '</tbody></table>';
     }
@@ -818,9 +926,9 @@
         $('cCancelled').textContent = s.cancelled;
         $('cTotal').textContent = eur(s.total);
         $('cCash').textContent = eur(s.cash);
-        $('cCashN').textContent = s.cash_count + ' ticket' + (s.cash_count > 1 ? 's' : '') + ' · à glisser dans l’enveloppe';
+        $('cCashN').textContent = s.cash_count + ' paiement' + (s.cash_count > 1 ? 's' : '') + ' · à glisser dans l’enveloppe';
         $('cBc').textContent = eur(s.bancontact);
-        $('cBcN').textContent = s.bancontact_count + ' ticket' + (s.bancontact_count > 1 ? 's' : '') + ' · encaissé directement sur le terminal';
+        $('cBcN').textContent = s.bancontact_count + ' paiement' + (s.bancontact_count > 1 ? 's' : '') + ' · encaissé directement sur le terminal';
         $('cVat').textContent = 'B ' + eur(s.vat_b) + ' · G ' + eur(s.vat_g) + ' · D ' + eur(s.vat_d);
         $('cEnv').textContent = service.envelope;
         const d = new Date(service.date + 'T12:00:00');
@@ -1045,7 +1153,7 @@
     window.addEventListener('online', pollBar);
     // Rafraîchit la liste des tickets si un autre appareil a travaillé sur le même service
     setInterval(() => {
-        if (!pending && $('modal').hidden && $('payModal').hidden && $('clientModal').hidden && ['ticket', 'list'].includes(S.mode)) refresh(true).catch(() => {});
+        if (!pending && $('modal').hidden && $('payModal').hidden && $('splitModal').hidden && $('clientModal').hidden && ['ticket', 'list'].includes(S.mode)) refresh(true).catch(() => {});
     }, 20000);
     // Retour d'une impression : on rouvre le ticket qui était affiché
     const params = new URLSearchParams(location.search);

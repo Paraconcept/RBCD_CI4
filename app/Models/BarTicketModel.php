@@ -11,7 +11,7 @@ class BarTicketModel extends Model
     protected $returnType    = 'object';
     protected $allowedFields = [
         'number', 'service_id', 'client_id', 'status', 'payment_method', 'total',
-        'opened_at', 'paid_at', 'cancelled_at', 'cancelled_by_member_id', 'cancel_reason', 'updated_at',
+        'opened_at', 'paid_at', 'payment_corrected_at', 'payment_corrected_by_member_id', 'cancelled_at', 'cancelled_by_member_id', 'cancel_reason', 'updated_at',
     ];
 
     public static function formatNumber(int $number): string

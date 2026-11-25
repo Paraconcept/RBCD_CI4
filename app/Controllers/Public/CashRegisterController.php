@@ -11,6 +11,7 @@ use App\Models\BarProductModel;
 use App\Models\BarServiceModel;
 use App\Models\BarTicketLineModel;
 use App\Models\BarTicketModel;
+use App\Models\BarTicketPaymentModel;
 use App\Models\MemberKeyModel;
 use App\Models\ScheduleBarDutyModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -200,9 +201,13 @@ class CashRegisterController extends BaseController
             return $this->fail('Aucun service ouvert.');
         }
         $done  = $this->tickets->forService((int) $service->id, ['paid', 'cancelled']);
-        $lines = (new BarTicketLineModel())->forTickets(array_map(static fn ($t) => (int) $t->id, $done));
+        $ids      = array_map(static fn ($t) => (int) $t->id, $done);
+        $lines    = (new BarTicketLineModel())->forTickets($ids);
+        $payments = (new BarTicketPaymentModel())->forTickets($ids);
 
-        return $this->response->setJSON(['tickets' => array_reverse(array_map(fn ($t) => $this->ticketJson($t, $lines[(int) $t->id] ?? []), $done))]);
+        return $this->response->setJSON(['tickets' => array_reverse(array_map(
+            fn ($t) => $this->ticketJson($t, $lines[(int) $t->id] ?? [], $payments[(int) $t->id] ?? []), $done
+        ))]);
     }
 
     public function createTicket()
@@ -227,7 +232,10 @@ class CashRegisterController extends BaseController
 
     public function pay(int $ticketId)
     {
-        return $this->run(fn () => ['ticket' => $this->fullTicket($this->register->pay($ticketId, (string) $this->input('method')))]);
+        $parts = $this->input('parts');
+        return $this->run(fn () => ['ticket' => $this->fullTicket(
+            $this->register->pay($ticketId, (string) $this->input('method'), is_array($parts) ? $parts : null)
+        )]);
     }
 
     public function cancel(int $ticketId)
@@ -245,11 +253,14 @@ class CashRegisterController extends BaseController
             throw PageNotFoundException::forPageNotFound();
         }
 
+        $tickets = $this->tickets->forService($serviceId);
+
         return view('public/cash_register/recap', [
             'service' => $service,
             'summary' => $this->register->summary($serviceId),
             'sales'   => $this->register->salesByProduct($serviceId),
-            'tickets' => $this->tickets->forService($serviceId),
+            'tickets'  => $tickets,
+            'payments' => (new BarTicketPaymentModel())->forTickets(array_map(static fn ($t) => (int) $t->id, $tickets)),
         ]);
     }
 
@@ -263,7 +274,8 @@ class CashRegisterController extends BaseController
 
         return view('public/cash_register/ticket', [
             'ticket'  => $ticket,
-            'lines'   => (new BarTicketLineModel())->where('ticket_id', $ticketId)->orderBy('id')->findAll(),
+            'lines'    => (new BarTicketLineModel())->where('ticket_id', $ticketId)->orderBy('id')->findAll(),
+            'payments' => (new BarTicketPaymentModel())->where('ticket_id', $ticketId)->orderBy('id')->findAll(),
             'service' => $this->services->getWithNames((int) $ticket->service_id),
         ]);
     }
@@ -317,10 +329,11 @@ class CashRegisterController extends BaseController
 
     private function fullTicket(object $t): array
     {
-        return $this->ticketJson($t, (new BarTicketLineModel())->where('ticket_id', $t->id)->orderBy('id')->findAll());
+        return $this->ticketJson($t, (new BarTicketLineModel())->where('ticket_id', $t->id)->orderBy('id')->findAll(),
+            (new BarTicketPaymentModel())->where('ticket_id', $t->id)->orderBy('id')->findAll());
     }
 
-    private function ticketJson(object $t, array $lines): array
+    private function ticketJson(object $t, array $lines, array $payments = []): array
     {
         return [
             'id'          => (int) $t->id,
@@ -334,6 +347,7 @@ class CashRegisterController extends BaseController
             'paidAt'      => $t->paid_at ? substr((string) $t->paid_at, 11, 5) : null,
             'cancelledAt' => $t->cancelled_at ? substr((string) $t->cancelled_at, 11, 5) : null,
             'reason'      => $t->cancel_reason,
+            'payments'    => array_map(static fn ($p) => ['method' => $p->method, 'amount' => (float) $p->amount], $payments),
             'lines'       => array_map(static fn ($l) => [
                 'productId' => $l->product_id !== null ? (int) $l->product_id : null,
                 'name'      => $l->product_name,

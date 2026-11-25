@@ -23,6 +23,7 @@ $totals = ['cash' => 0.0, 'bc' => 0.0, 'paid' => 0];
     <p class="text-muted">
       Un service (après-midi ou soir) correspond à une enveloppe. Les espèces attendues sont à comparer au montant trouvé dans l'enveloppe
       (Trésorerie › Enveloppes de caisse). Le récapitulatif est le document glissé dans l'enveloppe.
+      <i class="fas fa-list text-primary"></i> affiche les tickets d'un service : un paiement mal encodé (mauvais bouton, ticket d'équipe payé en partie en espèces et en partie par Bancontact) s'y corrige.
       Un service d'essai (démonstration, test d'une tablette) s'efface avec <i class="fas fa-trash text-danger"></i> : seul le dernier service peut l'être, à répéter pour en effacer plusieurs.
     </p>
     <?php if (!$services): ?>
@@ -45,7 +46,7 @@ $totals = ['cash' => 0.0, 'bc' => 0.0, 'paid' => 0];
         <tr>
           <td data-order="<?= esc($s->service_date) ?>"><?= date('d/m/Y', strtotime($s->service_date)) ?></td>
           <td><?= BarServiceModel::PERIODS[$s->period] ?></td>
-          <td><b><?= esc($s->envelope_code) ?></b></td>
+          <td><a href="<?= base_url('admin/caisse/services/' . $s->id) ?>"><b><?= esc($s->envelope_code) ?></b></a></td>
           <td><?= esc(mb_strtoupper((string) $s->bartender_name, 'UTF-8')) ?></td>
           <td><?= $open ? '<span class="text-muted">—</span>' : esc(mb_strtoupper((string) ($s->closer_name ?: '—'), 'UTF-8')) ?></td>
           <td class="text-right text-nowrap"><?php foreach (['opening_float', 'closing_float'] as $i => $col): ?><?= $i ? ' / ' : '' ?><?php if ($s->$col === null): ?><span class="text-muted">—</span><?php else: $floatOk = abs((float) $s->$col - BarServiceModel::OPENING_FLOAT) < 0.005; ?><span class="<?= $floatOk ? '' : 'text-warning font-weight-bold' ?>" title="<?= $floatOk ? '' : 'Différent de ' . esc($eur(BarServiceModel::OPENING_FLOAT)) ?>"><?= $eur($s->$col) ?></span><?php endif; ?><?php endforeach; ?></td>
@@ -61,6 +62,7 @@ $totals = ['cash' => 0.0, 'bc' => 0.0, 'paid' => 0];
             <?php endif; ?>
           </td>
           <td class="text-right text-nowrap">
+            <a href="<?= base_url('admin/caisse/services/' . $s->id) ?>" class="btn btn-xs btn-primary" title="Tickets du service · corriger un paiement"><i class="fas fa-list"></i></a>
             <a href="<?= base_url('caisse/service/' . $s->id . '/recapitulatif') ?>" target="_blank" class="btn btn-xs btn-info" title="Récapitulatif imprimable"><i class="fas fa-print"></i></a>
             <?php if ($open): ?>
             <form method="post" action="<?= base_url('admin/caisse/services/' . $s->id . '/cloturer') ?>" class="d-inline"
