@@ -565,18 +565,30 @@
         return new Promise(resolve => {
             const done = v => { $('splitModal').hidden = true; resolve(v); };
 
-            function chooseN() {
+            // Étape 1 : nombre de parts au pavé (2 à 8), une seule case montre ce que paie chacun
+            function chooseN(preset) {
                 parts = []; edit = -1; typed = null;
+                let n = preset || 0;
                 $('sTitle').textContent = 'Partager le ticket n° ' + t.number;
-                $('sText').textContent = t.client + ' · ' + eur(t.total) + '. En combien de parts ?';
+                $('sText').textContent = t.client + ' · ' + eur(t.total) + '. En combien de parts ? Touche le nombre de personnes qui paient.';
                 $('sN').hidden = false;
                 $('sBody').hidden = true;
-                $('sYes').hidden = true;
                 $('sMsg').textContent = '';
-                $('sN').innerHTML = [2, 3, 4, 5, 6].map(n =>
-                    `<button class="btn" type="button" data-n="${n}">${n}<small>${fmt(Math.floor(total / n))}${total % n ? ' env.' : ''} chacun</small></button>`).join('');
+                $('sMsg').className = 'split-msg';
+                const draw = () => {
+                    const base = n ? Math.floor(total / n) : 0, extra = n ? total % n : 0;
+                    $('sN').innerHTML = `<div class="split-show${n ? '' : ' empty'}"><b>${n || '?'}</b><span>parts</span>` +
+                        `<em>${n ? (extra ? fmt(base + 1) + ' ou ' + fmt(base) : fmt(base)) + ' chacun' : 'Touche un chiffre de 2 à 8'}</em></div>` +
+                        '<div class="split-npad">' + [7, 8, 9, 4, 5, 6, 1, 2, 3].map(k =>
+                            `<button class="key${k === n ? ' on' : ''}" type="button" data-n="${k}"${k < 2 || k > 8 ? ' disabled' : ''}>${k}</button>`).join('') + '</div>';
+                    $('sYes').disabled = !n;
+                };
+                $('sN').onclick = e => { const b = e.target.closest('[data-n]'); if (b && !b.disabled) { n = +b.dataset.n; draw(); } };
+                $('sYes').textContent = 'Continuer';
+                $('sYes').onclick = () => { if (n) start(n); };
                 $('sNo').textContent = 'Retour';
                 $('sNo').onclick = () => done(null);
+                draw();
             }
 
             function start(n) {
@@ -584,10 +596,12 @@
                 parts = Array.from({ length: n }, (_, i) => ({ c: base + (i < extra ? 1 : 0), method: null }));
                 $('sN').hidden = true;
                 $('sBody').hidden = false;
-                $('sYes').hidden = false;
                 $('sText').textContent = t.client + ' · ' + eur(t.total) + ' en ' + n + ' parts. Touche Espèces ou Bancontact pour chaque part.';
                 $('sNo').textContent = 'Changer le nombre de parts';
-                $('sNo').onclick = chooseN;
+                $('sNo').onclick = () => chooseN(n);
+                $('sYes').textContent = 'Valider le paiement';
+                $('sYes').onclick = () => done(parts.map(p => ({ method: p.method, amount: p.c / 100 })));
+                $('sRows').classList.toggle('many', n > 5);
                 $('sPad').innerHTML = ['7', '8', '9', '4', '5', '6', '1', '2', '3', ',', '0', '⌫'].map(k =>
                     `<button class="key${k === '⌫' ? ' fn' : ''}" type="button" data-k="${k}">${k}</button>`).join('') +
                     '<div class="hint">Pour changer un montant, touche-le puis tape le nouveau montant. La dernière part prend le reste.</div>';
@@ -630,7 +644,6 @@
                 render();
             }
 
-            $('sN').onclick = e => { const b = e.target.closest('[data-n]'); if (b) start(+b.dataset.n); };
             $('sRows').onclick = e => {
                 const m = e.target.closest('[data-m]');
                 if (m) { parts[+m.dataset.i].method = m.dataset.m; render(); return; }
@@ -638,8 +651,6 @@
                 if (a && +a.dataset.e < parts.length - 1) { edit = +a.dataset.e === edit ? -1 : +a.dataset.e; typed = null; render(); }
             };
             $('sPad').onclick = e => { const k = e.target.closest('[data-k]'); if (k) typeKey(k.dataset.k); };
-            $('sYes').onclick = () => done(parts.map(p => ({ method: p.method, amount: p.c / 100 })));
-
             chooseN();
             $('splitModal').hidden = false;
         });

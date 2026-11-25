@@ -186,6 +186,27 @@ const W = 1194, H = 834;
     await tap('#mYes');
     await wait(800);
 
+    // Ticket d'équipe payé en 3 parts (2 en espèces, 1 par Bancontact)
+    const team = (await api('tickets', { name: 'EQUIPE DISON A' })).ticket;
+    for (const [name, q] of [['Jupiler', 10], ['Carlsberg', 6], ['Eau plate', 5]]) for (let i = 0; i < q; i++) await api(`tickets/${team.id}/ligne`, { product_id: product(name), delta: 1 });
+    await p.goto(`${BASE}/caisse?ticket=${team.id}`, { waitUntil: 'networkidle0' });
+    await tap('#unlock');
+    await wait(500);
+    await tap('#btnValidate');
+    await shot('p14a_partager', ['#payModal [data-m="split"]']);
+    await tap('#payModal [data-m="split"]');
+    await tap('#sN [data-n="3"]');
+    await shot('p14b_nombre_parts', ['#sN [data-n="3"]', '#sYes']);
+    await tap('#sYes');
+    await tap('#sRows [data-i="0"][data-m="cash"]');
+    await tap('#sRows [data-i="1"][data-m="cash"]');
+    await tap('#sRows [data-i="2"][data-m="bancontact"]');
+    await shot('p14c_modes', ['#sRows', '#sYes']);
+    await tap('#sYes');
+    await wait(400);
+    await tap('#mYes');
+    await wait(800);
+
     // Annuler un ticket (sans le faire)
     await p.evaluate(() => [...document.querySelectorAll('#cards .card')].find(c => c.textContent.includes('LAMBERT SOPHIE')).querySelector('[data-open]').click());
     await wait(500);
@@ -232,6 +253,38 @@ const W = 1194, H = 834;
     }, NAME_PAIRS);
     await (await p.$('.sheet')).screenshot({ path: `${out}/p23_recapitulatif.jpg`, type: 'jpeg', quality: 88 });
     console.log('p23_recapitulatif');
+
+    // Guide du comité : tickets du service et correction d'un paiement (fenêtre ouverte sur le ticket d'équipe)
+    const sid = require('crypto').randomBytes(16).toString('hex');
+    const sessFile = path.resolve(__dirname, '../../writable/session/ci_session' + sid);
+    fs.writeFileSync(sessFile, `__ci_last_regenerate|i:${Math.floor(Date.now() / 1000)};admin_logged_in|b:1;member_id|i:1;`);
+    try {
+      await p.setCookie({ name: 'ci_session', value: sid, url: BASE });
+      await p.setViewport({ width: 1440, height: 820, deviceScaleFactor: 1.5 });
+      await p.goto(`${BASE}/admin/caisse/services/${serviceId}`, { waitUntil: 'networkidle0' });
+      await p.evaluate((pairs) => {
+        document.querySelectorAll('#debug-icon,#debug-bar').forEach(e => { e.style.display = 'none'; });
+        const c = document.querySelector('.content-wrapper');
+        // Texte seul (pas innerHTML) : la fenêtre de correction garde ses gestionnaires d'événements
+        const w = document.createTreeWalker(c, NodeFilter.SHOW_TEXT);
+        while (w.nextNode()) w.currentNode.nodeValue = pairs.reduce((t, [real, f]) => t.split(real).join(f), w.currentNode.nodeValue).replace(/\b\d\d:(\d\d)\b/g, (m, mm) => '15:' + mm);
+      }, NAME_PAIRS);
+      await p.evaluate(id => {
+        // Fenêtre plus bas que d'habitude : l'en-tête de l'administration est découpé de la capture
+        const st = document.createElement('style'); st.textContent = '#payFix .modal-dialog{margin-top:130px}'; document.head.appendChild(st);
+        document.querySelector(`#t${id} [data-target="#payFix"]`).click();
+      }, team.id);
+      await wait(800);
+      await p.evaluate(() => window.scrollTo(0, 0));
+      await wait(200);
+      // Écran visible, puis découpe de la barre latérale (250 px) et de l'en-tête (57 px), comme shots.cjs
+      const file = path.resolve(__dirname, 'img/a04_corriger_paiement.png');
+      await p.screenshot({ path: file });
+      require('child_process').execSync(`sips -c ${Math.round((820 - 57) * 1.5)} ${Math.round((1440 - 250) * 1.5)} --cropOffset ${Math.round(57 * 1.5)} ${Math.round(250 * 1.5)} "${file}" >/dev/null`);
+      console.log('a04_corriger_paiement');
+    } finally {
+      fs.unlinkSync(sessFile);
+    }
 
     fs.writeFileSync(`${out}/targets.js`, '// Généré par pas-a-pas-shots.cjs : zones à toucher, en % de l\'écran\nwindow.TARGETS = ' + JSON.stringify(TARGETS, null, 1) + ';\n');
   } finally {
