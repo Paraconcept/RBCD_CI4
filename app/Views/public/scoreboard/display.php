@@ -100,17 +100,26 @@ $config = [
                 <small>en <?= M::setPointsLabel($match) ?> points</small>
             </div>
             <?php endif; ?>
+            <?php ob_start(); ?>
+            <div class="sbd-box sbd-run" id="sbdRunBox">
+                <span><?= $skittles ? 'Coup' : 'Série' ?></span>
+                <b id="sbdRun">0</b>
+                <div class="sbd-hint" id="sbdHint"></div>
+            </div>
+            <?php $runBox = ob_get_clean(); ?>
+            <?php if ($skittles): // pas de compteur de reprises : le coup en cours remonte, les quilles en dessous ?>
+            <?= $runBox ?>
+            <div class="sbd-notice" id="sbdNotice"></div>
+            <div class="sbd-skittles-art"><?= view('public/scoreboard/_skittles', ['variant' => 'color', 'uid' => 'skd']) ?></div>
+            <?php else: ?>
             <div class="sbd-box sbd-innings">
                 <span>Reprises</span>
                 <b id="sbdInnings">0</b>
                 <small id="sbdInningsLimit"></small>
             </div>
             <div class="sbd-notice" id="sbdNotice"></div>
-            <div class="sbd-box sbd-run" id="sbdRunBox">
-                <span><?= $skittles ? 'Coup' : 'Série' ?></span>
-                <b id="sbdRun">0</b>
-                <div class="sbd-hint" id="sbdHint"></div>
-            </div>
+            <?= $runBox ?>
+            <?php endif; ?>
         </section>
     <?php $center = ob_get_clean(); ?>
     <main class="sbd-main">

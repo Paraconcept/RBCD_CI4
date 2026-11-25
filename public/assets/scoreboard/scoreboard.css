@@ -513,3 +513,9 @@ button.sb-tile { width: 100%; font: inherit; }
 .sb-choice.soon { opacity: .6; }
 .sb-choice.soon .sb-choice-key { background: #475569; }
 .sb-modal-keys { color: var(--sb-muted); font-size: .9rem; text-align: center; margin-top: .5rem; }
+.sb-choice > .sb-choice-svg { flex: 0 0 2rem; height: 2rem; color: var(--sb-red-light); }
+.sb-title-svg { height: 1em; width: 1em; vertical-align: -.12em; }
+/* 5 quilles : illustration sous la case « Coup », à la place de l'ancienne case du coup */
+.sbd-skittles-art { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 1vh 0; }
+.sbd-skittles-art svg { width: 100%; height: 100%; max-height: 32vh; filter: drop-shadow(0 1vh 1.2vh rgba(0,0,0,.5)); }
+@media (orientation: portrait) { .sbd-skittles-art { display: none; } }

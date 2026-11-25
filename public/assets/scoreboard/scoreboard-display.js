@@ -548,8 +548,11 @@
             $('sbdSetNo').textContent = 'Set ' + w.set;
             $('sbdSetsScore').innerHTML = '<i style="color:var(--sb-p1)">' + w.won[1] + '</i> – <i style="color:var(--sb-p2)">' + w.won[2] + '</i>';
         }
-        $('sbdInnings').textContent = inningsShown();
-        $('sbdInningsLimit').textContent = C.inningsLimit ? 'sur ' + C.inningsLimit : '';
+        // 5 quilles : pas de case « Reprises » à l'écran
+        if ($('sbdInnings')) {
+            $('sbdInnings').textContent = inningsShown();
+            $('sbdInningsLimit').textContent = C.inningsLimit ? 'sur ' + C.inningsLimit : '';
+        }
 
         const runBox = $('sbdRunBox');
         runBox.style.setProperty('--run-color', colorOf(cur));

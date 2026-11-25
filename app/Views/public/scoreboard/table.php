@@ -140,7 +140,7 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
 $friendlyChoices = [
     ['amicale',                  'handshake',    'Partie amicale à deux',              'Libre, cadre, bande ou 3 bandes', false],
     ['amicale-a-3',              'users',        'Partie amicale à trois',             'Trois joueurs, à tour de rôle', false],
-    ['amicale-5-quilles',        'bowling-ball', 'Partie amicale aux 5 quilles',       'Coup par coup, fautes à l\'adversaire', false],
+    ['amicale-5-quilles',        'skittles', 'Partie amicale aux 5 quilles',       'Coup par coup, fautes à l\'adversaire', false],
     ['amicale-salade',           'bowl-food',    'Partie amicale à la salade',         'En construction', true],
     ['amicale-salade-quick-pick','shuffle',      'Partie amicale à la salade Quick Pick', 'En construction', true],
 ];
@@ -154,7 +154,11 @@ $friendlyChoices = [
         <?php foreach ($friendlyChoices as $i => [$slug, $icon, $label, $sub, $soon]): ?>
         <a href="<?= base_url('marquoir/billard/' . $table->id . '/' . $slug) ?>" class="sb-choice<?= $soon ? ' soon' : '' ?>">
             <span class="sb-choice-key"><?= $i + 1 ?></span>
+            <?php if ($icon === 'skittles'): ?>
+            <?= view('public/scoreboard/_skittles', ['variant' => 'icon', 'uid' => 'skc', 'class' => 'sb-choice-svg']) ?>
+            <?php else: ?>
             <i class="fas fa-<?= $icon ?>"></i>
+            <?php endif; ?>
             <span>
                 <span class="sb-choice-name"><?= esc($label) ?></span>
                 <small><?php if ($soon): ?><span class="badge text-bg-warning me-1"><i class="fas fa-person-digging me-1"></i>En construction</span><?php else: ?><?= esc($sub) ?><?php endif; ?></small>

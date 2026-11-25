@@ -11,7 +11,7 @@ $icon     = $skittles ? 'bowling-ball' : ($trio ? 'users' : 'handshake');
 $path     = $skittles ? '/amicale-5-quilles' : ($trio ? '/amicale-a-3' : '/amicale');
 $defaultPoints = $skittles ? M::SKITTLES_DEFAULT_POINTS : '';
 ?>
-<h1 class="sb-title mb-4"><i class="fas fa-<?= $icon ?> me-2 sb-accent"></i><?= esc($title) ?></h1>
+<h1 class="sb-title mb-4"><?php if ($skittles): ?><?= view('public/scoreboard/_skittles', ['variant' => 'icon', 'uid' => 'skt', 'class' => 'sb-title-svg me-2 sb-accent']) ?><?php else: ?><i class="fas fa-<?= $icon ?> me-2 sb-accent"></i><?php endif; ?><?= esc($title) ?></h1>
 <form method="post" action="<?= base_url('marquoir/billard/' . $table->id . $path) ?>" autocomplete="off">
     <input type="hidden" name="players" value="<?= $players ?>">
     <div class="row g-4">
