@@ -265,7 +265,6 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .split-row .sl small { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); }
 .split-row .amt { height: 3.4rem; font: 800 1.35rem var(--f-body); font-variant-numeric: tabular-nums; justify-content: flex-end; padding: 0 .8rem; }
 .split-row .amt.edit { border-color: var(--accent); box-shadow: 0 0 0 .19rem rgba(28,68,124,.25); }
-.split-row .amt.rest { background: var(--side); color: var(--muted); cursor: default; }
 .split-row .amt.bad { color: var(--danger); border-color: #e0c4c7; }
 .split-row .m { height: 3.4rem; font-size: 1rem; }
 .split-rows.many .amt, .split-rows.many .m { height: 2.75rem; }
@@ -277,6 +276,9 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .split-msg { min-height: 1.4rem; font-weight: 700; color: var(--muted) !important; }
 .split-msg.bad { color: var(--danger) !important; }
 .split-msg.ok { color: #15803d !important; }
+.split-msg.warn { color: #b45309 !important; }
+.split-row .amt.fixed { border-color: var(--badge); }
+.split-pad .equal { grid-column: 1 / -1; height: 2.9rem; }
 .modal-box .choices { display: grid; gap: .55rem; }
 .modal-box .choices .btn { height: auto; min-height: 3.4rem; justify-content: space-between; text-align: left; white-space: normal; padding: .5rem .9rem; font-size: 1.05rem; }
 .modal-box .choices .btn small { font-size: .8rem; font-weight: 600; color: var(--muted); }

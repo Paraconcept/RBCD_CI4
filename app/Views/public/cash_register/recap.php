@@ -145,7 +145,11 @@ td, th { vertical-align: top; }
                 <?php if ($s['split']): ?>
                 <tr><td colspan="2" class="muted">dont <?= $s['split'] ?> ticket<?= $s['split'] > 1 ? 's' : '' ?> partagé<?= $s['split'] > 1 ? 's' : '' ?> entre plusieurs payeurs</td></tr>
                 <?php endif; ?>
-                <tr class="sum"><td>Total des ventes</td><td class="r"><?= $eur($s['total']) ?></td></tr>
+                <tr class="sum"><td>Total des ventes</td><td class="r"><?= $eur($s['sales']) ?></td></tr>
+                <?php if ($s['surplus'] > 0): ?>
+                <tr><td>Arrondis / pourboires <span class="muted">· payé en plus du ticket</span></td><td class="r"><?= $eur($s['surplus']) ?></td></tr>
+                <tr class="sum"><td>Total encaissé</td><td class="r"><?= $eur($s['total']) ?></td></tr>
+                <?php endif; ?>
                 <tr><td>21 % B (bar)</td><td class="r"><?= $eur($s['vat_b']) ?></td></tr>
                 <tr><td>21 % G (gougouilles)</td><td class="r"><?= $eur($s['vat_g']) ?></td></tr>
                 <tr><td>21 % D (divers)</td><td class="r"><?= $eur($s['vat_d']) ?></td></tr>
@@ -176,7 +180,7 @@ td, th { vertical-align: top; }
                 <tr><td><?= esc($r->product_name) ?> <span class="muted">· <?= $eur($r->unit_price) ?></span></td><td class="r"><?= (int) $r->quantity ?></td><td class="r"><?= $eur($r->amount) ?></td></tr>
                 <?php endforeach; ?>
                 <?php endforeach; ?>
-                <tr class="sum"><td colspan="2">Total</td><td class="r"><?= $eur($s['total']) ?></td></tr>
+                <tr class="sum"><td colspan="2">Total</td><td class="r"><?= $eur($s['sales']) ?></td></tr>
             </table>
         </td>
         <td style="width:55%">

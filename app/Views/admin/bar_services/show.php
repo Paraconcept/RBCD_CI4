@@ -21,7 +21,7 @@ $s   = $summary;
     <div class="row mb-3">
       <div class="col-md-3"><div class="small text-muted">Espèces attendues</div><div class="h4 mb-0 font-weight-bold"><?= $eur($s['cash']) ?></div><div class="small text-muted"><?= $s['cash_count'] ?> paiement(s)</div></div>
       <div class="col-md-3"><div class="small text-muted">Bancontact SumUp</div><div class="h4 mb-0"><?= $eur($s['bancontact']) ?></div><div class="small text-muted"><?= $s['bancontact_count'] ?> paiement(s)</div></div>
-      <div class="col-md-3"><div class="small text-muted">Total</div><div class="h4 mb-0"><?= $eur($s['total']) ?></div><div class="small text-muted"><?= $s['paid'] ?> ticket(s) payé(s)<?= $s['split'] ? ', dont ' . $s['split'] . ' partagé(s)' : '' ?></div></div>
+      <div class="col-md-3"><div class="small text-muted">Total encaissé</div><div class="h4 mb-0"><?= $eur($s['total']) ?></div><?= $s['surplus'] > 0 ? '<div class="small text-warning">dont ' . $eur($s['surplus']) . ' d\'arrondis / pourboires</div>' : '' ?><div class="small text-muted"><?= $s['paid'] ?> ticket(s) payé(s)<?= $s['split'] ? ', dont ' . $s['split'] . ' partagé(s)' : '' ?></div></div>
       <div class="col-md-3"><div class="small text-muted">État</div>
         <?= $service->status === 'open' ? '<span class="badge badge-warning">Ouvert</span>' : '<span class="badge badge-success">Clôturé</span>' ?>
         <div class="small text-muted">Barman : <?= esc(mb_strtoupper((string) $service->bartender_name, 'UTF-8')) ?></div>
@@ -49,6 +49,9 @@ $s   = $summary;
           <td>
             <?php if ($paid): ?>
               <?= count($parts) > 1 ? '<span class="badge badge-info mr-1">' . count($parts) . ' parts</span>' : '' ?><?= esc(BarTicketPaymentModel::describe($parts)) ?>
+              <?php $over = array_sum(array_map(static fn ($p) => (float) $p->amount, $parts)) - (float) $t->total; if ($over > 0.004): ?>
+              <span class="badge badge-warning">+<?= $eur($over) ?> d'arrondi</span>
+              <?php endif; ?>
               <?php if ($t->payment_corrected_at): ?>
               <div class="small text-warning"><i class="fas fa-history mr-1"></i>Corrigé le <?= date('d/m/Y à H:i', strtotime($t->payment_corrected_at)) ?><?= isset($correctors[(int) $t->payment_corrected_by_member_id]) ? ' par ' . esc($correctors[(int) $t->payment_corrected_by_member_id]) : '' ?></div>
               <?php endif; ?>
@@ -134,12 +137,19 @@ $s   = $summary;
     return Array.from({ length: n }, (_, i) => ({ method: methods[i] || 'cash', c: base + (i < extra ? 1 : 0) }));
   }
 
+  // Payé en plus du ticket (arrondi en faveur du club) : permis jusqu'à MAX, comme à la caisse
+  const MAX = <?= \App\Libraries\BarRegister::MAX_SURPLUS * 100 ?>;
   function check() {
-    const parts = current(), sum = parts.reduce((a, p) => a + p.c, 0);
-    const ok = sum === total && parts.every(p => p.c > 0);
+    const parts = current(), sum = parts.reduce((a, p) => a + p.c, 0), diff = sum - total;
+    const zero = parts.some(p => p.c <= 0);
+    const ok = !zero && diff >= 0 && diff <= MAX;
     const msg = document.getElementById('pfMsg');
-    msg.className = 'small font-weight-bold ' + (ok ? 'text-success' : 'text-danger');
-    msg.textContent = ok ? 'Les parts font bien le total du ticket.' : 'Les parts font ' + fmt(sum) + ' € au lieu de ' + fmt(total) + ' €.';
+    msg.className = 'small font-weight-bold ' + (!ok ? 'text-danger' : diff ? 'text-warning' : 'text-success');
+    msg.textContent = zero ? 'Chaque part doit avoir un montant.'
+      : diff < 0 ? 'Il manque ' + fmt(-diff) + ' € : les parts font ' + fmt(sum) + ' € pour un ticket de ' + fmt(total) + ' €.'
+      : diff > MAX ? 'Plus de ' + fmt(MAX) + ' € de trop : vérifiez les montants.'
+      : diff ? fmt(diff) + ' € de plus que le ticket : arrondi en faveur du club.'
+      : 'Les parts font bien le total du ticket.';
     document.getElementById('pfSave').disabled = !ok;
   }
 

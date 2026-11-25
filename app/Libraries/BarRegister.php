@@ -18,6 +18,9 @@ use CodeIgniter\Database\BaseConnection;
  */
 class BarRegister
 {
+    /** Surplus maximal d'un ticket payé en plusieurs parts : au-delà, c'est une faute de frappe (120 € au lieu de 12 €). */
+    public const MAX_SURPLUS = 10;
+
     private BaseConnection $db;
     private BarServiceModel $services;
     private BarTicketModel $tickets;
@@ -121,7 +124,12 @@ class BarRegister
             ->where('t.service_id', $serviceId)->where('t.status', 'paid')
             ->groupBy('p.ticket_id')->having('COUNT(*) >', 1)
             ->countAllResults();
+        // total = encaissé (espèces + Bancontact) ; sales = ventes (tickets) ; surplus = arrondis laissés au club par les parts
         $s['total'] = round($s['cash'] + $s['bancontact'], 2);
+        $sales = $this->db->table('bar_tickets')->select('COALESCE(SUM(total), 0) AS t')
+            ->where('service_id', $serviceId)->where('status', 'paid')->get()->getRowObject();
+        $s['sales']   = round((float) $sales->t, 2);
+        $s['surplus'] = round($s['total'] - $s['sales'], 2);
 
         $vat = $this->db->table('bar_ticket_lines l')
             ->select('l.vat_group, SUM(l.unit_price * l.quantity) AS amount')
@@ -387,7 +395,10 @@ class BarRegister
         return $this->tickets->withClient($ticketId);
     }
 
-    /** Parts validées (modes connus, montants positifs au centime, somme = total du ticket), ou exception. */
+    /**
+     * Parts validées (modes connus, montants positifs au centime), ou exception. La somme peut dépasser le total du ticket
+     * (trois joueurs qui paient 12 € chacun un ticket de 35 €) : le surplus est un arrondi en faveur du club, plafonné.
+     */
     private function checkParts(array $parts, float $total): array
     {
         if (count($parts) > 20) {
@@ -410,9 +421,13 @@ class BarRegister
         if (!$clean) {
             throw new BarRegisterException('Choisissez le mode de paiement : espèces ou Bancontact.');
         }
-        if ($cents !== (int) round($total * 100)) {
-            throw new BarRegisterException('Les parts font ' . number_format($cents / 100, 2, ',', ' ') . ' € au lieu de '
-                . number_format($total, 2, ',', ' ') . ' € : corrigez les montants.');
+        $due = (int) round($total * 100);
+        if ($cents < $due) {
+            throw new BarRegisterException('Il manque ' . number_format(($due - $cents) / 100, 2, ',', ' ') . ' € : les parts font '
+                . number_format($cents / 100, 2, ',', ' ') . ' € pour un ticket de ' . number_format($total, 2, ',', ' ') . ' €.');
+        }
+        if ($cents - $due > self::MAX_SURPLUS * 100) {
+            throw new BarRegisterException('Les parts dépassent le ticket de plus de ' . self::MAX_SURPLUS . ' € : vérifiez les montants.');
         }
         return $clean;
     }

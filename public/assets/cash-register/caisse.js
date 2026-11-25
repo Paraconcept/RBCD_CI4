@@ -27,6 +27,11 @@
         .map(m => [m, parts.filter(p => p.method === m).reduce((a, p) => a + p.amount, 0)])
         .filter(([, a]) => a > 0).map(([m, a]) => eur(a) + ' en ' + METHODS[m]).join(' + ');
     const isSplit = t => (t.payments || []).length > 1;
+    // Parts payées au-delà du ticket (arrondi laissé au club)
+    const surplusText = (parts, total) => {
+        const over = Math.round(parts.reduce((a, p) => a + p.amount, 0) * 100) - Math.round(total * 100);
+        return over > 0 ? ', dont ' + eur(over / 100) + ' d’arrondi en faveur du club' : '';
+    };
     const paidHow = t => isSplit(t) ? 'en ' + t.payments.length + ' parts' : t.method === 'cash' ? 'en espèces' : 'par Bancontact';
     const PRINT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/><circle cx="17.5" cy="12" r=".6" fill="currentColor"/></svg>';
 
@@ -558,9 +563,17 @@
     // un montant se corrige au pavé, la dernière part prend toujours le reste
     function splitBox(t) {
         const total = Math.round(t.total * 100);
+        const max = (C.maxSurplus || 10) * 100;
         let parts = [], edit = -1, typed = null;
         const fmt = c => (c / 100).toFixed(2).replace('.', ',') + ' €';
-        const rest = () => total - parts.slice(0, -1).reduce((a, p) => a + p.c, 0);
+        // Les parts tapées à la main ne bougent plus ; les autres se partagent ce qui reste (centime en trop sur les premières)
+        const spread = () => {
+            const free = parts.filter(p => !p.fixed);
+            if (!free.length) return;
+            const rest = Math.max(0, total - parts.filter(p => p.fixed).reduce((a, p) => a + p.c, 0));
+            const base = Math.floor(rest / free.length), extra = rest % free.length;
+            free.forEach((p, i) => { p.c = base + (i < extra ? 1 : 0); });
+        };
 
         return new Promise(resolve => {
             const done = v => { $('splitModal').hidden = true; resolve(v); };
@@ -592,8 +605,9 @@
             }
 
             function start(n) {
-                const base = Math.floor(total / n), extra = total % n;
-                parts = Array.from({ length: n }, (_, i) => ({ c: base + (i < extra ? 1 : 0), method: null }));
+                parts = Array.from({ length: n }, () => ({ c: 0, method: null, fixed: false }));
+                edit = -1; typed = null;
+                spread();
                 $('sN').hidden = true;
                 $('sBody').hidden = false;
                 $('sText').textContent = t.client + ' · ' + eur(t.total) + ' en ' + n + ' parts. Touche Espèces ou Bancontact pour chaque part.';
@@ -604,29 +618,32 @@
                 $('sRows').classList.toggle('many', n > 5);
                 $('sPad').innerHTML = ['7', '8', '9', '4', '5', '6', '1', '2', '3', ',', '0', '⌫'].map(k =>
                     `<button class="key${k === '⌫' ? ' fn' : ''}" type="button" data-k="${k}">${k}</button>`).join('') +
-                    '<div class="hint">Pour changer un montant, touche-le puis tape le nouveau montant. La dernière part prend le reste.</div>';
+                    '<div class="hint">Pour changer un montant, touche-le puis tape le nouveau montant. Les autres parts se partagent le reste.</div>' +
+                    '<button class="btn equal" type="button" id="sEqual">Parts égales</button>';
+                $('sEqual').onclick = () => { parts.forEach(p => { p.fixed = false; }); edit = -1; typed = null; spread(); render(); };
                 render();
             }
 
             function render() {
-                const last = parts.length - 1;
-                parts[last].c = rest();
                 $('sRows').innerHTML = parts.map((p, i) => {
-                    const cls = i === last ? ' rest' + (p.c <= 0 ? ' bad' : '') : i === edit ? ' edit' : '';
+                    const cls = (i === edit ? ' edit' : '') + (p.fixed ? ' fixed' : '') + (p.c <= 0 ? ' bad' : '');
                     const shown = i === edit && typed !== null ? (typed || '0') + ' €' : fmt(p.c);
-                    return `<div class="split-row"><div class="sl">Part ${i + 1}${i === last ? '<small>le reste</small>' : ''}</div>` +
+                    return `<div class="split-row"><div class="sl">Part ${i + 1}${p.fixed ? '<small>modifiée</small>' : ''}</div>` +
                         `<button class="btn amt${cls}" type="button" data-e="${i}">${shown}</button>` +
                         `<button class="btn m" type="button" data-i="${i}" data-m="cash" aria-pressed="${p.method === 'cash'}">Espèces</button>` +
                         `<button class="btn m" type="button" data-i="${i}" data-m="bancontact" aria-pressed="${p.method === 'bancontact'}">Bancontact</button></div>`;
                 }).join('');
-                const msg = $('sMsg');
+                const sum = parts.reduce((a, p) => a + p.c, 0), diff = sum - total;
                 const missing = parts.filter(p => !p.method).length;
-                const bad = parts.some(p => p.c <= 0);
-                msg.className = 'split-msg' + (bad ? ' bad' : missing ? '' : ' ok');
-                msg.textContent = bad ? 'Les montants dépassent le total du ticket (' + eur(t.total) + ') : corrige-les.'
-                    : missing ? missing + ' part' + (missing > 1 ? 's' : '') + ' sans mode de paiement.'
-                    : describeParts(parts.map(p => ({ method: p.method, amount: p.c / 100 })));
-                $('sYes').disabled = bad || missing > 0;
+                const bad = parts.some(p => p.c <= 0) ? 'Une part est à 0 € : corrige les montants.'
+                    : diff < 0 ? 'Il manque ' + fmt(-diff) + ' : les parts font ' + fmt(sum) + ' pour un ticket de ' + fmt(total) + '.'
+                    : diff > max ? 'Plus de ' + fmt(max) + ' de trop : vérifie les montants.' : '';
+                const msg = $('sMsg');
+                msg.className = 'split-msg' + (bad ? ' bad' : missing ? '' : diff ? ' warn' : ' ok');
+                msg.textContent = bad || (missing ? missing + ' part' + (missing > 1 ? 's' : '') + ' sans mode de paiement.'
+                    : describeParts(parts.map(p => ({ method: p.method, amount: p.c / 100 })))) +
+                    (!bad && diff > 0 ? ' · ' + fmt(diff) + ' de plus que le ticket : arrondi en faveur du club.' : '');
+                $('sYes').disabled = !!bad || missing > 0;
                 $('sPad').querySelectorAll('.key').forEach(k => { k.disabled = edit < 0; });
             }
 
@@ -641,6 +658,8 @@
                 }
                 typed = v;
                 parts[edit].c = Math.round(parseFloat(v.replace(',', '.') || '0') * 100);
+                parts[edit].fixed = true;
+                spread();
                 render();
             }
 
@@ -648,7 +667,7 @@
                 const m = e.target.closest('[data-m]');
                 if (m) { parts[+m.dataset.i].method = m.dataset.m; render(); return; }
                 const a = e.target.closest('[data-e]');
-                if (a && +a.dataset.e < parts.length - 1) { edit = +a.dataset.e === edit ? -1 : +a.dataset.e; typed = null; render(); }
+                if (a) { edit = +a.dataset.e === edit ? -1 : +a.dataset.e; typed = null; render(); }
             };
             $('sPad').onclick = e => { const k = e.target.closest('[data-k]'); if (k) typeKey(k.dataset.k); };
             chooseN();
@@ -672,7 +691,7 @@
         // Deuxième confirmation : un mauvais bouton (espèces / Bancontact) fausserait l'enveloppe
         const sure = method && await confirmBox('Êtes-vous sûr ?',
             'Ticket n° ' + t.number + ' · ' + t.client + ' · ' + eur(t.total) + (parts
-                ? ' payé en ' + parts.length + ' parts : ' + describeParts(parts) + '.'
+                ? ' payé en ' + parts.length + ' parts : ' + describeParts(parts) + surplusText(parts, t.total) + '.'
                 : ' payé en ' + METHODS[method] + '.'),
             parts ? 'Oui, valider le paiement' : 'Oui, payer en ' + METHODS[method], false, { safe: true, noLabel: 'Annuler' });
         if (!sure) { renderTicket(); return; }
@@ -684,7 +703,7 @@
             // Après un paiement, le barman sert en général un autre client déjà en cours
             setMode('list');
             toast('Ticket n° ' + d.ticket.number + ' réglé : ' + (isSplit(d.ticket)
-                ? describeParts(d.ticket.payments) + '.'
+                ? describeParts(d.ticket.payments) + surplusText(d.ticket.payments, d.ticket.total) + '.'
                 : eur(d.ticket.total) + ' en ' + METHODS[d.ticket.method] + '.'));
         } catch (e) { renderTicket(); }
     });
@@ -935,7 +954,9 @@
     function fillClose(service, s) {
         $('cPaid').textContent = s.paid;
         $('cCancelled').textContent = s.cancelled;
-        $('cTotal').textContent = eur(s.total);
+        $('cTotal').textContent = eur(s.sales);
+        $('cSurRow').hidden = !(s.surplus > 0);
+        $('cSur').textContent = eur(s.surplus);
         $('cCash').textContent = eur(s.cash);
         $('cCashN').textContent = s.cash_count + ' paiement' + (s.cash_count > 1 ? 's' : '') + ' · à glisser dans l’enveloppe';
         $('cBc').textContent = eur(s.bancontact);

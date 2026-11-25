@@ -75,6 +75,10 @@ td { padding: .6mm 0; vertical-align: top; }
         <?php if ($split): foreach ($payments as $i => $p): ?>
         <tr class="small"><td>Part <?= $i + 1 ?> · <?= BarTicketPaymentModel::METHODS[$p->method] ?></td><td class="r"><?= $eur($p->amount) ?></td></tr>
         <?php endforeach; endif; ?>
+        <?php $paidSum = array_sum(array_map(static fn ($p) => (float) $p->amount, $payments));
+        if ($ticket->status === 'paid' && $paidSum - (float) $ticket->total > 0.004): ?>
+        <tr class="small"><td>Arrondi en faveur du club</td><td class="r"><?= $eur($paidSum - (float) $ticket->total) ?></td></tr>
+        <?php endif; ?>
     </table>
     <div class="rule"></div>
     <table class="small">

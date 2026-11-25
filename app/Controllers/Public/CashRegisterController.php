@@ -60,6 +60,7 @@ class CashRegisterController extends BaseController
                 'catalog'     => $catalog,
                 'slots'       => BarProductModel::SLOTS,
                 'lateAfter'   => self::LATE_AFTER_MINUTES,
+                'maxSurplus'  => BarRegister::MAX_SURPLUS,
                 'ticketPrinter' => self::TICKET_PRINTER,
                 'eveningFrom' => BarServiceModel::EVENING_FROM,
                 'openingFloat' => BarServiceModel::OPENING_FLOAT,
