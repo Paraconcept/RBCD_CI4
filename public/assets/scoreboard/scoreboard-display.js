@@ -9,6 +9,8 @@
  *   paused  : écran « Pause » affiché (aussi chez les spectateurs)
  *   rev     : version, incrémentée à chaque modification
  * À 3 joueurs (amicale), les séries tournent 1 → 2 → 3 ; pas de sets ni de chrono.
+ * 5 quilles (amicale) : chaque « série » est un coup, la main passe à chaque coup ; un coup négatif
+ * est une faute dont la valeur va à l'adversaire. Pas de série en cours (run reste à 0).
  * Il est gardé dans le navigateur (survit à un rechargement / une coupure Internet)
  * et poussé au serveur dès que possible ; la version la plus récente l'emporte.
  */
@@ -23,6 +25,10 @@
     const dist = (p) => C.distances[p];
     // Jeu par sets : nombre de sets gagnants (null en partie classique) ; dist() = points d'un set
     const SETS = C.sets;
+    const SK = !!C.skittles;
+    const other = (p) => (p === 1 ? 2 : 1);
+    // Un coup valable rapporte au plus 16 (4 quilles latérales + rouge + carambolage), une faute 18 (+ 2 de pénalité)
+    const SK_MAX = 16, SK_MAX_FOUL = 18;
     const STORE_KEY = 'sb_match_' + C.id + '_' + C.startedAt;
 
     const $ = (id) => document.getElementById(id);
@@ -66,6 +72,7 @@
     /*
      * Découpe les séries en reprises (set, n° de reprise dans le set, joueur).
      * Un set s'arrête dès qu'un joueur atteint ses points ; le dernier set reste le set courant.
+     * to / gain : joueur crédité et points crédités (5 quilles : faute → adversaire, ramené aux points restants).
      * Doit rester identique à ScoreboardMatchModel::walkInnings().
      */
     function walk() {
@@ -74,11 +81,16 @@
         st.innings.forEach(function (v) {
             if (over) return;
             const p = seriesPlayer(setStarter(set), inSet);
-            pts[p] += v; inn[p]++; inSet++;
-            rows.push({ set: set, inning: inn[p], player: p, pts: v });
-            if (SETS && pts[p] >= dist(p)) {
-                won[p]++;
-                if (won[p] >= SETS) { over = true; return; }
+            let to = p, gain = v;
+            if (SK) {
+                to = v < 0 ? other(p) : p;
+                gain = Math.min(Math.abs(v), Math.max(0, dist(to) - pts[to]));
+            }
+            pts[to] += gain; inn[p]++; inSet++;
+            rows.push({ set: set, inning: inn[p], player: p, pts: v, to: to, gain: gain });
+            if (SETS && pts[to] >= dist(to)) {
+                won[to]++;
+                if (won[to] >= SETS) { over = true; return; }
                 set++; inSet = 0; pts = zeros(); inn = zeros();
             }
         });
@@ -94,7 +106,9 @@
     function totals(p, set) {
         let pts = 0, inn = 0, hr = 0;
         walk().rows.forEach(function (r) {
-            if (r.player === p && (set == null || r.set === set)) { pts += r.pts; inn++; hr = Math.max(hr, r.pts); }
+            if (set != null && r.set !== set) return;
+            if (r.to === p) pts += r.gain;
+            if (r.player === p) { inn++; hr = Math.max(hr, r.pts); }
         });
         return { pts: pts, inn: inn, hr: hr };
     }
@@ -132,6 +146,7 @@
 
     function addPoint() {
         if (st.finished) return;
+        if (SK) { endInning(true); return; }
         if (buffer) { buffer = ''; }
         if (remaining() <= 0) return;
         st.run++;
@@ -143,15 +158,31 @@
         commit();
     }
 
-    function endInning() {
+    // foul (5 quilles) : la saisie est une faute, ses points vont à l'adversaire ; « + » seul = faute de 2
+    function endInning(foul) {
         if (st.finished) return;
-        if (buffer !== '') {
+        let shot = null;
+        if (SK) {
+            shot = parseInt(buffer || '0', 10) || 0;
+            if (foul && shot === 0) shot = 2;
+            buffer = '';
+            if (shot > (foul ? SK_MAX_FOUL : SK_MAX)) {
+                flash(foul ? 'Une faute vaut au plus ' + SK_MAX_FOUL + ' points' : 'Un coup rapporte au plus ' + SK_MAX + ' points');
+                render();
+                return;
+            }
+            if (foul) shot = -shot;
+        } else if (buffer !== '') {
             st.run = Math.min(parseInt(buffer, 10) || 0, dist(current()) - setTotals(current()).pts);
             buffer = '';
         }
         const setBefore = walk().set;
-        st.innings.push(st.run);
+        st.innings.push(SK ? shot : st.run);
         st.run = 0;
+        if (SK && foul) {
+            const last = walk().rows.slice(-1)[0];
+            flash('Faute de ' + C.players[last.player].last + '\n' + last.gain + ' pt' + (last.gain > 1 ? 's' : '') + ' pour ' + C.players[last.to].last);
+        }
         clock.expired = false;
         checkEnd();
         const newSet = SETS && !st.finished && walk().set !== setBefore;
@@ -192,6 +223,13 @@
         if (buffer) {
             buffer = buffer.slice(0, -1);
             render();
+            return;
+        }
+        if (SK) {
+            // 5 quilles : pas de série à rouvrir, le dernier coup est simplement retiré
+            st.finished = false;
+            st.innings.pop();
+            commit();
             return;
         }
         if (st.finished) {
@@ -247,7 +285,7 @@
     }
 
     function digit(d) {
-        if (st.finished || buffer.length >= 4) return;
+        if (st.finished || buffer.length >= (SK ? 2 : 4)) return;
         buffer = (buffer === '0' ? '' : buffer) + d;
         render();
     }
@@ -423,6 +461,8 @@
     const colorOf = (p) => 'var(--sb-p' + ballOf(p) + ')';
 
     const fmtAvg = (pts, inn) => (inn > 0 ? pts / inn : 0).toFixed(3).replace('.', ',');
+    // 5 quilles : moyenne générale = points réalisés / points de l'adversaire
+    const avgText = (pts, inn, oppPts) => (!SK ? fmtAvg(pts, inn) : oppPts > 0 ? fmtAvg(pts, oppPts) : '–');
     const name = (p) => C.players[p].last + ' ' + C.players[p].first;
 
     // Nom de famille trop long pour la case : police réduite juste assez pour l'afficher en entier
@@ -443,7 +483,8 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNames);
 
     // « Pour 5 … Pour 1 » (3 bandes : à partir de 3) quand il ne manque plus que quelques points au joueur à la table
-    const POUR = C.discipline === '3bandes' ? [3, 2, 1] : [5, 4, 3, 2, 1];
+    // Pas aux 5 quilles : les points tombent par paquets
+    const POUR = SK ? [] : C.discipline === '3bandes' ? [3, 2, 1] : [5, 4, 3, 2, 1];
     let pourKey = null, pourTimer = null;
 
     function announcePour(p, left) {
@@ -484,7 +525,7 @@
                 score.classList.remove('bump'); void score.offsetWidth; score.classList.add('bump');
             }
             lastScores[p] = ts.pts;
-            el.querySelector('[data-avg]').textContent = fmtAvg(t.pts, t.inn);
+            el.querySelector('[data-avg]').textContent = avgText(t.pts, t.inn, SK ? totals(other(p)).pts : 0);
             el.querySelector('[data-hr]').textContent = t.hr;
             if (N === 2) renderLast5(p, el.querySelector('[data-last5]'), w);
             if (SETS) {
@@ -513,8 +554,8 @@
         const runBox = $('sbdRunBox');
         runBox.style.setProperty('--run-color', colorOf(cur));
         runBox.classList.toggle('typing', buffer !== '');
-        $('sbdRun').textContent = buffer !== '' ? buffer : st.run;
-        $('sbdHint').textContent = buffer !== '' ? 'Entrée pour valider la série' : '';
+        $('sbdRun').textContent = buffer !== '' ? buffer : (SK ? '–' : st.run);
+        $('sbdHint').textContent = buffer === '' ? '' : SK ? 'Entrée : points · + : faute' : 'Entrée pour valider la série';
 
         let notice = flashMsg;
         if (clock.expired && !st.finished) notice = 'Temps écoulé\nEntrée pour passer la main';
@@ -554,9 +595,10 @@
         const sum = { 1: { pts: 0, inn: 0, hr: 0 }, 2: { pts: 0, inn: 0, hr: 0 } };
         rows.forEach(function (r) {
             const t = sum[r.player];
-            t.pts += r.pts; t.inn++; t.hr = Math.max(t.hr, r.pts);
+            sum[r.to].pts += r.gain; t.inn++; t.hr = Math.max(t.hr, r.pts);
         });
-        sum.winner = rows.length && sum[rows[rows.length - 1].player].pts >= dist(rows[rows.length - 1].player) ? rows[rows.length - 1].player : 0;
+        const last = rows[rows.length - 1];
+        sum.winner = last && sum[last.to].pts >= dist(last.to) ? last.to : 0;
         return sum;
     }
 
@@ -574,7 +616,7 @@
         $('sbdSetBreakWinner').textContent = sum.winner ? 'Set gagné par ' + name(sum.winner) : '';
         $('sbdSetBreakWinner').style.color = sum.winner === 2 ? 'var(--sb-p2)' : 'var(--sb-p1)';
         $('sbdSetBreakScore').innerHTML = $('sbdSetsScore').innerHTML;
-        fillRows($('sbdSetBreakRows'), [1, 2].map((p) => [name(p), sum[p].pts, sum[p].inn, fmtAvg(sum[p].pts, sum[p].inn), sum[p].hr]));
+        fillRows($('sbdSetBreakRows'), [1, 2].map((p) => [name(p), sum[p].pts, sum[p].inn, avgText(sum[p].pts, sum[p].inn, sum[other(p)].pts), sum[p].hr]));
         $('sbdSetBreakNext').textContent = C.players[next].last + ' commence le set ' + (setBreak + 1)
             + ' (bille ' + (next === 1 ? 'blanche' : 'jaune') + ')';
         $('sbdSetBreakKey').textContent = 'commencer le set ' + (setBreak + 1);
@@ -602,8 +644,10 @@
         let html = '';
         for (let k = 0; k < 5; k++) {
             const r = last[k];
+            // 5 quilles : une faute (points donnés à l'adversaire) en rouge, précédée de « − »
+            const cls = [k === 0 ? 'latest' : '', r && r.pts < 0 ? 'foul' : ''].filter(Boolean).join(' ');
             html += r
-                ? '<div' + (k === 0 ? ' class="latest"' : '') + '><small>' + r.n + '</small><b>' + r.pts + '</b></div>'
+                ? '<div' + (cls ? ' class="' + cls + '"' : '') + '><small>' + r.n + '</small><b>' + (r.pts < 0 ? '−' + -r.pts : r.pts) + '</b></div>'
                 : '<div class="empty"><small></small><b>–</b></div>';
         }
         box.innerHTML = html;
@@ -689,7 +733,7 @@
         rows.innerHTML = '';
         [[1, t1], [2, t2]].forEach(function (pair) {
             const tr = document.createElement('tr');
-            const cells = [name(pair[0]), pair[1].pts, pair[1].inn, fmtAvg(pair[1].pts, pair[1].inn), pair[1].hr];
+            const cells = [name(pair[0]), pair[1].pts, pair[1].inn, avgText(pair[1].pts, pair[1].inn, (pair[0] === 1 ? t2 : t1).pts), pair[1].hr];
             if (res.proportional) cells.push(res.prop[pair[0]].toFixed(3).replace('.', ','));
             cells.forEach(function (v) {
                 const td = document.createElement('td');
@@ -714,13 +758,13 @@
         for (let n = 1; n <= w.set; n++) sums.push(setSummary(w, n));
         let head = '<th></th>';
         sums.forEach(function (x, i) { head += '<th>Set ' + (i + 1) + '</th>'; });
-        $('sbdResultHead').innerHTML = head + '<th>Sets</th><th>Moyenne</th><th>MS</th>';
+        $('sbdResultHead').innerHTML = head + '<th>Sets</th><th>Moyenne</th><th>' + (SK ? 'MC' : 'MS') + '</th>';
 
         fillRows($('sbdResultRows'), [1, 2].map(function (p) {
             const t = totals(p);
             const cells = [name(p)];
             sums.forEach(function (x) { cells.push(x[p].pts + ' (' + x[p].inn + ')'); });
-            return cells.concat([w.won[p], fmtAvg(t.pts, t.inn), t.hr]);
+            return cells.concat([w.won[p], avgText(t.pts, t.inn, totals(other(p)).pts), t.hr]);
         }));
     }
 
@@ -829,7 +873,14 @@
 
         function applyFix() {
             const arr = st.innings.slice();
-            arr[fix.idx] = parseInt(fix.edit || '0', 10);
+            let v = parseInt(fix.edit || '0', 10) || 0;
+            if (SK && fix.edit.charAt(0) === '-') {
+                v = -(Math.abs(v) || 2);
+                if (-v > SK_MAX_FOUL) { fix.msg = 'Une faute vaut au plus ' + SK_MAX_FOUL + ' points.'; fix.err = true; return; }
+            } else if (SK && v > SK_MAX) {
+                fix.msg = 'Un coup rapporte au plus ' + SK_MAX + ' points.'; fix.err = true; return;
+            }
+            arr[fix.idx] = v;
             const res = replay(arr);
             if (!res) {
                 fix.msg = 'Impossible : avec cette série, un joueur dépasserait ses points ou la partie se serait arrêtée plus tôt.';
@@ -851,7 +902,12 @@
                 if (a === 'enter') applyFix();
                 else if (a === 'menu') fix.edit = null;
                 else if (a === 'clear') fix.edit = '';
-                else if (a.charAt(0) === 'd' && fix.edit.length < 3) fix.edit = (fix.edit === '0' ? '' : fix.edit) + a.slice(1);
+                // 5 quilles : « + » fait de la saisie une faute (ou l'annule)
+                else if (a === 'plus' && SK) fix.edit = fix.edit.charAt(0) === '-' ? fix.edit.slice(1) : '-' + fix.edit;
+                else if (a.charAt(0) === 'd' && fix.edit.replace('-', '').length < (SK ? 2 : 3)) {
+                    const neg = fix.edit.charAt(0) === '-', digits = fix.edit.replace('-', '');
+                    fix.edit = (neg ? '-' : '') + (digits === '0' ? '' : digits) + a.slice(1);
+                }
             } else if (a === 'menu') {
                 closeFix();
                 return;
@@ -880,8 +936,10 @@
                     const i = row.cells[p];
                     if (i === undefined) { html += '<td class="empty">–</td>'; return; }
                     const sel = i === fix.idx;
-                    const val = sel && fix.edit !== null ? (fix.edit === '' ? '_' : fix.edit) : st.innings[i];
-                    html += '<td class="' + (sel ? 'sel' + (fix.edit !== null ? ' editing' : '') : '') + '">' + val + '</td>';
+                    let val = sel && fix.edit !== null ? (fix.edit.replace('-', '') === '' ? fix.edit + '_' : fix.edit) : String(st.innings[i]);
+                    const foul = val.charAt(0) === '-';
+                    if (foul) val = '−' + val.slice(1) + ' F';
+                    html += '<td class="' + (sel ? 'sel' + (fix.edit !== null ? ' editing' : '') : '') + (foul ? ' foul' : '') + '">' + val + '</td>';
                 });
                 html += '</tr>';
             });
@@ -892,7 +950,7 @@
             msg.textContent = fix.msg;
             msg.classList.toggle('err', fix.err);
             $('sbdFixHelp').innerHTML = fix.edit !== null
-                ? '<kbd>0-9</kbd> nouvelle série &nbsp;·&nbsp; <kbd>Entrée</kbd> valider &nbsp;·&nbsp; <kbd>/</kbd> effacer &nbsp;·&nbsp; <kbd>⌫</kbd> annuler'
+                ? (SK ? '<kbd>0-9</kbd> points du coup &nbsp;·&nbsp; <kbd>+</kbd> faute oui / non' : '<kbd>0-9</kbd> nouvelle série') + ' &nbsp;·&nbsp; <kbd>Entrée</kbd> valider &nbsp;·&nbsp; <kbd>/</kbd> effacer &nbsp;·&nbsp; <kbd>⌫</kbd> annuler'
                 : '<kbd>8</kbd> <kbd>2</kbd> reprise &nbsp;·&nbsp; <kbd>4</kbd> <kbd>6</kbd> joueur &nbsp;·&nbsp; <kbd>Entrée</kbd> corriger &nbsp;·&nbsp; <kbd>⌫</kbd> fermer';
         }
 
@@ -916,7 +974,8 @@
                 else if (a === 'enter') { const b = menuItems()[menuIndex]; if (b) b.click(); }
                 return;
             }
-            if (e.repeat && a !== 'plus' && a !== 'minus') return;
+            // 5 quilles : une touche maintenue ne doit pas enchaîner fautes ou annulations
+            if (e.repeat && (SK || (a !== 'plus' && a !== 'minus'))) return;
             enterFullscreen();
 
             if (a === 'pause') { togglePause(); return; }
@@ -945,7 +1004,7 @@
             switch (a) {
                 case 'plus':  addPoint(); break;
                 case 'minus': minus(); break;
-                case 'enter': endInning(); break;
+                case 'enter': endInning(false); break;
                 case 'clock': toggleClock(); break;
                 case 'clear': clearBuffer(); break;
                 case 'menu':  openMenu(); break;

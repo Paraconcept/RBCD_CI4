@@ -102,6 +102,10 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->post('billard/(:num)/amicale',        'Public\ScoreboardController::friendlyStore/$1');
     $routes->get ('billard/(:num)/amicale-a-3',    'Public\ScoreboardController::friendlyTrio/$1');
     $routes->post('billard/(:num)/amicale-a-3',    'Public\ScoreboardController::friendlyStore/$1');
+    $routes->get ('billard/(:num)/amicale-5-quilles', 'Public\ScoreboardController::friendlySkittles/$1');
+    $routes->post('billard/(:num)/amicale-5-quilles', 'Public\ScoreboardController::friendlyStore/$1');
+    $routes->get ('billard/(:num)/amicale-salade',    'Public\ScoreboardController::friendlySalad/$1');
+    $routes->get ('billard/(:num)/amicale-salade-quick-pick', 'Public\ScoreboardController::friendlySaladQuickPick/$1');
     $routes->get ('billard/(:num)/demarrer/(:num)', 'Public\ScoreboardController::start/$1/$2');
     $routes->post('billard/(:num)/demarrer/(:num)', 'Public\ScoreboardController::startPost/$1/$2');
     $routes->get ('match/(:num)',                  'Public\ScoreboardController::display/$1');

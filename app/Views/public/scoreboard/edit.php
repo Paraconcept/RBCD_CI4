@@ -72,7 +72,9 @@ $val  = static fn (string $f, $default = '') => old($f, $match->$f ?? $default);
         <div class="col-12">
             <div class="sb-card">
                 <?php if ($sets): ?>
-                <p class="text-secondary mb-0"><?= esc(M::distanceLabel($match)) ?> · reprises inégales, sans limite de reprises.</p>
+                <p class="text-secondary mb-0"><?= esc(M::distanceLabel($match)) ?> · <?= M::isSkittles($match) ? 'coup par coup' : 'reprises inégales, sans limite de reprises' ?>.</p>
+                <?php elseif (M::isSkittles($match)): ?>
+                <p class="text-secondary mb-0">Coup par coup : le premier joueur qui atteint ses points gagne.</p>
                 <?php else: ?>
                 <div class="form-check form-switch fs-5">
                     <input class="form-check-input" type="checkbox" role="switch" name="innings_limit_enabled" id="innings_limit_enabled" value="1" <?= old('innings_limit_enabled', $match->innings_limit ? '1' : '') ? 'checked' : '' ?>>

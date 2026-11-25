@@ -4,9 +4,15 @@
 <span class="sb-topbar-title"><?= esc($table->name) ?></span>
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<?php $trio = $players === 3; ?>
-<h1 class="sb-title mb-4"><i class="fas fa-<?= $trio ? 'users' : 'handshake' ?> me-2 sb-accent"></i><?= $trio ? 'Partie amicale à 3' : 'Partie amicale' ?></h1>
-<form method="post" action="<?= base_url('marquoir/billard/' . $table->id . ($trio ? '/amicale-a-3' : '/amicale')) ?>" autocomplete="off">
+<?php
+$trio     = $players === 3;
+$skittles = !empty($skittles);
+$icon     = $skittles ? 'bowling-ball' : ($trio ? 'users' : 'handshake');
+$path     = $skittles ? '/amicale-5-quilles' : ($trio ? '/amicale-a-3' : '/amicale');
+$defaultPoints = $skittles ? M::SKITTLES_DEFAULT_POINTS : '';
+?>
+<h1 class="sb-title mb-4"><i class="fas fa-<?= $icon ?> me-2 sb-accent"></i><?= esc($title) ?></h1>
+<form method="post" action="<?= base_url('marquoir/billard/' . $table->id . $path) ?>" autocomplete="off">
     <input type="hidden" name="players" value="<?= $players ?>">
     <div class="row g-4">
         <?php for ($n = 1; $n <= $players; $n++): $p = 'p' . $n; ?>
@@ -28,8 +34,8 @@
                     </div>
                     <div class="col-4" data-sb-distance>
                         <label class="form-label"><span data-sb-distance-label>Points</span> <span class="text-danger">*</span></label>
-                        <input type="number" name="<?= $p ?>_distance" min="1" max="9999" required class="form-control form-control-lg" value="<?= esc(old($p . '_distance')) ?>"
-                               data-sb-set-default="<?= (int) $defaults['set_points'] ?>">
+                        <input type="number" name="<?= $p ?>_distance" min="1" max="9999" required class="form-control form-control-lg" value="<?= esc(old($p . '_distance', $defaultPoints)) ?>"
+                               data-sb-set-default="<?= $skittles ? M::SKITTLES_DEFAULT_POINTS : (int) $defaults['set_points'] ?>">
                     </div>
                 </div>
             </div>
@@ -38,6 +44,11 @@
 
         <div class="col-12">
             <div class="sb-card">
+                <?php if ($skittles): ?>
+                <input type="hidden" name="discipline" id="discipline" value="<?= M::SKITTLES ?>">
+                <input type="hidden" name="format" value="<?= esc($table->format ?? 'GB') ?>">
+                <p class="text-secondary mb-0"><i class="fas fa-circle-info me-2"></i>Coup par coup : la main passe après chaque coup. Le premier joueur qui atteint ses points gagne ; le dernier coup est ramené aux points à réaliser.</p>
+                <?php else: ?>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4">
                         <label class="form-label" for="discipline">Discipline</label>
@@ -56,6 +67,7 @@
                         </select>
                     </div>
                 </div>
+                <?php endif; ?>
                 <?php if (!$trio): ?>
                 <div class="row g-3 mt-1" data-sb-sets-block>
                     <div class="col-md-4">
@@ -63,7 +75,7 @@
                             <input class="form-check-input" type="checkbox" role="switch" name="sets_enabled" id="sets_enabled" value="1" <?= old('sets_enabled') ? 'checked' : '' ?>>
                             <label class="form-check-label" for="sets_enabled">Par sets</label>
                         </div>
-                        <small class="text-secondary">Toujours à reprises inégales. Le joueur qui commence le 1<sup>er</sup> set garde la bille blanche ; les joueurs commencent les sets à tour de rôle.</small>
+                        <small class="text-secondary"><?= $skittles ? '' : 'Toujours à reprises inégales. ' ?>Le joueur qui commence le 1<sup>er</sup> set garde la bille blanche ; les joueurs commencent les sets à tour de rôle.</small>
                     </div>
                     <div class="col-md-4" data-sb-show-when="sets_enabled">
                         <label class="form-label" for="sets_to_win">Sets gagnants</label>
@@ -74,6 +86,7 @@
                     </div>
                 </div>
                 <?php endif; ?>
+                <?php if (!$skittles): ?>
                 <hr class="my-4">
                 <div class="row g-3">
                     <div class="col-md-4">
@@ -117,6 +130,7 @@
                     </div>
                     <?php endif; ?>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

@@ -128,19 +128,44 @@ class ScoreboardController extends BaseController
         return $table && $table->is_active ? $table : null;
     }
 
-    public function friendly(int $tableId, int $players = 2): string
+    public function friendly(int $tableId, int $players = 2, bool $skittles = false): string
     {
         return view('public/scoreboard/friendly', [
-            'title'    => $players === 3 ? 'Partie amicale à 3' : 'Partie amicale',
+            'title'    => $skittles ? 'Partie amicale aux 5 quilles' : ($players === 3 ? 'Partie amicale à 3' : 'Partie amicale'),
             'table'    => $this->findTable($tableId),
             'defaults' => $this->defaults(),
             'players'  => $players === 3 ? 3 : 2,
+            'skittles' => $skittles,
         ]);
     }
 
     public function friendlyTrio(int $tableId): string
     {
         return $this->friendly($tableId, 3);
+    }
+
+    public function friendlySkittles(int $tableId): string
+    {
+        return $this->friendly($tableId, 2, true);
+    }
+
+    public function friendlySalad(int $tableId): string
+    {
+        return $this->comingSoon($tableId, 'Partie amicale à la salade', 'fa-bowl-food');
+    }
+
+    public function friendlySaladQuickPick(int $tableId): string
+    {
+        return $this->comingSoon($tableId, 'Partie amicale à la salade Quick Pick', 'fa-shuffle');
+    }
+
+    private function comingSoon(int $tableId, string $title, string $icon): string
+    {
+        return view('public/scoreboard/coming_soon', [
+            'title' => $title,
+            'icon'  => $icon,
+            'table' => $this->findTable($tableId),
+        ]);
     }
 
     public function friendlyStore(int $tableId)
@@ -461,7 +486,7 @@ class ScoreboardController extends BaseController
                 $update[$p . '_' . $f] = $data[$p . '_' . $f];
             }
         }
-        if (!ScoreboardMatchModel::isSets($match)) {
+        if (!ScoreboardMatchModel::isSets($match) && !ScoreboardMatchModel::isSkittles($match)) {
             $update['innings_limit'] = $data['innings_limit'];
         }
         if ($match->type === 'official' && !ScoreboardMatchModel::isTrio($match)) {

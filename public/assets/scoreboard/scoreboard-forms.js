@@ -177,7 +177,7 @@
         });
     }
 
-    // Jeu par sets (3 bandes uniquement) : reprises inégales imposées, pas de limite de reprises ;
+    // Jeu par sets (3 bandes et 5 quilles) : reprises inégales imposées, pas de limite de reprises ;
     // le champ des points de chaque joueur devient « Points par set » (ils peuvent être différents)
     const setsCb = document.getElementById('sets_enabled');
     const setsBlock = document.querySelector('[data-sb-sets-block]');
@@ -186,7 +186,7 @@
         const limitCb = document.getElementById('innings_limit_enabled');
         let setsWas = setsCb.checked;
         const applySets = function () {
-            const allowed = discipline.value === '3bandes';
+            const allowed = discipline.value === '3bandes' || discipline.value === '5quilles';
             setsBlock.style.display = allowed ? '' : 'none';
             if (!allowed && setsCb.checked) {
                 setsCb.checked = false;

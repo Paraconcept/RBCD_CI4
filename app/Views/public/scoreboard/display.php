@@ -4,6 +4,10 @@ use App\Models\ScoreboardMatchModel as M;
 // Spectateur (page publique « En direct ») : lecture seule, mise à jour par interrogation du serveur
 $spectator = $spectator ?? false;
 $trio      = M::isTrio($match);
+$skittles  = M::isSkittles($match);
+// 5 quilles : un coup par passage de main, « série max » = meilleur coup
+$innLabel  = $skittles ? 'Coups' : 'Reprises';
+$hrShort   = $skittles ? 'MC' : 'MS';
 $numbers   = M::playerNumbers($match);
 $byPlayer  = static fn (callable $f): array => array_combine($numbers, array_map($f, $numbers));
 
@@ -12,6 +16,7 @@ $config = [
     'startedAt'    => (string) $match->started_at,
     'starter'      => (int) ($match->starting_player ?: 1),
     'discipline'   => (string) $match->discipline,
+    'skittles'     => $skittles,
     'count'        => count($numbers),
     'distances'    => $byPlayer(static fn (int $n): int => (int) $match->{'p' . $n . '_distance'}),
     'inningsLimit' => $match->innings_limit ? (int) $match->innings_limit : null,
@@ -60,7 +65,7 @@ $config = [
     <link rel="stylesheet" href="<?= base_url('assets/scoreboard/scoreboard.css') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard.css') ?>">
 </head>
 <body>
-<div class="sbd<?= $spectator ? ' spectator' : '' ?><?= M::isSets($match) ? ' sets' : '' ?><?= $trio ? ' trio' : '' ?>" id="sbd">
+<div class="sbd<?= $spectator ? ' spectator' : '' ?><?= M::isSets($match) ? ' sets' : '' ?><?= $trio ? ' trio' : '' ?><?= $skittles ? ' skittles' : '' ?>" id="sbd">
 
     <header class="sbd-head">
         <div class="sbd-head-left">
@@ -102,7 +107,7 @@ $config = [
             </div>
             <div class="sbd-notice" id="sbdNotice"></div>
             <div class="sbd-box sbd-run" id="sbdRunBox">
-                <span>Série</span>
+                <span><?= $skittles ? 'Coup' : 'Série' ?></span>
                 <b id="sbdRun">0</b>
                 <div class="sbd-hint" id="sbdHint"></div>
             </div>
@@ -128,13 +133,13 @@ $config = [
             </div>
             <div class="sbd-body">
                 <?php if (!$trio): ?>
-                <div class="sbd-last5" data-last5 title="5 dernières reprises (la plus récente en haut)"></div>
+                <div class="sbd-last5" data-last5 title="<?= $skittles ? '5 derniers coups' : '5 dernières reprises' ?> (le plus récent en haut)"></div>
                 <?php endif; ?>
                 <div class="sbd-score" data-score>0</div>
             </div>
             <div class="sbd-stats">
                 <div class="sbd-stat"><span>Moyenne</span><b data-avg>0,000</b></div>
-                <div class="sbd-stat"><span>Série max</span><b data-hr>0</b></div>
+                <div class="sbd-stat"><span><?= $skittles ? 'Meilleur coup' : 'Série max' ?></span><b data-hr>0</b></div>
             </div>
             <div class="sbd-ext" data-ext></div>
         </section>
@@ -172,10 +177,18 @@ $config = [
 
     <?php if (!$spectator): ?>
     <footer class="sbd-help">
+        <?php if ($skittles): ?>
+        <span><kbd>0-9</kbd> <kbd>Entrée</kbd> points du coup</span>
+        <span><kbd>Entrée</kbd> seule : coup sans point</span>
+        <span><kbd>0-9</kbd> <kbd>+</kbd> faute (à l'adversaire)</span>
+        <span><kbd>+</kbd> seul : faute de 2</span>
+        <span><kbd>−</kbd> annuler le dernier coup</span>
+        <?php else: ?>
         <span><kbd>+</kbd> point</span>
         <span><kbd>−</kbd> correction</span>
         <span><kbd>0-9</kbd> série directe</span>
         <span><kbd>Entrée</kbd> fin de reprise</span>
+        <?php endif; ?>
         <?php if ($match->shot_clock_enabled): ?>
         <span><kbd>*</kbd> chrono départ/pause</span>
         <?php endif; ?>
@@ -191,7 +204,7 @@ $config = [
             <div class="sbd-winner" id="sbdWinner"></div>
             <div class="sbd-decision" id="sbdDecision" hidden>Départagés à la moyenne proportionnelle</div>
             <table>
-                <thead><tr id="sbdResultHead"><th></th><th>Points</th><th>Reprises</th><th>Moyenne</th><th>MS</th><th id="sbdPropHead" hidden>Moy. prop.</th></tr></thead>
+                <thead><tr id="sbdResultHead"><th></th><th>Points</th><th><?= $innLabel ?></th><th>Moyenne</th><th><?= $hrShort ?></th><th id="sbdPropHead" hidden>Moy. prop.</th></tr></thead>
                 <tbody id="sbdResultRows"></tbody>
             </table>
             <div class="sbd-small">
@@ -206,7 +219,7 @@ $config = [
                 <?php endif; ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>⌫</kbd> menu
                 <?php else: ?>
-                <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> corriger la dernière reprise
+                <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> <?= $skittles ? 'annuler le dernier coup' : 'corriger la dernière reprise' ?>
                 <?php if ($config['urls']['sign']): ?>
                 &nbsp;·&nbsp; <kbd>+</kbd> signer la feuille de match
                 <div class="mt-3"><button type="button" class="btn btn-sb btn-lg" id="sbdSignBtn"><i class="fas fa-signature me-2"></i>Signer la feuille de match</button></div>
@@ -231,12 +244,12 @@ $config = [
             <div class="sbd-winner" id="sbdSetBreakWinner"></div>
             <div class="sbd-setbreak-score" id="sbdSetBreakScore"></div>
             <table>
-                <thead><tr><th></th><th>Points</th><th>Reprises</th><th>Moyenne</th><th>MS</th></tr></thead>
+                <thead><tr><th></th><th>Points</th><th><?= $innLabel ?></th><th>Moyenne</th><th><?= $hrShort ?></th></tr></thead>
                 <tbody id="sbdSetBreakRows"></tbody>
             </table>
             <div class="sbd-setbreak-next" id="sbdSetBreakNext"></div>
             <div class="sbd-small">
-                <kbd>Entrée</kbd> <span id="sbdSetBreakKey"></span> &nbsp;·&nbsp; <kbd>−</kbd> corriger la dernière reprise
+                <kbd>Entrée</kbd> <span id="sbdSetBreakKey"></span> &nbsp;·&nbsp; <kbd>−</kbd> <?= $skittles ? 'annuler le dernier coup' : 'corriger la dernière reprise' ?>
             </div>
         </div>
     </div>
@@ -245,7 +258,7 @@ $config = [
     <?php if (!$spectator): ?>
     <div class="sbd-overlay" id="sbdFix">
         <div class="sbd-result sbd-fix">
-            <h2>Corriger une reprise</h2>
+            <h2><?= $skittles ? 'Corriger un coup' : 'Corriger une reprise' ?></h2>
             <div class="sbd-fix-scroll">
                 <table>
                     <thead><tr><th>Reprise</th><?php foreach ($numbers as $n): ?><th style="color:var(--sb-<?= $trio ? 'p1' : 'p' . $n ?>)"><?= esc($match->{'p' . $n . '_last_name'}) ?></th><?php endforeach; ?></tr></thead>
@@ -261,7 +274,7 @@ $config = [
     <?php if (!$spectator): ?>
     <div class="sbd-overlay" id="sbdMenu">
         <div class="sbd-menu">
-            <button type="button" class="btn btn-light" data-action="fix" id="sbdFixBtn"><i class="fas fa-pen-to-square me-2"></i>Corriger une reprise</button>
+            <button type="button" class="btn btn-light" data-action="fix" id="sbdFixBtn"><i class="fas fa-pen-to-square me-2"></i><?= $skittles ? 'Corriger un coup' : 'Corriger une reprise' ?></button>
             <button type="button" class="btn btn-light" data-action="edit"><i class="fas fa-user-pen me-2"></i>Modifier la partie en cours</button>
             <?php if ($config['urls']['print']): ?>
             <button type="button" class="btn btn-light" data-action="print"><i class="fas fa-print me-2"></i>Imprimer la feuille de match</button>

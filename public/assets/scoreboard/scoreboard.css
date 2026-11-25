@@ -488,3 +488,28 @@
 .sb-encounter .sb-encounter-match { display: flex; gap: .5rem; align-items: baseline; font-size: .9rem; padding: .2rem 0; }
 .sb-encounter .sb-encounter-match small { color: var(--sb-muted); }
 .sbd-encounter-hint { color: var(--sb-p2); font-weight: 600; }
+
+/* 5 quilles : faute (points donnés à l'adversaire) */
+.sbd-last5 div.foul b, .sbd-fix td.foul { color: #f87171; }
+.sbd-fix td.foul.editing { color: #7f1d1d; }
+
+/* Choix du type de partie amicale (page billard) */
+button.sb-tile { width: 100%; font: inherit; }
+.sb-modal { position: fixed; inset: 0; z-index: 1050; display: none; align-items: center; justify-content: center;
+    background: rgba(5, 9, 20, .82); padding: 1rem; }
+.sb-modal.open { display: flex; }
+.sb-modal-box { background: var(--sb-panel); border: 1px solid var(--sb-line); border-radius: 18px; padding: 1.75rem;
+    width: 100%; max-width: 640px; max-height: 100%; overflow-y: auto; }
+.sb-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.sb-choice { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; margin-bottom: .75rem;
+    border: 1px solid var(--sb-line); border-radius: 14px; background: rgba(255, 255, 255, .03);
+    color: var(--sb-text); text-decoration: none; transition: border-color .15s, transform .15s; }
+.sb-choice:hover, .sb-choice:focus, .sb-choice.kbd-focus { border-color: var(--sb-red-light); transform: translateX(4px); color: var(--sb-text); outline: none; }
+.sb-choice-key { flex: 0 0 2.4rem; height: 2.4rem; display: grid; place-items: center; border-radius: 10px;
+    background: var(--sb-red); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 700; }
+.sb-choice > i { flex: 0 0 2rem; font-size: 1.6rem; color: var(--sb-red-light); text-align: center; }
+.sb-choice-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; font-weight: 700; line-height: 1.1; }
+.sb-choice small { display: block; color: var(--sb-muted); }
+.sb-choice.soon { opacity: .6; }
+.sb-choice.soon .sb-choice-key { background: #475569; }
+.sb-modal-keys { color: var(--sb-muted); font-size: .9rem; text-align: center; margin-top: .5rem; }

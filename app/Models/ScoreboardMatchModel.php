@@ -13,6 +13,11 @@ class ScoreboardMatchModel extends Model
         '3bandes' => '3 Bandes',
     ];
 
+    // Amicales uniquement : hors DISCIPLINES (formulaires officiels, catégories FRBB)
+    public const SKITTLES = '5quilles';
+    public const SKITTLES_LABEL = '5 Quilles';
+    public const SKITTLES_DEFAULT_POINTS = 60;
+
     public const TIMEZONE = 'Europe/Brussels';
 
     public const CLUB_DS_EMAIL = 'ds@rbcd.be';
@@ -289,7 +294,8 @@ class ScoreboardMatchModel extends Model
         }
 
         $discipline = (string) ($in['discipline'] ?? '');
-        if (!array_key_exists($discipline, self::DISCIPLINES)) {
+        $skittles   = !$trio && $discipline === self::SKITTLES;
+        if (!$skittles && !array_key_exists($discipline, self::DISCIPLINES)) {
             $errors[] = 'Discipline invalide.';
         }
         $data['discipline'] = $discipline;
@@ -327,11 +333,16 @@ class ScoreboardMatchModel extends Model
         }
 
         $data['unequal_innings']    = !empty($in['unequal_innings']) ? 1 : 0;
+        if ($skittles) {
+            // 5 quilles : le premier qui atteint ses points gagne (pas d'égalisation), pas de limite de reprises
+            $data['unequal_innings'] = 1;
+            $data['innings_limit']   = null;
+        }
 
         $data['sets_to_win'] = null;
         if ($sets) {
-            if ($discipline !== '3bandes') {
-                $errors[] = "Le jeu par sets n'est possible qu'en 3 bandes.";
+            if ($discipline !== '3bandes' && !$skittles) {
+                $errors[] = "Le jeu par sets n'est possible qu'en 3 bandes et aux 5 quilles.";
             }
             // Points d'un set propres à chaque joueur (handicap, ex. Coupe de Belgique) ; set_points = ancien champ commun
             foreach (['p1', 'p2'] as $p) {
@@ -350,7 +361,7 @@ class ScoreboardMatchModel extends Model
             $data['unequal_innings'] = 1;
             $data['innings_limit']   = null;
         }
-        $data['shot_clock_enabled'] = !$trio && !empty($in['shot_clock_enabled']) ? 1 : 0;
+        $data['shot_clock_enabled'] = !$trio && !$skittles && !empty($in['shot_clock_enabled']) ? 1 : 0;
         $seconds = (int) ($in['shot_clock_seconds'] ?? 40);
         $data['shot_clock_seconds'] = max(5, min(300, $seconds ?: 40));
         $data['shot_clock_extensions'] = max(0, min(10, (int) ($in['shot_clock_extensions'] ?? 3)));
@@ -398,7 +409,7 @@ class ScoreboardMatchModel extends Model
         foreach ($walk['rows'] as $r) {
             $player = $r['player'];
             $totals[$player]['innings']++;
-            $totals[$player]['points'] += $r['points'];
+            $totals[$r['to']]['points'] += $r['gain'];
             $totals[$player]['high']    = max($totals[$player]['high'], $r['points']);
             $rows[] = [
                 'match_id'  => $match->id,
@@ -456,6 +467,11 @@ class ScoreboardMatchModel extends Model
         return $rev;
     }
 
+    public static function isSkittles(object $m): bool
+    {
+        return ($m->discipline ?? null) === self::SKITTLES;
+    }
+
     public static function isSets(object $m): bool
     {
         return !empty($m->sets_to_win);
@@ -494,9 +510,11 @@ class ScoreboardMatchModel extends Model
      * Découpe les séries chronologiques en reprises numérotées (par set en jeu par sets).
      * Un set s'arrête dès qu'un joueur atteint ses points (reprises inégales), le suivant
      * est commencé par l'autre joueur. À 3 joueurs, rotation 1 → 2 → 3 depuis celui qui commence.
-     * Doit rester identique à walk() de scoreboard-display.js.
+     * 5 quilles : une « série » = un coup ; négative = faute, sa valeur va à l'adversaire. Le gain est
+     * ramené à ce qui manque pour atteindre les points (le dernier coup ne dépasse pas la distance).
+     * to / gain : joueur crédité et points crédités. Doit rester identique à walk() de scoreboard-display.js.
      *
-     * @return array{rows: list<array{set:int, inning:int, player:int, points:int}>, won: array{1:int, 2:int}}
+     * @return array{rows: list<array{set:int, inning:int, player:int, points:int, to:int, gain:int}>, won: array{1:int, 2:int}}
      */
     public static function walkInnings(object $m, array $innings): array
     {
@@ -507,23 +525,32 @@ class ScoreboardMatchModel extends Model
         foreach (self::playerNumbers($m) as $n) {
             $dist[$n] = (int) $m->{'p' . $n . '_distance'};
         }
-        $won     = [1 => 0, 2 => 0];
-        $rows    = [];
+        $won      = [1 => 0, 2 => 0];
+        $rows     = [];
+        $skittles = self::isSkittles($m);
 
         $set = 1; $inSet = 0;
         $pts = array_fill_keys(array_keys($dist), 0); $inn = $pts;
         foreach ($innings as $v) {
             $first  = self::setStarter($starter, $set);
             $player = ($first - 1 + $inSet) % $count + 1;
-            $v      = max(0, (int) $v);
-            $pts[$player] += $v;
+            $v      = (int) $v;
+            if ($skittles) {
+                $to   = $v < 0 ? ($player === 1 ? 2 : 1) : $player;
+                $gain = min(abs($v), max(0, $dist[$to] - $pts[$to]));
+            } else {
+                $v    = max(0, $v);
+                $to   = $player;
+                $gain = $v;
+            }
+            $pts[$to] += $gain;
             $inn[$player]++;
             $inSet++;
-            $rows[] = ['set' => $set, 'inning' => $inn[$player], 'player' => $player, 'points' => $v];
+            $rows[] = ['set' => $set, 'inning' => $inn[$player], 'player' => $player, 'points' => $v, 'to' => $to, 'gain' => $gain];
 
-            if ($toWin && $pts[$player] >= $dist[$player]) {
-                $won[$player]++;
-                if ($won[$player] >= $toWin) {
+            if ($toWin && $pts[$to] >= $dist[$to]) {
+                $won[$to]++;
+                if ($won[$to] >= $toWin) {
                     break;
                 }
                 $set++; $inSet = 0;
@@ -545,7 +572,7 @@ class ScoreboardMatchModel extends Model
         $pts  = array_fill_keys(self::playerNumbers($m), 0);
         foreach ($walk['rows'] as $r) {
             if ($r['set'] === $set) {
-                $pts[$r['player']] += $r['points'];
+                $pts[$r['to']] += $r['gain'];
             }
         }
         // Le set qui vient de se terminer n'est plus en jeu : le suivant repart de zéro
@@ -856,6 +883,9 @@ class ScoreboardMatchModel extends Model
     /** ex. « 3 Bandes PB » */
     public static function disciplineLabel(object $m): string
     {
+        if (self::isSkittles($m)) {
+            return self::SKITTLES_LABEL;
+        }
         return (self::DISCIPLINES[$m->discipline] ?? $m->discipline) . ' ' . ($m->format ?? '');
     }
 

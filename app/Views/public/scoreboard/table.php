@@ -89,16 +89,11 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
             <?php endif; ?>
         </div>
         <?php endforeach; ?>
-        <a href="<?= base_url('marquoir/billard/' . $table->id . '/amicale') ?>" class="sb-tile sb-tile-cta mb-4">
+        <button type="button" class="sb-tile sb-tile-cta mb-4" data-sb-friendly-open>
             <i class="fas fa-handshake"></i>
             <span class="sb-tile-name">Partie amicale</span>
-            <small class="text-secondary">Lancer une nouvelle partie</small>
-        </a>
-        <a href="<?= base_url('marquoir/billard/' . $table->id . '/amicale-a-3') ?>" class="sb-tile sb-tile-cta mb-4">
-            <i class="fas fa-users"></i>
-            <span class="sb-tile-name">Partie amicale à 3</span>
-            <small class="text-secondary">Trois joueurs, à tour de rôle</small>
-        </a>
+            <small class="text-secondary">Choisir le type de partie</small>
+        </button>
         <div class="sb-card sb-device mb-4">
             <?php if ($deviceTable && (int) $deviceTable->id === (int) $table->id): ?>
                 <p class="mb-2"><i class="fas fa-laptop me-2 sb-accent"></i>Ce Chromebook est <b><?= esc($table->name) ?></b> : le marquoir s'ouvre directement ici.</p>
@@ -141,6 +136,65 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
         <?php endif; ?>
     </div>
 </div>
+<?php
+$friendlyChoices = [
+    ['amicale',                  'handshake',    'Partie amicale à deux',              'Libre, cadre, bande ou 3 bandes', false],
+    ['amicale-a-3',              'users',        'Partie amicale à trois',             'Trois joueurs, à tour de rôle', false],
+    ['amicale-5-quilles',        'bowling-ball', 'Partie amicale aux 5 quilles',       'Coup par coup, fautes à l\'adversaire', false],
+    ['amicale-salade',           'bowl-food',    'Partie amicale à la salade',         'En construction', true],
+    ['amicale-salade-quick-pick','shuffle',      'Partie amicale à la salade Quick Pick', 'En construction', true],
+];
+?>
+<div class="sb-modal" id="sbFriendlyModal" role="dialog" aria-modal="true" aria-labelledby="sbFriendlyTitle">
+    <div class="sb-modal-box">
+        <div class="sb-modal-head">
+            <h2 class="sb-title mb-0" id="sbFriendlyTitle"><i class="fas fa-handshake me-2 sb-accent"></i>Quelle partie amicale ?</h2>
+            <button type="button" class="btn btn-outline-light" data-sb-friendly-close aria-label="Fermer"><i class="fas fa-xmark"></i></button>
+        </div>
+        <?php foreach ($friendlyChoices as $i => [$slug, $icon, $label, $sub, $soon]): ?>
+        <a href="<?= base_url('marquoir/billard/' . $table->id . '/' . $slug) ?>" class="sb-choice<?= $soon ? ' soon' : '' ?>">
+            <span class="sb-choice-key"><?= $i + 1 ?></span>
+            <i class="fas fa-<?= $icon ?>"></i>
+            <span>
+                <span class="sb-choice-name"><?= esc($label) ?></span>
+                <small><?php if ($soon): ?><span class="badge text-bg-warning me-1"><i class="fas fa-person-digging me-1"></i>En construction</span><?php else: ?><?= esc($sub) ?><?php endif; ?></small>
+            </span>
+        </a>
+        <?php endforeach; ?>
+        <div class="sb-modal-keys"><kbd>1</kbd>–<kbd>5</kbd> choisir &nbsp;·&nbsp; <kbd>8</kbd> <kbd>2</kbd> se déplacer &nbsp;·&nbsp; <kbd>Entrée</kbd> valider &nbsp;·&nbsp; <kbd>⌫</kbd> fermer</div>
+    </div>
+</div>
+<script>
+// Choix du type de partie amicale : au doigt ou au pavé numérique (comme le menu du marquoir)
+(function () {
+    const modal = document.getElementById('sbFriendlyModal');
+    const items = [...modal.querySelectorAll('.sb-choice')];
+    let index = 0;
+    const focus = (i) => {
+        index = (i + items.length) % items.length;
+        items.forEach((el, k) => el.classList.toggle('kbd-focus', k === index));
+        items[index].focus({ preventScroll: true });
+    };
+    const open = () => { modal.classList.add('open'); focus(0); };
+    const close = () => modal.classList.remove('open');
+    document.querySelectorAll('[data-sb-friendly-open]').forEach((b) => b.addEventListener('click', open));
+    modal.querySelector('[data-sb-friendly-close]').addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    window.addEventListener('keydown', function (e) {
+        if (!modal.classList.contains('open')) return;
+        const code = e.code, key = e.key;
+        const d = /^Numpad[0-9]$/.test(code) ? +code.slice(-1) : (/^[0-9]$/.test(key) ? +key : null);
+        let handled = true;
+        if (key === 'Escape' || key === 'Backspace' || code === 'NumpadDivide') close();
+        else if (d !== null && d >= 1 && d <= items.length) items[d - 1].click();
+        else if (d === 8 || key === 'ArrowUp') focus(index - 1);
+        else if (d === 2 || key === 'ArrowDown') focus(index + 1);
+        else if (key === 'Enter' || code === 'NumpadEnter') items[index].click();
+        else handled = false;
+        if (handled) e.preventDefault();
+    }, true);
+})();
+</script>
 <?php
 $unlocks = [];
 $pending = false;
