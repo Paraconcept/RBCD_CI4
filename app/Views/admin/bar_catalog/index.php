@@ -100,10 +100,10 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
               <td class="align-middle">
                 <div class="p-photo">
                   <?php if ($p->image): ?><img src="<?= base_url($p->image) ?>" alt=""><?php else: ?><span class="none"><i class="far fa-image"></i></span><?php endif; ?>
-                  <label class="btn btn-xs btn-outline-secondary mb-0" title="<?= $p->image ? 'Remplacer la photo' : 'Ajouter une photo' ?> (puis Enregistrer)">
+                  <label class="btn btn-xs btn-outline-secondary mb-0" title="<?= $p->image ? 'Remplacer la photo' : 'Ajouter une photo' ?> (envoyée dès qu'elle est choisie)">
                     <i class="fas fa-camera"></i>
                     <input type="file" name="image" form="p-f<?= $p->id ?>" accept="image/png,image/jpeg,image/webp" hidden
-                           onchange="this.parentNode.className = 'btn btn-xs btn-success mb-0'; this.parentNode.title = this.files[0] ? this.files[0].name + ' : cliquez sur Enregistrer' : ''">
+                           data-max="<?= $maxUpload ?>" onchange="sendPhoto(this)">
                   </label>
                   <?php if ($p->image): ?>
                   <label class="mb-0 small text-muted" title="Retirer la photo (puis Enregistrer)"><input type="checkbox" name="remove_image" value="1" form="p-f<?= $p->id ?>"> <i class="fas fa-times"></i></label>
@@ -180,4 +180,25 @@ $eur = static fn ($n): string => number_format((float) $n, 2, ',', ' ');
 </div>
 <?php endforeach; ?>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+// La photo part dès qu'elle est choisie (avec le reste de la ligne) : un fichier choisi puis oublié faute de clic sur Enregistrer était perdu
+function sendPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > +input.dataset.max) {
+    alert('« ' + file.name + ' » pèse ' + (file.size / 1048576).toFixed(1) + ' Mo : le serveur accepte au maximum '
+      + (input.dataset.max / 1048576).toFixed(1) + ' Mo. Réduisez la photo avant de l\'envoyer.');
+    input.value = '';
+    return;
+  }
+  const label = input.parentNode;
+  label.className = 'btn btn-xs btn-success mb-0';
+  label.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  label.appendChild(input);
+  input.form.requestSubmit();
+}
+</script>
 <?= $this->endSection() ?>

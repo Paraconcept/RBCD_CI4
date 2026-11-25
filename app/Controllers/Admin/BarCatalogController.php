@@ -40,7 +40,22 @@ class BarCatalogController extends BaseController
             'sold'        => array_flip($sold),
             'slots'       => BarProductModel::SLOTS,
             'showImages'  => BarProductModel::showImages(),
+            'maxUpload'   => self::maxUploadBytes(),
         ]);
+    }
+
+    /** Plus petite des deux limites PHP : au-delà de post_max_size, PHP vide tout le formulaire sans prévenir. */
+    private static function maxUploadBytes(): int
+    {
+        $bytes = static function (string $v): int {
+            $n = (int) $v;
+            return match (strtoupper(substr(trim($v), -1))) {
+                'G' => $n * 1024 ** 3, 'M' => $n * 1024 ** 2, 'K' => $n * 1024, default => $n,
+            };
+        };
+        $limits = array_filter([$bytes((string) ini_get('upload_max_filesize')), $bytes((string) ini_get('post_max_size'))]);
+
+        return $limits ? min($limits) : 2 * 1024 ** 2;
     }
 
     // ------------------------------------------------------------------ catégories
@@ -180,6 +195,11 @@ class BarCatalogController extends BaseController
     private function productImage(object $product): array|string
     {
         $file = $this->request->getFile('image');
+        if ($file && $file->getError() !== UPLOAD_ERR_NO_FILE && !$file->isValid()) {
+            return in_array($file->getError(), [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)
+                ? 'La photo est trop lourde (maximum ' . round(self::maxUploadBytes() / 1024 ** 2, 1) . ' Mo) : réduisez-la avant de l\'envoyer.'
+                : 'La photo n\'a pas pu être reçue : ' . $file->getErrorString();
+        }
         if ($file && $file->isValid() && !$file->hasMoved()) {
             if (!in_array($file->getMimeType(), ['image/png', 'image/jpeg', 'image/webp'], true)) {
                 return 'La photo doit être une image PNG, JPEG ou WebP.';
@@ -189,10 +209,15 @@ class BarCatalogController extends BaseController
                 mkdir($dir, 0755, true);
             }
             $name = 'p' . $product->id . '-' . $file->getRandomName();
-            $file->move($dir, $name);
-            $size = getimagesize($dir . $name);
-            if ($size && $size[1] > 240) {
-                service('image')->withFile($dir . $name)->resize((int) ceil($size[0] * 240 / $size[1]), 240, true)->save($dir . $name);
+            try {
+                $file->move($dir, $name);
+                $size = getimagesize($dir . $name);
+                if ($size && $size[1] > 240) {
+                    service('image')->withFile($dir . $name)->resize((int) ceil($size[0] * 240 / $size[1]), 240, true)->save($dir . $name);
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Photo produit ' . $product->id . ' : ' . $e->getMessage());
+                return 'La photo n\'a pas pu être enregistrée sur le serveur : ' . $e->getMessage();
             }
             $this->deleteUploadedImage($product->image);
             return ['image' => BarProductModel::UPLOAD_DIR . $name];
