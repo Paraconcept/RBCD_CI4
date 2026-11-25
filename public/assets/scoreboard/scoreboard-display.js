@@ -11,6 +11,8 @@
  * À 3 joueurs (amicale), les séries tournent 1 → 2 → 3 ; pas de sets ni de chrono.
  * 5 quilles (amicale) : chaque « série » est un coup, la main passe à chaque coup ; un coup négatif
  * est une faute dont la valeur va à l'adversaire. Pas de série en cours (run reste à 0).
+ * Salade (amicale) : innings = suite des coups, n° de la figure réussie (1 à 8) ou 0 = raté, la main passe ;
+ * pick = figure tirée par le marquoir pour le coup en cours (« Quick Pick »).
  * Il est gardé dans le navigateur (survit à un rechargement / une coupure Internet)
  * et poussé au serveur dès que possible ; la version la plus récente l'emporte.
  */
@@ -29,6 +31,9 @@
     const other = (p) => (p === 1 ? 2 : 1);
     // Un coup valable rapporte au plus 16 (4 quilles latérales + rouge + carambolage), une faute 18 (+ 2 de pénalité)
     const SK_MAX = 16, SK_MAX_FOUL = 18;
+    const SA = !!C.salad;
+    const QP = SA && C.salad.qp;
+    const FIG = SA ? C.salad.figures : [];
     const STORE_KEY = 'sb_match_' + C.id + '_' + C.startedAt;
 
     const $ = (id) => document.getElementById(id);
@@ -75,6 +80,74 @@
      * to / gain : joueur crédité et points crédités (5 quilles : faute → adversaire, ramené aux points restants).
      * Doit rester identique à ScoreboardMatchModel::walkInnings().
      */
+    /*
+     * Salade : progression de chaque joueur dans chaque figure. Le joueur 1 commence, rejoue tant qu'il réussit,
+     * 0 passe la main ; une figure déjà terminée ne compte pas. Doit rester identique à ScoreboardMatchModel::walkSalad().
+     */
+    function saladWalk() {
+        const prog = { 1: FIG.map(() => 0), 2: FIG.map(() => 0) };
+        const turns = { 1: 0, 2: 0 }, high = { 1: 0, 2: 0 };
+        let p = S, run = 0, closed = 0;
+        st.innings.forEach(function (e) {
+            if (e > 0) {
+                if (FIG[e - 1] && prog[p][e - 1] < FIG[e - 1]['p' + p]) { prog[p][e - 1]++; run++; }
+                return;
+            }
+            turns[p]++; high[p] = Math.max(high[p], run); run = 0; closed++; p = other(p);
+        });
+        const innings = { 1: turns[1], 2: turns[2] };
+        if (run > 0) { innings[p]++; high[p] = Math.max(high[p], run); }
+        return { prog: prog, cur: p, run: run, closed: closed, innings: innings, high: high };
+    }
+    const saladDone = (w, p) => FIG.every((f, i) => w.prog[p][i] >= f['p' + p]);
+
+    function saladCheckEnd() {
+        const w = saladWalk();
+        if ((saladDone(w, 1) || saladDone(w, 2)) && (C.unequal || w.closed % 2 === 0)) st.finished = true;
+    }
+
+    // Quick Pick : une figure tirée au hasard pour chaque coup, parmi celles qui restent au joueur
+    function ensurePick() {
+        if (!QP || st.finished) { st.pick = null; return; }
+        const w = saladWalk();
+        const left = FIG.map((f, i) => i + 1).filter((k) => w.prog[w.cur][k - 1] < FIG[k - 1]['p' + w.cur]);
+        if (st.pick && left.indexOf(st.pick) !== -1) return;
+        st.pick = left.length ? left[Math.floor(Math.random() * left.length)] : null;
+    }
+
+    function saladHit(k) {
+        if (st.finished) return;
+        if (!FIG[k - 1]) { flash('Pas de figure n° ' + k); render(); return; }
+        const w = saladWalk(), p = w.cur;
+        if (w.prog[p][k - 1] >= FIG[k - 1]['p' + p]) { flash('Point « ' + FIG[k - 1].label + ' »\ndéjà terminé'); render(); return; }
+        st.innings.push(k);
+        flashMsg = ''; clearTimeout(flashTimer);
+        // Toutes ses figures terminées : la reprise s'arrête d'elle-même
+        if (saladDone(saladWalk(), p)) st.innings.push(0);
+        saladCheckEnd();
+        st.pick = null; ensurePick();
+        commit();
+    }
+
+    function saladMiss() {
+        if (st.finished) return;
+        st.innings.push(0);
+        flashMsg = ''; clearTimeout(flashTimer);
+        saladCheckEnd();
+        st.pick = null; ensurePick();
+        commit();
+    }
+
+    function saladUndo() {
+        if (!st.innings.length) return;
+        st.finished = false;
+        const last = st.innings.pop();
+        // Fin de reprise automatique (toutes les figures terminées) : on retire aussi la figure qui l'a provoquée
+        if (last === 0 && st.innings.length && st.innings[st.innings.length - 1] > 0 && saladDone(saladWalk(), saladWalk().cur)) st.innings.pop();
+        st.pick = null; ensurePick();
+        commit();
+    }
+
     function walk() {
         const rows = [], won = { 1: 0, 2: 0 };
         let set = 1, inSet = 0, pts = zeros(), inn = zeros(), over = false;
@@ -98,12 +171,17 @@
     }
 
     function current() {
+        if (SA) return saladWalk().cur;
         const w = walk();
         return seriesPlayer(setStarter(w.set), w.inSet);
     }
 
     // Toute la partie (set = null) ou un seul set
     function totals(p, set) {
+        if (SA) {
+            const w = saladWalk();
+            return { pts: w.prog[p].reduce((a, b) => a + b, 0), inn: w.innings[p], hr: w.high[p] };
+        }
         let pts = 0, inn = 0, hr = 0;
         walk().rows.forEach(function (r) {
             if (set != null && r.set !== set) return;
@@ -132,6 +210,10 @@
 
     // Tour entamé alors qu'un joueur a déjà atteint ses points : les suivants terminent le tour
     function isEqualizing() {
+        if (SA) {
+            const w = saladWalk();
+            return !st.finished && !C.unequal && w.closed % 2 === 1 && (saladDone(w, 1) || saladDone(w, 2));
+        }
         return !st.finished && !C.unequal && st.innings.length % N !== 0 && someoneReached();
     }
 
@@ -147,6 +229,7 @@
     function addPoint() {
         if (st.finished) return;
         if (SK) { endInning(true); return; }
+        if (SA) { if (QP && st.pick) saladHit(st.pick); return; }
         if (buffer) { buffer = ''; }
         if (remaining() <= 0) return;
         st.run++;
@@ -161,6 +244,7 @@
     // foul (5 quilles) : la saisie est une faute, ses points vont à l'adversaire ; « + » seul = faute de 2
     function endInning(foul) {
         if (st.finished) return;
+        if (SA) { saladMiss(); return; }
         let shot = null;
         if (SK) {
             shot = parseInt(buffer || '0', 10) || 0;
@@ -227,6 +311,7 @@
             render();
             return;
         }
+        if (SA) { saladUndo(); return; }
         if (SK) {
             // 5 quilles : pas de série à rouvrir, le dernier coup est simplement retiré
             st.finished = false;
@@ -287,6 +372,7 @@
     }
 
     function digit(d) {
+        if (SA) { if (!QP) saladHit(parseInt(d, 10)); return; }
         if (st.finished || buffer.length >= (SK ? 2 : 4)) return;
         buffer = (buffer === '0' ? '' : buffer) + d;
         render();
@@ -486,7 +572,7 @@
 
     // « Pour 5 … Pour 1 » (3 bandes : à partir de 3) quand il ne manque plus que quelques points au joueur à la table
     // Pas aux 5 quilles : les points tombent par paquets
-    const POUR = SK ? [] : C.discipline === '3bandes' ? [3, 2, 1] : [5, 4, 3, 2, 1];
+    const POUR = SK || SA ? [] : C.discipline === '3bandes' ? [3, 2, 1] : [5, 4, 3, 2, 1];
     let pourKey = null, pourTimer = null;
 
     function announcePour(p, left) {
@@ -507,7 +593,45 @@
         pourKey = key;
     }
 
+    // Salade : tableau des figures, une bille par point à faire (turquoise une fois réalisé)
+    function renderSalad() {
+        const w = saladWalk();
+        const cur = st.finished ? 0 : w.cur;
+        [1, 2].forEach(function (p) {
+            panels[p].classList.toggle('active', p === cur);
+            const score = panels[p].querySelector('[data-score]');
+            const pts = totals(p).pts;
+            if (lastScores[p] != null && lastScores[p] !== pts) {
+                score.classList.remove('bump'); void score.offsetWidth; score.classList.add('bump');
+            }
+            lastScores[p] = pts;
+            score.textContent = pts;
+            FIG.forEach(function (f, i) {
+                const box = document.querySelector('[data-dots="' + p + '-' + (i + 1) + '"]');
+                const n = f['p' + p], d = w.prog[p][i];
+                let html = '';
+                for (let j = 0; j < n; j++) html += '<i' + (j < d ? ' class="done"' : '') + '></i>';
+                box.innerHTML = html + (d >= n ? '<em class="fas fa-check"></em>' : '');
+                box.classList.toggle('complete', d >= n);
+            });
+        });
+        const pick = QP && !st.finished ? st.pick : null;
+        document.querySelectorAll('[data-row]').forEach((el) => el.classList.toggle('pick', +el.dataset.row === pick));
+        const banner = $('salPick');
+        banner.hidden = !pick;
+        if (pick) {
+            banner.style.setProperty('--pc', colorOf(cur));
+            banner.querySelector('b').textContent = FIG[pick - 1].label;
+        }
+        $('sbdInnings').textContent = Math.ceil(w.closed / 2);
+        $('sbdRun').textContent = w.run;
+        $('sbdNotice').textContent = flashMsg || (isEqualizing() ? "Reprise d'égalisation" : '');
+        renderPause();
+        renderResult();
+    }
+
     function render() {
+        if (SA) { renderSalad(); return; }
         const cur = st.finished ? 0 : current();
         checkPour(cur);
 
@@ -799,9 +923,10 @@
             // Inverser n'a de sens qu'avant le premier coup (erreur au choix du joueur qui commence)
             swapForm.hidden = st.finished || st.innings.length > 0 || st.run > 0;
             warmupForm.hidden = swapForm.hidden || C.signed;
-            $('sbdFixBtn').hidden = st.innings.length === 0 || C.signed;
+            // Salade : pas de correction d'une reprise ni de modification (− annule le dernier coup)
+            $('sbdFixBtn').hidden = SA || st.innings.length === 0 || C.signed;
             // Feuille signée : plus aucune modification au marquoir
-            menu.querySelector('[data-action="edit"]').hidden = C.signed;
+            menu.querySelector('[data-action="edit"]').hidden = SA || C.signed;
             $('sbdCancelForm').hidden = C.signed;
             menu.classList.add('open');
             root.classList.add('show-cursor');
@@ -980,7 +1105,7 @@
                 return;
             }
             // 5 quilles : une touche maintenue ne doit pas enchaîner fautes ou annulations
-            if (e.repeat && (SK || (a !== 'plus' && a !== 'minus'))) return;
+            if (e.repeat && (SK || SA || (a !== 'plus' && a !== 'minus'))) return;
             enterFullscreen();
 
             if (a === 'pause') { togglePause(); return; }
@@ -1196,6 +1321,7 @@
             .catch(function () { $('sbdLive').classList.add('offline'); });
     }
 
+    if (SA && !C.spectator && !st.finished && !st.pick) ensurePick();
     render();
     if (C.spectator) {
         setInterval(poll, 2000);

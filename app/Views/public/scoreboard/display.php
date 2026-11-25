@@ -5,6 +5,8 @@ use App\Models\ScoreboardMatchModel as M;
 $spectator = $spectator ?? false;
 $trio      = M::isTrio($match);
 $skittles  = M::isSkittles($match);
+$salad     = M::isSalad($match);
+$figures   = $salad ? M::saladFigures($match) : [];
 // 5 quilles : un coup par passage de main, « série max » = meilleur coup
 $innLabel  = $skittles ? 'Coups' : 'Reprises';
 $hrShort   = $skittles ? 'MC' : 'MS';
@@ -17,6 +19,7 @@ $config = [
     'starter'      => (int) ($match->starting_player ?: 1),
     'discipline'   => (string) $match->discipline,
     'skittles'     => $skittles,
+    'salad'        => $salad ? ['qp' => M::isQuickPick($match), 'figures' => $figures] : null,
     'count'        => count($numbers),
     'distances'    => $byPlayer(static fn (int $n): int => (int) $match->{'p' . $n . '_distance'}),
     'inningsLimit' => $match->innings_limit ? (int) $match->innings_limit : null,
@@ -65,7 +68,7 @@ $config = [
     <link rel="stylesheet" href="<?= base_url('assets/scoreboard/scoreboard.css') . '?v=' . @filemtime(FCPATH . 'assets/scoreboard/scoreboard.css') ?>">
 </head>
 <body>
-<div class="sbd<?= $spectator ? ' spectator' : '' ?><?= M::isSets($match) ? ' sets' : '' ?><?= $trio ? ' trio' : '' ?><?= $skittles ? ' skittles' : '' ?>" id="sbd">
+<div class="sbd<?= $spectator ? ' spectator' : '' ?><?= M::isSets($match) ? ' sets' : '' ?><?= $trio ? ' trio' : '' ?><?= $skittles ? ' skittles' : '' ?><?= $salad ? ' salad' : '' ?>" id="sbd">
 
     <header class="sbd-head">
         <div class="sbd-head-left">
@@ -122,6 +125,40 @@ $config = [
             <?php endif; ?>
         </section>
     <?php $center = ob_get_clean(); ?>
+    <?php if ($salad): ?>
+    <main class="sal-main">
+        <?php foreach ([1, 2] as $n): $p = 'p' . $n; ?>
+        <?php if ($n === 2): ?>
+        <section class="sal-mid">
+            <div class="sbd-box"><span>Reprises</span><b id="sbdInnings">0</b><small id="sbdInningsLimit"></small></div>
+            <div class="sbd-box"><span>Série</span><b id="sbdRun">0</b></div>
+        </section>
+        <?php endif; ?>
+        <section class="sbd-player sal-player <?= $p ?>" id="sbdPlayer<?= $n ?>">
+            <div class="sbd-name">
+                <?php if ($n === 2): ?><span class="sbd-ball"></span><?php endif; ?>
+                <div class="sbd-name-text" style="flex:1<?= $n === 2 ? ';text-align:right' : '' ?>">
+                    <div class="sbd-last"><?= esc($match->{$p . '_last_name'}) ?></div>
+                    <div class="sbd-first"><?= esc($match->{$p . '_first_name'}) ?></div>
+                </div>
+                <?php if ($n === 1): ?><span class="sbd-ball"></span><?php endif; ?>
+            </div>
+            <div class="sal-score"><b data-score>0</b><small>/ <?= (int) $match->{$p . '_distance'} ?></small></div>
+        </section>
+        <?php endforeach; ?>
+        <div class="sal-msg">
+            <div class="sal-pick" id="salPick" hidden><small>À jouer</small><b></b></div>
+            <div class="sbd-notice" id="sbdNotice"></div>
+        </div>
+        <div class="sal-board" style="--rows:<?= count($figures) ?>">
+            <?php foreach ($figures as $i => $f): ?>
+            <div class="sal-dots p1" data-dots="1-<?= $i + 1 ?>"></div>
+            <div class="sal-label" data-row="<?= $i + 1 ?>"><?php if (!M::isQuickPick($match)): ?><kbd><?= $i + 1 ?></kbd><?php endif; ?><span><?= esc($f['label']) ?></span></div>
+            <div class="sal-dots p2" data-dots="2-<?= $i + 1 ?>"></div>
+            <?php endforeach; ?>
+        </div>
+    </main>
+    <?php else: ?>
     <main class="sbd-main">
         <?php foreach ($numbers as $n): $p = 'p' . $n; $right = $n === 2 && !$trio; ?>
         <?php if ($n === 2 && !$trio) echo $center; ?>
@@ -155,6 +192,7 @@ $config = [
         <?php endforeach; ?>
         <?php if ($trio) echo $center; ?>
     </main>
+    <?php endif; ?>
 
     <div class="sbd-pour" id="sbdPour" aria-live="polite"><div><small></small><b></b></div></div>
 
@@ -186,7 +224,15 @@ $config = [
 
     <?php if (!$spectator): ?>
     <footer class="sbd-help">
-        <?php if ($skittles): ?>
+        <?php if ($salad && M::isQuickPick($match)): ?>
+        <span><kbd>+</kbd> figure réussie</span>
+        <span><kbd>Entrée</kbd> raté : la main passe</span>
+        <span><kbd>−</kbd> annuler le dernier coup</span>
+        <?php elseif ($salad): ?>
+        <span><kbd>1</kbd>–<kbd><?= count($figures) ?></kbd> figure réussie</span>
+        <span><kbd>Entrée</kbd> raté : la main passe</span>
+        <span><kbd>−</kbd> annuler le dernier coup</span>
+        <?php elseif ($skittles): ?>
         <span><kbd>0-9</kbd> <kbd>Entrée</kbd> points du coup</span>
         <span><kbd>Entrée</kbd> seule : coup sans point</span>
         <span><kbd>0-9</kbd> <kbd>+</kbd> faute (à l'adversaire)</span>
@@ -201,7 +247,9 @@ $config = [
         <?php if ($match->shot_clock_enabled): ?>
         <span><kbd>*</kbd> chrono départ/pause</span>
         <?php endif; ?>
+        <?php if (!$salad): ?>
         <span><kbd>/</kbd> effacer la saisie</span>
+        <?php endif; ?>
         <span><kbd>.</kbd> pause</span>
         <span><kbd>⌫</kbd> menu</span>
     </footer>
@@ -228,7 +276,7 @@ $config = [
                 <?php endif; ?>
                 <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>⌫</kbd> menu
                 <?php else: ?>
-                <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> <?= $skittles ? 'annuler le dernier coup' : 'corriger la dernière reprise' ?>
+                <kbd>Entrée</kbd> retour au billard &nbsp;·&nbsp; <kbd>−</kbd> <?= $skittles || $salad ? 'annuler le dernier coup' : 'corriger la dernière reprise' ?>
                 <?php if ($config['urls']['sign']): ?>
                 &nbsp;·&nbsp; <kbd>+</kbd> signer la feuille de match
                 <div class="mt-3"><button type="button" class="btn btn-sb btn-lg" id="sbdSignBtn"><i class="fas fa-signature me-2"></i>Signer la feuille de match</button></div>

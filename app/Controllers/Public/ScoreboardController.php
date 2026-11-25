@@ -10,6 +10,7 @@ use App\Filters\ScoreboardDeviceFilter;
 use App\Models\ScoreboardInningModel;
 use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
+use App\Models\ScoreboardSaladFigureModel;
 use App\Models\ScoreboardSignatureModel;
 use App\Models\ScoreboardTableModel;
 use App\Models\ScoreboardTeamEncounterModel;
@@ -151,21 +152,98 @@ class ScoreboardController extends BaseController
 
     public function friendlySalad(int $tableId): string
     {
-        return $this->comingSoon($tableId, 'Partie amicale à la Salade', 'far fa-list-alt');
+        return $this->saladForm($tableId, ScoreboardMatchModel::SALAD);
     }
 
     public function friendlySaladQuickPick(int $tableId): string
     {
-        return $this->comingSoon($tableId, 'Partie amicale à la Salade « Quick Pick »', 'fas fa-shuffle');
+        return $this->saladForm($tableId, ScoreboardMatchModel::SALAD_QP);
     }
 
-    private function comingSoon(int $tableId, string $title, string $icon): string
+    private function saladForm(int $tableId, string $discipline): string
     {
-        return view('public/scoreboard/coming_soon', [
-            'title' => $title,
-            'icon'  => $icon,
-            'table' => $this->findTable($tableId),
+        return view('public/scoreboard/friendly_salad', [
+            'title'      => 'Partie amicale à la ' . ScoreboardMatchModel::SALAD_LABELS[$discipline],
+            'table'      => $this->findTable($tableId),
+            'discipline' => $discipline,
+            'figures'    => (new ScoreboardSaladFigureModel())->ordered(),
         ]);
+    }
+
+    /**
+     * Enregistre une Salade : figures cochées (points de chaque joueur), joueurs, reprises inégales.
+     * La liste des figures du club est mise à jour au passage (figures ajoutées ou retirées, derniers réglages).
+     */
+    public function friendlySaladStore(int $tableId)
+    {
+        $table = $this->findTable($tableId);
+        $in    = $this->request->getPost();
+        $disc  = (string) ($in['discipline'] ?? '');
+        if (!isset(ScoreboardMatchModel::SALAD_LABELS[$disc])) {
+            return redirect()->to(base_url('marquoir/billard/' . $tableId));
+        }
+
+        $model   = new ScoreboardSaladFigureModel();
+        $equal   = !empty($in['equal_points']);
+        $errors  = [];
+        $figures = [];
+        $saves   = [];
+        $max     = ScoreboardSaladFigureModel::MAX_POINTS;
+        foreach (array_values((array) ($in['figures'] ?? [])) as $i => $r) {
+            $existing = !empty($r['id']) ? $model->find((int) $r['id']) : null;
+            if (!empty($r['delete'])) {
+                if ($existing && !$existing->is_builtin) $saves[] = ['delete' => (int) $existing->id];
+                continue;
+            }
+            $label = $existing ? $existing->label : mb_substr(trim(preg_replace('/\s+/u', ' ', (string) ($r['label'] ?? ''))), 0, 60);
+            if ($label === '') continue;
+            $p1     = (int) ($r['p1'] ?? 0);
+            $p2     = $equal ? $p1 : (int) ($r['p2'] ?? 0);
+            $active = !empty($r['active']);
+            if ($active) {
+                if ($p1 < 1 || $p1 > $max || $p2 < 1 || $p2 > $max) {
+                    $errors[] = 'Point « ' . $label . ' » : les points doivent être compris entre 1 et ' . $max . '.';
+                }
+                $figures[] = ['label' => $label, 'p1' => $p1, 'p2' => $p2];
+            }
+            $saves[] = ['id' => $existing->id ?? null, 'label' => $label, 'active' => $active ? 1 : 0, 'sort_order' => $i + 1,
+                        'p1_points' => max(1, min($max, $p1 ?: 3)), 'p2_points' => max(1, min($max, $p2 ?: 3))];
+        }
+        if (!$figures) {
+            $errors[] = 'Activez au moins une figure.';
+        } elseif (count($figures) > ScoreboardSaladFigureModel::MAX_ACTIVE) {
+            $errors[] = ScoreboardSaladFigureModel::MAX_ACTIVE . ' figures au maximum.';
+        }
+
+        $in['players']     = 2;
+        $in['format']      = $table->format ?? 'PB';
+        $in['p1_distance'] = array_sum(array_column($figures, 'p1'));
+        $in['p2_distance'] = array_sum(array_column($figures, 'p2'));
+        [$data, $more] = ScoreboardMatchModel::dataFromInput($in);
+        if ($errors = array_merge($errors, $more)) {
+            return redirect()->back()->withInput()->with('errors', $errors);
+        }
+
+        foreach ($saves as $row) {
+            if (isset($row['delete'])) {
+                $model->delete($row['delete']);
+                continue;
+            }
+            $id = $row['id'];
+            unset($row['id']);
+            // Une figure ajoutée qui existe déjà (même nom) reprend sa ligne plutôt que de faire un doublon
+            $id ??= $model->where('LOWER(label)', mb_strtolower($row['label'], 'UTF-8'))->first()->id ?? null;
+            $id ? $model->update($id, $row) : $model->insert($row);
+        }
+
+        $data['type']          = 'friendly';
+        $data['status']        = 'scheduled';
+        $data['table_id']      = $tableId;
+        $data['salad_figures'] = json_encode($figures, JSON_UNESCAPED_UNICODE);
+        $id = $this->matches->insert($data);
+        ScoreboardMatchModel::rememberExternalPlayers($data);
+
+        return redirect()->to(base_url('marquoir/billard/' . $tableId . '/demarrer/' . $id));
     }
 
     public function friendlyStore(int $tableId)
@@ -296,7 +374,7 @@ class ScoreboardController extends BaseController
         }
 
         $copy = [
-            'competition', 'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win',
+            'competition', 'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win', 'salad_figures',
             'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'created_by',
         ];
         foreach (ScoreboardMatchModel::playerKeys($match) as $p) {

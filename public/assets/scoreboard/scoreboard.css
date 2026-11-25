@@ -519,3 +519,51 @@ button.sb-tile { width: 100%; font: inherit; }
 .sbd-skittles-art { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 1vh 0; }
 .sbd-skittles-art svg { width: 100%; height: 100%; max-height: 32vh; filter: drop-shadow(0 1vh 1.2vh rgba(0,0,0,.5)); }
 @media (orientation: portrait) { .sbd-skittles-art { display: none; } }
+
+/* ---------- Salade : tableau des figures ---------- */
+.sal-main { display: grid; grid-template-columns: minmax(0, 1fr) 24vw minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 1.2vh 1.6vw; padding: 2vh 2vw 1vh; min-height: 0; }
+.sal-player { flex-direction: row; align-items: center; justify-content: space-between; gap: 1vw; padding: 1.2vh 1.5vw; }
+.sal-player .sbd-name { flex: 1; min-width: 0; }
+.sal-player .sbd-last { font-size: 6.4vh; }
+.sal-player .sbd-first { font-size: 4vh; }
+.sal-player.p2 { flex-direction: row-reverse; }
+.sal-score { display: flex; align-items: baseline; gap: .6vw; color: var(--pc); font-weight: 800; }
+.sal-score b { font-size: 13vh; line-height: .9; }
+.sal-score small { font-size: 4vh; color: var(--sb-muted); font-weight: 700; }
+.sal-score b.bump { animation: sbd-bump .25s ease-out; }
+.sal-mid { display: grid; grid-template-columns: 1fr 1fr; gap: 1vw; }
+.sal-mid .sbd-box { display: flex; flex-direction: column; justify-content: center; }
+.sal-mid .sbd-box > span { font-size: 2.6vh; }
+.sal-mid .sbd-box b { display: block; font-size: 9vh; line-height: .95; font-weight: 800; color: #4fc3f7; }
+.sal-mid .sbd-box small { display: none; }
+.sal-msg { grid-column: 1 / -1; display: flex; justify-content: center; gap: 1.6vw; }
+.sal-msg:has(> :not([hidden]):not(:empty)) { min-height: 7vh; }
+.sal-msg .sbd-notice { min-width: 30vw; display: flex; align-items: center; justify-content: center; }
+.sal-msg .sbd-notice:empty { display: none; }
+.sal-pick { display: flex; align-items: baseline; gap: 1.5vw; background: var(--sb-red); border: .5vh solid var(--pc, #fff);
+    border-radius: 1.6vh; padding: .6vh 3vw; box-shadow: 0 0 4vh rgba(132, 37, 43, .6); animation: sbd-bump .3s ease-out; }
+.sal-pick[hidden] { display: none; }
+.sal-pick small { font-size: 3.4vh; text-transform: uppercase; letter-spacing: .12em; color: #fde2e2; font-weight: 700; }
+.sal-pick b { font-size: 6.4vh; text-transform: uppercase; font-weight: 800; line-height: 1; }
+.sal-board { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) 24vw minmax(0, 1fr);
+    grid-template-rows: repeat(var(--rows), minmax(0, 11vh)); align-content: center; gap: .9vh 1.6vw; min-height: 0; }
+.sal-board { grid-template-columns: minmax(0, 1fr) 32vw minmax(0, 1fr); }
+.sal-dots { display: flex; align-items: center; gap: .6vw; min-width: 0; }
+.sal-dots.p1 { --pc: var(--sb-p1); justify-content: flex-end; }
+.sal-dots.p2 { --pc: var(--sb-p2); justify-content: flex-start; }
+.sal-dots i { flex: 0 0 auto; width: min(5.6vh, 2.2vw); height: min(5.6vh, 2.2vw); border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--pc) 45%, color-mix(in srgb, var(--pc) 55%, #000) 100%);
+    box-shadow: 0 .3vh .8vh rgba(0,0,0,.5); transition: background .3s, box-shadow .3s; }
+.sal-dots i.done { background: radial-gradient(circle at 35% 30%, #fff 0 10%, #4fc3f7 38%, #2196c9 100%); box-shadow: 0 0 1.8vh rgba(79, 195, 247, .8); }
+.sal-dots em { font-style: normal; font-size: 4.4vh; color: #4fc3f7; }
+.sal-dots.p1 em { order: -1; margin-right: .6vw; }
+.sal-label { display: flex; align-items: center; justify-content: center; gap: 1vw; min-width: 0; background: rgba(0,0,0,.35);
+    border: .3vh solid var(--sb-line); border-radius: 1.4vh; padding: 0 1vw; font-size: 4.2vh; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.sal-label span { line-height: 1; text-align: center; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.sal-label kbd { font-size: 3.4vh; padding: .1vh .8vw; background: var(--sb-red); color: #fff; border-radius: .8vh; }
+.sal-label.pick { background: var(--sb-red); border-color: #fff; }
+@media (orientation: portrait) {
+    .sal-main, .sal-board { grid-template-columns: minmax(0, 1fr) 34vw minmax(0, 1fr); }
+    .sal-label { font-size: 2.6vw; }
+}

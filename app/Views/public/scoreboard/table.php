@@ -141,8 +141,8 @@ $friendlyChoices = [
     ['amicale',                  'fas fa-handshake','Partie amicale à deux',              'Libre, cadre, bande ou 3 bandes', false],
     ['amicale-a-3',              'fas fa-users',    'Partie amicale à trois',             'Trois joueurs, à tour de rôle', false],
     ['amicale-5-quilles',        'skittles', 'Partie amicale aux 5 quilles',       'Coup par coup, fautes à l\'adversaire', false],
-    ['amicale-salade',           'far fa-list-alt', 'Partie amicale à la Salade',         'Direct, Rouge, 1 - 2 ou 3 bandes, Bricoles, ...', true],
-    ['amicale-salade-quick-pick','fas fa-shuffle',  'Partie amicale à la Salade « Quick Pick »', 'Comme la Salade MAIS le marquoir choisit la figure à jouer', true],
+    ['amicale-salade',           'far fa-list-alt', 'Partie amicale à la Salade',         'Direct, Rouge, 1 - 2 ou 3 bandes, Bricoles, ...', false],
+    ['amicale-salade-quick-pick','fas fa-shuffle',  'Partie amicale à la Salade « Quick Pick »', 'Comme la Salade MAIS le marquoir choisit la figure à jouer', false],
 ];
 ?>
 <div class="sb-modal" id="sbFriendlyModal" role="dialog" aria-modal="true" aria-labelledby="sbFriendlyTitle">

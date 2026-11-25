@@ -18,6 +18,11 @@ class ScoreboardMatchModel extends Model
     public const SKITTLES_LABEL = '5 Quilles';
     public const SKITTLES_DEFAULT_POINTS = 60;
 
+    // Salade (amicale) : figures à réaliser ; « Quick Pick » = le marquoir tire la figure de chaque coup
+    public const SALAD    = 'salade';
+    public const SALAD_QP = 'salade_qp';
+    public const SALAD_LABELS = [self::SALAD => 'Salade', self::SALAD_QP => 'Salade « Quick Pick »'];
+
     public const TIMEZONE = 'Europe/Brussels';
 
     public const CLUB_DS_EMAIL = 'ds@rbcd.be';
@@ -50,7 +55,7 @@ class ScoreboardMatchModel extends Model
 
     protected $allowedFields = [
         'type', 'team_encounter_id', 'final_id', 'final_order', 'final_placement', 'status', 'table_id', 'scheduled_at', 'competition', 'match_number',
-        'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win',
+        'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win', 'salad_figures', 'salad_state',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'signature_required',
         'send_to_club_ds', 'club_ds_email', 'send_to_dsr', 'dsr_email', 'send_to_cdr', 'cdr_email', 'send_to_organizer_ds', 'organizer_ds_email', 'result_sent_at', 'result_sent_to',
         'p1_member_id', 'p1_final_player_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license',
@@ -114,6 +119,16 @@ class ScoreboardMatchModel extends Model
      */
     public function stateFor(object $match): array
     {
+        if (self::isSalad($match)) {
+            return [
+                'rev'         => (int) $match->rev,
+                'status'      => $match->status,
+                'innings'     => self::saladEvents($match),
+                'current_run' => 0,
+                'paused'      => (bool) ($match->paused ?? false),
+                'extensions'  => [0, 0],
+            ];
+        }
         $starter = (int) ($match->starting_player ?: 1);
         $bySet   = [];
         foreach ((new ScoreboardInningModel())->getForMatch((int) $match->id) as $r) {
@@ -295,7 +310,8 @@ class ScoreboardMatchModel extends Model
 
         $discipline = (string) ($in['discipline'] ?? '');
         $skittles   = !$trio && $discipline === self::SKITTLES;
-        if (!$skittles && !array_key_exists($discipline, self::DISCIPLINES)) {
+        $salad      = !$trio && isset(self::SALAD_LABELS[$discipline]);
+        if (!$skittles && !$salad && !array_key_exists($discipline, self::DISCIPLINES)) {
             $errors[] = 'Discipline invalide.';
         }
         $data['discipline'] = $discipline;
@@ -338,6 +354,11 @@ class ScoreboardMatchModel extends Model
             $data['unequal_innings'] = 1;
             $data['innings_limit']   = null;
         }
+        if ($salad) {
+            // Salade : points à réaliser = total des figures (calculé par le contrôleur), égalisation au choix
+            $data['innings_limit'] = null;
+            $sets = false;
+        }
 
         $data['sets_to_win'] = null;
         if ($sets) {
@@ -361,7 +382,7 @@ class ScoreboardMatchModel extends Model
             $data['unequal_innings'] = 1;
             $data['innings_limit']   = null;
         }
-        $data['shot_clock_enabled'] = !$trio && !$skittles && !empty($in['shot_clock_enabled']) ? 1 : 0;
+        $data['shot_clock_enabled'] = !$trio && !$skittles && !$salad && !empty($in['shot_clock_enabled']) ? 1 : 0;
         $seconds = (int) ($in['shot_clock_seconds'] ?? 40);
         $data['shot_clock_seconds'] = max(5, min(300, $seconds ?: 40));
         $data['shot_clock_extensions'] = max(0, min(10, (int) ($in['shot_clock_extensions'] ?? 3)));
@@ -403,8 +424,17 @@ class ScoreboardMatchModel extends Model
         }
 
         $totals = array_fill_keys(self::playerNumbers($match), ['points' => 0, 'innings' => 0, 'high' => 0]);
-        $walk   = self::walkInnings($match, array_map('intval', array_values((array) ($state['innings'] ?? []))));
+        $events = array_map('intval', array_values((array) ($state['innings'] ?? [])));
+        $salad  = self::isSalad($match);
+        $walk   = $salad ? ['rows' => [], 'won' => [1 => 0, 2 => 0]] : self::walkInnings($match, $events);
         $rows   = [];
+        if ($salad) {
+            $sw = self::walkSalad($match, $events);
+            foreach ([1, 2] as $p) {
+                $totals[$p] = ['points' => $sw['points'][$p], 'innings' => $sw['innings'][$p], 'high' => $sw['high'][$p]];
+            }
+            $state['current_run'] = $sw['run'];
+        }
 
         foreach ($walk['rows'] as $r) {
             $player = $r['player'];
@@ -431,6 +461,9 @@ class ScoreboardMatchModel extends Model
             'paused'      => !empty($state['paused']) && empty($state['finished']) ? 1 : 0,
             'rev'         => $rev,
         ];
+        if ($salad) {
+            $update['salad_state'] = json_encode($events);
+        }
         if (self::isTrio($match)) {
             $update += ['p3_points' => $totals[3]['points'], 'p3_innings' => $totals[3]['innings'], 'p3_high_run' => $totals[3]['high']];
         }
@@ -470,6 +503,78 @@ class ScoreboardMatchModel extends Model
     public static function isSkittles(object $m): bool
     {
         return ($m->discipline ?? null) === self::SKITTLES;
+    }
+
+    public static function isSalad(object $m): bool
+    {
+        return isset(self::SALAD_LABELS[$m->discipline ?? '']);
+    }
+
+    public static function isQuickPick(object $m): bool
+    {
+        return ($m->discipline ?? null) === self::SALAD_QP;
+    }
+
+    /** Figures d'une partie à la Salade : [['label' => …, 'p1' => points, 'p2' => points], …] (touche = rang + 1). */
+    public static function saladFigures(object $m): array
+    {
+        return json_decode((string) ($m->salad_figures ?? ''), true) ?: [];
+    }
+
+    /** Suite des coups : n° de figure réussie (1 à 8) ou 0 = coup raté, la main passe. */
+    public static function saladEvents(object $m): array
+    {
+        return array_map('intval', json_decode((string) ($m->salad_state ?? ''), true) ?: []);
+    }
+
+    /**
+     * Rejoue la suite des coups d'une Salade. Le joueur 1 commence ; il rejoue tant qu'il réussit, 0 passe la main.
+     * Une figure déjà terminée ne compte pas. Doit rester identique à saladWalk() de scoreboard-display.js.
+     *
+     * @return array{progress: array{1: list<int>, 2: list<int>}, points: array{1:int,2:int}, innings: array{1:int,2:int}, high: array{1:int,2:int}, run: int}
+     */
+    public static function walkSalad(object $m, array $events): array
+    {
+        $figures  = self::saladFigures($m);
+        $progress = [1 => array_fill(0, count($figures), 0), 2 => array_fill(0, count($figures), 0)];
+        $turns    = [1 => 0, 2 => 0];
+        $high     = [1 => 0, 2 => 0];
+        $p = 1; $run = 0;
+        foreach ($events as $e) {
+            if ($e > 0) {
+                $k = $e - 1;
+                if (isset($figures[$k]) && $progress[$p][$k] < (int) $figures[$k]['p' . $p]) {
+                    $progress[$p][$k]++;
+                    $run++;
+                }
+                continue;
+            }
+            $turns[$p]++;
+            $high[$p] = max($high[$p], $run);
+            $run = 0;
+            $p = $p === 1 ? 2 : 1;
+        }
+        $innings = $turns;
+        if ($run > 0) {
+            $innings[$p]++;
+            $high[$p] = max($high[$p], $run);
+        }
+
+        return [
+            'progress' => $progress,
+            'points'   => [1 => array_sum($progress[1]), 2 => array_sum($progress[2])],
+            'innings'  => $innings,
+            'high'     => $high,
+            'run'      => $run,
+        ];
+    }
+
+    /** Un coup a déjà été joué (les reprises de la Salade ne sont pas dans scoreboard_innings). */
+    private function hasPlayed(object $match): bool
+    {
+        return $this->db->table('scoreboard_innings')->where('match_id', $match->id)->countAllResults() > 0
+            || (int) $match->current_run > 0
+            || (self::isSalad($match) && self::saladEvents($match) !== []);
     }
 
     public static function isSets(object $m): bool
@@ -764,8 +869,7 @@ class ScoreboardMatchModel extends Model
      */
     public function backToStart(object $match): bool
     {
-        $played = $this->db->table('scoreboard_innings')->where('match_id', $match->id)->countAllResults();
-        if ($match->status !== 'live' || $played > 0 || (int) $match->current_run > 0) {
+        if ($match->status !== 'live' || $this->hasPlayed($match)) {
             return false;
         }
 
@@ -803,8 +907,7 @@ class ScoreboardMatchModel extends Model
      */
     public function swapPlayers(object $match): bool
     {
-        $played = $this->db->table('scoreboard_innings')->where('match_id', $match->id)->countAllResults();
-        if ($match->status !== 'live' || $played > 0 || (int) $match->current_run > 0) {
+        if ($match->status !== 'live' || $this->hasPlayed($match)) {
             return false;
         }
 
@@ -823,6 +926,13 @@ class ScoreboardMatchModel extends Model
         foreach (['member_id', 'final_player_id', 'last_name', 'first_name', 'club', 'license', 'category_id', 'category', 'average_min', 'distance'] as $f) {
             $data['p1_' . $f] = $match->{'p2_' . $f};
             $data['p2_' . $f] = $match->{'p1_' . $f};
+        }
+        // Salade : les points de chaque figure suivent leur joueur (handicap)
+        if (self::isSalad($match)) {
+            $data['salad_figures'] = json_encode(array_map(
+                static fn (array $f): array => ['label' => $f['label'], 'p1' => $f['p2'], 'p2' => $f['p1']],
+                self::saladFigures($match)
+            ), JSON_UNESCAPED_UNICODE);
         }
         return $data;
     }
@@ -885,6 +995,9 @@ class ScoreboardMatchModel extends Model
     {
         if (self::isSkittles($m)) {
             return self::SKITTLES_LABEL;
+        }
+        if (self::isSalad($m)) {
+            return self::SALAD_LABELS[$m->discipline];
         }
         return (self::DISCIPLINES[$m->discipline] ?? $m->discipline) . ' ' . ($m->format ?? '');
     }
