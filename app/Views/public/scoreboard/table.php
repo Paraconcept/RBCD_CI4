@@ -138,11 +138,11 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
 </div>
 <?php
 $friendlyChoices = [
-    ['amicale',                  'handshake',    'Partie amicale à deux',              'Libre, cadre, bande ou 3 bandes', false],
-    ['amicale-a-3',              'users',        'Partie amicale à trois',             'Trois joueurs, à tour de rôle', false],
+    ['amicale',                  'fas fa-handshake','Partie amicale à deux',              'Libre, cadre, bande ou 3 bandes', false],
+    ['amicale-a-3',              'fas fa-users',    'Partie amicale à trois',             'Trois joueurs, à tour de rôle', false],
     ['amicale-5-quilles',        'skittles', 'Partie amicale aux 5 quilles',       'Coup par coup, fautes à l\'adversaire', false],
-    ['amicale-salade',           'bowl-food',    'Partie amicale à la Salade',         'En construction', true],
-    ['amicale-salade-quick-pick','shuffle',      'Partie amicale à la Salade « Quick Pick »', 'En construction', true],
+    ['amicale-salade',           'far fa-list-alt', 'Partie amicale à la Salade',         'En construction', true],
+    ['amicale-salade-quick-pick','fas fa-shuffle',  'Partie amicale à la Salade « Quick Pick »', 'En construction', true],
 ];
 ?>
 <div class="sb-modal" id="sbFriendlyModal" role="dialog" aria-modal="true" aria-labelledby="sbFriendlyTitle">
@@ -157,7 +157,7 @@ $friendlyChoices = [
             <?php if ($icon === 'skittles'): ?>
             <?= view('public/scoreboard/_skittles', ['variant' => 'icon', 'uid' => 'skc', 'class' => 'sb-choice-svg']) ?>
             <?php else: ?>
-            <i class="fas fa-<?= $icon ?>"></i>
+            <i class="<?= $icon ?>"></i>
             <?php endif; ?>
             <span>
                 <span class="sb-choice-name"><?= esc($label) ?></span>

@@ -3,7 +3,7 @@
 <span class="sb-topbar-title"><?= esc($table->name) ?></span>
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<h1 class="sb-title mb-4"><i class="fas <?= esc($icon) ?> me-2 sb-accent"></i><?= esc($title) ?></h1>
+<h1 class="sb-title mb-4"><i class="<?= esc($icon) ?> me-2 sb-accent"></i><?= esc($title) ?></h1>
 <div class="sb-card text-center py-5">
     <i class="fas fa-person-digging fa-3x mb-3 text-warning"></i>
     <h2 class="h3">En construction</h2>
