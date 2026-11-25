@@ -151,12 +151,12 @@ class ScoreboardController extends BaseController
 
     public function friendlySalad(int $tableId): string
     {
-        return $this->comingSoon($tableId, 'Partie amicale à la salade', 'fa-bowl-food');
+        return $this->comingSoon($tableId, 'Partie amicale à la Salade', 'fa-bowl-food');
     }
 
     public function friendlySaladQuickPick(int $tableId): string
     {
-        return $this->comingSoon($tableId, 'Partie amicale à la salade Quick Pick', 'fa-shuffle');
+        return $this->comingSoon($tableId, 'Partie amicale à la Salade « Quick Pick »', 'fa-shuffle');
     }
 
     private function comingSoon(int $tableId, string $title, string $icon): string
