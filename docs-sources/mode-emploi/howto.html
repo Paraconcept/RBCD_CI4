@@ -139,6 +139,10 @@
     table.ex th { font-size: 8pt; text-transform: uppercase; letter-spacing: .04em; color: #555; }
     table.ex td:first-child, table.ex th:first-child { text-align: left; }
     table.ex tr.win td { font-weight: 700; color: var(--red); }
+    table.ex.sk { font-size: 10.5pt; margin: 0; }
+    table.ex.sk td { text-align: left; padding: 1.8mm 2mm; vertical-align: middle; }
+    table.ex.sk td:nth-child(2) { white-space: nowrap; }
+    table.ex.sk th { text-align: left; }
     .phone { width: 100%; border-radius: 6mm; border: 2.2mm solid #11141d; display: block; }
 </style>
 </head>
@@ -170,7 +174,7 @@
     <div class="body" style="flex-direction:column;gap:6mm">
         <div class="overview">
             <div class="card"><div class="ico"><i class="fas fa-table-cells-large"></i></div><h3>1. Le billard</h3><p>Sur le Chromebook du billard, ouvrez <b>Marquoirs</b> et choisissez votre billard (il est souvent déjà en favori).</p></div>
-            <div class="card"><div class="ico"><i class="fas fa-play"></i></div><h3>2. La partie</h3><p>Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b>, à 2 ou à 3 joueurs.</p></div>
+            <div class="card"><div class="ico"><i class="fas fa-play"></i></div><h3>2. La partie</h3><p>Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b> : à 2, à 3 ou aux 5 quilles.</p></div>
             <div class="card"><div class="ico"><i class="fas fa-stopwatch"></i></div><h3>3. L'échauffement</h3><p>Deux échauffements de <b>5 minutes</b>, puis on choisit <b>qui commence</b> la partie (à 3 : pas d'échauffement).</p></div>
             <div class="card"><div class="ico"><i class="fas fa-calculator"></i></div><h3>4. L'arbitrage</h3><p>L'arbitre marque les points au <b>pavé numérique</b>. Tout s'affiche sur la TV.</p></div>
         </div>
@@ -188,9 +192,20 @@
 
 <!-- ============================ 3. LE BILLARD ============================ -->
 <section class="page">
-    <header class="head"><div class="num">1</div><div><h1>La page de votre billard</h1><p>Les rencontres prévues et les boutons « Partie amicale »</p></div><img src="img/ecusson.png" alt=""></header>
+    <header class="head"><div class="num">1</div><div><h1>La page de votre billard</h1><p>Les rencontres prévues et le bouton « Partie amicale »</p></div><img src="img/ecusson.png" alt=""></header>
     <div class="body">
-        <div class="col wide"><img class="shot" src="img/02_billard.png" alt=""></div>
+        <div class="col wide">
+            <img class="shot" src="img/02_billard.png" alt="">
+            <div style="display:flex;gap:5mm;align-items:center">
+                <img class="shot" src="img/30_choix_amicale.png" alt="" style="width:auto;height:66mm">
+                <ul class="dots">
+                    <li><kbd>1</kbd> à deux : page 4</li>
+                    <li><kbd>2</kbd> à trois : pages 16 et 17</li>
+                    <li><kbd>3</kbd> aux 5 quilles : pages 18 et 19</li>
+                    <li><kbd>4</kbd> <kbd>5</kbd> Salade : bientôt</li>
+                </ul>
+            </div>
+        </div>
         <div class="col text">
             <h2><i class="fas fa-calendar-check"></i>Rencontres du jour</h2>
             <p>Les rencontres officielles encodées par le DS apparaissent ici le jour même. Cliquez sur <b>Démarrer</b>.</p>
@@ -198,9 +213,7 @@
             <h2 style="margin-top:2mm"><i class="fas fa-calendar-alt"></i>Rencontres programmées</h2>
             <p>Affichées pour information : elles ne peuvent pas encore être démarrées.</p>
             <h2 style="margin-top:2mm"><i class="fas fa-handshake"></i>Partie amicale</h2>
-            <p>Entraînement ou partie entre membres : grand bouton <b>Partie amicale</b> (page suivante).</p>
-            <h2 style="margin-top:2mm"><i class="fas fa-users"></i>Partie amicale à 3</h2>
-            <p>Trois joueurs à tour de rôle : pages 14 et 15.</p>
+            <p>Le grand bouton <b>Partie amicale</b> ouvre la fenêtre « Quelle partie amicale ? » (ci-contre) : touchez le type de partie, ou tapez son numéro au pavé. <kbd>⌫</kbd> la referme.</p>
         </div>
     </div>
     <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b></span><span>3</span></footer>
@@ -213,6 +226,7 @@
         <div class="col wide"><img class="shot" src="img/03_amicale.png" alt=""></div>
         <div class="col text">
             <ul class="steps">
+                <li>Dans la fenêtre « Quelle partie amicale ? », choisissez <kbd>1</kbd> <b>Partie amicale à deux</b>.</li>
                 <li><b>Les joueurs</b> — tapez les deux premières lettres du nom : les membres du club et les joueurs déjà rencontrés sont proposés. Un clic remplit le nom et le prénom.</li>
                 <li><b>Points</b> à réaliser — propres à chaque joueur (handicap possible). Ceux du joueur 1 sont recopiés chez le joueur 2.</li>
                 <li><b>Discipline et format</b> — libre, cadre, bande ou 3 bandes ; petit ou grand billard.</li>
@@ -221,7 +235,7 @@
                         <li><b>Limite de reprises</b> (60 proposé en 3 bandes)</li>
                         <li><b>Reprises inégales</b> : pas de reprise d'égalisation</li>
                         <li><b>Chrono par coup</b> : 40 s et 3 time-outs par joueur</li>
-                        <li><b>Par sets</b> (3 bandes) : voir pages 12 et 13</li>
+                        <li><b>Par sets</b> (3 bandes) : voir pages 14 et 15</li>
                     </ul>
                 </li>
                 <li>Cliquez sur <b>Continuer</b>.</li>
@@ -519,7 +533,7 @@
         </div>
         <div class="two">
             <ul class="steps">
-                <li>Sur la page du billard, cliquez sur <b>Partie amicale à 3</b>.</li>
+                <li>Sur la page du billard : <b>Partie amicale</b>, puis <kbd>2</kbd> <b>Partie amicale à trois</b>.</li>
                 <li>Pour chaque joueur : <b>nom</b>, <b>prénom</b> et <b>points</b> à réaliser (ceux du joueur 1 sont recopiés chez les deux autres).</li>
                 <li>Discipline, format, <b>limite de reprises</b> et <b>reprises inégales</b> comme d'habitude. Pas de chrono ni de sets à 3.</li>
                 <li><b>Continuer</b> : pas d'échauffement, on passe directement au choix de l'ordre de jeu.</li>
@@ -559,6 +573,57 @@
     <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b></span><span>17</span></footer>
 </section>
 
+<!-- ============================ 5 QUILLES : LANCEMENT ============================ -->
+<section class="page">
+    <header class="head"><div class="num"><svg class="pins" style="width:8mm;height:8mm;color:#fff" viewBox="0 0 100 104" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="5 quilles" preserveAspectRatio="xMidYMid meet"> <defs> <clipPath id="sk1-clip"><path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z"/></clipPath> </defs> <g transform="translate(12 21.6) scale(0.8)"> <path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z" fill="currentColor" stroke="#84252B" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/> <g clip-path="url(#sk1-clip)" fill="#84252B"> <rect x="0" y="28" width="40" height="3.2"/> <rect x="0" y="34" width="40" height="3.2"/> </g> </g> <g transform="translate(56 21.6) scale(0.8)"> <path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z" fill="currentColor" stroke="#84252B" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/> <g clip-path="url(#sk1-clip)" fill="#84252B"> <rect x="0" y="28" width="40" height="3.2"/> <rect x="0" y="34" width="40" height="3.2"/> </g> </g> <g transform="translate(31 6.9) scale(0.95)"> <path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z" fill="currentColor" stroke="#84252B" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/> <g clip-path="url(#sk1-clip)" fill="#84252B"> <rect x="0" y="28" width="40" height="3.2"/> <rect x="0" y="34" width="40" height="3.2"/> </g> </g> </svg></div><div><h1>Partie amicale aux 5 quilles</h1><p>Coup par coup : la main passe après chaque coup</p></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body" style="flex-direction:column;gap:6mm">
+        <div class="two">
+            <div><img class="shot" src="img/31_amicale5q.png" alt=""><div class="caption">Le formulaire : nom, prénom et points de chaque joueur (60 proposés).</div></div>
+            <div><img class="shot" src="img/32_marquoir5q.png" alt=""><div class="caption">DUPONT (bille blanche) a tapé 10 : <kbd>Entrée</kbd> pour des points, <kbd>+</kbd> pour une faute.</div></div>
+        </div>
+        <div class="two">
+            <ul class="steps">
+                <li>Sur la page du billard : <b>Partie amicale</b>, puis <kbd>3</kbd> <b>Partie amicale aux 5 quilles</b>.</li>
+                <li><b>Nom</b>, <b>prénom</b> et <b>points</b> à réaliser de chaque joueur (handicap possible). Option <b>Par sets</b> : 2 sets gagnants par défaut.</li>
+                <li><b>Continuer</b> : échauffement et « Qui commence ? » comme d'habitude. Celui qui commence joue la <b>blanche</b> et la garde toute la partie.</li>
+            </ul>
+            <div class="col">
+                <div class="note"><p><b>À l'écran</b> — la case <b>Coup</b> (la saisie en cours) et les 5 quilles au centre. À côté du score : les <b>5 derniers coups</b> du joueur, les <b>fautes en rouge</b> (−4 = 4 points donnés à l'adversaire). <b>Moyenne</b> = points réalisés ÷ points de l'adversaire.</p></div>
+                <div class="note green"><p><b>Fin de partie</b> — le premier qui atteint ses points gagne, sans reprise d'égalisation. Si le dernier coup dépasse, le score est <b>ramené aux points à réaliser</b>. Pas de chrono ni de limite de reprises.</p></div>
+            </div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b></span><span>18</span></footer>
+</section>
+
+<!-- ============================ 5 QUILLES : PAVÉ ============================ -->
+<section class="page">
+    <header class="head"><div class="num"><svg class="pins" style="width:8mm;height:8mm;color:#fff" viewBox="0 0 100 104" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="5 quilles" preserveAspectRatio="xMidYMid meet"> <defs> <clipPath id="sk1-clip"><path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z"/></clipPath> </defs> <g transform="translate(12 21.6) scale(0.8)"> <path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z" fill="currentColor" stroke="#84252B" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/> <g clip-path="url(#sk1-clip)" fill="#84252B"> <rect x="0" y="28" width="40" height="3.2"/> <rect x="0" y="34" width="40" height="3.2"/> </g> </g> <g transform="translate(56 21.6) scale(0.8)"> <path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z" fill="currentColor" stroke="#84252B" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/> <g clip-path="url(#sk1-clip)" fill="#84252B"> <rect x="0" y="28" width="40" height="3.2"/> <rect x="0" y="34" width="40" height="3.2"/> </g> </g> <g transform="translate(31 6.9) scale(0.95)"> <path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z" fill="currentColor" stroke="#84252B" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/> <g clip-path="url(#sk1-clip)" fill="#84252B"> <rect x="0" y="28" width="40" height="3.2"/> <rect x="0" y="34" width="40" height="3.2"/> </g> </g> </svg></div><div><h1>5 quilles : arbitrer au pavé numérique</h1><p>Un coup = une saisie, puis la main passe à l'adversaire</p></div><img src="img/ecusson.png" alt=""></header>
+    <div class="body">
+        <div class="col wide">
+            <table class="ex sk">
+                <thead><tr><th>Ce qui s'est passé</th><th>Au pavé</th><th>Résultat</th></tr></thead>
+                <tbody>
+                    <tr><td><b>Coup valable avec points</b> (quilles et/ou carambolage)</td><td><kbd>8</kbd> <kbd>Entrée</kbd></td><td>8 points pour le joueur</td></tr>
+                    <tr><td><b>Coup valable sans point</b> (seule la bille adverse est touchée)</td><td><kbd>Entrée</kbd></td><td>0 point, la main passe</td></tr>
+                    <tr><td><b>Faute simple</b> : bille adverse manquée, bille rouge touchée d'abord, bille sautée, touché, pied, temps dépassé…</td><td><kbd>+</kbd></td><td>2 points de pénalité pour l'adversaire</td></tr>
+                    <tr><td><b>Faute + quilles</b> : ex. quilles renversées avant la bille adverse (4 points de quilles + 2 de pénalité)</td><td><kbd>6</kbd> <kbd>+</kbd></td><td>6 points pour l'adversaire</td></tr>
+                    <tr><td><b>Faute « quilles »</b> : la bille joueuse tombe dans les quilles après avoir touché la bille adverse (pas de pénalité de 2)</td><td><kbd>4</kbd> <kbd>+</kbd></td><td>seuls les points réalisés vont à l'adversaire</td></tr>
+                    <tr><td><b>Coup de départ</b> qui marque (ex. 6 points)</td><td><kbd>6</kbd> <kbd>+</kbd></td><td>les points vont à l'adversaire</td></tr>
+                    <tr><td><b>Erreur de saisie</b></td><td><kbd>−</kbd></td><td>retire le dernier coup</td></tr>
+                </tbody>
+            </table>
+            <div class="note"><p><b>Valeur des points</b> — quille blanche 2 · quille rouge 4 · rouge seule 10 · carambolage (adverse puis rouge) 4 · « casin » 3 · pénalité 2. Total <b>tapé en une fois</b> : quilles + carambolage (+ 2 si faute).</p></div>
+            <div class="note orange"><p><b>Bille libre</b> — c'est un placement des billes sur le billard, pas des points : le marquoir n'a rien à faire. Après la faute, l'arbitre donne la bille libre selon le règlement et saisit le coup suivant normalement.</p></div>
+        </div>
+        <div class="col" style="flex:0 0 112mm">
+            <div><img class="shot" src="img/33_faute5q.png" alt=""><div class="caption">Faute de DUPONT (<kbd>1</kbd><kbd>0</kbd> <kbd>+</kbd>) : les 10 points vont à MARTIN.</div></div>
+            <div><img class="shot" src="img/34_resultat5q.png" alt=""><div class="caption">Résultat : points, coups, moyenne et meilleur coup (MC). <kbd>+</kbd> rejoue.</div></div>
+        </div>
+    </div>
+    <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b></span><span>19</span></footer>
+</section>
+
 <!-- ============================ 13. EN DIRECT ============================ -->
 <section class="page">
     <header class="head"><div class="num"><i class="fas fa-tower-broadcast"></i></div><div><h1>Suivre une rencontre en direct, de chez soi</h1><p>Sur ordinateur, tablette ou smartphone</p></div><img src="img/ecusson.png" alt=""></header>
@@ -579,7 +644,7 @@
             </div>
         </div>
     </div>
-    <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b> · Une question ? ds@rbcd.be</span><span>18</span></footer>
+    <footer class="foot"><span>RBC Disonais · <b>Mode d'emploi des marquoirs</b> · Une question ? ds@rbcd.be</span><span>20</span></footer>
 </section>
 
 </body>

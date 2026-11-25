@@ -89,6 +89,7 @@
 .mh-pins-list div { display: grid; grid-template-columns: 32px 1fr; gap: .5rem; align-items: start; }
 .mh-pins-list .n { width: 28px; height: 28px; border-radius: 50%; background: var(--yellow); color: var(--navy); border: 3px solid var(--navy); font-family: 'Barlow Condensed'; font-weight: 800; display: grid; place-items: center; font-size: .95rem; }
 @media (max-width: 575.98px) { .mh-pin { width: 22px; height: 22px; font-size: .75rem; border-width: 2px; } .mh-body { padding: 1.2rem .9rem; } }
+.mh-sk th { font-family: 'Barlow Condensed'; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-size: .9rem; }
 </style>
 <?= $this->endSection() ?>
 
@@ -131,6 +132,7 @@
       <a href="#proportionnelle">Moyenne proportionnelle</a>
       <a href="#sets">Partie par sets</a>
       <a href="#trois">Partie à 3</a>
+      <a href="#cinq-quilles">5 quilles</a>
       <a href="#direct">En direct</a>
     </nav>
 
@@ -140,7 +142,7 @@
       <div class="mh-body">
         <div class="row g-3 mb-4">
           <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-th-large"></i></div><h5>1. Le billard</h5><p class="mb-0">Sur le Chromebook du billard, ouvrez <b>Marquoirs</b> et choisissez votre billard (souvent déjà en favori).</p></div></div>
-          <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-play"></i></div><h5>2. La partie</h5><p class="mb-0">Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b>, à 2 ou à 3 joueurs.</p></div></div>
+          <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-play"></i></div><h5>2. La partie</h5><p class="mb-0">Démarrez la <b>rencontre du jour</b> préparée par le DS, ou lancez une <b>partie amicale</b> : à 2, à 3 ou aux 5 quilles.</p></div></div>
           <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-stopwatch"></i></div><h5>3. L'échauffement</h5><p class="mb-0">Deux échauffements de <b>5 minutes</b>, puis on choisit <b>qui commence</b> la partie (à 3 : pas d'échauffement).</p></div></div>
           <div class="col-sm-6 col-lg-3"><div class="mh-card"><div class="ico"><i class="fas fa-calculator"></i></div><h5>4. L'arbitrage</h5><p class="mb-0">L'arbitre marque les points au <b>pavé numérique</b>. Tout s'affiche sur la TV.</p></div></div>
         </div>
@@ -157,7 +159,7 @@
 
     <!-- 1. Billard -->
     <div class="mh-section" id="billard">
-      <div class="mh-head"><div class="num">1</div><div><h3>La page de votre billard</h3><p>Les rencontres prévues et les boutons « Partie amicale »</p></div></div>
+      <div class="mh-head"><div class="num">1</div><div><h3>La page de votre billard</h3><p>Les rencontres prévues et le bouton « Partie amicale »</p></div></div>
       <div class="mh-body">
         <div class="row g-4">
           <div class="col-lg-7"><img class="mh-shot" src="<?= $img('02_billard') ?>" alt="Page d'un billard"></div>
@@ -169,9 +171,18 @@
             <h4 class="mt-3"><i class="fas fa-calendar-alt"></i>Rencontres programmées</h4>
             <p>Les prochaines rencontres sont affichées pour information. Elles ne peuvent pas encore être démarrées.</p>
             <h4 class="mt-3"><i class="fas fa-handshake"></i>Partie amicale</h4>
-            <p>Pour un entraînement ou une partie entre membres, cliquez sur le grand bouton <b>Partie amicale</b>.</p>
-            <h4 class="mt-3"><i class="fas fa-users"></i>Partie amicale à 3</h4>
-            <p class="mb-0">Trois joueurs qui jouent à tour de rôle : bouton <b>Partie amicale à 3</b> (<a href="#trois">voir plus bas</a>).</p>
+            <p>Pour un entraînement ou une partie entre membres, cliquez sur le grand bouton <b>Partie amicale</b>. Une fenêtre propose le type de partie : touchez-le, ou tapez son numéro au pavé (<kbd>⌫</kbd> la referme).</p>
+          </div>
+        </div>
+        <div class="row g-4 mt-1 align-items-center">
+          <div class="col-md-5 col-lg-4"><img class="mh-shot" src="<?= $img('30_choix_amicale') ?>" alt="Choix du type de partie amicale"></div>
+          <div class="col-md-7 col-lg-8">
+            <ul class="mb-0">
+              <li><kbd>1</kbd> <b>à deux</b> : <a href="#amicale">voir plus bas</a></li>
+              <li><kbd>2</kbd> <b>à trois</b> : <a href="#trois">partie à 3</a></li>
+              <li><kbd>3</kbd> <b>aux 5 quilles</b> : <a href="#cinq-quilles">5 quilles</a></li>
+              <li><kbd>4</kbd> <kbd>5</kbd> <b>Salade</b> et <b>Salade « Quick Pick »</b> : bientôt</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -185,6 +196,7 @@
           <div class="col-lg-7"><img class="mh-shot" src="<?= $img('03_amicale') ?>" alt="Formulaire de partie amicale"></div>
           <div class="col-lg-5">
             <ol class="mh-steps">
+              <li>Dans la fenêtre « Quelle partie amicale ? », choisissez <kbd>1</kbd> <b>Partie amicale à deux</b>.</li>
               <li><b>Les joueurs</b> — tapez les deux premières lettres du nom : les membres du club et les joueurs déjà rencontrés sont proposés. Un clic remplit le nom et le prénom.</li>
               <li><b>Points</b> à réaliser — propres à chaque joueur (handicap possible). Ceux du joueur 1 sont recopiés chez le joueur 2.</li>
               <li><b>Discipline et format</b> — libre, cadre, bande ou 3 bandes ; petit ou grand billard.</li>
@@ -486,7 +498,7 @@
         <div class="row g-3 mb-4">
           <div class="col-md-6">
             <ol class="mh-steps">
-              <li>Sur la page du billard, cliquez sur <b>Partie amicale à 3</b>.</li>
+              <li>Sur la page du billard : <b>Partie amicale</b>, puis <kbd>2</kbd> <b>Partie amicale à trois</b>.</li>
               <li>Pour chaque joueur : <b>nom</b>, <b>prénom</b> et <b>points</b> à réaliser (ceux du joueur 1 sont recopiés chez les deux autres).</li>
               <li>Discipline, format, <b>limite de reprises</b> et <b>reprises inégales</b> comme d'habitude. Pas de chrono ni de sets à 3.</li>
               <li><b>Continuer</b> : pas d'échauffement, on passe directement au choix de l'ordre de jeu.</li>
@@ -513,6 +525,55 @@
           <div class="col-md-6">
             <div class="mh-note"><b>Fin du tour</b> — quand un joueur atteint ses points, les suivants jouent encore leur reprise : la partie s'arrête à la fin du tour. Avec « reprises inégales », elle s'arrête tout de suite.</div>
             <div class="mh-note green"><b>Classement</b> — au pourcentage des points réalisés (ex æquo possibles). <kbd>+</kbd> rejoue la même partie à trois.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 quilles -->
+    <div class="mh-section" id="cinq-quilles">
+      <div class="mh-head"><div class="num"><svg style="width:28px;height:28px;color:#fff" viewBox="0 0 100 104" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="5 quilles" preserveAspectRatio="xMidYMid meet"> <defs> <clipPath id="skw-clip"><path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z"/></clipPath> </defs> <g transform="translate(12 21.6) scale(0.8)"> <path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z" fill="currentColor" stroke="#84252B" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/> <g clip-path="url(#skw-clip)" fill="#84252B"> <rect x="0" y="28" width="40" height="3.2"/> <rect x="0" y="34" width="40" height="3.2"/> </g> </g> <g transform="translate(56 21.6) scale(0.8)"> <path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z" fill="currentColor" stroke="#84252B" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/> <g clip-path="url(#skw-clip)" fill="#84252B"> <rect x="0" y="28" width="40" height="3.2"/> <rect x="0" y="34" width="40" height="3.2"/> </g> </g> <g transform="translate(31 6.9) scale(0.95)"> <path d="M20 2C27 2 29 9 28 16C27.5 20 25.5 23 25 26C26 31 34 40 35 58C36 76 30 92 27 98L13 98C10 92 4 76 5 58C6 40 14 31 15 26C14.5 23 12.5 20 12 16C11 9 13 2 20 2Z" fill="currentColor" stroke="#84252B" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/> <g clip-path="url(#skw-clip)" fill="#84252B"> <rect x="0" y="28" width="40" height="3.2"/> <rect x="0" y="34" width="40" height="3.2"/> </g> </g> </svg></div><div><h3>Partie amicale aux 5 quilles</h3><p>Coup par coup : la main passe après chaque coup</p></div></div>
+      <div class="mh-body">
+        <div class="row g-4 mb-4">
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('31_amicale5q') ?>" alt="Formulaire de partie aux 5 quilles"><div class="mh-caption">Le formulaire : nom, prénom et points de chaque joueur (60 proposés).</div></div>
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('32_marquoir5q') ?>" alt="Marquoir aux 5 quilles"><div class="mh-caption">DUPONT (bille blanche) a tapé 10 : <kbd>Entrée</kbd> pour des points, <kbd>+</kbd> pour une faute.</div></div>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <ol class="mh-steps">
+              <li>Sur la page du billard : <b>Partie amicale</b>, puis <kbd>3</kbd> <b>Partie amicale aux 5 quilles</b>.</li>
+              <li><b>Nom</b>, <b>prénom</b> et <b>points</b> à réaliser de chaque joueur (handicap possible). Option <b>Par sets</b> : 2 sets gagnants par défaut.</li>
+              <li><b>Continuer</b> : échauffement et « Qui commence ? » comme d'habitude. Celui qui commence joue la <b>blanche</b> et la garde toute la partie.</li>
+            </ol>
+          </div>
+          <div class="col-md-6">
+            <div class="mh-note"><b>À l'écran</b> — la case <b>Coup</b> (la saisie en cours) et les 5 quilles au centre. À côté du score : les <b>5 derniers coups</b> du joueur, les <b>fautes en rouge</b> (−4 = 4 points donnés à l'adversaire). <b>Moyenne</b> = points réalisés ÷ points de l'adversaire.</div>
+            <div class="mh-note green"><b>Fin de partie</b> — le premier qui atteint ses points gagne, sans reprise d'égalisation. Si le dernier coup dépasse, le score est <b>ramené aux points à réaliser</b>. Pas de chrono ni de limite de reprises.</div>
+          </div>
+        </div>
+        <h4><i class="fas fa-calculator"></i>Arbitrer au pavé numérique</h4>
+        <div class="table-responsive mb-3">
+          <table class="table align-middle mh-sk">
+            <thead><tr><th>Ce qui s'est passé</th><th>Au pavé</th><th>Résultat</th></tr></thead>
+            <tbody>
+              <tr><td><b>Coup valable avec points</b> (quilles et/ou carambolage)</td><td class="text-nowrap"><kbd>8</kbd> <kbd>Entrée</kbd></td><td>8 points pour le joueur</td></tr>
+              <tr><td><b>Coup valable sans point</b> (seule la bille adverse est touchée)</td><td class="text-nowrap"><kbd>Entrée</kbd></td><td>0 point, la main passe</td></tr>
+              <tr><td><b>Faute simple</b> : bille adverse manquée, bille rouge touchée d'abord, bille sautée, touché, pied, temps dépassé…</td><td class="text-nowrap"><kbd>+</kbd></td><td>2 points de pénalité pour l'adversaire</td></tr>
+              <tr><td><b>Faute + quilles</b> : ex. quilles renversées avant la bille adverse (4 points de quilles + 2 de pénalité)</td><td class="text-nowrap"><kbd>6</kbd> <kbd>+</kbd></td><td>6 points pour l'adversaire</td></tr>
+              <tr><td><b>Faute « quilles »</b> : la bille joueuse tombe dans les quilles après avoir touché la bille adverse (pas de pénalité de 2)</td><td class="text-nowrap"><kbd>4</kbd> <kbd>+</kbd></td><td>seuls les points réalisés vont à l'adversaire</td></tr>
+              <tr><td><b>Coup de départ</b> qui marque (ex. 6 points)</td><td class="text-nowrap"><kbd>6</kbd> <kbd>+</kbd></td><td>les points vont à l'adversaire</td></tr>
+              <tr><td><b>Erreur de saisie</b></td><td class="text-nowrap"><kbd>−</kbd></td><td>retire le dernier coup ; <kbd>⌫</kbd> › « Corriger un coup » pour un coup plus ancien (<kbd>+</kbd> en fait une faute ou non)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="mh-note"><b>Valeur des points</b> — quille blanche 2 · quille rouge 4 · rouge seule 10 · carambolage (adverse puis rouge) 4 · « casin » 3 · pénalité 2. Le total est <b>tapé en une fois</b> : quilles + carambolage (+ 2 si faute).</div>
+            <div class="mh-note orange"><b>Bille libre</b> — c'est un placement des billes sur le billard, pas des points : le marquoir n'a rien à faire. Après la faute, l'arbitre donne la bille libre selon le règlement et saisit le coup suivant normalement.</div>
+          </div>
+          <div class="col-md-6">
+            <img class="mh-shot" src="<?= $img('33_faute5q') ?>" alt="Faute aux 5 quilles"><div class="mh-caption mb-3">Faute de DUPONT (<kbd>1</kbd><kbd>0</kbd> <kbd>+</kbd>) : les 10 points vont à MARTIN.</div>
+            <img class="mh-shot" src="<?= $img('34_resultat5q') ?>" alt="Résultat d'une partie aux 5 quilles"><div class="mh-caption">Résultat : points, coups, moyenne et meilleur coup (MC). <kbd>+</kbd> rejoue.</div>
           </div>
         </div>
       </div>

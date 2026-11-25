@@ -179,6 +179,8 @@
         const setBefore = walk().set;
         st.innings.push(SK ? shot : st.run);
         st.run = 0;
+        // L'annonce d'une faute ne doit pas rester affichée pendant les coups suivants
+        if (SK && !foul) { flashMsg = ''; clearTimeout(flashTimer); }
         if (SK && foul) {
             const last = walk().rows.slice(-1)[0];
             flash('Faute de ' + C.players[last.player].last + '\n' + last.gain + ' pt' + (last.gain > 1 ? 's' : '') + ' pour ' + C.players[last.to].last);
