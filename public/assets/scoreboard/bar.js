@@ -102,6 +102,7 @@
         t.call = null;
         render();
         fetch(C.serve + id, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.text(); })
             .catch(function () { /* rattrapé par l'interrogation suivante */ })
             .then(poll);
     }

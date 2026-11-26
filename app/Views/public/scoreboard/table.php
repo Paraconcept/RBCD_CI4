@@ -49,8 +49,9 @@ $matchCard = static function (object $m, bool $today) use ($tableId, $frDate, $s
 ?>
 <?= view('public/scoreboard/_device', ['suggestedName' => $table->name]) ?>
 <script>
-// Envois de feuilles de match en retard (Chromebook fermé avant l'envoi, signature jamais faite) : sans bloquer la page
-fetch(<?= json_encode(base_url('marquoir/api/envois')) ?>, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } }).catch(() => {});
+// Envois de feuilles de match en retard (Chromebook fermé avant l'envoi, signature jamais faite) : sans bloquer la page.
+// La réponse est lue : sinon Chrome garde la requête ouverte (connexion occupée jusqu'au ramasse-miettes).
+fetch(<?= json_encode(base_url('marquoir/api/envois')) ?>, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then((r) => r.text()).catch(() => {});
 </script>
 <div class="row g-4">
     <div class="col-lg-8">
