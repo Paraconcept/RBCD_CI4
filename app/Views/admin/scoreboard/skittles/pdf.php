@@ -67,12 +67,15 @@ $sigs   = $signature ? ['a' => $signature->a_signature, 'b' => $signature->b_sig
 
 <table class="head" style="width:100%">
   <tr>
-    <td style="width:34mm"><?php if ($logo): ?><img src="<?= $logo ?>" style="height:<?= $c ? 20 : 23 ?>mm"><?php endif; ?></td>
+    <td style="width:44mm;white-space:nowrap">
+      <?php if ($logo): ?><img src="<?= $logo ?>" style="height:<?= $c ? 20 : 23 ?>mm"><?php endif; ?>
+      <?php if (!empty($club)): ?><img src="<?= $club ?>" style="height:<?= $c ? 20 : 23 ?>mm;margin-left:2mm"><?php endif; ?>
+    </td>
     <td class="title">
       <div class="t1">TOURNOI REGIONAL 5 QUILLES (OPEN)</div>
       <div class="t2">Saison <?= esc(P::season($pool->scheduled_at)) ?></div>
     </td>
-    <td style="width:34mm;text-align:right"><?php if ($photo): ?><img src="<?= $photo ?>" style="height:<?= $c ? 19 : 22 ?>mm"><?php endif; ?></td>
+    <td style="width:44mm;text-align:right"><?php if ($photo): ?><img src="<?= $photo ?>" style="height:<?= $c ? 19 : 22 ?>mm"><?php endif; ?></td>
   </tr>
 </table>
 

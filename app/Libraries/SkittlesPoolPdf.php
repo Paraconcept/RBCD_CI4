@@ -27,6 +27,7 @@ class SkittlesPoolPdf
             'pool'      => $pool,
             'sheet'     => (new ScoreboardSkittlesPoolModel())->sheet($pool),
             'logo'      => $image('Ecusson_FRBB-LL.png'),
+            'club'      => $image('Ecusson_RBCD.png'),
             'photo'     => $image('5quilles.png'),
             'regional'  => ScoreboardSkittlesPoolModel::regional(),
             'signature' => (new ScoreboardSkittlesSignatureModel())->forPool((int) $pool->id),
