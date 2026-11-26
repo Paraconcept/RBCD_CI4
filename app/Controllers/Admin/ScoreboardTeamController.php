@@ -292,6 +292,7 @@ class ScoreboardTeamController extends BaseController
 
         return $this->response->setJSON([
             'available'  => true,
+            'frbb_team'  => trim(($data['team']['name'] ?? '?') . ' (' . ($data['team']['season'] ?? '?') . ', n° ' . $team->frbb_team_id . ')'),
             'rules'      => $data['rules'] ?? null,
             'encounters' => $encounters,
             'home'       => $teams[(string) $team->frbb_team_id]['players'] ?? [],

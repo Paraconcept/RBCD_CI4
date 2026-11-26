@@ -404,14 +404,23 @@ $sched  = $encounter->scheduled_at ?? null;
                     encSel.innerHTML = '<option value="">Calendrier indisponible</option>';
                     encInfo.textContent = "Site FRBB Liège-Lux injoignable ou équipe non reliée : nos joueurs inscrits seulement, l'équipe visiteuse se tape à la main.";
                 } else {
-                    const todo = d.encounters.filter((e) => !e.played);
-                    encSel.innerHTML = '<option value="">' + (todo.length ? '— Choisir la rencontre —' : 'Aucune rencontre à domicile à venir') + '</option>';
-                    todo.forEach((e, i) => {
-                        const t = d.teams[e.away];
-                        encSel.appendChild(new Option(e.code + ' · ' + frDate(e.date, e.time) + ' · ' + (t ? t.club + ' ' + (t.number || '') : '?'), d.encounters.indexOf(e)));
+                    const todo = d.encounters.filter((e) => !e.played), done = d.encounters.filter((e) => e.played);
+                    encSel.innerHTML = '<option value="">' + (d.encounters.length ? '— Choisir la rencontre —' : 'Aucune rencontre à domicile') + '</option>';
+                    // À jouer d'abord ; celles dont le résultat est déjà encodé sur le site FRBB restent proposées
+                    [['À jouer', todo], ['Résultat déjà encodé sur le site FRBB', done.reverse()]].forEach(([title, items]) => {
+                        if (!items.length) return;
+                        const g = document.createElement('optgroup');
+                        g.label = title;
+                        items.forEach((e) => {
+                            const t = d.teams[e.away];
+                            g.appendChild(new Option(e.code + ' · ' + frDate(e.date, e.time) + ' · ' + (t ? t.club + ' ' + (t.number || '') : '?'), d.encounters.indexOf(e)));
+                        });
+                        encSel.appendChild(g);
                     });
-                    encSel.disabled = !todo.length;
-                    encInfo.textContent = "Remplit le n°, la date, l'équipe visiteuse et propose la composition (site FRBB Liège-Lux).";
+                    encSel.disabled = !d.encounters.length;
+                    encInfo.textContent = d.encounters.length
+                        ? "Remplit le n°, la date, l'équipe visiteuse et propose la composition (site FRBB Liège-Lux : " + d.frbb_team + ')' + (todo.length ? '.' : ' — aucune rencontre à jouer.')
+                        : 'Aucune rencontre à domicile pour ' + d.frbb_team + ' sur le site FRBB Liège-Lux : vérifiez l\'« ID équipe sur frbb-liege-lux.be » de notre équipe (Direction sportive › Coupe des Régions › Équipes).';
                     // Rencontre déjà encodée (modification, ou retour après une erreur) : on la retrouve par son n°
                     const code = key($('code').value);
                     const cur = code ? d.encounters.findIndex((e) => key(e.code) === code) : -1;
