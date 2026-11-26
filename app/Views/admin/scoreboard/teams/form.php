@@ -219,19 +219,19 @@ $sched  = $encounter->scheduled_at ?? null;
         <div class="sb-send-head">Destinataire</div><div class="sb-send-head">Adresse e-mail</div>
         <div class="sb-send-head text-center">Feuille de match</div><div class="sb-send-head text-center">Feuille récapitulative</div>
 
-        <div><b>Club visité</b> <span class="text-muted small" data-sb-club="home"></span></div>
+        <div class="sb-send-player"><b>Club visité</b><br><span data-sb-club="home"></span></div>
         <div><input type="email" name="team_email" id="team_email" class="form-control form-control-sm" maxlength="150" value="<?= esc($val('team_email', $clubEmail)) ?>"></div>
         <div class="text-center text-muted">—</div>
         <div class="d-flex justify-content-center"><?= $box('recap_to_team', 'recap_to_team', $checked('recap_to_team', $encounter->recap_to_team ?? null), 'Feuille récapitulative') ?></div>
 
-        <div><b>Club visiteur</b> <span class="text-muted small" data-sb-club="away"></span></div>
+        <div class="sb-send-player"><b>Club visiteur</b><br><span data-sb-club="away"></span></div>
         <div><input type="email" name="opponent_email" id="opponent_email" class="form-control form-control-sm" maxlength="150" value="<?= esc($val('opponent_email')) ?>"
                     placeholder="retrouvé si le club est connu"></div>
         <div class="text-center text-muted">—</div>
         <div class="d-flex justify-content-center"><?= $box('recap_to_opponent', 'recap_to_opponent', $checked('recap_to_opponent', $encounter->recap_to_opponent ?? null), 'Feuille récapitulative') ?></div>
 
-        <div><b>Responsable CDR</b> <a href="<?= base_url('admin/scoreboard/settings') ?>" class="small ml-1" title="Adresse : Marquoir › Paramètres"><i class="fas fa-cog"></i></a></div>
-        <div class="small"><?= esc(trim($cdr->name . ' — ' . $cdr->email, ' —')) ?></div>
+        <div class="sb-send-player"><b>Responsable CDR</b> <a href="<?= base_url('admin/scoreboard/settings') ?>" class="small ml-1" title="Adresse : Marquoir › Paramètres"><i class="fas fa-cog"></i></a><br><?= esc($cdr->name) ?></div>
+        <div><input type="email" class="form-control form-control-sm" value="<?= esc($cdr->email) ?>" readonly title="Adresse définie dans Marquoir › Paramètres"></div>
         <div class="text-center text-muted small" title="Réglé dans chaque match (coché d'office en Coupe des Régions)">dans chaque match</div>
         <div class="d-flex justify-content-center"><?= $box('recap_to_cdr', 'recap_to_cdr', $checked('recap_to_cdr', $encounter->recap_to_cdr ?? null), 'Feuille récapitulative') ?></div>
 
