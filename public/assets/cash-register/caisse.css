@@ -46,9 +46,9 @@ button:focus-visible { outline: .19rem solid #4fc3f7; outline-offset: .12rem; }
 .prod .nm { font: 700 1.02rem/1.15 var(--f-body); }
 .prod .pr { font: 800 1.05rem var(--f-body); color: var(--price); font-variant-numeric: tabular-nums; }
 /* Photo du produit à droite de la touche : le nom (qui peut passer sur 2 lignes) garde la place à gauche */
-.prod.has-img { padding-right: 38%; }
-.prod .ph { position: absolute; top: .4rem; bottom: .4rem; right: .5rem; width: 34%; height: calc(100% - .8rem); object-fit: contain; object-position: right center; pointer-events: none; user-select: none; }
-.prod .q { position: absolute; z-index: 1; top: -.5rem; right: -.5rem; min-width: 1.75rem; height: 1.75rem; border-radius: 999px; background: var(--badge); color: var(--badge-fg); font: 800 .9rem/1.75rem var(--f-body); text-align: center; padding: 0 .4rem; }
+.prod.has-img { padding-right: calc(34% + 3.2rem); }
+.prod .ph { position: absolute; top: .4rem; bottom: .4rem; right: 2.7rem; width: 34%; height: calc(100% - .8rem); object-fit: contain; object-position: right center; pointer-events: none; user-select: none; }
+.prod .q { position: absolute; z-index: 1; top: -.6rem; right: -.6rem; min-width: 2.6rem; height: 2.6rem; border-radius: 999px; background: var(--badge); color: var(--badge-fg); font: 800 1.35rem/2.6rem var(--f-body); text-align: center; padding: 0 .55rem; box-shadow: 0 .1rem .3rem rgba(0,0,0,.25); }
 .slot { border: .125rem dashed var(--empty); border-radius: .9rem; opacity: .6; }
 .foot { display: grid; grid-template-columns: 1fr 1fr; gap: .62rem; }
 .ghost { height: 3.1rem; border-radius: .75rem; border: .125rem solid var(--line); background: var(--panel); font: 600 1rem var(--f-body); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .6rem; }
