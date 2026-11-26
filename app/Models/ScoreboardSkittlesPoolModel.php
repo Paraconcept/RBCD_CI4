@@ -5,8 +5,8 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /**
- * Soirée Poule 5 Quilles (tournoi régional, officiel) : trois joueurs A, B, C et trois matchs dans l'ordre de la
- * feuille fédérale (A/B, A/C, B/C), à reprises inégales et en deux sets gagnants.
+ * Soirée Poule 5 Quilles (tournoi régional, officiel) : trois joueurs A, B, C et trois matchs dans l'ordre du
+ * calendrier officiel (B/C, C/A, A/B), à reprises inégales et en deux sets gagnants.
  * Points de match : victoire 2-0 = 3, victoire 2-1 = 2, défaite = 0. Point de set : 1 par set gagné.
  * Pas de classement : le récapitulatif garde l'ordre A, B, C (Total = points de match + points de set).
  */
@@ -22,8 +22,8 @@ class ScoreboardSkittlesPoolModel extends Model
 
     public const SLOTS = [1 => 'A', 2 => 'B', 3 => 'C'];
 
-    /** Matchs de la feuille : n° => [lettre, lettre] */
-    public const PAIRS = [1 => [1, 2], 2 => [1, 3], 3 => [2, 3]];
+    /** Calendrier officiel : n° du match => [lettre, lettre] (1 = B contre C, 2 = C contre A, 3 = A contre B) */
+    public const PAIRS = [1 => [2, 3], 2 => [3, 1], 3 => [1, 2]];
 
     public const SETS_TO_WIN = 2;
 
@@ -94,7 +94,7 @@ class ScoreboardSkittlesPoolModel extends Model
             ->findAll();
     }
 
-    /** Matchs de la poule rangés par n° de la feuille (1 = A/B, 2 = A/C, 3 = B/C). */
+    /** Matchs de la poule rangés par n° du calendrier (1 = B/C, 2 = C/A, 3 = A/B). */
     public function getMatches(int $id): array
     {
         $out = [];
@@ -110,7 +110,13 @@ class ScoreboardSkittlesPoolModel extends Model
     {
         $pair = [(int) $m->p1_pool_slot, (int) $m->p2_pool_slot];
         sort($pair);
-        return (int) array_search($pair, self::PAIRS, true);
+        foreach (self::PAIRS as $no => $p) {
+            sort($p);
+            if ($p === $pair) {
+                return $no;
+            }
+        }
+        return 0;
     }
 
     public function hasStarted(int $id): bool
@@ -125,8 +131,9 @@ class ScoreboardSkittlesPoolModel extends Model
         $matches = new ScoreboardMatchModel();
         $this->db->transStart();
         $this->db->table('scoreboard_matches')->where('skittles_pool_id', $pool->id)->delete();
-        foreach (self::PAIRS as [$a, $b]) {
-            $matches->insert(self::matchData($pool, $a, $b) + ['status' => 'scheduled', 'created_by' => $createdBy]);
+        foreach (self::PAIRS as $no => [$a, $b]) {
+            // final_order : le marquoir propose les matchs dans l'ordre du calendrier
+            $matches->insert(self::matchData($pool, $a, $b) + ['final_order' => $no, 'status' => 'scheduled', 'created_by' => $createdBy]);
         }
         $this->db->transComplete();
     }

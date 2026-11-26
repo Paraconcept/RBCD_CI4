@@ -19,7 +19,7 @@
           <th width="130">Date</th>
           <th>Poule</th>
           <th>Joueurs</th>
-          <th width="110">Billard</th>
+          <th width="250">Billard</th>
           <th width="130" class="text-center">Matchs</th>
           <th width="150" class="text-center">Feuille récap.</th>
           <th width="110" class="text-right">Actions</th>
@@ -40,7 +40,7 @@
               <span class="text-muted"><?= $l ?></span> <?= esc(P::playerName($p, $slot)) ?><?= $slot < 3 ? '<br>' : '' ?>
             <?php endforeach; ?>
           </td>
-          <td><?= esc($p->table_name ?? '—') ?><br><small class="text-muted"><?= esc(P::BILLIARDS[$p->billiard]['label'] ?? '') ?> · <?= (int) $p->set_points ?> pts</small></td>
+          <td class="text-nowrap"><?= esc($p->table_name ?? '—') ?> <small class="text-muted">· <?= esc(P::BILLIARDS[$p->billiard]['label'] ?? '') ?> · <?= (int) $p->set_points ?> pts</small></td>
           <td class="text-center"><span class="badge <?= $badge ?> p-2"><?= $done ?> / <?= $total ?> terminé<?= $done > 1 ? 's' : '' ?></span></td>
           <td class="text-center small">
             <?php if ($p->signed_at): ?><i class="fas fa-file-signature text-success mr-1" title="Signée"></i><?php endif; ?>

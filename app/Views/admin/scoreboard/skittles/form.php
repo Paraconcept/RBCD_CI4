@@ -126,7 +126,7 @@ $check  = static fn (string $f, $default = 1): string => old($f, $pool->$f ?? ($
       </table>
     </div>
     <div class="card-footer text-muted small">
-      <i class="fas fa-info-circle mr-1"></i>Ordre des matchs de la feuille : 1 = A / B, 2 = A / C, 3 = B / C.
+      <i class="fas fa-info-circle mr-1"></i>Ordre officiel des matchs : 1 = B contre C, 2 = C contre A, 3 = A contre B.
       Les noms sont repris dans le récapitulatif au bas de la feuille, toujours dans l'ordre A, B, C (pas de classement).
     </div>
   </div>

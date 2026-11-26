@@ -49,7 +49,7 @@ class ScoreboardSkittlesController extends BaseController
         $this->model->generateMatches($this->model->find($id), session()->get('member_id'));
         $this->rememberPlayers($data);
 
-        return redirect()->to(base_url('admin/scoreboard/skittles/' . $id))->with('success', P::NAME . ' créée : 3 matchs générés (A/B, A/C, B/C).');
+        return redirect()->to(base_url('admin/scoreboard/skittles/' . $id))->with('success', P::NAME . ' créée : 3 matchs générés (B/C, C/A, A/B).');
     }
 
     public function show(int $id): string
