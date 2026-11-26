@@ -618,7 +618,7 @@
           <div class="col-md-6">
             <ol class="mh-steps">
               <li><b>Salade</b> — figure réussie : sa touche, <kbd>1</kbd> à <kbd>8</kbd>. Le joueur continue.</li>
-              <li><b>« Quick Pick »</b> — <kbd>+</kbd> si la figure affichée en rouge (« À jouer ») est réussie. Une nouvelle figure est tirée à chaque coup.</li>
+              <li><b>« Quick Pick »</b> — <kbd>+</kbd> si la figure affichée en rouge (« À jouer ») est réussie. Une nouvelle figure est tirée à chaque coup. Le 1er coup de la partie se joue depuis la position de départ : le tirage se fait alors entre Rouge, 2 Bandes et 3 Bandes (d'où l'intérêt de gagner le tirage à la bande).</li>
               <li><b>Raté</b>, ou une autre figure que celle annoncée : <kbd>Entrée</kbd>, la main passe.</li>
               <li><b>Erreur</b> : <kbd>−</kbd> annule le dernier coup.</li>
             </ol>

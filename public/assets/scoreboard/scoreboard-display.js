@@ -106,11 +106,21 @@
         if ((saladDone(w, 1) || saladDone(w, 2)) && (C.unequal || w.closed % 2 === 0)) st.finished = true;
     }
 
+    // Le 1er coup de la partie se joue depuis la position de départ : seules ces figures y sont jouables
+    const OPENING = ['rouge', '2 bandes', '3 bandes'];
+
     // Quick Pick : une figure tirée au hasard pour chaque coup, parmi celles qui restent au joueur
     function ensurePick() {
         if (!QP || st.finished) { st.pick = null; return; }
         const w = saladWalk();
-        const left = FIG.map((f, i) => i + 1).filter((k) => w.prog[w.cur][k - 1] < FIG[k - 1]['p' + w.cur]);
+        let left = FIG.map((f, i) => i + 1).filter((k) => w.prog[w.cur][k - 1] < FIG[k - 1]['p' + w.cur]);
+        if (!st.innings.length) {
+            const opening = left.filter((k) => OPENING.indexOf(FIG[k - 1].label.trim().toLowerCase()) !== -1);
+            if (opening.length) {
+                if (st.pick && opening.indexOf(st.pick) === -1) st.pick = null;
+                left = opening;
+            }
+        }
         if (st.pick && left.indexOf(st.pick) !== -1) return;
         st.pick = left.length ? left[Math.floor(Math.random() * left.length)] : null;
     }

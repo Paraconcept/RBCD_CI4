@@ -121,7 +121,7 @@ $figureRow = static function (int $i, array $r): string {
             <template id="salRowTpl"><?= $figureRow(999, ['id' => '', 'label' => '', 'builtin' => false, 'active' => true, 'p1' => '', 'p2' => '']) ?></template>
             <button type="button" class="btn btn-outline-light mt-2" id="salAdd"><i class="fas fa-plus me-2"></i>Ajouter un type de point</button>
             <p class="text-secondary small mt-3 mb-0"><?= F::MAX_ACTIVE ?> figures actives au maximum, de 1 à <?= F::MAX_POINTS ?> points chacune. Les figures ajoutées sont gardées pour tous les billards.
-                <?= $qp ? 'En « Quick Pick », le marquoir tire au hasard la figure de chaque coup.' : 'Au pavé, la touche de chaque figure est son N°.' ?></p>
+                <?= $qp ? 'En « Quick Pick », le marquoir tire au hasard la figure de chaque coup (1er coup, depuis la position de départ : Rouge, 2 Bandes ou 3 Bandes).' : 'Au pavé, la touche de chaque figure est son N°.' ?></p>
             <p class="small mt-2 mb-0">À réaliser : <b data-sal-name="1">joueur 1</b> <b data-sal-total="1">0</b> points · <b data-sal-name="2">joueur 2</b> <b data-sal-total="2">0</b> points</p>
             <div class="alert alert-danger mt-3 mb-0" id="salError" hidden></div>
         </div>
