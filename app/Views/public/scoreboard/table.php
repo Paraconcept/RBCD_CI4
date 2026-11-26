@@ -105,6 +105,41 @@ fetch(<?= json_encode(base_url('marquoir/api/envois')) ?>, { method: 'POST', hea
             <?php endif; ?>
         </div>
         <?php endforeach; ?>
+        <?php foreach ($pools as $pl): $pool = $pl['pool']; $sh = $pl['sheet']; $rc = $pl['mail']; $url = base_url('marquoir/poule-5-quilles/' . $pool->id . '?billard=' . $table->id); ?>
+        <div class="sb-card sb-encounter mb-4">
+            <div class="sb-match-meta mb-1">
+                <span class="badge bg-sb">5 Quilles · <?= esc($pool->name) ?></span>
+                <span><?= \App\Models\ScoreboardSkittlesPoolModel::NAME ?></span>
+            </div>
+            <?php foreach (\App\Models\ScoreboardSkittlesPoolModel::SLOTS as $slot => $letter): ?>
+            <div class="small"><b><?= $letter ?></b> <?= esc(\App\Models\ScoreboardSkittlesPoolModel::playerName($pool, $slot)) ?></div>
+            <?php endforeach; ?>
+            <div class="mt-2"></div>
+            <?php foreach ($sh['matches'] as $no => $item): [$a, $b] = $item['players']; $ok = $item['status'] === 'finished'; ?>
+            <div class="sb-encounter-match">
+                <i class="<?= $ok ? 'fas fa-circle-check text-success' : ($item['status'] === 'live' ? 'fas fa-play text-warning' : 'far fa-clock text-secondary') ?>"></i>
+                <span>Match <?= $no ?> · <?= \App\Models\ScoreboardSkittlesPoolModel::letter($a) ?>/<?= \App\Models\ScoreboardSkittlesPoolModel::letter($b) ?></span>
+                <small><?= $ok ? 'terminé' : ($item['status'] === 'live' ? 'en cours' : 'à jouer') ?></small>
+            </div>
+            <?php endforeach; ?>
+            <?php if ($rc['state'] === 'sent'): ?>
+            <div class="sb-encounter-mail ok"><i class="fas fa-envelope-circle-check me-2"></i>Feuille récapitulative envoyée à <?= $rc['at'] ?></div>
+            <?php elseif ($rc['state'] === 'error'): ?>
+            <div class="sb-encounter-mail ko"><i class="fas fa-triangle-exclamation me-2"></i>Échec de l'envoi de la feuille récapitulative : prévenez le DS</div>
+            <?php elseif ($rc['state'] === 'waiting'): ?>
+            <div class="sb-encounter-mail wait"><i class="fas fa-hourglass-half me-2"></i>Feuille récapitulative : envoi après les signatures, au plus tard à <?= $rc['due'] ?></div>
+            <?php elseif ($rc['state'] === 'sending'): ?>
+            <div class="sb-encounter-mail wait"><i class="fas fa-paper-plane me-2"></i>Envoi de la feuille récapitulative…</div>
+            <?php endif; ?>
+            <?php if ($pl['signedAt']): ?>
+            <a href="<?= $url ?>" class="btn btn-outline-success w-100 mt-3"><i class="fas fa-file-signature me-2"></i>Clôturée — feuille récapitulative</a>
+            <?php elseif ($sh['complete']): ?>
+            <a href="<?= $url ?>" class="btn btn-sb w-100 mt-3"><i class="fas fa-flag-checkered me-2"></i>Clôturer la poule<?= $pool->signature_required ? ' (signatures)' : '' ?></a>
+            <?php else: ?>
+            <a href="<?= $url ?>" class="btn btn-outline-secondary w-100 mt-3"><i class="fas fa-lock me-2"></i>Clôture après les 3 matchs</a>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
         <button type="button" class="sb-tile sb-tile-cta mb-4" data-sb-friendly-open>
             <i class="fas fa-handshake"></i>
             <span class="sb-tile-name">Partie amicale</span>

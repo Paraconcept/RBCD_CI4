@@ -288,6 +288,10 @@ $config = [
                 <div class="sbd-encounter-hint mt-3"><i class="fas fa-flag-checkered me-2"></i>Dernier match de la rencontre <?= esc($encounter->code) ?> :
                     clôture (<?= $encounter->recap_signature_required ? 'signatures des capitaines, ' : '' ?>feuille récapitulative) depuis la page du billard.</div>
                 <?php endif; ?>
+                <?php if (!empty($pool) && empty($locked)): ?>
+                <div class="sbd-encounter-hint mt-3"><i class="fas fa-flag-checkered me-2"></i>Dernier match de la poule <?= esc($pool->name) ?> :
+                    clôture (<?= $pool->signature_required ? 'signatures des trois joueurs, ' : '' ?>feuille récapitulative) depuis la page du billard.</div>
+                <?php endif; ?>
                 <?php endif; ?>
             </div>
         </div>

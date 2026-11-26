@@ -4,6 +4,7 @@ namespace App\Controllers\Public;
 
 use App\Controllers\BaseController;
 use App\Libraries\MatchResultMailer;
+use App\Libraries\SkittlesPoolMailer;
 use App\Libraries\TeamRecapMailer;
 use App\Libraries\MatchSheetPdf;
 use App\Models\FrbbCategoryModel;
@@ -13,6 +14,8 @@ use App\Models\ScoreboardMatchModel;
 use App\Models\ScoreboardPlayerModel;
 use App\Models\ScoreboardSaladFigureModel;
 use App\Models\ScoreboardSignatureModel;
+use App\Models\ScoreboardSkittlesPoolModel;
+use App\Models\ScoreboardSkittlesSignatureModel;
 use App\Models\ScoreboardTableModel;
 use App\Models\ScoreboardTeamEncounterModel;
 use App\Models\ScoreboardTeamSignatureModel;
@@ -94,8 +97,21 @@ class ScoreboardController extends BaseController
                              'recap' => TeamRecapMailer::progress($e)];
         }
 
+        $poolModel  = new ScoreboardSkittlesPoolModel();
+        $poolSigned = new ScoreboardSkittlesSignatureModel();
+        $pools      = [];
+        foreach ($poolModel->getToday() as $p) {
+            // Une poule par billard : celle d'un autre billard n'a rien à faire ici
+            if ($p->table_id && (int) $p->table_id !== $tableId) {
+                continue;
+            }
+            $pools[] = ['pool' => $p, 'sheet' => $poolModel->sheet($p), 'signedAt' => $poolSigned->signedAt((int) $p->id),
+                        'mail' => SkittlesPoolMailer::progress($p)];
+        }
+
         return view('public/scoreboard/table', [
             'title'        => $table->name,
+            'pools'        => $pools,
             'table'        => $table,
             'startable'    => $this->matches->getStartableForTable($tableId),
             'upcoming'     => $this->matches->getUpcomingForTable($tableId),
@@ -347,6 +363,7 @@ class ScoreboardController extends BaseController
             'signed'    => $this->signatures->isSigned((int) $match->id),
             'locked'    => $this->locked($match),
             'encounter' => $this->lastOfEncounter($match),
+            'pool'      => $this->lastOfPool($match),
         ]);
     }
 
@@ -484,11 +501,31 @@ class ScoreboardController extends BaseController
             && !ScoreboardMatchModel::isTrio($match) && !$this->locked($match);
     }
 
-    /** Feuille de match signée, ou rencontre d'équipe clôturée (signée par les capitaines) : résultat définitif. */
+    /** Feuille de match signée, rencontre d'équipe ou poule 5 quilles clôturée (feuille récapitulative signée) : résultat définitif. */
     private function locked(object $match): bool
     {
         return $this->signatures->isSigned((int) $match->id)
-            || (new ScoreboardTeamSignatureModel())->isSigned($match->team_encounter_id ? (int) $match->team_encounter_id : null);
+            || (new ScoreboardTeamSignatureModel())->isSigned($match->team_encounter_id ? (int) $match->team_encounter_id : null)
+            || (new ScoreboardSkittlesSignatureModel())->isSigned($match->skittles_pool_id ? (int) $match->skittles_pool_id : null);
+    }
+
+    /** Poule 5 quilles dont les deux autres matchs sont terminés : celui-ci est le dernier. */
+    private function lastOfPool(object $match): ?object
+    {
+        if (!$match->skittles_pool_id) {
+            return null;
+        }
+        $model = new ScoreboardSkittlesPoolModel();
+        $pool  = $model->find((int) $match->skittles_pool_id);
+        if (!$pool) {
+            return null;
+        }
+        foreach ($model->getMatches((int) $pool->id) as $m) {
+            if ((int) $m->id !== (int) $match->id && $m->status !== 'finished') {
+                return null;
+            }
+        }
+        return $pool;
     }
 
     /** Rencontre d'équipe dont tous les autres matchs sont terminés (et signés si demandé) : celui-ci est le dernier. */
@@ -648,9 +685,20 @@ class ScoreboardController extends BaseController
             $encounter = (new ScoreboardTeamEncounterModel())->find((int) $encounter->id);
         }
 
+        $recap = $encounter ? TeamRecapMailer::progress($encounter) + ['code' => $encounter->code] : null;
+        $pool  = $match->skittles_pool_id ? (new ScoreboardSkittlesPoolModel())->find((int) $match->skittles_pool_id) : null;
+        if ($pool) {
+            if (SkittlesPoolMailer::due($pool)) {
+                SkittlesPoolMailer::deliver($pool);
+                $pool = (new ScoreboardSkittlesPoolModel())->find((int) $pool->id);
+            }
+            $recap = SkittlesPoolMailer::progress($pool) + ['code' => '— ' . $pool->name, 'detail' => 'Au responsable régional 5 quilles et au DS du club.'];
+        }
+
         return $this->response->setJSON([
-            'sheet' => $match->type === 'official' ? MatchResultMailer::status($match) : null,
-            'recap' => $encounter ? TeamRecapMailer::progress($encounter) + ['code' => $encounter->code] : null,
+            // Poule 5 quilles : pas de feuille de match individuelle, seulement la feuille récapitulative
+            'sheet' => $match->type === 'official' && !$pool ? MatchResultMailer::status($match) : null,
+            'recap' => $recap,
         ]);
     }
 

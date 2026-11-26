@@ -124,6 +124,10 @@ $routes->group('marquoir', ['filter' => 'scoreboardDevice'], static function ($r
     $routes->post('rencontre/(:num)/commentaire',  'Public\ScoreboardTeamController::comment/$1');
     $routes->post('rencontre/(:num)/signer',       'Public\ScoreboardTeamController::sign/$1');
     $routes->get ('rencontre/(:num)/pdf',          'Public\ScoreboardTeamController::pdf/$1');
+    $routes->get ('poule-5-quilles/(:num)',             'Public\ScoreboardSkittlesController::show/$1');
+    $routes->post('poule-5-quilles/(:num)/commentaire', 'Public\ScoreboardSkittlesController::comment/$1');
+    $routes->post('poule-5-quilles/(:num)/signer',      'Public\ScoreboardSkittlesController::sign/$1');
+    $routes->get ('poule-5-quilles/(:num)/pdf',         'Public\ScoreboardSkittlesController::pdf/$1');
     $routes->get ('joueurs',                       'Public\ScoreboardController::searchPlayers');
     $routes->get ('bar',                           'Public\BarController::index');
     $routes->get ('api/bar',                       'Public\BarController::state');
@@ -427,6 +431,16 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard/finals/(:num)/reorder', 'Admin\ScoreboardFinalController::reorder/$1');
         $routes->post('scoreboard/finals/(:num)/matches/(:num)', 'Admin\ScoreboardFinalController::updateMatch/$1/$2');
         $routes->get ('scoreboard/finals/(:num)/pdf',     'Admin\ScoreboardFinalController::pdf/$1');
+        $routes->get ('scoreboard/skittles',                 'Admin\ScoreboardSkittlesController::index');
+        $routes->get ('scoreboard/skittles/create',          'Admin\ScoreboardSkittlesController::create');
+        $routes->post('scoreboard/skittles',                 'Admin\ScoreboardSkittlesController::store');
+        $routes->get ('scoreboard/skittles/(:num)',          'Admin\ScoreboardSkittlesController::show/$1');
+        $routes->get ('scoreboard/skittles/(:num)/edit',     'Admin\ScoreboardSkittlesController::edit/$1');
+        $routes->post('scoreboard/skittles/(:num)/update',   'Admin\ScoreboardSkittlesController::update/$1');
+        $routes->post('scoreboard/skittles/(:num)/delete',   'Admin\ScoreboardSkittlesController::delete/$1');
+        $routes->post('scoreboard/skittles/(:num)/comment',  'Admin\ScoreboardSkittlesController::comment/$1');
+        $routes->get ('scoreboard/skittles/(:num)/pdf',      'Admin\ScoreboardSkittlesController::pdf/$1');
+        $routes->post('scoreboard/skittles/(:num)/send',     'Admin\ScoreboardSkittlesController::send/$1');
         $routes->get ('scoreboard/players/search',        'Admin\ScoreboardController::searchPlayers');
         $routes->get ('scoreboard/players/email',         'Admin\ScoreboardController::playerEmail');
         $routes->get ('scoreboard/players',               'Admin\ScoreboardSetupController::players');

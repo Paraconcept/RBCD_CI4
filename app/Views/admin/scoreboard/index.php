@@ -113,6 +113,7 @@ $rows = static function (array $list) use ($statusBadge): void { ?>
   if ($purgeable['friendly'])   $details[] = $purgeable['friendly'] . ' partie(s) amicale(s) récente(s)';
   if ($purgeable['encounters']) $details[] = count($purgeable['encounters']) . ' rencontre(s) d\'équipe';
   if ($purgeable['finals'])     $details[] = count($purgeable['finals']) . ' finale(s)';
+  if ($purgeable['pools'])      $details[] = count($purgeable['pools']) . ' poule(s) 5 quilles';
   ?>
   <div class="card-footer d-flex align-items-center">
     <small class="text-muted mr-3">

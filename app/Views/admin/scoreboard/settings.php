@@ -62,6 +62,17 @@
             </div>
             <small class="text-muted col-12 mt-n2">Imprimé au bas de la feuille de match par sets (modèle Coupe de Belgique, destinataire des feuilles) et de la feuille de classement des finales de championnat régional.</small>
           </div>
+          <div class="form-row mt-3">
+            <div class="form-group col-sm-6">
+              <label for="skittles_name">Responsable régional 5 quilles</label>
+              <input type="text" name="skittles_name" id="skittles_name" class="form-control" maxlength="100" value="<?= esc($skittles['name']) ?>">
+            </div>
+            <div class="form-group col-sm-6">
+              <label for="skittles_email">E-mail du responsable 5 quilles</label>
+              <input type="email" name="skittles_email" id="skittles_email" class="form-control" maxlength="150" value="<?= esc($skittles['email']) ?>">
+            </div>
+            <small class="text-muted col-12 mt-n2">Destinataire des feuilles récapitulatives des Soirées Poule 5 Quilles (imprimé au bas du PDF).</small>
+          </div>
           <div class="form-group mb-0 mt-3">
             <label for="start_window_minutes">Démarrage des rencontres programmées (minutes avant l'heure prévue)</label>
             <input type="number" name="start_window_minutes" id="start_window_minutes" class="form-control" min="0" max="720" value="<?= $startWindowMinutes ?>" style="max-width:150px">

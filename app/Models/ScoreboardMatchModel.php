@@ -54,7 +54,7 @@ class ScoreboardMatchModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'type', 'team_encounter_id', 'final_id', 'final_order', 'final_placement', 'status', 'table_id', 'scheduled_at', 'competition', 'match_number',
+        'type', 'team_encounter_id', 'final_id', 'final_order', 'final_placement', 'skittles_pool_id', 'p1_pool_slot', 'p2_pool_slot', 'status', 'table_id', 'scheduled_at', 'competition', 'match_number',
         'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win', 'salad_figures', 'salad_state',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'signature_required',
         'send_to_club_ds', 'club_ds_email', 'send_to_dsr', 'dsr_email', 'send_to_cdr', 'cdr_email', 'send_to_organizer_ds', 'organizer_ds_email', 'send_to_p1', 'p1_email', 'send_to_p2', 'p2_email', 'recap_to_p1', 'recap_to_p2', 'result_sent_at', 'result_sent_to', 'result_send_error',
@@ -221,27 +221,30 @@ class ScoreboardMatchModel extends Model
      * ou d'une finale qui a encore des matchs à jouer ou en cours ; les rencontres d'équipe et finales entièrement
      * terminées partent avec leurs matchs.
      *
-     * @return array{matches: list<int>, official: int, friendly: int, encounters: list<int>, finals: list<int>}
+     * @return array{matches: list<int>, official: int, friendly: int, encounters: list<int>, finals: list<int>, pools: list<int>}
      */
     public function purgeable(): array
     {
         $open = static fn (string $col): string => "SELECT $col FROM scoreboard_matches WHERE status IN ('scheduled', 'live') AND $col IS NOT NULL";
         $rows = $this->db->table('scoreboard_matches')
-            ->select('id, type, team_encounter_id, final_id')
+            ->select('id, type, team_encounter_id, final_id, skittles_pool_id')
             ->whereIn('status', ['finished', 'cancelled'])
             ->where('(team_encounter_id IS NULL OR team_encounter_id NOT IN (' . $open('team_encounter_id') . '))', null, false)
             ->where('(final_id IS NULL OR final_id NOT IN (' . $open('final_id') . '))', null, false)
+            ->where('(skittles_pool_id IS NULL OR skittles_pool_id NOT IN (' . $open('skittles_pool_id') . '))', null, false)
             ->get()->getResultObject();
 
-        $out = ['matches' => [], 'official' => 0, 'friendly' => 0, 'encounters' => [], 'finals' => []];
+        $out = ['matches' => [], 'official' => 0, 'friendly' => 0, 'encounters' => [], 'finals' => [], 'pools' => []];
         foreach ($rows as $r) {
             $out['matches'][] = (int) $r->id;
             $out[$r->type === 'official' ? 'official' : 'friendly']++;
             if ($r->team_encounter_id) $out['encounters'][(int) $r->team_encounter_id] = (int) $r->team_encounter_id;
             if ($r->final_id) $out['finals'][(int) $r->final_id] = (int) $r->final_id;
+            if ($r->skittles_pool_id) $out['pools'][(int) $r->skittles_pool_id] = (int) $r->skittles_pool_id;
         }
         $out['encounters'] = array_values($out['encounters']);
         $out['finals']     = array_values($out['finals']);
+        $out['pools']      = array_values($out['pools']);
 
         return $out;
     }
@@ -255,6 +258,7 @@ class ScoreboardMatchModel extends Model
         }
         if ($p['encounters']) $this->db->table('scoreboard_team_encounters')->whereIn('id', $p['encounters'])->delete();
         if ($p['finals'])     $this->db->table('scoreboard_finals')->whereIn('id', $p['finals'])->delete();
+        if ($p['pools'])      $this->db->table('scoreboard_skittles_pools')->whereIn('id', $p['pools'])->delete();
         $this->db->transComplete();
 
         return $p;
@@ -822,6 +826,8 @@ class ScoreboardMatchModel extends Model
         $this->db->table('scoreboard_signatures')->where('match_id', $id)->delete();
         // Le résultat de la rencontre d'équipe change : la feuille récapitulative signée n'est plus valable
         $this->db->query('DELETE s FROM scoreboard_team_signatures s JOIN scoreboard_matches m ON m.team_encounter_id = s.encounter_id WHERE m.id = ?', [$id]);
+        $this->db->query('DELETE s FROM scoreboard_skittles_signatures s JOIN scoreboard_matches m ON m.skittles_pool_id = s.pool_id WHERE m.id = ?', [$id]);
+        $this->db->query('UPDATE scoreboard_skittles_pools p JOIN scoreboard_matches m ON m.skittles_pool_id = p.id SET p.sent_at = NULL, p.send_error = NULL WHERE m.id = ?', [$id]);
         $this->update($id, [
             'status' => 'scheduled', 'starting_player' => null, 'current_run' => 0, 'paused' => 0, 'winner' => null, 'absent' => 0,
             'p1_points' => 0, 'p1_innings' => 0, 'p1_high_run' => 0, 'p1_sets' => 0, 'p1_extensions_used' => 0,
@@ -926,7 +932,7 @@ class ScoreboardMatchModel extends Model
     private static function swappedPlayers(object $match): array
     {
         $data = [];
-        foreach (['member_id', 'final_player_id', 'last_name', 'first_name', 'club', 'license', 'category_id', 'category', 'average_min', 'distance'] as $f) {
+        foreach (['member_id', 'final_player_id', 'pool_slot', 'last_name', 'first_name', 'club', 'license', 'category_id', 'category', 'average_min', 'distance'] as $f) {
             $data['p1_' . $f] = $match->{'p2_' . $f};
             $data['p2_' . $f] = $match->{'p1_' . $f};
         }

@@ -206,6 +206,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('admin/scoreboard/skittles') ?>"
+                               class="nav-link <?= strpos($sbUri, 'admin/scoreboard/skittles') === 0 ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Poules 5 Quilles</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('admin/scoreboard/tables') ?>"
                                class="nav-link <?= strpos($sbUri, 'admin/scoreboard/tables') === 0 ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>

@@ -142,6 +142,7 @@ class ScoreboardSetupController extends BaseController
             'cdrName'             => (string) $s->getSetting('scoreboard_cdr_name', 'Christian JEUNEAU'),
             'cdrEmail'            => (string) $s->getSetting('scoreboard_cdr_email', 'cdregions@gmail.com'),
             'dsr'                 => \App\Libraries\MatchSheetPdf::regionalDirector(),
+            'skittles'            => \App\Models\ScoreboardSkittlesPoolModel::regional(),
             'devices'             => (new \App\Models\ScoreboardDeviceModel())->listWithAuthor(),
             'pauseImages'         => ScoreboardPauseImages::all(),
         ]);
@@ -162,6 +163,13 @@ class ScoreboardSetupController extends BaseController
         if ($dsrEmail !== '' && !filter_var($dsrEmail, FILTER_VALIDATE_EMAIL)) {
             return redirect()->back()->with('error', "L'adresse e-mail du directeur sportif régional est invalide.");
         }
+
+        $skittlesEmail = trim((string) $this->request->getPost('skittles_email'));
+        if ($skittlesEmail !== '' && !filter_var($skittlesEmail, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->with('error', "L'adresse e-mail du responsable régional 5 quilles est invalide.");
+        }
+        $s->setSetting('scoreboard_skittles_name', mb_substr(trim((string) $this->request->getPost('skittles_name')), 0, 100));
+        $s->setSetting('scoreboard_skittles_email', $skittlesEmail);
 
         $s->setSetting('scoreboard_shot_clock_seconds', max(5, min(300, (int) $this->request->getPost('shot_clock_seconds'))));
         $s->setSetting('scoreboard_shot_clock_extensions', max(0, min(10, (int) $this->request->getPost('shot_clock_extensions'))));

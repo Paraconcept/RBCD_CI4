@@ -896,7 +896,7 @@
         const rc = d.recap;
         if (rc && rc.state !== 'none') {
             const title = 'Feuille récapitulative ' + rc.code;
-            if (rc.state === 'sent') line('ok', 'fa-envelope-circle-check', title + ' envoyée à ' + rc.at, 'Aux deux équipes et au responsable CDR, avec les feuilles de match.');
+            if (rc.state === 'sent') line('ok', 'fa-envelope-circle-check', title + ' envoyée à ' + rc.at, rc.detail || 'Aux deux équipes et au responsable CDR, avec les feuilles de match.');
             else if (rc.state === 'error') line('ko', 'fa-triangle-exclamation', "Échec de l'envoi de la " + title.charAt(0).toLowerCase() + title.slice(1), 'Prévenez le directeur sportif.');
             else if (rc.state === 'matches') line('wait', 'fa-hourglass-half', title + ' : en attente', rc.done + ' match' + (rc.done > 1 ? 's' : '') + ' terminé' + (rc.done > 1 ? 's' : '') + ' sur ' + rc.total + '.');
             else if (rc.state === 'waiting') line('wait', 'fa-hourglass-half', title + ' : envoi après les signatures', 'Sans signature, elle part à ' + rc.due + '.');

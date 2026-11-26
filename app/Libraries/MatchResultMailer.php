@@ -138,6 +138,7 @@ class MatchResultMailer
         foreach ($model->where('type', 'official')->where('status', 'finished')->where('absent', 0)
                      ->where('result_sent_at IS NULL')->where('result_send_error IS NULL')
                      ->where("COALESCE(p3_last_name, '') = ''", null, false)
+                     ->where('skittles_pool_id IS NULL')
                      ->where('finished_at >=', $since)
                      ->where('finished_at <=', date('Y-m-d H:i:s', time() - self::GRACE))
                      ->orderBy('finished_at', 'ASC')->findAll(20) as $match) {
@@ -147,6 +148,7 @@ class MatchResultMailer
             }
         }
         TeamRecapMailer::sendPending();
+        SkittlesPoolMailer::sendPending();
     }
 
     /** Envoi automatique à faire maintenant pour ce match (fin sans signature demandée, ou délai de signature écoulé). */
@@ -230,7 +232,9 @@ class MatchResultMailer
 
     private static function concerned(object $match): bool
     {
-        return $match->type === 'official' && $match->status === 'finished' && !(int) $match->absent && !ScoreboardMatchModel::isTrio($match);
+        // Soirée Poule 5 Quilles : seule la feuille récapitulative de la poule est envoyée (SkittlesPoolMailer)
+        return $match->type === 'official' && $match->status === 'finished' && !(int) $match->absent && !ScoreboardMatchModel::isTrio($match)
+            && empty($match->skittles_pool_id);
     }
 
     private static function playerToLookUp(object $match): bool

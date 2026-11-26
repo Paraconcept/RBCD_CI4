@@ -67,6 +67,7 @@ class ScoreboardController extends BaseController
         $parts = [count($p['matches']) . ' partie(s)'];
         if ($p['encounters']) $parts[] = count($p['encounters']) . ' rencontre(s) d\'équipe';
         if ($p['finals'])     $parts[] = count($p['finals']) . ' finale(s)';
+        if ($p['pools'])      $parts[] = count($p['pools']) . ' poule(s) 5 quilles';
 
         return redirect()->to(base_url('admin/scoreboard'))->with('success', 'Nettoyage terminé, effacé : ' . implode(', ', $parts) . '.');
     }
@@ -175,9 +176,12 @@ class ScoreboardController extends BaseController
         return $back->with('success', 'Résultats envoyés à ' . implode(', ', $sent) . '.');
     }
 
-    public function edit(int $id): string
+    public function edit(int $id)
     {
         $match = $this->find($id);
+        if ($match->skittles_pool_id) {
+            return $this->toPool($match);
+        }
         $team  = $match->team_encounter_id ? (new ScoreboardTeamEncounterModel())->find($match->team_encounter_id) : null;
 
         return $this->form($match, $team);
@@ -186,6 +190,9 @@ class ScoreboardController extends BaseController
     public function update(int $id)
     {
         $match = $this->find($id);
+        if ($match->skittles_pool_id) {
+            return $this->toPool($match);
+        }
 
         [$data, $errors] = $this->buildData();
         if ($errors) {
@@ -211,16 +218,31 @@ class ScoreboardController extends BaseController
 
     public function delete(int $id)
     {
-        $this->model->delete($this->find($id)->id);
+        $match = $this->find($id);
+        if ($match->skittles_pool_id) {
+            return $this->toPool($match);
+        }
+        $this->model->delete($match->id);
 
         return redirect()->to(base_url('admin/scoreboard'))->with('success', 'Rencontre supprimée.');
     }
 
     public function reset(int $id)
     {
-        $this->model->resetToScheduled((int) $this->find($id)->id);
+        $match = $this->find($id);
+        $this->model->resetToScheduled((int) $match->id);
+        if ($match->skittles_pool_id) {
+            return redirect()->to(base_url('admin/scoreboard/skittles/' . $match->skittles_pool_id))->with('success', 'Match remis à zéro.');
+        }
 
         return redirect()->to(base_url('admin/scoreboard'))->with('success', 'Rencontre remise à zéro.');
+    }
+
+    /** Les matchs d'une Soirée Poule 5 Quilles se gèrent depuis la poule (joueurs et règles communs). */
+    private function toPool(object $match)
+    {
+        return redirect()->to(base_url('admin/scoreboard/skittles/' . $match->skittles_pool_id))
+            ->with('error', 'Ce match fait partie d\'une ' . \App\Models\ScoreboardSkittlesPoolModel::NAME . ' : modifiez la poule.');
     }
 
     public function searchPlayers()
