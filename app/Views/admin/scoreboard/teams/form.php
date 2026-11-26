@@ -258,8 +258,8 @@ $sched  = $encounter->scheduled_at ?? null;
         <?php endfor; ?>
       </div>
       <style>
-        .sb-send { display: grid; grid-template-columns: minmax(200px, 1.2fr) minmax(220px, 1.4fr) 120px 150px; gap: .45rem 1rem; align-items: center; }
-        .sb-send-head { font-weight: 600; font-size: .8rem; color: #6c757d; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #dee2e6; padding-bottom: .3rem; }
+        .sb-send { display: grid; grid-template-columns: minmax(200px, 1.2fr) minmax(220px, 1.4fr) max-content max-content; gap: .45rem 1rem; align-items: center; }
+        .sb-send-head { white-space: nowrap; align-self: end; font-weight: 600; font-size: .8rem; color: #6c757d; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #dee2e6; padding-bottom: .3rem; }
         .sb-send-player { font-size: .8rem; color: #6c757d; line-height: 1.25; }
         .sb-send-player b { color: #212529; font-size: .9rem; }
         .sb-send [hidden] { display: none !important; }
