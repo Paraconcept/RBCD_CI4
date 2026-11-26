@@ -29,7 +29,27 @@ class FrbbCdrClient
         return $data;
     }
 
-    private function fetch(int $frbbTeamId): ?array
+    /**
+     * Rencontres CDR d'une équipe avec la composition des équipes (inscrits puis réserves du club) et les règles
+     * de points par position, pour composer les matchs d'une rencontre. Cache court : la composition bouge.
+     */
+    public function getTeamEncounters(int $frbbTeamId): ?array
+    {
+        $cache = \Config\Services::cache();
+        $key   = "frbb_cdr_encounters_{$frbbTeamId}";
+
+        $cached = $cache->get($key);
+        if ($cached !== null) {
+            return $cached === false ? null : $cached;
+        }
+
+        $data = $this->fetch($frbbTeamId, 'encounters');
+        $cache->save($key, $data ?? false, $data ? 120 : 30);
+
+        return $data;
+    }
+
+    private function fetch(int $frbbTeamId, string $what = 'calendar'): ?array
     {
         $base = rtrim((string) env('FRBB_API_BASE_URL'), '/');
         $key  = (string) env('FRBB_API_KEY');
@@ -37,7 +57,7 @@ class FrbbCdrClient
             return null;
         }
 
-        $ch = curl_init("{$base}/api/cdr/team/{$frbbTeamId}/calendar");
+        $ch = curl_init("{$base}/api/cdr/team/{$frbbTeamId}/{$what}");
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER     => ['X-Api-Key: ' . $key],

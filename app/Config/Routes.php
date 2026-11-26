@@ -403,6 +403,7 @@ $routes->group('admin', static function ($routes) {
         $routes->get ('scoreboard/teams',                       'Admin\ScoreboardTeamController::index');
         $routes->get ('scoreboard/teams/create',                'Admin\ScoreboardTeamController::create');
         $routes->post('scoreboard/teams',                       'Admin\ScoreboardTeamController::store');
+        $routes->get ('scoreboard/teams/frbb',                  'Admin\ScoreboardTeamController::frbb');
         $routes->get ('scoreboard/teams/(:num)',                'Admin\ScoreboardTeamController::show/$1');
         $routes->get ('scoreboard/teams/(:num)/pdf',            'Admin\ScoreboardTeamController::pdf/$1');
         $routes->post('scoreboard/teams/(:num)/send',           'Admin\ScoreboardTeamController::sendRecap/$1');

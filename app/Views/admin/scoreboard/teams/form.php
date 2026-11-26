@@ -26,6 +26,33 @@ $sched  = $encounter->scheduled_at ?? null;
     </div>
     <div class="card-body">
       <div class="row">
+        <div class="col-md-5">
+          <div class="form-group">
+            <label for="team_id">Notre équipe CDR <span class="text-danger">*</span></label>
+            <select name="team_id" id="team_id" class="form-control" required>
+              <option value="">— Choisir l'équipe —</option>
+              <?php foreach ($teams as $t): ?>
+              <option value="<?= $t->id ?>" data-frbb="<?= (int) ($t->frbb_team_id ?? 0) ?>" <?= (int) $val('team_id') === (int) $t->id ? 'selected' : '' ?>
+                      data-discipline="<?= esc(M::DISCIPLINES[$t->discipline] . ' ' . $t->format) ?>"
+                      data-roster="<?= esc(implode(', ', array_map(static fn ($r) => mb_strtoupper($r->last_name, 'UTF-8') . ' ' . $r->first_name, $t->roster))) ?>">
+                <?= esc($t->name . ' — ' . $t->game_mode . ' (' . $t->season . ')') ?>
+              </option>
+              <?php endforeach; ?>
+            </select>
+            <small class="text-muted" id="teamInfo"></small>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="form-group">
+            <label for="frbbEncounter">Rencontre du calendrier CDR</label>
+            <select id="frbbEncounter" class="form-control" disabled>
+              <option value="">— Choisissez d'abord notre équipe —</option>
+            </select>
+            <small class="text-muted" id="frbbInfo">Remplit le n°, la date, l'équipe visiteuse et propose la composition (site FRBB Liège-Lux).</small>
+          </div>
+        </div>
+      </div>
+      <div class="row">
         <div class="col-md-3">
           <div class="form-group mb-md-0">
             <label for="code">N° de rencontre <span class="text-danger">*</span></label>
@@ -65,20 +92,6 @@ $sched  = $encounter->scheduled_at ?? null;
           <h3 class="card-title"><i class="fas fa-home mr-2"></i>Équipe visitée (notre équipe)</h3>
         </div>
         <div class="card-body">
-          <div class="form-group">
-            <label for="team_id">Notre équipe CDR <span class="text-danger">*</span></label>
-            <select name="team_id" id="team_id" class="form-control" required>
-              <option value="">— Choisir l'équipe —</option>
-              <?php foreach ($teams as $t): ?>
-              <option value="<?= $t->id ?>" <?= (int) $val('team_id') === (int) $t->id ? 'selected' : '' ?>
-                      data-discipline="<?= esc(M::DISCIPLINES[$t->discipline] . ' ' . $t->format) ?>"
-                      data-roster="<?= esc(implode(', ', array_map(static fn ($r) => mb_strtoupper($r->last_name, 'UTF-8') . ' ' . $r->first_name, $t->roster))) ?>">
-                <?= esc($t->name . ' — ' . $t->game_mode . ' (' . $t->season . ')') ?>
-              </option>
-              <?php endforeach; ?>
-            </select>
-            <small class="text-muted" id="teamInfo"></small>
-          </div>
           <div class="row">
             <div class="col-8">
               <div class="form-group">
@@ -138,6 +151,69 @@ $sched  = $encounter->scheduled_at ?? null;
 
   <div class="card card-outline card-primary">
     <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-user-friends mr-2"></i>Composition</h3>
+    </div>
+    <div class="card-body">
+      <p class="text-muted small mb-3">Proposée d'après les joueurs inscrits des deux équipes, dans leur ordre : changez l'ordre, prenez une <b>réserve</b>
+        ou marquez un joueur <b>absent</b> (forfait : une équipe peut jouer à deux). Les points à jouer suivent la position. Les matchs sont créés à l'enregistrement.</p>
+      <?php
+      $tablesById = [];
+      foreach ($tables as $t) { $tablesById[(int) $t->id] = $t->name; }
+      $sideInput = static function (string $side, int $i, array $row) {
+          $v = static fn (string $f) => old($side . '.' . $i . '.' . $f, $row[$f] ?? '');
+          ob_start(); ?>
+          <div class="sb-side" data-side="<?= $side ?>" data-pos="<?= $i ?>">
+            <label class="small text-muted mb-1"><?= $side === 'home' ? 'Notre joueur' : 'Joueur visiteur' ?></label>
+            <div class="input-group input-group-sm">
+              <select class="custom-select" data-sb-pick><option value="">— Choisir —</option></select>
+              <input type="number" name="<?= $side ?>[<?= $i ?>][distance]" class="form-control" min="0" max="9999" style="max-width:80px" data-sb-points
+                     value="<?= esc($v('distance') ?: '') ?>" title="Points à jouer">
+              <div class="input-group-append"><span class="input-group-text">pts</span></div>
+            </div>
+            <div class="form-row mt-1" data-sb-manual>
+              <div class="col-5"><input type="text" name="<?= $side ?>[<?= $i ?>][last_name]" class="form-control form-control-sm" placeholder="NOM" style="text-transform:uppercase" value="<?= esc($v('last_name')) ?>"></div>
+              <div class="col-4"><input type="text" name="<?= $side ?>[<?= $i ?>][first_name]" class="form-control form-control-sm" placeholder="Prénom" value="<?= esc($v('first_name')) ?>"></div>
+              <div class="col-3"><input type="text" name="<?= $side ?>[<?= $i ?>][license]" class="form-control form-control-sm" placeholder="Licence" value="<?= esc($v('license')) ?>"></div>
+            </div>
+            <input type="hidden" name="<?= $side ?>[<?= $i ?>][member_id]" value="<?= esc($v('member_id')) ?>">
+            <input type="hidden" name="<?= $side ?>[<?= $i ?>][category_id]" value="<?= esc($v('category_id')) ?>">
+            <input type="hidden" name="<?= $side ?>[<?= $i ?>][absent]" value="<?= $v('absent') ? '1' : '' ?>">
+            <div class="text-danger small font-weight-bold mt-1" data-sb-absent-note hidden><i class="fas fa-user-slash mr-1"></i>Absent : match perdu par forfait</div>
+          </div>
+          <?php return (string) ob_get_clean();
+      };
+      ?>
+      <?php for ($i = 1; $i <= 3; $i++): $row = $composition[$i] ?? ['home' => [], 'away' => []]; ?>
+      <div class="sb-pos<?= $i > 1 ? ' border-top pt-3' : '' ?> mb-3" data-pos="<?= $i ?>">
+        <div class="d-flex align-items-center mb-2">
+          <strong class="mr-2">Match <?= $i ?></strong>
+          <small class="text-muted" data-sb-range></small>
+          <?php if (empty($row['locked'])): ?>
+          <select name="table[<?= $i ?>]" class="custom-select custom-select-sm ml-auto" style="max-width:160px" title="Billard">
+            <option value="">Billard : à choisir</option>
+            <?php foreach ($tables as $t): ?>
+            <option value="<?= $t->id ?>" <?= (int) old('table.' . $i, $row['table_id'] ?? 0) === (int) $t->id ? 'selected' : '' ?>><?= esc($t->name) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <?php endif; ?>
+        </div>
+        <?php if (!empty($row['locked'])): ?>
+        <p class="mb-0 small"><i class="fas fa-lock text-muted mr-1"></i>
+          <?= esc(trim($row['home']['last_name'] . ' ' . $row['home']['first_name'])) ?> – <?= esc(trim($row['away']['last_name'] . ' ' . $row['away']['first_name'])) ?> :
+          match déjà commencé ou joué, il ne se modifie plus ici.</p>
+        <?php else: ?>
+        <div class="row">
+          <div class="col-md-6 mb-2 mb-md-0"><?= $sideInput('home', $i, $row['home']) ?></div>
+          <div class="col-md-6"><?= $sideInput('away', $i, $row['away']) ?></div>
+        </div>
+        <?php endif; ?>
+      </div>
+      <?php endfor; ?>
+    </div>
+  </div>
+
+  <div class="card card-outline card-primary">
+    <div class="card-header">
       <h3 class="card-title"><i class="fas fa-paper-plane mr-2"></i>Feuille récapitulative</h3>
     </div>
     <div class="card-body">
@@ -171,26 +247,201 @@ $sched  = $encounter->scheduled_at ?? null;
 
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
+<style>
+  .sb-side [data-sb-manual] .form-control-sm { font-size: .8rem; }
+  .sb-side.absent [data-sb-manual], .sb-side.absent [data-sb-points], .sb-side.absent .input-group-append { display: none; }
+</style>
 <script>
 (function () {
     const sel = document.getElementById('team_id');
     const info = document.getElementById('teamInfo');
     const num = document.getElementById('team_number');
-    const sync = () => {
+    const encSel = document.getElementById('frbbEncounter');
+    const encInfo = document.getElementById('frbbInfo');
+    const $ = (id) => document.getElementById(id);
+    const url = <?= json_encode(base_url('admin/scoreboard/teams/frbb')) ?>;
+    let data = null, awayId = null;
+
+    const syncInfo = () => {
         const o = sel.options[sel.selectedIndex];
         info.textContent = o && o.value ? 'Discipline : ' + o.dataset.discipline + ' · Joueurs : ' + (o.dataset.roster || '—') : '';
     };
+
+    // ---------------------------------------------------------------- composition
+    const sides = () => document.querySelectorAll('.sb-side');
+    const field = (box, f) => box.querySelector('[name$="[' + f + ']"]');
+    const key = (l) => (l || '').toUpperCase().replace(/\s+/g, '');
+    const plain = (v) => (v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z]/g, '');
+    const list = (box) => box.dataset.side === 'home' ? (data ? data.home : []) : ((data && awayId && data.teams[awayId]) ? data.teams[awayId].players : []);
+    const rules = () => data && data.rules && data.rules.ranges ? data.rules : null;
+    // Points à jouer selon la position (barème CDR : bornes par position, 2/3 en 3 bandes grand billard)
+    const points = (raw, pos) => {
+        if (raw === null || raw === undefined) return '';
+        const r = rules();
+        if (!r) return raw;
+        const [lo, hi] = r.ranges[pos] || [raw, raw];
+        const eff = Math.max(lo, Math.min(hi, raw));
+        return r.two_thirds ? Math.ceil(eff * 2 / 3) : eff;
+    };
+    const rangeText = (pos) => {
+        const r = rules();
+        if (!r || !r.ranges[pos]) return '';
+        const t = (v) => r.two_thirds ? Math.ceil(v * 2 / 3) : v;
+        return '· points à jouer de ' + t(r.ranges[pos][0]) + ' à ' + t(r.ranges[pos][1]);
+    };
+    const setAbsent = (box, on) => {
+        field(box, 'absent').value = on ? '1' : '';
+        box.classList.toggle('absent', on);
+        box.querySelector('[data-sb-absent-note]').hidden = !on;
+    };
+    const label = (p) => p.last_name + ' ' + p.first_name + (p.category ? ' · ' + p.category : '') + (p.points !== null && p.points !== undefined ? ' (' + p.points + ')' : '');
+
+    // Liste de la position : inscrits, réserves du club, autre joueur, absent ; sélection d'après ce qui est encodé
+    const buildSelect = (box) => {
+        const s = box.querySelector('[data-sb-pick]');
+        const players = list(box);
+        s.innerHTML = '<option value="">— Choisir —</option>';
+        const groups = [['Joueurs inscrits', players.filter((p) => p.registered)], ['Réserves du club', players.filter((p) => !p.registered)]];
+        groups.forEach(([title, items]) => {
+            if (!items.length) return;
+            const g = document.createElement('optgroup');
+            g.label = title;
+            items.forEach((p) => { const o = new Option(label(p), players.indexOf(p)); g.appendChild(o); });
+            s.appendChild(g);
+        });
+        s.appendChild(new Option('Autre joueur (à taper)', '__other'));
+        s.appendChild(new Option('Absent (forfait)', '__absent'));
+        if (field(box, 'absent').value) { s.value = '__absent'; setAbsent(box, true); return; }
+        const lic = key(field(box, 'license').value), last = plain(field(box, 'last_name').value);
+        const found = players.findIndex((p) => (lic && key(p.license) === lic) || (!lic && last && plain(p.last_name) === last));
+        s.value = found >= 0 ? String(found) : (last ? '__other' : '');
+        setAbsent(box, false);
+    };
+
+    const pick = (box, value) => {
+        const pos = +box.dataset.pos;
+        setAbsent(box, value === '__absent');
+        if (value === '__absent' || value === '') {
+            ['last_name', 'first_name', 'license', 'member_id', 'category_id', 'distance'].forEach((f) => { field(box, f).value = ''; });
+            return;
+        }
+        if (value === '__other') {
+            ['last_name', 'first_name', 'license', 'member_id', 'category_id'].forEach((f) => { field(box, f).value = ''; });
+            field(box, 'last_name').focus();
+            return;
+        }
+        const p = list(box)[+value];
+        field(box, 'last_name').value = p.last_name;
+        field(box, 'first_name').value = p.first_name;
+        field(box, 'license').value = p.license || '';
+        field(box, 'member_id').value = p.member_id || '';
+        field(box, 'category_id').value = p.category_id || '';
+        field(box, 'distance').value = points(p.points, pos);
+    };
+
+    // Proposition : le joueur inscrit n° X à la position X (si la position est vide, ou toujours si force)
+    const propose = (side, force) => {
+        document.querySelectorAll('.sb-side[data-side="' + side + '"]').forEach((box) => {
+            const empty = !field(box, 'last_name').value && !field(box, 'absent').value;
+            if (!force && !empty) return;
+            const players = list(box);
+            const idx = players.findIndex((p) => p.registered === +box.dataset.pos);
+            const s = box.querySelector('[data-sb-pick]');
+            s.value = idx >= 0 ? String(idx) : '';
+            pick(box, s.value);
+        });
+    };
+
+    const refreshRanges = () => document.querySelectorAll('.sb-pos').forEach((row) => {
+        const r = row.querySelector('[data-sb-range]');
+        if (r) r.textContent = rangeText(+row.dataset.pos);
+    });
+
+    sides().forEach((box) => {
+        box.querySelector('[data-sb-pick]').addEventListener('change', (ev) => pick(box, ev.target.value));
+        field(box, 'last_name').addEventListener('input', () => {
+            // Nom retouché à la main : ce n'est plus le joueur de la liste
+            const s = box.querySelector('[data-sb-pick]');
+            if (s.value !== '__other') { s.value = '__other'; field(box, 'member_id').value = ''; field(box, 'category_id').value = ''; }
+        });
+    });
+
+    // ---------------------------------------------------------------- calendrier CDR
+    const frDate = (d, t) => {
+        const days = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+        const dt = new Date(d + 'T12:00:00');
+        return days[dt.getDay()] + ' ' + d.slice(8, 10) + '/' + d.slice(5, 7) + '/' + d.slice(0, 4) + (t ? ' ' + t : '');
+    };
+    const chooseEncounter = (e, fill) => {
+        awayId = e ? e.away : null;
+        const t = e && data.teams[e.away];
+        if (fill && e) {
+            $('code').value = e.code;
+            if (e.date) $('scheduled_date').value = e.date;
+            if (e.time) $('scheduled_time').value = e.time;
+            if (t) {
+                $('opponent_club').value = t.club;
+                $('opponent_number').value = t.number || '';
+                if (t.email) $('opponent_email').value = t.email;
+            }
+        }
+        document.querySelectorAll('.sb-side[data-side="away"]').forEach(buildSelect);
+        if (fill && e) propose('away', true);
+    };
+
+    const load = (initial) => {
+        const teamId = sel.value;
+        encSel.innerHTML = '<option value="">— Choisissez d\'abord notre équipe —</option>';
+        encSel.disabled = true;
+        data = null; awayId = null;
+        if (!teamId) { sides().forEach(buildSelect); refreshRanges(); return; }
+        encInfo.textContent = 'Chargement du calendrier…';
+        fetch(url + '?team_id=' + encodeURIComponent(teamId), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then((r) => r.json())
+            .then((d) => {
+                data = d;
+                if (!d.available) {
+                    encSel.innerHTML = '<option value="">Calendrier indisponible</option>';
+                    encInfo.textContent = "Site FRBB Liège-Lux injoignable ou équipe non reliée : nos joueurs inscrits seulement, l'équipe visiteuse se tape à la main.";
+                } else {
+                    const todo = d.encounters.filter((e) => !e.played);
+                    encSel.innerHTML = '<option value="">' + (todo.length ? '— Choisir la rencontre —' : 'Aucune rencontre à domicile à venir') + '</option>';
+                    todo.forEach((e, i) => {
+                        const t = d.teams[e.away];
+                        encSel.appendChild(new Option(e.code + ' · ' + frDate(e.date, e.time) + ' · ' + (t ? t.club + ' ' + (t.number || '') : '?'), d.encounters.indexOf(e)));
+                    });
+                    encSel.disabled = !todo.length;
+                    encInfo.textContent = "Remplit le n°, la date, l'équipe visiteuse et propose la composition (site FRBB Liège-Lux).";
+                    // Rencontre déjà encodée (modification, ou retour après une erreur) : on la retrouve par son n°
+                    const code = key($('code').value);
+                    const cur = code ? d.encounters.findIndex((e) => key(e.code) === code) : -1;
+                    if (cur >= 0) { encSel.value = String(cur); }
+                    chooseEncounter(cur >= 0 ? d.encounters[cur] : null, false);
+                }
+                document.querySelectorAll('.sb-side[data-side="home"]').forEach(buildSelect);
+                if (!d.available) document.querySelectorAll('.sb-side[data-side="away"]').forEach(buildSelect);
+                propose('home', false);
+                refreshRanges();
+            })
+            .catch(() => { encInfo.textContent = 'Calendrier indisponible.'; sides().forEach(buildSelect); });
+    };
+
+    encSel.addEventListener('change', () => chooseEncounter(encSel.value === '' ? null : data.encounters[+encSel.value], true));
     sel.addEventListener('change', function () {
-        sync();
+        syncInfo();
         // « R.B.C. Disonais 1 » → équipe n° 1
         const m = (sel.options[sel.selectedIndex].text.split(' — ')[0] || '').trim().match(/(\d+)$/);
         if (m) num.value = m[1];
+        // Autre équipe : nos joueurs changent
+        document.querySelectorAll('.sb-side[data-side="home"]').forEach((box) => { box.querySelector('[data-sb-pick]').value = ''; pick(box, ''); });
+        load(false);
     });
-    sync();
+    syncInfo();
+    load(true);
 
     // E-mail du club visiteur déjà connu (rencontres précédentes contre ce club)
     const knownEmails = <?= json_encode($knownEmails, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
-    const norm = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
     const opp = document.getElementById('opponent_club');
     const oppMail = document.getElementById('opponent_email');
     opp.addEventListener('change', function () {
