@@ -122,6 +122,46 @@ class ScoreboardSkittlesController extends BaseController
         return redirect()->to(base_url('admin/scoreboard/skittles/' . $id) . '#commentaire')->with('success', 'Commentaire enregistré.');
     }
 
+    /**
+     * Forfait d'un match (choisi par le DS) : le joueur absent reste dans la poule avec 0 partout,
+     * son adversaire reçoit les points de match du forfait. Uniquement sur un match pas encore joué.
+     */
+    public function forfeit(int $id, int $matchId)
+    {
+        $pool  = $this->find($id);
+        $back  = redirect()->to(base_url('admin/scoreboard/skittles/' . $id));
+        $model = new ScoreboardMatchModel();
+        $match = $model->where('skittles_pool_id', $pool->id)->find($matchId);
+        $slot  = (int) $this->request->getPost('slot');
+        if (!$match || !in_array($slot, [(int) $match->p1_pool_slot, (int) $match->p2_pool_slot], true)) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        if ($match->status !== 'scheduled' && !(int) $match->absent) {
+            return $back->with('error', 'Ce match a déjà été joué : remettez-le à zéro avant de déclarer un forfait.');
+        }
+
+        // Absents cumulés : les deux joueurs peuvent être absents du même match
+        $absent = (int) $match->absent | ((int) $match->p1_pool_slot === $slot ? 1 : 2);
+        $model->update($match->id, ScoreboardMatchModel::forfeitData($absent, null));
+
+        return $back->with('success', 'Forfait de ' . P::playerName($pool, $slot) . ' (joueur ' . P::letter($slot) . ') au match n°' . P::matchNumber($match) . '.');
+    }
+
+    public function cancelForfeit(int $id, int $matchId)
+    {
+        $pool  = $this->find($id);
+        $model = new ScoreboardMatchModel();
+        $match = $model->where('skittles_pool_id', $pool->id)->find($matchId);
+        if (!$match) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+        if ((int) $match->absent) {
+            $model->resetToScheduled((int) $match->id);
+        }
+
+        return redirect()->to(base_url('admin/scoreboard/skittles/' . $id))->with('success', 'Forfait annulé : le match n°' . P::matchNumber($match) . ' est de nouveau à jouer.');
+    }
+
     public function pdf(int $id)
     {
         [$pdf, $filename] = SkittlesPoolPdf::render($this->find($id));

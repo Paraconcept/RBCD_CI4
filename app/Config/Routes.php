@@ -441,6 +441,8 @@ $routes->group('admin', static function ($routes) {
         $routes->post('scoreboard/skittles/(:num)/comment',  'Admin\ScoreboardSkittlesController::comment/$1');
         $routes->get ('scoreboard/skittles/(:num)/pdf',      'Admin\ScoreboardSkittlesController::pdf/$1');
         $routes->post('scoreboard/skittles/(:num)/send',     'Admin\ScoreboardSkittlesController::send/$1');
+        $routes->post('scoreboard/skittles/(:num)/forfeit/(:num)',        'Admin\ScoreboardSkittlesController::forfeit/$1/$2');
+        $routes->post('scoreboard/skittles/(:num)/forfeit/(:num)/cancel', 'Admin\ScoreboardSkittlesController::cancelForfeit/$1/$2');
         $routes->get ('scoreboard/players/search',        'Admin\ScoreboardController::searchPlayers');
         $routes->get ('scoreboard/players/email',         'Admin\ScoreboardController::playerEmail');
         $routes->get ('scoreboard/players',               'Admin\ScoreboardSetupController::players');

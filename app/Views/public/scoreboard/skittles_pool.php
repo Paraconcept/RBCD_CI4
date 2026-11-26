@@ -29,7 +29,8 @@ $states = [
                     <tr><th>Match</th><th></th><th>Sets</th><th>Pts</th><th>Moy</th><th>PM</th></tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($sheet['matches'] as $no => $item): [$a, $b] = $item['players']; $t = $item['totals']; $st = $states[$item['status']] ?? $states[null]; ?>
+                    <?php foreach ($sheet['matches'] as $no => $item): [$a, $b] = $item['players']; $t = $item['totals'];
+                          $st = $item['absent'] ? ['fas fa-user-slash text-secondary', 'Forfait de ' . implode(' et ', array_map([P::class, 'letter'], $item['absent']))] : ($states[$item['status']] ?? $states[null]); ?>
                     <?php foreach ([$a, $b] as $i => $slot): ?>
                     <tr>
                         <td><?= $i === 0 ? $no . ' · ' . P::letter($a) . '/' . P::letter($b) : '' ?></td>

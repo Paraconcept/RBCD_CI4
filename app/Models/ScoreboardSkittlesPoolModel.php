@@ -8,6 +8,7 @@ use CodeIgniter\Model;
  * Soirée Poule 5 Quilles (tournoi régional, officiel) : trois joueurs A, B, C et trois matchs dans l'ordre du
  * calendrier officiel (B/C, C/A, A/B), à reprises inégales et en deux sets gagnants.
  * Points de match : victoire 2-0 = 3, victoire 2-1 = 2, défaite = 0. Point de set : 1 par set gagné.
+ * Forfait (déclaré match par match) : l'absent a 0 partout, le présent 2 points de match et aucun point de set.
  * Pas de classement : le récapitulatif garde l'ordre A, B, C (Total = points de match + points de set).
  */
 class ScoreboardSkittlesPoolModel extends Model
@@ -26,6 +27,9 @@ class ScoreboardSkittlesPoolModel extends Model
     public const PAIRS = [1 => [2, 3], 2 => [3, 1], 3 => [1, 2]];
 
     public const SETS_TO_WIN = 2;
+
+    /** Match gagné par forfait : points de match du joueur présent ; jamais de point de set (points « bonus »). */
+    public const FORFEIT_POINTS = 2;
 
     public const PLAYER_FIELDS = ['member_id', 'last_name', 'first_name', 'club', 'license'];
 
@@ -205,13 +209,27 @@ class ScoreboardSkittlesPoolModel extends Model
         $out = [];
         foreach (self::PAIRS as $no => [$a, $b]) {
             $m    = $matches[$no] ?? null;
-            $item = ['no' => $no, 'players' => [$a, $b], 'match' => $m, 'status' => $m->status ?? null, 'sets' => [1 => null, 2 => null, 3 => null], 'totals' => null];
+            $item = ['no' => $no, 'players' => [$a, $b], 'match' => $m, 'status' => $m->status ?? null, 'sets' => [1 => null, 2 => null, 3 => null],
+                     'totals' => null, 'absent' => []];
             if (!$m || $m->status === 'scheduled') {
                 $out[$no] = $item;
                 continue;
             }
             // Côté (1 ou 2) de chaque lettre dans le match
             $side = [(int) $m->p1_pool_slot => 1, (int) $m->p2_pool_slot => 2];
+
+            // Forfait : l'absent a 0 partout (il reste dans la poule), le présent reçoit les points de match du forfait
+            if ((int) $m->absent > 0) {
+                $item['absent'] = self::absentSlots($m);
+                foreach ([$a, $b] as $me) {
+                    $mp = in_array($me, $item['absent'], true) ? 0 : self::FORFEIT_POINTS;
+                    $item['totals'][$me] = ['points' => 0, 'sets' => 0, 'average' => self::average(0, 0), 'match_points' => $mp];
+                    $recap[$me]['match_points'] = ($recap[$me]['match_points'] ?? 0) + $mp;
+                    $recap[$me]['set_points']   = ($recap[$me]['set_points'] ?? 0);
+                }
+                $out[$no] = $item;
+                continue;
+            }
             $walk = ScoreboardMatchModel::walkInnings($m, $model->stateFor($m)['innings']);
             $pts  = [];
             foreach ($walk['rows'] as $r) {
@@ -255,6 +273,18 @@ class ScoreboardSkittlesPoolModel extends Model
         $finished = count(array_filter($out, static fn ($i) => $i['status'] === 'finished'));
 
         return ['matches' => $out, 'recap' => $recap, 'finished' => $finished, 'complete' => $finished === count(self::PAIRS)];
+    }
+
+    /** Lettres des joueurs absents d'un match déclaré forfait (absent : 1 = p1, 2 = p2, 3 = les deux). */
+    public static function absentSlots(object $m): array
+    {
+        $out = [];
+        foreach ([1, 2] as $n) {
+            if ((int) $m->absent & $n) {
+                $out[] = (int) $m->{'p' . $n . '_pool_slot'};
+            }
+        }
+        return $out;
     }
 
     /** Saison de la feuille : « 2026 - 2027 » (la saison commence en juillet). */

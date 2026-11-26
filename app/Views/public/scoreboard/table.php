@@ -119,7 +119,7 @@ fetch(<?= json_encode(base_url('marquoir/api/envois')) ?>, { method: 'POST', hea
             <div class="sb-encounter-match">
                 <i class="<?= $ok ? 'fas fa-circle-check text-success' : ($item['status'] === 'live' ? 'fas fa-play text-warning' : 'far fa-clock text-secondary') ?>"></i>
                 <span>Match <?= $no ?> · <?= \App\Models\ScoreboardSkittlesPoolModel::letter($a) ?>/<?= \App\Models\ScoreboardSkittlesPoolModel::letter($b) ?></span>
-                <small><?= $ok ? 'terminé' : ($item['status'] === 'live' ? 'en cours' : 'à jouer') ?></small>
+                <small><?= $item['absent'] ? 'forfait' : ($ok ? 'terminé' : ($item['status'] === 'live' ? 'en cours' : 'à jouer')) ?></small>
             </div>
             <?php endforeach; ?>
             <?php if ($rc['state'] === 'sent'): ?>

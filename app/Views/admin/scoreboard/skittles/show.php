@@ -51,9 +51,35 @@ $v = static fn ($x): string => $x === null ? '—' : esc((string) $x);
           <td class="text-center"><?= $t ? $t[$a]['points'] . ' – ' . $t[$b]['points'] : '—' ?></td>
           <td class="text-center"><?= $t ? $t[$a]['average'] . ' – ' . $t[$b]['average'] : '—' ?></td>
           <td class="text-center font-weight-bold"><?= $t && $t[$a]['match_points'] !== null ? $t[$a]['match_points'] . ' – ' . $t[$b]['match_points'] : '—' ?></td>
-          <td class="text-center"><?= $statusBadge($item['status']) ?></td>
+          <td class="text-center">
+            <?php if ($item['absent']): ?>
+              <span class="badge badge-dark"><i class="fas fa-user-slash mr-1"></i>Forfait <?= implode(' + ', array_map([P::class, 'letter'], $item['absent'])) ?></span>
+            <?php else: ?>
+              <?= $statusBadge($item['status']) ?>
+            <?php endif; ?>
+          </td>
           <td class="text-right text-nowrap">
-            <?php if ($m && $m->status !== 'scheduled'): ?>
+            <?php if ($m && $item['absent']): ?>
+              <form method="post" action="<?= base_url('admin/scoreboard/skittles/' . $pool->id . '/forfeit/' . $m->id . '/cancel') ?>" class="d-inline"
+                    onsubmit="return confirm('Annuler le forfait ? Le match redevient à jouer.')">
+                <?= csrf_field() ?>
+                <button class="btn btn-xs btn-secondary" title="Annuler le forfait"><i class="fas fa-undo mr-1"></i>Forfait</button>
+              </form>
+            <?php elseif ($m && $m->status === 'scheduled'): ?>
+              <div class="dropdown d-inline">
+                <button class="btn btn-xs btn-outline-danger dropdown-toggle" type="button" data-toggle="dropdown" title="Déclarer un forfait"><i class="fas fa-user-slash"></i></button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <?php foreach ([$a, $b] as $slot): ?>
+                  <form method="post" action="<?= base_url('admin/scoreboard/skittles/' . $pool->id . '/forfeit/' . $m->id) ?>"
+                        onsubmit="return confirm(<?= esc(json_encode('Forfait de ' . P::playerName($pool, $slot) . ' (joueur ' . P::letter($slot) . ") au match n°{$no} ?\n\nIl a 0 partout sur ce match ; son adversaire reçoit " . P::FORFEIT_POINTS . ' points de match et aucun point de set.', JSON_UNESCAPED_UNICODE), 'attr') ?>)">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="slot" value="<?= $slot ?>">
+                    <button class="dropdown-item">Forfait de <strong><?= P::letter($slot) ?></strong> — <?= esc(P::playerName($pool, $slot)) ?></button>
+                  </form>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            <?php elseif ($m && $m->status !== 'scheduled'): ?>
               <a href="<?= base_url('admin/scoreboard/' . $m->id) ?>" class="btn btn-xs btn-info" title="Détail des coups"><i class="fas fa-list-ol"></i></a>
               <form method="post" action="<?= base_url('admin/scoreboard/' . $m->id . '/reset') ?>" class="d-inline"
                     onsubmit="return confirm('Remettre ce match à zéro ? Tous les coups joués sont effacés<?= $signedAt ? ', ainsi que les signatures de la feuille récapitulative' : '' ?>.')">
@@ -129,7 +155,7 @@ $v = static fn ($x): string => $x === null ? '—' : esc((string) $x);
       <?php endforeach; ?>
       </tbody>
     </table>
-    <small class="text-muted">Pas de classement : ordre A, B, C. Total = points de match + points de set. Moyenne = points réalisés / points de l'adversaire, tronquée à 3 décimales.</small>
+    <small class="text-muted">Pas de classement : ordre A, B, C. Total = points de match + points de set. Forfait : l'absent a 0 partout, son adversaire <?= P::FORFEIT_POINTS ?> points de match sans point de set. Moyenne = points réalisés / points de l'adversaire, tronquée à 3 décimales.</small>
   </div>
 </div>
 

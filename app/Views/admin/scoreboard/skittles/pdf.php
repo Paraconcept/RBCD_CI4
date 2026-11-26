@@ -35,6 +35,7 @@ $sigs   = $signature ? ['a' => $signature->a_signature, 'b' => $signature->b_sig
   .grid { width: 100%; margin-top: 1.2mm; }
   .grid td { height: <?= $rowH ?>mm; padding: 0 1mm; vertical-align: middle; white-space: nowrap; }
   .grid tr.sizer td, .recap tr.sizer td { height: 0; padding: 0; border: none; }
+  .forfeit { color: #e00000; font-weight: bold; padding-left: 4mm !important; }
   .match-label { color: #e00000; font-weight: bold; font-style: italic; text-decoration: underline; }
   .pair { background: #fbd4b4; font-weight: bold; text-align: center; }
   .set-label { font-weight: bold; padding-left: 4mm !important; }
@@ -102,7 +103,7 @@ $sigs   = $signature ? ['a' => $signature->a_signature, 'b' => $signature->b_sig
   <tr>
     <td class="match-label">MATCH <?= $no ?> =</td>
     <td class="pair"><?= $letter($a) ?> / <?= $letter($b) ?></td>
-    <td colspan="8"></td>
+    <td colspan="8" class="forfeit"><?= $item['absent'] ? 'FORFAIT de ' . implode(' et ', array_map(static fn ($sl) => 'Joueur ' . $letter($sl), $item['absent'])) : '' ?></td>
     <td class="avg-head"><?= $no === 1 ? 'Moyennes' : '' ?></td>
   </tr>
   <?php for ($s = 1; $s <= 3; $s++): $set = $item['sets'][$s]; ?>
