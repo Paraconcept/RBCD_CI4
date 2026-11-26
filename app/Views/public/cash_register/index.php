@@ -82,7 +82,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
         <aside class="side ticket" id="sideTicket" hidden>
             <div class="row2">
                 <button class="btn primary" type="button" data-go="new">Créer un nouveau ticket</button>
-                <button class="btn" type="button" data-go="list" id="btnList">Tickets en cours <span class="cnt" data-count></span></button>
+                <button class="btn" type="button" data-go="list" id="btnList"><span class="l2">Tickets<br>en cours</span><span class="cnt" data-count></span></button>
             </div>
             <div class="tk" id="tk"></div>
             <div class="lbl"><span>Consommations</span><span id="count"></span></div>
@@ -99,7 +99,7 @@ $asset = static fn (string $path): string => base_url($path) . '?v=' . @filemtim
         <aside class="side new" id="sideNew" hidden>
             <div class="row2">
                 <button class="btn dark" type="button">Créer un nouveau ticket</button>
-                <button class="btn" type="button" data-go="list">Tickets en cours <span class="cnt" data-count></span></button>
+                <button class="btn" type="button" data-go="list"><span class="l2">Tickets<br>en cours</span><span class="cnt" data-count></span></button>
             </div>
             <div class="nlabel" id="newLabel"></div>
             <div class="namebox" id="nameBox"></div>
