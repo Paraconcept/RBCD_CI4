@@ -108,11 +108,6 @@ $sched  = $encounter->scheduled_at ?? null;
               </div>
             </div>
           </div>
-          <div class="form-group mb-0">
-            <label for="team_email">E-mail du club</label>
-            <input type="email" name="team_email" id="team_email" class="form-control" maxlength="150"
-                   value="<?= esc($val('team_email', $clubEmail)) ?>">
-          </div>
         </div>
       </div>
     </div>
@@ -137,12 +132,6 @@ $sched  = $encounter->scheduled_at ?? null;
                        placeholder="ex. 3" value="<?= esc($val('opponent_number')) ?>">
               </div>
             </div>
-          </div>
-          <div class="form-group mb-0">
-            <label for="opponent_email">E-mail du club</label>
-            <input type="email" name="opponent_email" id="opponent_email" class="form-control" maxlength="150"
-                   value="<?= esc($val('opponent_email')) ?>">
-            <small class="text-muted">Retrouvé automatiquement si ce club a déjà été encodé.</small>
           </div>
         </div>
       </div>
@@ -212,19 +201,78 @@ $sched  = $encounter->scheduled_at ?? null;
     </div>
   </div>
 
+  <?php
+  // Après une erreur de validation, une case décochée est absente de l'ancienne saisie : ne pas retomber sur la valeur par défaut
+  $hasOld  = session('_ci_old_input') !== null;
+  $checked = static fn (string $f, $current, $default = true) => ($hasOld ? old($f) : ($current ?? $default)) ? 'checked' : '';
+  $box = static fn (string $name, string $id, string $state, string $title) => '<div class="custom-control custom-checkbox" title="' . $title . '"><input type="checkbox" class="custom-control-input" name="' . $name . '" id="' . $id . '" value="1" ' . $state . '><label class="custom-control-label" for="' . $id . '"><span class="d-md-none">' . $title . '</span></label></div>';
+  ?>
   <div class="card card-outline card-primary">
     <div class="card-header">
-      <h3 class="card-title"><i class="fas fa-paper-plane mr-2"></i>Feuille récapitulative</h3>
+      <h3 class="card-title"><i class="fas fa-paper-plane mr-2"></i>Envoi des résultats</h3>
     </div>
     <div class="card-body">
-      <p class="text-muted small mb-3">Envoyée automatiquement, avec les feuilles de match, aux e-mails des deux clubs ci-dessus et au responsable CDR
-        dès que la rencontre est complète (signatures comprises, ou <?= \App\Libraries\MatchResultMailer::AUTO_DELAY ?> minutes après le dernier match).</p>
-      <div class="form-group">
-        <label class="mb-0">Responsable CDR</label>
-        <input type="text" class="form-control-plaintext py-0" readonly
-               value="<?= esc(trim($cdr->name . ' — ' . $cdr->email, ' —')) ?>">
-        <small class="text-muted">Défini dans <a href="<?= base_url('admin/scoreboard/settings') ?>">Marquoir › Paramètres</a> ; commun à toutes les rencontres.</small>
+      <p class="text-muted small mb-3">Envois automatiques : la <b>feuille de match</b> à la fin de chaque match, la <b>feuille récapitulative</b> (avec les feuilles de match)
+        dès que la rencontre est complète (signatures comprises, ou <?= \App\Libraries\MatchResultMailer::AUTO_DELAY ?> minutes après le dernier match).
+        L'adresse d'un joueur se remplit quand on le choisit ; vide, elle est recherchée au moment de l'envoi. Les joueurs sont en copie cachée.</p>
+      <div class="sb-send">
+        <div class="sb-send-head">Destinataire</div><div class="sb-send-head">Adresse e-mail</div>
+        <div class="sb-send-head text-center">Feuille de match</div><div class="sb-send-head text-center">Feuille récapitulative</div>
+
+        <div><b>Club visité</b> <span class="text-muted small" data-sb-club="home"></span></div>
+        <div><input type="email" name="team_email" id="team_email" class="form-control form-control-sm" maxlength="150" value="<?= esc($val('team_email', $clubEmail)) ?>"></div>
+        <div class="text-center text-muted">—</div>
+        <div class="d-flex justify-content-center"><?= $box('recap_to_team', 'recap_to_team', $checked('recap_to_team', $encounter->recap_to_team ?? null), 'Feuille récapitulative') ?></div>
+
+        <div><b>Club visiteur</b> <span class="text-muted small" data-sb-club="away"></span></div>
+        <div><input type="email" name="opponent_email" id="opponent_email" class="form-control form-control-sm" maxlength="150" value="<?= esc($val('opponent_email')) ?>"
+                    placeholder="retrouvé si le club est connu"></div>
+        <div class="text-center text-muted">—</div>
+        <div class="d-flex justify-content-center"><?= $box('recap_to_opponent', 'recap_to_opponent', $checked('recap_to_opponent', $encounter->recap_to_opponent ?? null), 'Feuille récapitulative') ?></div>
+
+        <div><b>Responsable CDR</b> <a href="<?= base_url('admin/scoreboard/settings') ?>" class="small ml-1" title="Adresse : Marquoir › Paramètres"><i class="fas fa-cog"></i></a></div>
+        <div class="small"><?= esc(trim($cdr->name . ' — ' . $cdr->email, ' —')) ?></div>
+        <div class="text-center text-muted small" title="Réglé dans chaque match (coché d'office en Coupe des Régions)">dans chaque match</div>
+        <div class="d-flex justify-content-center"><?= $box('recap_to_cdr', 'recap_to_cdr', $checked('recap_to_cdr', $encounter->recap_to_cdr ?? null), 'Feuille récapitulative') ?></div>
+
+        <?php for ($i = 1; $i <= 3; $i++): $row = $composition[$i] ?? ['home' => [], 'away' => []]; ?>
+        <?php foreach (['home' => 'Notre joueur', 'away' => 'Joueur visiteur'] as $side => $sideLabel): $pl = $row[$side] ?? []; $f = $side . '[' . $i . ']'; $o = $side . '.' . $i . '.'; ?>
+        <div class="sb-send-player" data-sb-send="<?= $side . $i ?>">Match <?= $i ?> · <?= $sideLabel ?><br><b data-sb-send-name><?= esc(trim(($pl['last_name'] ?? '') . ' ' . ($pl['first_name'] ?? ''))) ?></b></div>
+        <?php if (!empty($row['locked'])): ?>
+        <div class="small text-muted" data-sb-send="<?= $side . $i ?>"><?= esc($pl['email'] ?: 'adresse recherchée à l\'envoi') ?></div>
+        <div class="text-center" data-sb-send="<?= $side . $i ?>"><i class="fas <?= $pl['send_sheet'] ? 'fa-check text-success' : 'fa-times text-muted' ?>"></i></div>
+        <div class="text-center" data-sb-send="<?= $side . $i ?>"><i class="fas <?= $pl['send_recap'] ? 'fa-check text-success' : 'fa-times text-muted' ?>"></i></div>
+        <?php else: ?>
+        <div data-sb-send="<?= $side . $i ?>">
+          <div class="input-group input-group-sm">
+            <input type="email" name="<?= $f ?>[email]" class="form-control" maxlength="150" placeholder="recherchée à l'envoi si vide" data-sb-email
+                   value="<?= esc(old($o . 'email', $pl['email'] ?? '')) ?>">
+            <div class="input-group-append"><button type="button" class="btn btn-outline-secondary" data-sb-email-lookup title="Rechercher l'adresse (membre du club, joueur déjà encodé, site de la FRBB)"><i class="fas fa-search"></i></button></div>
+          </div>
+          <small class="text-muted" data-sb-email-source></small>
+        </div>
+        <div class="d-flex justify-content-center" data-sb-send="<?= $side . $i ?>"><?= $box($f . '[send_sheet]', 'sheet_' . $side . $i, $checked($o . 'send_sheet', $pl['send_sheet'] ?? null), 'Feuille de match') ?></div>
+        <div class="d-flex justify-content-center" data-sb-send="<?= $side . $i ?>"><?= $box($f . '[send_recap]', 'recap_' . $side . $i, $checked($o . 'send_recap', $pl['send_recap'] ?? null), 'Feuille récapitulative') ?></div>
+        <?php endif; ?>
+        <?php endforeach; ?>
+        <?php endfor; ?>
       </div>
+      <style>
+        .sb-send { display: grid; grid-template-columns: minmax(200px, 1.2fr) minmax(220px, 1.4fr) 120px 150px; gap: .45rem 1rem; align-items: center; }
+        .sb-send-head { font-weight: 600; font-size: .8rem; color: #6c757d; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #dee2e6; padding-bottom: .3rem; }
+        .sb-send-player { font-size: .8rem; color: #6c757d; line-height: 1.25; }
+        .sb-send-player b { color: #212529; font-size: .9rem; }
+        .sb-send [hidden] { display: none !important; }
+        @media (max-width: 767.98px) { .sb-send { grid-template-columns: 1fr 1fr; } .sb-send-head { display: none; } }
+      </style>
+    </div>
+  </div>
+
+  <div class="card card-outline card-primary">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-flag-checkered mr-2"></i>Clôture</h3>
+    </div>
+    <div class="card-body">
       <div class="form-group">
         <div class="custom-control custom-switch">
           <input type="checkbox" class="custom-control-input" name="recap_signature_required" id="recap_signature_required" value="1"
@@ -293,7 +341,39 @@ $sched  = $encounter->scheduled_at ?? null;
         field(box, 'absent').value = on ? '1' : '';
         box.classList.toggle('absent', on);
         box.querySelector('[data-sb-absent-note]').hidden = !on;
+        syncSend(box);
     };
+
+    // Card « Envoi des résultats » : ligne du joueur à jour (nom, masquée s'il est absent), adresse recherchée
+    const mailUrl = <?= json_encode(base_url('admin/scoreboard/players/email')) ?>;
+    const sendRows = (box) => document.querySelectorAll('[data-sb-send="' + box.dataset.side + box.dataset.pos + '"]');
+    const sendEmail = (box) => { const r = [...sendRows(box)].find((x) => x.querySelector('[data-sb-email]')); return r ? r.querySelector('[data-sb-email]') : null; };
+    function syncSend(box) {
+        const absent = !!field(box, 'absent').value, name = (field(box, 'last_name').value.toUpperCase() + ' ' + field(box, 'first_name').value).trim();
+        sendRows(box).forEach((r) => {
+            r.hidden = absent || !name;
+            const b = r.querySelector('[data-sb-send-name]');
+            if (b) b.textContent = name;
+        });
+    }
+    const lookupEmail = (box, force) => {
+        const input = sendEmail(box);
+        if (!input || (!force && input.dataset.typed === '1')) return;
+        const src = input.closest('[data-sb-send]').querySelector('[data-sb-email-source]');
+        const q = new URLSearchParams({ license: field(box, 'license').value.trim(), member_id: field(box, 'member_id').value,
+                                        last_name: field(box, 'last_name').value.trim(), first_name: field(box, 'first_name').value.trim() });
+        if (!q.get('license') && !q.get('member_id')) { if (force) src.textContent = 'licence nécessaire pour la recherche'; return; }
+        src.textContent = 'recherche…';
+        fetch(mailUrl + '?' + q, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then((r) => r.json()).then((d) => {
+            const other = d.fed_last && plain(d.fed_last) !== plain(field(box, 'last_name').value);
+            if (d.email && !(other && d.source === 'frbb')) { input.value = d.email; input.dataset.typed = ''; src.textContent = 'trouvée : ' + d.label; }
+            else { if (force || input.dataset.typed !== '1') input.value = ''; src.textContent = other ? 'licence d\'un autre joueur (' + d.fed_name + ') à la fédération' : 'aucune adresse trouvée'; }
+        }).catch(() => { src.textContent = ''; });
+    };
+    document.querySelectorAll('[data-sb-email]').forEach((input) => {
+        input.addEventListener('input', () => { input.dataset.typed = input.value.trim() ? '1' : ''; });
+        if (input.value) input.dataset.typed = '1';
+    });
     const label = (p) => p.last_name + ' ' + p.first_name + (p.category ? ' · ' + p.category : '') + (p.points !== null && p.points !== undefined ? ' (' + p.points + ')' : '');
 
     // Liste de la position : inscrits, réserves du club, autre joueur, absent ; sélection d'après ce qui est encodé
@@ -321,12 +401,15 @@ $sched  = $encounter->scheduled_at ?? null;
     const pick = (box, value) => {
         const pos = +box.dataset.pos;
         setAbsent(box, value === '__absent');
+        const clearMail = () => { const m = sendEmail(box); if (m) { m.value = ''; m.dataset.typed = ''; m.closest('[data-sb-send]').querySelector('[data-sb-email-source]').textContent = ''; } };
         if (value === '__absent' || value === '') {
             ['last_name', 'first_name', 'license', 'member_id', 'category_id', 'distance'].forEach((f) => { field(box, f).value = ''; });
+            clearMail(); syncSend(box);
             return;
         }
         if (value === '__other') {
             ['last_name', 'first_name', 'license', 'member_id', 'category_id'].forEach((f) => { field(box, f).value = ''; });
+            clearMail(); syncSend(box);
             field(box, 'last_name').focus();
             return;
         }
@@ -337,6 +420,10 @@ $sched  = $encounter->scheduled_at ?? null;
         field(box, 'member_id').value = p.member_id || '';
         field(box, 'category_id').value = p.category_id || '';
         field(box, 'distance').value = points(p.points, pos);
+        syncSend(box);
+        const mail = sendEmail(box);
+        if (mail) { mail.dataset.typed = ''; mail.value = ''; }
+        lookupEmail(box, false);
     };
 
     // Proposition : le joueur inscrit n° X à la position X (si la position est vide, ou toujours si force)
@@ -358,6 +445,11 @@ $sched  = $encounter->scheduled_at ?? null;
     });
 
     sides().forEach((box) => {
+        syncSend(box);
+        ['last_name', 'first_name'].forEach((f) => field(box, f).addEventListener('input', () => syncSend(box)));
+        field(box, 'license').addEventListener('change', () => lookupEmail(box, false));
+        const look = [...sendRows(box)].map((r) => r.querySelector('[data-sb-email-lookup]')).find(Boolean);
+        if (look) look.addEventListener('click', () => lookupEmail(box, true));
         box.querySelector('[data-sb-pick]').addEventListener('change', (ev) => pick(box, ev.target.value));
         field(box, 'last_name').addEventListener('input', () => {
             // Nom retouché à la main : ce n'est plus le joueur de la liste
@@ -445,6 +537,14 @@ $sched  = $encounter->scheduled_at ?? null;
         document.querySelectorAll('.sb-side[data-side="home"]').forEach((box) => { box.querySelector('[data-sb-pick]').value = ''; pick(box, ''); });
         load(false);
     });
+    const clubLabels = () => {
+        document.querySelector('[data-sb-club="home"]').textContent = ($('team_club').value + ' ' + ($('team_number').value || '')).trim().toUpperCase();
+        document.querySelector('[data-sb-club="away"]').textContent = ($('opponent_club').value + ' ' + ($('opponent_number').value || '')).trim().toUpperCase();
+    };
+    ['team_club', 'team_number', 'opponent_club', 'opponent_number'].forEach((id) => $(id).addEventListener('input', clubLabels));
+    encSel.addEventListener('change', clubLabels);
+    sel.addEventListener('change', clubLabels);
+    clubLabels();
     syncInfo();
     load(true);
 

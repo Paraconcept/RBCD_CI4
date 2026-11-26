@@ -62,11 +62,17 @@ class MatchResultMailer
         try {
             [$pdf, $filename] = MatchSheetPdf::render($match);
 
-            $email = \Config\Services::email();
+            $email = \Config\Services::email(null, false); // instance neuve : plusieurs envois peuvent se suivre dans la même requête
             // L'expéditeur doit rester le compte SMTP (send.one.com peut refuser un autre expéditeur) ; les réponses vont au DS.
             $email->setFrom(config('Email')->fromEmail, 'RBC Disonais');
             $email->setReplyTo(ScoreboardMatchModel::CLUB_DS_EMAIL, 'Directeur sportif — RBC Disonais');
-            $email->setTo($recipients);
+            // Joueurs en copie cachée : leurs adresses ne circulent pas entre eux
+            $players = array_values(array_intersect($recipients, self::playerEmails($match)));
+            $others  = array_values(array_diff($recipients, $players));
+            $email->setTo($others ?: [config('Email')->fromEmail]);
+            if ($players) {
+                $email->setBCC($players);
+            }
             $email->setSubject(($corrected ? 'Résultat corrigé — ' : 'Résultat — ') . self::subject($match));
             $email->setMessage(view('emails/match_result', [
                 'match'  => $match,
@@ -184,12 +190,12 @@ class MatchResultMailer
     }
 
     /** Adresses vides des joueurs cochés : recherchées (club, marquoir, fédération) et retenues sur le match. */
-    public static function withPlayerEmails(object $match): object
+    public static function withPlayerEmails(object $match, string $flag = 'send_to_'): object
     {
         $update = [];
         foreach ([1, 2] as $n) {
             $p = 'p' . $n;
-            if (empty($match->{'send_to_' . $p}) || ((int) $match->absent & $n) || trim((string) ($match->{$p . '_email'} ?? '')) !== '') {
+            if (empty($match->{$flag . $p}) || ((int) $match->absent & $n) || trim((string) ($match->{$p . '_email'} ?? '')) !== '') {
                 continue;
             }
             $found = PlayerEmailLookup::find($match->{$p . '_license'}, $match->{$p . '_member_id'} ? (int) $match->{$p . '_member_id'} : null,
@@ -202,6 +208,18 @@ class MatchResultMailer
             (new ScoreboardMatchModel())->update($match->id, $update);
         }
         return $match;
+    }
+
+    /** @return string[] adresses des joueurs cochés pour la feuille de match */
+    private static function playerEmails(object $match): array
+    {
+        $out = [];
+        foreach ([1, 2] as $n) {
+            if (!empty($match->{'send_to_p' . $n}) && ($e = strtolower(trim((string) ($match->{'p' . $n . '_email'} ?? ''))))) {
+                $out[] = $e;
+            }
+        }
+        return $out;
     }
 
     public static function autoSince(): string

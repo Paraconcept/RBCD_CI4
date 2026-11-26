@@ -23,7 +23,7 @@ class ScoreboardTeamEncounterModel extends Model
     protected $returnType = 'object';
 
     protected $allowedFields = [
-        'code', 'competition', 'team_id', 'team_name', 'team_club', 'team_number', 'team_email', 'opponent_club', 'opponent_number', 'opponent_email',
+        'code', 'competition', 'team_id', 'team_name', 'team_club', 'team_number', 'team_email', 'opponent_club', 'opponent_number', 'opponent_email', 'recap_to_team', 'recap_to_opponent', 'recap_to_cdr', 'recap_send_error',
         'scheduled_at', 'discipline', 'format', 'notes', 'recap_comment', 'recap_signature_required', 'recap_sent_at', 'recap_sent_to', 'created_by',
     ];
 

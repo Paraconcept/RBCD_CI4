@@ -57,7 +57,7 @@ class ScoreboardMatchModel extends Model
         'type', 'team_encounter_id', 'final_id', 'final_order', 'final_placement', 'status', 'table_id', 'scheduled_at', 'competition', 'match_number',
         'discipline', 'format', 'innings_limit', 'unequal_innings', 'sets_to_win', 'salad_figures', 'salad_state',
         'shot_clock_enabled', 'shot_clock_seconds', 'shot_clock_extensions', 'shot_clock_auto_start', 'signature_required',
-        'send_to_club_ds', 'club_ds_email', 'send_to_dsr', 'dsr_email', 'send_to_cdr', 'cdr_email', 'send_to_organizer_ds', 'organizer_ds_email', 'send_to_p1', 'p1_email', 'send_to_p2', 'p2_email', 'result_sent_at', 'result_sent_to', 'result_send_error',
+        'send_to_club_ds', 'club_ds_email', 'send_to_dsr', 'dsr_email', 'send_to_cdr', 'cdr_email', 'send_to_organizer_ds', 'organizer_ds_email', 'send_to_p1', 'p1_email', 'send_to_p2', 'p2_email', 'recap_to_p1', 'recap_to_p2', 'result_sent_at', 'result_sent_to', 'result_send_error',
         'p1_member_id', 'p1_final_player_id', 'p1_last_name', 'p1_first_name', 'p1_club', 'p1_license',
         'p1_category_id', 'p1_category', 'p1_average_min', 'p1_distance',
         'p1_points', 'p1_innings', 'p1_high_run', 'p1_sets', 'p1_extensions_used',

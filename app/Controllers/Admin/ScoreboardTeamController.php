@@ -244,20 +244,25 @@ class ScoreboardTeamController extends BaseController
         $members = [];
         foreach (db_connect()->table('members')->select('id, frbb_license')->where('frbb_license IS NOT NULL')->get()->getResult() as $m) {
             if ($k = FrbbMembersImport::licenseKey($m->frbb_license)) {
-                $members[$k] = (int) $m->id;
+                $members[$k] = ['id' => (int) $m->id, 'license' => $m->frbb_license];
             }
         }
         $player = static function (array $p, bool $home) use ($catIds, $members): array {
             $cat = $catIds[$p['category'] ?? ''] ?? null;
+            // Membre retrouvé par l'une de ses licences (club principal ailleurs, seconde licence chez nous) : on garde celle de sa fiche
+            $member = null;
+            foreach ($home ? array_merge([$p['licence'] ?? $p['license'] ?? ''], $p['licences'] ?? []) : [] as $lic) {
+                $member ??= $members[FrbbMembersImport::licenseKey($lic) ?? ''] ?? null;
+            }
             return [
-                'license'     => (string) ($p['licence'] ?? $p['license'] ?? ''),
+                'license'     => (string) ($member['license'] ?? $p['licence'] ?? $p['license'] ?? ''),
                 'last_name'   => mb_strtoupper((string) $p['last_name'], 'UTF-8'),
                 'first_name'  => (string) $p['first_name'],
                 'category'    => $p['category'] ?? null,
                 'category_id' => $cat['id'] ?? null,
                 'points'      => $p['points'] ?? ($cat['points'] ?? null),
                 'registered'  => $p['registered'] ?? null,
-                'member_id'   => $home ? ($members[FrbbMembersImport::licenseKey($p['licence'] ?? $p['license'] ?? '') ?? ''] ?? null) : null,
+                'member_id'   => $member['id'] ?? null,
             ];
         };
 
@@ -315,6 +320,8 @@ class ScoreboardTeamController extends BaseController
                 'license' => (string) $m->{'p' . $n . '_license'}, 'member_id' => $m->{'p' . $n . '_member_id'},
                 'category_id' => $m->{'p' . $n . '_category_id'}, 'distance' => (int) $m->{'p' . $n . '_distance'},
                 'absent' => (bool) ((int) $m->absent & $n),
+                'email' => (string) $m->{'p' . $n . '_email'},
+                'send_sheet' => (bool) $m->{'send_to_p' . $n}, 'send_recap' => (bool) $m->{'recap_to_p' . $n},
             ];
             $rows[$i + 1] = [
                 'match_id' => (int) $m->id,
@@ -370,6 +377,16 @@ class ScoreboardTeamController extends BaseController
             }
 
             [$data, $errs] = ScoreboardMatchModel::dataFromInput($in);
+            // Envoi : feuille de match et feuille récapitulative, adresse vide = recherchée à l'envoi
+            foreach ($sides as $p => $side) {
+                $address = mb_strtolower(trim((string) ($side['email'] ?? '')));
+                if ($address !== '' && !filter_var($address, FILTER_VALIDATE_EMAIL)) {
+                    $errs[] = "L'adresse e-mail du joueur " . ($p === 'p1' ? '1' : '2') . ' est invalide.';
+                }
+                $data[$p . '_email']   = $address !== '' ? mb_substr($address, 0, 150) : null;
+                $data['send_to_' . $p] = !empty($side['send_sheet']) ? 1 : 0;
+                $data['recap_to_' . $p] = !empty($side['send_recap']) ? 1 : 0;
+            }
             foreach ($errs as $err) {
                 $errors[] = 'Match ' . $i . ' : ' . str_replace(['du joueur 1', 'du joueur 2', 'joueur 1', 'joueur 2'], ['de notre joueur', 'du joueur visiteur', 'notre joueur', 'joueur visiteur'], $err);
             }
@@ -391,7 +408,7 @@ class ScoreboardTeamController extends BaseController
             $match = $row['match'];
             if ($match) {
                 // Les réglages du match (limite, chrono, destinataires) restent ceux du match
-                $data = array_filter($data, static fn ($k) => preg_match('/^(p[12]_|absent$|table_id$|scheduled_at$)/', $k), ARRAY_FILTER_USE_KEY);
+                $data = array_filter($data, static fn ($k) => preg_match('/^(p[12]_|absent$|table_id$|scheduled_at$|send_to_p[12]$|recap_to_p[12]$)/', $k), ARRAY_FILTER_USE_KEY);
                 if ($data['absent']) {
                     $data += ScoreboardMatchModel::forfeitData($data['absent'], $data['scheduled_at']);
                 } elseif ((int) $match->absent > 0) {
@@ -402,7 +419,7 @@ class ScoreboardTeamController extends BaseController
                 $data += [
                     'type' => 'official', 'status' => 'scheduled', 'team_encounter_id' => $encounterId, 'signature_required' => 0,
                     'send_to_club_ds' => 1, 'send_to_cdr' => ScoreboardMatchModel::isCdr(null, $encounter->competition) ? 1 : 0,
-                    'send_to_p1' => 1, 'send_to_p2' => 1, 'created_by' => session()->get('member_id'),
+                    'created_by' => session()->get('member_id'),
                 ];
                 if ($data['absent']) {
                     $data = array_merge($data, ScoreboardMatchModel::forfeitData($data['absent'], $data['scheduled_at']));
@@ -486,6 +503,9 @@ class ScoreboardTeamController extends BaseController
             'format'        => $team->format ?? 'PB',
             'notes'         => $notes !== '' ? $notes : null,
             'recap_signature_required' => !empty($post['recap_signature_required']) ? 1 : 0,
+            'recap_to_team'     => !empty($post['recap_to_team']) ? 1 : 0,
+            'recap_to_opponent' => !empty($post['recap_to_opponent']) ? 1 : 0,
+            'recap_to_cdr'      => !empty($post['recap_to_cdr']) ? 1 : 0,
         ], $errors];
     }
 
