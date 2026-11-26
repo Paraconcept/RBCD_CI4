@@ -5,7 +5,7 @@ const { CHROME } = require('../lib.cjs');
 const { execSync } = require('child_process');
 const wait = (ms) => new Promise(r => setTimeout(r, ms));
 (async () => {
-  const [dir] = process.argv.slice(2);
+  const [dir, ...only] = process.argv.slice(2);
   const b = await puppeteer.launch({ executablePath: CHROME, headless: true });
   const p = await b.newPage();
   const SCALE = 1.5, SIDEBAR = 250, HEADER = 57;
@@ -27,6 +27,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
     if (o.dropdown) { const d = document.querySelector(o.dropdown); if (d) { d.classList.add('show'); d.parentElement.classList.add('show'); } }
   }, o);
   const shot = async (name, opts = {}) => {
+    if (only.length && !only.includes(opts.out || name)) return;
     const url = `file://${dir}/pages/${name}.html`;
     await p.setViewport({ width: 1440, height: 900, deviceScaleFactor: SCALE });
     await p.goto(url, { waitUntil: 'networkidle0' });
@@ -46,6 +47,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
   };
   // Une seule card d'une page (ex. « Envoi des résultats »), sans le reste du formulaire
   const shotCard = async (name, title, out) => {
+    if (only.length && !only.includes(out)) return;
     await p.setViewport({ width: 1440, height: 2400, deviceScaleFactor: SCALE });
     await p.goto(`file://${dir}/pages/${name}.html`, { waitUntil: 'networkidle0' });
     await prepare({});
@@ -71,6 +73,8 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
   await shot('finals_index');
   await shot('final_form');
   await shot('final_show');
+  await shot('skittles_form');
+  await shot('skittles_show', { dropdown: 'td .dropdown-menu' });
   await shot('players');
   await b.close();
 })();

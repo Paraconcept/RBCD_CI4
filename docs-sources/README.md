@@ -41,10 +41,12 @@ Les identifiants MySQL sont lus dans le `.env` du projet et la clé d'accès au 
   - `node mode-emploi/shots5.cjs mode-emploi/img` refait la capture du formulaire par sets (15), avec des points par set différents pour chaque joueur. Rien n'est enregistré.
   - `node mode-emploi/shots6.cjs mode-emploi/img` refait la capture de fin de set (17) et l'écran « Pause » (19) : parties amicales sur le billard 2, jouées au clavier puis effacées.
   - `node mode-emploi/shots4.cjs mode-emploi/img` refait les captures des signatures : fin de partie et signature de la feuille de match (26, 27), rencontre d'équipe du jour et clôture par les capitaines (28, 29). Données de démonstration sur les billards 2 et 3, effacées à la fin. Après un premier ajout d'image, créez son JPEG dans `public/assets/images/marquoirs-howto/` (`build.sh` ne met à jour que les JPEG existants).
+  - `node mode-emploi/shots9.cjs mode-emploi/img` refait la Soirée Poule 5 Quilles : page du billard avec la poule (41, rencontres programmées et dernières parties masquées) et clôture avec les signatures des joueurs A, B, C (42). Poule de démonstration « Série 2 (DÉMO) » sur le billard 2, sans destinataire (aucun e-mail possible), effacée à la fin.
   - `node mode-emploi/web.cjs <url de la page How To> build` vérifie la page web : images cassées et débordement sur mobile.
 - **Guide DS** :
   1. `php guide-ds/render.php`, lancé depuis la racine du projet, crée des rencontres, une rencontre d'équipe et une finale de démonstration, enregistre les pages admin dans `guide-ds/pages/`, puis efface tout.
-  2. `node guide-ds/shoot.cjs "$PWD/guide-ds"` fait les captures dans `guide-ds/img/`.
+  2. `node guide-ds/shoot.cjs "$PWD/guide-ds"` fait les captures dans `guide-ds/img/` (ajoutez des noms de captures pour ne refaire que celles-là, ex. `skittles_form skittles_show`).
+  3. Feuille récapitulative des poules 5 quilles : `qlmanage -t -s 1800 -o /tmp guide-ds/pages/skittles.pdf`, puis copiez l'image en `guide-ds/img/skittles_pdf.png`.
 
 Après de nouvelles captures, relancez `./build.sh`.
 - **Caisse du bar** : `node caisse/shots.cjs caisse/img` refait toutes les captures (écrans de la caisse au format tablette, récapitulatif, pages admin), sauf l'écran rouge de coupure Internet, refait par `node caisse/offline.cjs caisse/img`. Le script refuse de tourner si un service est ouvert dans la base locale ; il crée un service de démonstration avec des clients fictifs et deux appels de billards, remplace les vrais noms (barman, membres) par des noms fictifs, puis efface tout. La feuille de style `caisse/style.css` reprend celle du guide DS.

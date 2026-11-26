@@ -134,6 +134,7 @@
       <a href="#trois">Partie à 3</a>
       <a href="#cinq-quilles">5 quilles</a>
       <a href="#salade">Salade</a>
+      <a href="#poule-5-quilles">Poule 5 quilles</a>
       <a href="#direct">En direct</a>
     </nav>
 
@@ -625,6 +626,32 @@
           <div class="col-md-6">
             <div class="mh-note"><b>Figure terminée</b> — une figure dont toutes les billes sont turquoise est refusée (message à l'écran). Quand toutes ses figures sont terminées, la reprise du joueur s'arrête toute seule.</div>
             <div class="mh-note green"><b>Fin de partie</b> — le premier qui termine toutes ses figures gagne. Sans « Reprises inégales », l'adversaire joue encore une <b>reprise d'égalisation</b> (match nul possible). <kbd>+</kbd> rejoue la même partie.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Soirée Poule 5 Quilles -->
+    <div class="mh-section" id="poule-5-quilles">
+      <div class="mh-head"><div class="num"><i class="fas fa-trophy"></i></div><div><h3>Soirée Poule 5 Quilles</h3><p>Tournoi régional (officiel) : trois joueurs A, B, C et une feuille récapitulative</p></div></div>
+      <div class="mh-body">
+        <div class="row g-4 mb-3">
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('41_billard_poule') ?>" alt="Soirée Poule 5 Quilles sur la page du billard"><div class="mh-caption">Sur le billard de la poule : les matchs à démarrer et l'avancement de la soirée.</div></div>
+          <div class="col-md-6"><img class="mh-shot" src="<?= $img('42_cloture_poule') ?>" alt="Clôture de la poule"><div class="mh-caption">Le récapitulatif, le commentaire et la signature des trois joueurs.</div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <ol class="mh-steps">
+              <li>Les 3 matchs encodés par le DS apparaissent dans « Rencontres du jour », dans l'<b>ordre officiel</b> : 1 = <b>B contre C</b>, 2 = <b>C contre A</b>, 3 = <b>A contre B</b>. <b>Démarrer</b> comme d'habitude.</li>
+              <li>Chaque match se joue en <b>2 sets gagnants</b>, à reprises inégales, coup par coup (voir <a href="#cinq-quilles">5 quilles</a>).</li>
+              <li>Après le 3<sup>e</sup> match : « <b>Clôturer la poule</b> » sur la page du billard ; ajoutez un <b>commentaire</b> si nécessaire.</li>
+              <li>Chaque <b>joueur</b> (A, B, C) touche son bouton et signe, puis « <b>Enregistrer les signatures</b> ». « <b>Feuille récapitulative PDF</b> » l'ouvre pour l'imprimer.</li>
+            </ol>
+          </div>
+          <div class="col-md-6">
+            <div class="mh-note"><b>Points de match</b> : victoire 2-0 = 3, victoire 2-1 = 2, défaite = 0 ; <b>1 point de set</b> par set gagné ; <b>Total</b> = points de match + points de set. <b>Moyenne</b> = points réalisés ÷ points de l'adversaire (fautes comprises), 3 décimales sans arrondi.</div>
+            <div class="mh-note green"><b>Envoi automatique</b> de la seule feuille récapitulative, au responsable régional 5 quilles et au DS du club. Pas de feuille de match ni de signature après chaque match.</div>
+            <div class="mh-note orange"><b>Définitif</b> une fois signée. <b>Joueur absent</b> : le DS déclare le forfait (0 partout pour l'absent, 2 points de match pour son adversaire).</div>
           </div>
         </div>
       </div>

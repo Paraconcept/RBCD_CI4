@@ -151,6 +151,23 @@ try {
     file_put_contents($out . 'final_championship.pdf', $fc->pdf($final->id)->getBody());
     $fm->update($final->id, ['kind' => 'cup', 'name' => "Finale Coupe de l'Échevine des Sports"]);
     file_put_contents($out . 'final_cup.pdf', $fc->pdf($final->id)->getBody());
+    // Soirée Poule 5 Quilles : formulaire avant le début, page de suivi après 2 matchs (forfait au menu du 3e), feuille récapitulative signée
+    $pm = new \App\Models\ScoreboardSkittlesPoolModel();
+    $ids['pool'] = $poolId = $pm->insert(['name' => 'Série 2', 'scheduled_at' => "$today 19:30:00", 'table_id' => 2, 'billiard' => '284', 'set_points' => 60,
+        'a_last_name' => 'DUPONT', 'a_first_name' => 'Jean', 'a_club' => 'RBC DISONAIS', 'b_last_name' => 'LAMBERT', 'b_first_name' => 'Marc', 'b_club' => 'B.C. HERVE',
+        'c_last_name' => 'SIMON', 'c_first_name' => 'Éric', 'c_club' => 'B.C. EUPEN', 'signature_required' => 1, 'send_to_regional' => 1, 'send_to_club_ds' => 1]);
+    $pm->generateMatches($pm->find($poolId));
+    $kc = $ctl(\App\Controllers\Admin\ScoreboardSkittlesController::class);
+    $save('skittles_form', $kc->edit($poolId));
+    $skittlesPlays = [1 => [20, 10, 20, 12, 20, 10, 20, 15, 21, -4, 0, 16, 15], 2 => [30, 16, 30, 20, 30, 40, 0, 16, 60], 3 => [60, 50, 10, -2, 0, 10, 60]];
+    $playSkittles = function (int $no) use ($pm, $poolId, $play, $skittlesPlays) { $play((int) $pm->getMatches($poolId)[$no]->id, $skittlesPlays[$no]); };
+    $playSkittles(1); $playSkittles(2);
+    $save('skittles_index', $kc->index());
+    $save('skittles_show', $kc->show($poolId));
+    $playSkittles(3);
+    $db->table('scoreboard_skittles_signatures')->insert(['pool_id' => $poolId, 'a_signature' => $sig(0.2), 'b_signature' => $sig(0.6), 'c_signature' => $sig(1.0), 'signed_at' => M::now()]);
+    file_put_contents($out . 'skittles.pdf', $kc->pdf($poolId)->getBody());
+
     // Appareils autorisés de démonstration pour la capture des paramètres
     $ds = $db->query("select member_id from admin_user_roles where role='Directeur Sportif' limit 1")->getRow();
     foreach (['Billard 1', 'Billard 2', 'Billard 3', 'Tablette du bar'] as $i => $name) {
@@ -164,6 +181,7 @@ try {
 } finally {
     if (!empty($ids['devices'])) $db->table('scoreboard_devices')->whereIn('id', $ids['devices'])->delete();
     if ($ids['final']) $fm->delete($ids['final']);
+    if (!empty($ids['pool'])) (new \App\Models\ScoreboardSkittlesPoolModel())->delete($ids['pool']);
     if ($ids['te']) { $db->table('scoreboard_matches')->where('team_encounter_id', $ids['te'])->delete(); $te->delete($ids['te']); }
     if ($ids['matches']) $db->table('scoreboard_matches')->whereIn('id', $ids['matches'])->delete();
     $db->table('scoreboard_players')->where('id >', $maxPlayer)->delete();
